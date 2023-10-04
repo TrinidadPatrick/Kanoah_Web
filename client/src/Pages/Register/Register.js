@@ -9,13 +9,22 @@ import { useState } from 'react';
 import { DateData } from './RegisterComponents/MMDDYY/Date';
 import { Link } from 'react-router-dom';
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
+// import nodemailer from 'nodemailer'
+
 
 
 
 const Register = () => {
+  const navigate = useNavigate()
+  // const nodemailer = nodemailer()
   const [isValidUsername, setIsValidUsername] = useState(undefined)
   const [isValidEmail, setIsValidEmail] = useState(undefined)
   const [isValidPassword, setIsValidPassword] = useState(undefined)
+  const [isValidFirstname, setIsValidFirstname] = useState(undefined)
+  const [isValidLastname, setIsValidLastname] = useState(undefined)
+  const [isValidContact, setIsValidContact] = useState(undefined)
+  const [emailValidationCode, setEmailValidationCode] = useState(undefined)
   const [registerPage, setRegisterPage] = useState(1)
   const [acceptedTNC, setAcceptedTNC] = useState(false)
   // const [allFieldsComplete, setAllFieldsComplete] = useState(false)
@@ -54,16 +63,17 @@ const Register = () => {
       setIsValidUsername(false)
     }if (username.length > 5){
       setIsValidUsername(true)
-    }if(email === ""){
+    }if(email == ""){
       setIsValidEmail(false)
     }if(email != ""){
       setIsValidEmail(true)
     }if(password.length < 8){
       setIsValidPassword(false)
-    }if(password.length > 8){
+    }if(password.length >= 8){
       setIsValidPassword(true)
-    }if(username.length > 5 && email != "" && password.length > 8){
+    }if(username.length >= 5 && email != "" && password.length > 8){
       setRegisterPage(2)
+
     }
     
     
@@ -78,27 +88,58 @@ const Register = () => {
     }
   }
 
-
+  // Verify email by sending otp
+  const verifyEmail = async () => {
+    const {email, username} = userInfos
+    await axios.post("http://localhost:5000/api/verifyEmail", {email : email}).then((res)=>{
+      
+    }).catch((err)=>{
+      console.log(err)  
+    })
+  }
 
   // Signup User
   const signup = async () => {
-    // verifyInput((message)=>{
-    //   console.log(message)
-    // })
-    // const {username, email, password, firstname, lastname, contact, birthDates} = userInfos
-    // await axios.post("http://localhost:5000/api/register", {username, email, password, firstname, lastname, contact, birthDates}).then((res)=>{
-    //   console.log(res.data)
-    // }).catch((err)=>{
-    //   console.log(err)  
-    // })
+    
+    const {username, email, password, firstname, lastname, contact, birthDate} = userInfos
+    if(firstname == ""){
+      setIsValidFirstname(false)
+    }
+    if(firstname != ""){
+      setIsValidFirstname(true)
+    }
+    if(lastname == ""){
+      setIsValidLastname(false)
+    }
+    if(lastname != ""){
+      setIsValidLastname(true)
+    }
+    if(contact == ""){
+      setIsValidContact(false)
+    }
+    if(contact != ""){
+      setIsValidContact(true)
+    }if(firstname != "" && lastname != "" & contact != ""){
+      await axios.post("http://localhost:5000/api/register", {username, email, password, firstname, lastname, contact, birthDate}).then((res)=>{
+      localStorage.setItem("username", username)
+      console.log(res.data)
+      verifyEmail()
+      navigate('/verify')
+    }).catch((err)=>{
+      console.log(err)  
+    })
+    }
+ 
   }
+
+ 
 
   // So that whenever birthdate is updated so is the userinfo
   useEffect(()=>{
     setUserInfo({...userInfos, birthDate : birthDate})
   },[birthDate])
 
-  // console.log(userInfos)
+  
   return (
     registerPage == 1 ? (
     <div className='register_container rounded-md h-fit py-6 w-10/12 xs:w-11/12 md:w-1/2 lg:w-2/5 xl:w-3/12 bg-white'>
@@ -137,13 +178,6 @@ const Register = () => {
     <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidPassword == false ? "block" : "hidden"}`}>Please enter atleast 9 characters</p>
     </div>
 
-    {/* code Field */}
-    <div className='username_container w-full sm:w-4/6  relative bg-red-300  '>
-    <LockOutlinedIcon className='absolute w-6 h-6 top-2 left-2 text-gray-500'/>
-    <input type="text" placeholder='Enter code' className=' border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2' />
-    <button  className='bg-blue-400 text-white px-3 absolute top-2 rounded-sm right-2'>Get</button>
-    </div>
-
     <div>
     <button onClick={()=>{next()}} className='w-full text-white py-1 rounded-sm bg-themeBlue'>Next</button>
     <p className='text-xs text-center text-gray-500 mt-2'>Already have an account? <span className='text-blue-600'>Login now</span></p>
@@ -175,22 +209,25 @@ const Register = () => {
     <div className='fn_ln_container flex space-x-3'>
     {/* Firstname Field */}
     <div className='firstname_container   relative  '>
-    <AccountCircleOutlinedIcon className='absolute w-6 h-6 top-2 left-2 text-gray-500'/>
-    <input onChange={(e)=>handleChange(e)} type="text" placeholder='Firstname' name='firstname' className=' border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2' />
+    <AccountCircleOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidFirstname == false ? "text-red-500" : ""}`}/>
+    <input onChange={(e)=>handleChange(e)} type="text" placeholder='Firstname' name='firstname' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidFirstname == false ? " border-b-red-500" : ""}`} />
+    <p className={`text-xs text-start absolute text-red-500 ${isValidFirstname == false ? "block" : "hidden"}`}>Firstname is required</p>
     </div>
 
     {/* Lastname Field */}
     <div className='lastname_container relative  '>
-    <AccountCircleOutlinedIcon className='absolute w-6 h-6 top-2 left-2 text-gray-500'/>
-    <input onChange={(e)=>handleChange(e)} type="text" placeholder='Lastname' name='lastname' className=' border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2' />
+    <AccountCircleOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidLastname == false ? "text-red-500" : ""}`}/>
+    <input onChange={(e)=>handleChange(e)} type="text" placeholder='Lastname' name='lastname' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidLastname == false ? "border-b-red-500" : ""}`} />
+    <p className={`text-xs text-start absolute text-red-500 ${isValidLastname == false ? "block" : "hidden"}`}>Lastname is required</p>
     </div>
     </div>
 
     {/* Contact Field */}
     <div className='contact_container w-full flex items-center  relative  '>
-    <CallOutlinedIcon className='absolute w-6 h-6 top-2 left-2 text-gray-500'/>
-    <div className='absolute left-11 flex text-gray-400'>+63 <div className=' border-e-2 border-e-gray  w-2 flex items-start justify-start'></div></div>
-    <input onChange={(e)=>handleChange(e)} type="text" placeholder=' ' name='contact' className=' border-b-1 border-gray outline-none w-full mx-auto pl-[5.5rem] py-2' />
+    <CallOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidContact == false ? "text-red-500" : ""}`}/>
+    <div className='absolute left-11 flex text-gray-600'>+63 <div className='bg-gray-600 ml-3 w-0.2 flex items-start justify-start'></div></div>
+    <input onChange={(e)=>handleChange(e)} type="text" placeholder=' ' name='contact' className={`border-b-1 border-gray outline-none w-full mx-auto pl-24 py-2 ${isValidLastname == false ? "border-b-red-500" : ""}`} />
+    <p className={`text-xs text-start absolute text-red-500 -bottom-4 ${isValidContact == false ? "block" : "hidden"}`}>Contact is required</p>
     </div>
 
     {/* birth Field */}

@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     },
     password : {
         type : String,
-        required : true,
+        required : true
         
     },
     firstname : {
@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
         type : Object,
         required : true,
         
+    },
+    verified : {
+        type : String,
+        default : false
     }
 })
 
