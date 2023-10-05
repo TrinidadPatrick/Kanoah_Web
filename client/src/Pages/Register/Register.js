@@ -123,10 +123,15 @@ const Register = () => {
       setIsValidContact(true)
     }if(firstname != "" && lastname != "" & contact != ""){
       await axios.post("http://localhost:5000/api/register", {username, email, password, firstname, lastname, contact, birthDate}).then((res)=>{
-      localStorage.setItem("token", res.data.userToken)
+      if(res.data.status == 'registered'){
+        localStorage.setItem("token", res.data.userToken)
       console.log(res.data)
       verifyEmail()
       navigate('/verify')
+      }else {
+        console.log(res.data.message)
+      }
+      
     }).catch((err)=>{
       console.log(err)  
     })
