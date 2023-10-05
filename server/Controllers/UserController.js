@@ -186,8 +186,9 @@ module.exports.submitOtpForNewPassword = async (req,res)=>{
 module.exports.newPassword = async (req,res) => {
     const password = req.body.password
     const email = req.body.email
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-    const updatePassword = await user.findOneAndUpdate({email : email}, {password : password})
+    const updatePassword = await user.findOneAndUpdate({email : email}, {password : hashedPassword})
     if(updatePassword){
         res.json({status : "updated"})
     }else {
