@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import logo from '../Register/RegisterComponents/img/Logo.png'
-import {FaUserLarge, FaUserPlus, FaCircleUser} from 'react-icons/fa6'
+import {FaUserLarge, FaUserPlus, FaCircleUser, FaArrowTrendUp} from 'react-icons/fa6'
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -10,6 +10,8 @@ import { DateData } from './RegisterComponents/MMDDYY/Date';
 import { Link } from 'react-router-dom';
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
+import RemoveRedEyeRoundedIcon from '@mui/icons-material/RemoveRedEyeRounded';
+import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 // import nodemailer from 'nodemailer'
 
 
@@ -27,6 +29,7 @@ const Register = () => {
   const [emailValidationCode, setEmailValidationCode] = useState(undefined)
   const [registerPage, setRegisterPage] = useState(1)
   const [acceptedTNC, setAcceptedTNC] = useState(false)
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   // const [allFieldsComplete, setAllFieldsComplete] = useState(false)
   const [birthDate, setBirthDate] = useState({
     month : "January",
@@ -99,8 +102,7 @@ const Register = () => {
   }
 
   // Signup User
-  const signup = async () => {
-    
+  const signup = async () => { 
     const {username, email, password, firstname, lastname, contact, birthDate} = userInfos
     if(firstname == ""){
       setIsValidFirstname(false)
@@ -121,7 +123,7 @@ const Register = () => {
       setIsValidContact(true)
     }if(firstname != "" && lastname != "" & contact != ""){
       await axios.post("http://localhost:5000/api/register", {username, email, password, firstname, lastname, contact, birthDate}).then((res)=>{
-      localStorage.setItem("username", username)
+      localStorage.setItem("token", res.data.userToken)
       console.log(res.data)
       verifyEmail()
       navigate('/verify')
@@ -131,7 +133,6 @@ const Register = () => {
     }
  
   }
-
  
 
   // So that whenever birthdate is updated so is the userinfo
@@ -140,6 +141,18 @@ const Register = () => {
   },[birthDate])
 
   
+  // Toggle Password Visibility
+  const togglePassword = () => {
+    const passwordField = document.getElementById('password')
+    if(passwordField.type == "password"){
+      passwordField.setAttribute("type", "text")
+      setIsPasswordVisible(FaArrowTrendUp)
+    }else if(passwordField.type == "text"){
+      passwordField.setAttribute("type", "password")
+      setIsPasswordVisible(false)
+    }
+  }
+
   return (
     registerPage == 1 ? (
     <div className='register_container rounded-md h-fit py-6 w-10/12 xs:w-11/12 md:w-1/2 lg:w-2/5 xl:w-3/12 bg-white'>
@@ -159,7 +172,7 @@ const Register = () => {
 
     {/* Username Field */}
     <div className={`username_container w-full  relative`}>
-    <AccountCircleOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidUsername == false ? "text-red-500" : ""}`}/>
+    <AccountCircleOutlinedIcon className={`absolute w-10 h-6 top-2 left-2 text-gray-500 ${isValidUsername == false ? "text-red-500" : ""}`}/>
     <input onChange={(e)=>{handleChange(e)}} type="text" placeholder='Enter username' name='username' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidUsername == false ? "text-red-500 border-b-red-500" : ""}`} />
     <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidUsername == false ? "block" : "hidden"}`}>Please enter atleast 5 characters</p>
     </div>
@@ -174,17 +187,24 @@ const Register = () => {
     {/* Password Field */}
     <div className='password_container w-full  relative  '>
     <LockOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidPassword == false ? "text-red-500" : ""}`}/>
-    <input onChange={(e)=>handleChange(e)} type="password" placeholder='Create a password' name='password' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidPassword == false ? "text-red-500 border-b-red-500" : ""}`} />
+    <input onKeyDown={(e)=>{if(e.key == "Enter"){next()}}} onChange={(e)=>handleChange(e)} id="password" type="password" placeholder='Create a password' name='password' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidPassword == false ? "text-red-500 border-b-red-500" : ""}`} />
+    {
+      isPasswordVisible == false 
+      ?
+      <RemoveRedEyeRoundedIcon onClick={()=>{togglePassword()}} className='absolute text-md text-gray-500 right-2 top-2' />
+      :
+      <VisibilityOffRoundedIcon onClick={()=>{togglePassword()}} className='absolute text-md text-gray-500 right-2 top-2' />
+    }
+    
+    
     <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidPassword == false ? "block" : "hidden"}`}>Please enter atleast 9 characters</p>
     </div>
 
     <div>
-    <button onClick={()=>{next()}} className='w-full text-white py-1 rounded-sm bg-themeBlue'>Next</button>
-    <p className='text-xs text-center text-gray-500 mt-2'>Already have an account? <span className='text-blue-600'>Login now</span></p>
+    <button onClick={()=>{next()}} className='w-full text-white py-1 rounded-sm bg-themeBlue mt-2'>Next</button>
+    <p className='text-xs text-center text-gray-500 mt-2'>Already have an account? <Link to="/login" className='text-blue-600'>Login now</Link></p>
     </div>
-    
-    </div>
-            
+    </div>       
     </div>
     )
 
@@ -275,7 +295,7 @@ const Register = () => {
       :
       <button disabled onClick={()=>{signup()}} className='w-full text-white py-1 rounded-sm bg-themeBlue disabled:bg-slate-600'>Signup</button>
     }   
-    <p className='text-xs text-center text-gray-500 mt-2'>Already have an account? <span className='text-blue-600'>Login now</span></p>
+    <p className='text-xs text-center text-gray-500 mt-2'>Already have an account? <Link to="/login" className='text-blue-600'>Login now</Link></p>
     </div>
     
     </div>

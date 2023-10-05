@@ -1,17 +1,33 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import axios from 'axios'
 import { useState } from 'react'
 import DoneAllRoundedIcon from '@mui/icons-material/DoneAllRounded';
 import verified from './img/Verified.png'
+import  jwtDecode  from "jwt-decode";
+import { useNavigate } from 'react-router-dom';
 
 const VerifyEmail = () => {
+    const navigate = useNavigate()
     const [otp, setOtp] = useState('')
     const [isverified, setIsVerified] = useState(false)
     const [validOtp, setValidOtp] = useState(undefined)
-    const username = localStorage.getItem("username")
+    const [user, setUser] = useState({})
+    
+
+    // Get the token from localstorage and decode it
+    useEffect(()=>{
+        const token = localStorage.getItem("token")
+        if(token){
+        const userData = jwtDecode(token)
+        setUser(userData)
+        }else{
+            navigate('/')
+        }
+    }, [])
 
     const submitOtp =  async () => {
-        axios.post("http://localhost:5000/api/verifyOTP", {otp, username}).then((res)=>{
+        
+        axios.post("http://localhost:5000/api/verifyOTP", {otp, _id : user._id}).then((res)=>{
             if(res.data.message == "Verified"){
                 setIsVerified(true)
             }else{
@@ -19,7 +35,7 @@ const VerifyEmail = () => {
                 setValidOtp(false)
             }
         }).catch((err)=>{
-            setValidOtp(false)
+            console.log(err)
         })
     }
 

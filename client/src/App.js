@@ -4,6 +4,7 @@ import Login from './Pages/LoginPage/Login';
 import Register from './Pages/Register/Register';
 import './index.css'
 import VerifyEmail from './Pages/VerifyAccountPage/VerifyEmail';
+import ForgotPassword from './Pages/ForgotPasswordPage/ForgotPassword';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Routes>
         <Route path='/login' element={<Login />} />
         <Route path='/verify' element={<VerifyEmail />} />
+        <Route path='/forgotPassword' element={<ForgotPassword />} />
         <Route path='/' element={<Register />} />
       </Routes>
       </BrowserRouter>
