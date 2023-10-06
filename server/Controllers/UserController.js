@@ -5,6 +5,20 @@ require("dotenv").config();
 const jwt = require('jsonwebtoken')
 
 
+
+// CHECK USERNAME AVAILABILITY
+module.exports.verifyUsername = async (req,res) => {
+    const username = req.body.username
+
+    const checkUsername = await user.findOne({username : username})
+
+    if(checkUsername == null){
+        res.json({status : "available"})
+    }else{
+        res.json({status : "unavailable"})
+    }
+}
+
 // Registers the user
 module.exports.register = async (req,res) => {
     const {username, email, password, firstname, lastname, contact, birthDate} = req.body
@@ -20,7 +34,7 @@ module.exports.register = async (req,res) => {
     }else if (!filterEmail && !filterusername){
         
         const hashedPassword = await bcrypt.hash(password, 10)
-        await user.create({username, email, password : hashedPassword, firstname, lastname, contact, birthDate : birthDate, profileImage : image}).then((response)=>{
+        await user.create({username, email, password : hashedPassword, firstname, lastname, contact, birthDate : birthDate, profileImage : image, verified : true}).then((response)=>{
             const token = jwt.sign({
                 username : username,
                 email : email,
@@ -42,7 +56,7 @@ module.exports.register = async (req,res) => {
 // ------------------------------------------------------------------------------------------------
 
     // FOR EMAIL VERIFICATION SEND OTP EMAIL
-module.exports.verifyEmail = (req,res) => {
+module.exports.verifyEmail = async (req,res) => {
     const letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", 1, 2, 3, 4, 5, 6, 7, 8, 9]
     const arr = []
     for(var i=1; i<7;i++){
@@ -50,6 +64,13 @@ module.exports.verifyEmail = (req,res) => {
     }
 
     code = arr.join("")
+    
+    const verifyDuplicateEmail = await user.findOne({email : req.body.email})
+    // console.log(verifyDuplicateEmail)
+    if(verifyDuplicateEmail){
+        res.json({status : "EmailExist"})
+    }else{
+        res.json({status : 'emailSent'})
     const emailTo = req.body.email
     const transporter = nodemailer.createTransport({
         service : 'gmail',
@@ -77,20 +98,23 @@ module.exports.verifyEmail = (req,res) => {
           console.log('Nodemailer Email sent: ' + success.response);
       }
   });
+    }
+    
 }
 
 // OTP VERIFICATION
 module.exports.verifyOTP = async (req,res) => {
-    const id = req.body._id
+    // const id = req.body._id
     const otp = req.body.otp
     if(otp == code){
-        const userId = await user.find({_id : id}).select("_id")
+        res.send("verified")
+        // const userId = await user.find({_id : id}).select("_id")
         
-        await user.findByIdAndUpdate(userId, {verified : true}).then(()=>{
-            return res.json({message : 'Verified'})
-        }).catch    ((err)=>{
-            return res.json({message : err})
-        })   
+        // await user.findByIdAndUpdate(userId, {verified : true}).then(()=>{
+        //     return res.json({message : 'Verified'})
+        // }).catch    ((err)=>{
+        //     return res.json({message : err})
+        // })   
     }else{
         res.send("Invalid")
     }
@@ -116,7 +140,7 @@ module.exports.login = async (req,res) => {
     
 }
 
-// Forgot Password
+// Forgot Password-----------------------------------------------------------------------------FORGOT PASSWORD---------------------------------------
 let FPcode = ''
 module.exports.forgotPassword = async (req,res) => {
       const result = await user.findOne({email : req.body.email})

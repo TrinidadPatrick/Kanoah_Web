@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema({
     },
     verified : {
         type : String,
-        default : false
+        required : true
     }
 })
 

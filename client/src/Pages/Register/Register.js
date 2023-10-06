@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useContext, createContext } from 'react'
 import logo from '../Register/RegisterComponents/img/Logo.png'
 import {FaUserLarge, FaUserPlus, FaCircleUser, FaArrowTrendUp} from 'react-icons/fa6'
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import CallOutlinedIcon from '@mui/icons-material/CallOutlined';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useState } from 'react';
 import { DateData } from './RegisterComponents/MMDDYY/Date';
 import { Link } from 'react-router-dom';
@@ -12,6 +13,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import RemoveRedEyeRoundedIcon from '@mui/icons-material/RemoveRedEyeRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
+import VerifyEmail from '../VerifyAccountPage/VerifyEmail';
 // import nodemailer from 'nodemailer'
 
 
@@ -26,10 +28,16 @@ const Register = () => {
   const [isValidFirstname, setIsValidFirstname] = useState(undefined)
   const [isValidLastname, setIsValidLastname] = useState(undefined)
   const [isValidContact, setIsValidContact] = useState(undefined)
-  const [emailValidationCode, setEmailValidationCode] = useState(undefined)
+  const [isValidOtp, setIsValidOtp] = useState(undefined)
+  const [isEmailExist, setIsEmailExist] = useState(undefined)
+  const [isUsernameExist, setIsUsernameExist] = useState(undefined)
+  const [emailSent, setEmailSent] = useState(false)
   const [registerPage, setRegisterPage] = useState(1)
   const [acceptedTNC, setAcceptedTNC] = useState(false)
+  const [otp, setOtp] = useState('')
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [timer, setTimer] = useState(10)
+  const [startTimer, setStartTimer] = useState(false)
   // const [allFieldsComplete, setAllFieldsComplete] = useState(false)
   const [birthDate, setBirthDate] = useState({
     month : "January",
@@ -59,23 +67,29 @@ const Register = () => {
   }
 
   // Set value to get to next page
-  const next = () =>{
+  const next = async ()  =>{
     
     const {username, email, password} = userInfos
     if(username.length < 5){
       setIsValidUsername(false)
     }if (username.length > 5){
       setIsValidUsername(true)
-    }if(email == ""){
-      setIsValidEmail(false)
-    }if(email != ""){
-      setIsValidEmail(true)
     }if(password.length < 8){
       setIsValidPassword(false)
     }if(password.length >= 8){
       setIsValidPassword(true)
-    }if(username.length >= 5 && email != "" && password.length > 8){
-      setRegisterPage(2)
+    }if(username.length >= 5 && password.length > 8){
+      await axios.post("http://localhost:5000/api/verifyUsername", {username : userInfos.username}).then((res)=>{
+        if(res.data.status == "unavailable"){
+          setIsUsernameExist(true)
+        }else if(res.data.status == "available"){
+          setIsUsernameExist(false)
+          setRegisterPage(2)
+        }
+      }).catch((err)=>{
+        console.log(err)
+      })
+      
 
     }
     
@@ -93,13 +107,56 @@ const Register = () => {
 
   // Verify email by sending otp
   const verifyEmail = async () => {
-    const {email, username} = userInfos
-    await axios.post("http://localhost:5000/api/verifyEmail", {email : email}).then((res)=>{
+    if(userInfos.email == ""){
+      setIsEmailExist(undefined)
+      setIsValidEmail(false)
+    }else{
+      setIsValidEmail(true)
       
-    }).catch((err)=>{
-      console.log(err)  
-    })
+      const {email, username} = userInfos
+      await axios.post("http://localhost:5000/api/verifyEmail", {email : email}).then((res)=>{
+        console.log(res.data.status)
+        if(res.data.status == "emailSent"){
+      setIsEmailExist(false)
+      setTimer(10)
+      document.getElementById("sendEmail").setAttribute("disabled", "disabled")
+      document.getElementById("timer").classList.remove("hidden")
+      setTimeout(()=>{
+        document.getElementById("sendEmail").removeAttribute("disabled", "disabled")
+        document.getElementById("timer").classList.add("hidden")
+        }, 10000)
+          setStartTimer(true)
+          setEmailSent(true)
+          
+   
+        }
+        else if(res.data.status = 'EmailExist'){
+          setIsEmailExist(true)
+        } 
+      }).catch((err)=>{
+        console.log(err)  
+      })
+    }
+   
   }
+
+  // FOr 10 seconds Countdown
+  useEffect(()=>{
+    if(startTimer == true){
+        const countdown = setInterval(()=>{  
+        setTimer(timer - 1)
+        if(timer < 2){clearInterval(countdown)}
+        }, 1000)
+        return ()=>{clearInterval(countdown)}      
+    }        
+}, [startTimer, timer])
+useEffect(()=>{
+    if(timer <1){
+    setStartTimer(false)
+    }
+}, [timer])
+
+  // console.log(emailSent)
 
   // Signup User
   const signup = async () => { 
@@ -121,20 +178,39 @@ const Register = () => {
     }
     if(contact != ""){
       setIsValidContact(true)
-    }if(firstname != "" && lastname != "" & contact != ""){
-      await axios.post("http://localhost:5000/api/register", {username, email, password, firstname, lastname, contact, birthDate}).then((res)=>{
-      if(res.data.status == 'registered'){
-        localStorage.setItem("token", res.data.userToken)
-      console.log(res.data)
-      verifyEmail()
-      navigate('/verify')
-      }else {
-        console.log(res.data.message)
-      }
-      
-    }).catch((err)=>{
-      console.log(err)  
-    })
+    }if(email == ""){
+      setIsValidEmail(false)
+    }
+    if(email != ""){
+      setIsValidEmail(true)
+    }
+    
+    if(firstname != "" && lastname != "" & contact != "" && email != ""){
+
+      axios.post("http://localhost:5000/api/verifyOTP", {otp}).then((res)=>{
+        // IF OTP IS CORRECT
+            if(res.data == 'verified'){
+              axios.post("http://localhost:5000/api/register", {username, email, password, firstname, lastname, contact, birthDate}).then((res)=>{
+                if(res.data.status == 'registered'){
+                localStorage.setItem("token", res.data.userToken)
+                console.log(res.data)
+                setIsValidOtp(true)
+                // navigate('/verify')
+                }else {
+                    console.log(res.data)
+                }
+                
+              }).catch((err)=>{
+                console.log(err)  
+              })
+            }else{
+              // IF OTP IS NOT CORRECT
+              setIsValidOtp(false)
+            }
+        }).catch((err)=>{
+            console.log(err)
+        })
+    
     }
  
   }
@@ -158,6 +234,7 @@ const Register = () => {
     }
   }
 
+
   return (
     registerPage == 1 ? (
     <div className='register_container rounded-md h-fit py-6 w-10/12 xs:w-11/12 md:w-1/2 lg:w-2/5 xl:w-3/12 bg-white'>
@@ -172,27 +249,23 @@ const Register = () => {
     <button className='text-white flex items-center justify-center gap-2 px-4 sm:px-11 rounded-sm text-semiXs py-1 bg-themeBlue '><FaUserPlus/> Sign Up </button>
     </div>
 
+
     {/* Input field Container */}
     <div className='w-5/6 mx-auto mt-7 flex flex-col space-y-4'>
 
     {/* Username Field */}
     <div className={`username_container w-full  relative`}>
     <AccountCircleOutlinedIcon className={`absolute w-10 h-6 top-2 left-2 text-gray-500 ${isValidUsername == false ? "text-red-500" : ""}`}/>
-    <input onChange={(e)=>{handleChange(e)}} type="text" placeholder='Enter username' name='username' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidUsername == false ? "text-red-500 border-b-red-500" : ""}`} />
+    <input onChange={(e)=>{handleChange(e)}} type="text" placeholder='Enter username' name='username' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidUsername == false || isUsernameExist == true ? " border-b-red-500" : ""}`} />
     <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidUsername == false ? "block" : "hidden"}`}>Please enter atleast 5 characters</p>
+    <p className={`text-xs text-start absolute text-red-500 mt-01 ${isUsernameExist == true ? "block" : "hidden"}`}>Username already in use</p>
     </div>
 
-    {/* Email Field */}
-    <div className='email_container w-full  relative  '>
-    <EmailOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidEmail == false ? "text-red-500" : ""}`}/>
-    <input onChange={(e)=>handleChange(e)} type="text" placeholder='Enter your Email' name='email' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidEmail == false ? "text-red-500 border-b-red-500" : ""}`} />
-    <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidEmail == false ? "block" : "hidden"}`}>Email is required</p>
-    </div>
 
     {/* Password Field */}
     <div className='password_container w-full  relative  '>
     <LockOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidPassword == false ? "text-red-500" : ""}`}/>
-    <input onKeyDown={(e)=>{if(e.key == "Enter"){next()}}} onChange={(e)=>handleChange(e)} id="password" type="password" placeholder='Create a password' name='password' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidPassword == false ? "text-red-500 border-b-red-500" : ""}`} />
+    <input onKeyDown={(e)=>{if(e.key == "Enter"){next()}}} onChange={(e)=>handleChange(e)} id="password" type="password" placeholder='Create a password' name='password' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidPassword == false ? " border-b-red-500" : ""}`} />
     {
       isPasswordVisible == false 
       ?
@@ -214,6 +287,7 @@ const Register = () => {
     )
 
     :
+
     // Second Page of Register--------------------------------------------------------------------------------------------------------------------------------------------
     (
       <div className='register_container rounded-md h-fit py-6 w-10/12 xs:w-11/12 md:w-1/2 lg:w-2/5 xl:w-3/12 bg-white'>
@@ -226,6 +300,12 @@ const Register = () => {
     <div className='LogReg_container mx-auto w-fit flex'>
     <button className='flex items-center justify-center gap-2 px-11 rounded-sm text-semiXs py-1'><FaUserLarge /> Sign In </button>
     <button className='text-white flex items-center justify-center gap-2 px-4 sm:px-11 rounded-sm text-semiXs py-1 bg-themeBlue '><FaUserPlus/> Sign Up </button>
+    </div>
+
+    {/* OTP sent success popup */}
+    <div className={` bg-green-200 p-2 w-3/5 mx-auto mt-3 rounded-sm ${emailSent == true ? "block" : "hidden"}`}>
+    <p className='text-semiXs text-center text-green-700'>We've sent a verification code to your </p>
+    <p className='text-semiXs text-center text-green-700'>email {userInfos.email}</p>
     </div>
 
     {/* Input field Container */}
@@ -255,9 +335,25 @@ const Register = () => {
     <p className={`text-xs text-start absolute text-red-500 -bottom-4 ${isValidContact == false ? "block" : "hidden"}`}>Contact is required</p>
     </div>
 
+    {/* Email Field */}
+    <div className='email_container w-full  relative  '>
+    <EmailOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidEmail == false ? "text-red-500" : ""}`}/>
+    <input onChange={(e)=>handleChange(e)} type="text" placeholder='Enter your Email' name='email' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidEmail == false || isEmailExist == true ? " border-b-red-500" :  ""}`} />
+    <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidEmail == false ? "block" : "hidden"}`}>Email is required</p>
+    <p className={`text-xs text-start absolute text-red-500 mt-01 ${isEmailExist == true ? "block" : "hidden"}`}>Email already is use</p>
+    </div>
+
+    {/* Code Field */}
+    <div className='code_container w-1/2  relative  '>
+    <VpnKeyIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidOtp == false ? "text-red-500" : ""}`}/>
+    <input onChange={(e)=>setOtp(e.target.value)} type="text" placeholder='Enter OTP' name='otp' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidOtp == false ? "text-red-500 border-b-red-500" : ""}`} />
+    <button id='sendEmail' onClick={()=>{verifyEmail()}} className='absolute bg-themeBlue flex gap-1 text-sm p-1 px-1 text-white top-2 right-2 rounded-sm disabled:bg-gray-300'>Get <p id="timer" className='hidden'>{timer}</p></button>
+    <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidOtp == false ? "block" : "hidden"}`}>Invalid Otp</p>
+    </div>
+
     {/* birth Field */}
-    <div className='birth_container w-full   '>
-    <p className='text-xs text-gray-500'>Date of birth</p>
+    <div className='birth_container w-full '>
+    <p className='text-xs text-gray-500 mt-2'>Date of birth</p>
     <div className='select_container w-full flex  space-x-5'>
     <select onChange={(e)=>handleDate(e)} name="month" className='border-1 border-gray rounded-sm'>
       {
@@ -303,11 +399,15 @@ const Register = () => {
     <p className='text-xs text-center text-gray-500 mt-2'>Already have an account? <Link to="/login" className='text-blue-600'>Login now</Link></p>
     </div>
     
+    </div>       
     </div>
-            
-    </div>
-    )
+   )
+
+
+    
   )
+
+  
 }
 
 export default Register
