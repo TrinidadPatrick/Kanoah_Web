@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema({
     verified : {
         type : String,
         required : true
+    },
+    Active : {
+        type : String,
+        default : "Active"
     }
 })
 

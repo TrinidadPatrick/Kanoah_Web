@@ -57,19 +57,20 @@ module.exports.register = async (req,res) => {
 
     // FOR EMAIL VERIFICATION SEND OTP EMAIL
 module.exports.verifyEmail = async (req,res) => {
-    const letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    const arr = []
-    for(var i=1; i<7;i++){
-        arr.push(letters[Math.floor(Math.random() * letters.length)])
-    }
-
-    code = arr.join("")
+   
     
     const verifyDuplicateEmail = await user.findOne({email : req.body.email})
     // console.log(verifyDuplicateEmail)
     if(verifyDuplicateEmail){
         res.json({status : "EmailExist"})
     }else{
+        const letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        const arr = []
+        for(var i=1; i<7;i++){
+            arr.push(letters[Math.floor(Math.random() * letters.length)])
+        }
+    
+        code = arr.join("")
         res.json({status : 'emailSent'})
     const emailTo = req.body.email
     const transporter = nodemailer.createTransport({
@@ -129,7 +130,14 @@ module.exports.login = async (req,res) => {
     if(result != null){
         const comparePassword = await bcrypt.compare(password, result.password)
         if(comparePassword){
-            return res.json({status : 'authenticated'})
+            const token = jwt.sign({
+                username : result.username,
+                email : result.email,
+                _id : result._id,
+                profileImage : result.profileImage
+    
+            }, process.env.SECRET_KEY)
+            return res.json({status : 'authenticated', data : token})
         }else {
             return res.json({status : 'invalid username or password'})
         }

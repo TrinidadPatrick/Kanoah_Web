@@ -1,20 +1,32 @@
 import {react} from 'react'
-import {BrowserRouter, Routes, Route} from "react-router-dom"
+import {BrowserRouter, Routes, Route, Outlet} from "react-router-dom"
 import Login from './Pages/LoginPage/Login';
-import Register from './Pages/Register/Register';
+import Register from './Pages/RegisterPage/Register';
 import './index.css'
 import VerifyEmail from './Pages/VerifyAccountPage/VerifyEmail';
 import ForgotPassword from './Pages/ForgotPasswordPage/ForgotPassword';
+import MainPage from './Pages/MainPage/MainPage';
+import Navbar from './Pages/Navbar/Navbar';
 
 function App() {
+  const NavbarLayout = () => (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  );
   return (
-    <div className="App w-100 h-screen grid place-items-center bg-slate-300">
+    <div className="App w-100 z-20 h-screen grid place-items-center bg-slate-400">
       <BrowserRouter>
       <Routes>
-        <Route path='/login' element={<Login />} />
+        <Route element={<NavbarLayout />} >
+        
         <Route path='/verify' element={<VerifyEmail />} />
         <Route path='/forgotPassword' element={<ForgotPassword />} />
-        <Route path='/' element={<Register />} />
+        <Route path='/register' element={<Register />} />
+        <Route path='/' element={<MainPage />} />
+        </Route>
+        <Route path='/login' element={<Login />} />
       </Routes>
       </BrowserRouter>
     </div>

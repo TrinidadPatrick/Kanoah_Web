@@ -1,13 +1,17 @@
-import React, { useEffect } from 'react'
-import logo from '../Register/RegisterComponents/img/Logo.png'
+import React, { useEffect,useContext } from 'react'
+import logo from '../RegisterPage/RegisterComponents/img/Logo.png'
 import MailIcon from '@mui/icons-material/Mail';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import LockIcon from '@mui/icons-material/Lock';
 import { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
+import CloseIcon from '@mui/icons-material/Close';
+import { Context } from '../Navbar/Navbar';
+
 
 const ForgotPassword = () => {
+    const [showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose] = useContext(Context)
     const navigate = useNavigate()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -18,7 +22,8 @@ const ForgotPassword = () => {
     const [isValidEmail, setIsvalidEmail] = useState(undefined)
     const [passwordError, setPasswordError] = useState(undefined) //1 = no password input, 2 password dont match, 3 short password
     const [isValidOtp, setIsValidOtp] = useState(undefined)
-    const [page, setPage] = useState(1)
+    const [emailVerified, setEmailVerified] = useState(false)
+    const [isChecked, setIsChecked] = useState(false)
 
     // To get verification code
     const sendCode = async () => {
@@ -33,6 +38,7 @@ const ForgotPassword = () => {
             setIsvalidEmail(true)
             await axios.post("http://localhost:5000/api/forgotPassword", {email}).then((res)=>{
                 if(res.data.message == 'Found'){
+                setEmailVerified(true)
                 setTimer(10)
                 const sendCodeBtn = document.getElementById('sendCode')
                 document.getElementById("timer").classList.remove("hidden")
@@ -73,7 +79,7 @@ const ForgotPassword = () => {
         if(password != "" && password == confirmPassword){
             await axios.post("http://localhost:5000/api/forgotPassword/newPassword", {email, password}).then((res)=>{
             if(res.data.status == "updated"){
-                navigate('/login')
+                navigate('/')
             }else{
                 console.log("failed")
             }
@@ -93,11 +99,11 @@ const ForgotPassword = () => {
     // FOr 10 seconds Countdown
     useEffect(()=>{
         if(startTimer == true){
-            const countdown = setInterval(()=>{  
-            setTimer(timer - 1)
-            if(timer < 2){clearInterval(countdown)}
-            }, 1000)
-            return ()=>{clearInterval(countdown)}      
+        const countdown = setInterval(()=>{  
+        setTimer(timer - 1)
+        if(timer < 2){clearInterval(countdown)}
+        }, 1000)
+        return ()=>{clearInterval(countdown)}      
         }        
     }, [startTimer, timer])
     useEffect(()=>{
@@ -107,12 +113,25 @@ const ForgotPassword = () => {
         }
     }, [timer])
 
+    // Every Refresh verify button and input is disabled until email is verified
+    useEffect(()=>{
+        if(!emailVerified){document.getElementById("verifyCode").setAttribute("disabled", "disabled");document.getElementById("otpField").setAttribute("disabled", "disabled")}
+        else if(emailVerified){document.getElementById("verifyCode").removeAttribute("disabled", "disabled");document.getElementById("otpField").removeAttribute("disabled", "disabled")}
+    },[emailVerified])
+
+    const checkHandler = () => {
+        setIsChecked(!isChecked)
+        
+      }
+      
+
     
   return (
     <>
     {
         
         <div className='bg-white flex flex-col items-center p-6 rounded-md '>
+            <button onClick={()=>{setShowSignup(false);handleClose()}} className='absolute right-2 top-2'><CloseIcon /></button>
         {/* Logo */}
         <img className='w-32 mb-5' src={logo} alt="logo" />
         <h1 className='font-bold text-xl mb-3'>Reset Password</h1>
@@ -146,7 +165,7 @@ const ForgotPassword = () => {
 
         {/* OTP code Field */}
         <div className='mt-5 relative w-full'>
-        <input  onChange={(e)=>{setOtp(e.target.value)}} type="text" placeholder='Code' className={`w-full border-2 rounded-sm outline-blue-700 border-gray-500 p-1 pr-10 ${isValidOtp == true ? "border-green-500" : isValidOtp == false ? 'border-red-400 ' : ""}`} />
+        <input  onChange={(e)=>{setOtp(e.target.value)}} type="text" placeholder='Code' id='otpField' className={`w-full border-2 rounded-sm outline-blue-700 border-gray-500 p-1 pr-10 ${isValidOtp == true ? "border-green-500" : isValidOtp == false ? 'border-red-400 ' : ""}`} />
         <VpnKeyIcon className='absolute top-1 right-2 text-gray-400'/>
         <p className={`text-semiXs text-start absolute text-red-500 mt-01 ${isValidOtp == false ? "block" : "hidden"}`}>Invalid code</p>
         <p className={`text-semiXs text-start absolute text-green-500 mt-01 ${isValidOtp == true ? "block" : "hidden"}`}>Success</p>
@@ -162,7 +181,7 @@ const ForgotPassword = () => {
         {/* Password Field */}
         <div className={`w-full ${isValidOtp ? " block" : "hidden"}`}>
         <div className='w-full relative mt-6'>
-        <input  onChange={(e)=>{setPassword(e.target.value)}} type="password" placeholder='New Password' className={`w-full border-2 rounded-sm outline-blue-700 border-gray-500 p-1 pr-10 ${passwordError == 1 ? 'border-red-400 ' : passwordError == 2 ? 'border-red-400 ' : passwordError == 3 ? 'border-red-400 '  : ""}`} />
+        <input  onChange={(e)=>{setPassword(e.target.value)}} type={isChecked ? "text" : "password"} placeholder='New Password' className={`w-full password border-2 rounded-sm outline-blue-700 border-gray-500 p-1 pr-10 ${passwordError == 1 ? 'border-red-400 ' : passwordError == 2 ? 'border-red-400 ' : passwordError == 3 ? 'border-red-400 '  : ""}`} />
         {
             passwordError == 1 ?
             <p className={`text-semiXs text-start absolute text-red-500 mt-01 `}>Password required</p>
@@ -180,11 +199,15 @@ const ForgotPassword = () => {
 
 
         {/* Confirm Password Field */}
-        <div className='w-full relative mt-6'>
-        <input  onChange={(e)=>{setConfirmPassword(e.target.value)}} type="password" placeholder='Confirm New Password' className={`w-full border-2 rounded-sm outline-blue-700 border-gray-500 p-1 pr-10 ${passwordError == 2 ? 'border-red-400 '  : ""}`} />
+        <div className='w-full relative mt-3'>
+        <input  onChange={(e)=>{setConfirmPassword(e.target.value)}} type={isChecked ? "text" : "password"} placeholder='Confirm New Password' className={`password w-full border-2 rounded-sm outline-blue-700 border-gray-500 p-1 pr-10 ${passwordError == 2 ? 'border-red-400 '  : ""}`} />
         <LockIcon className='absolute top-1.5 right-2 text-gray-400 w-2 h-2'/>
         </div>
-        <button onClick={()=>{submitPassword()}}  className='w-full text-white py-1 rounded-sm bg-themeBlue mt-2 text-sm'>Reset Password</button>
+        <div className='flex space-x-1 mt-1'>
+        <input id='showPassword' checked={isChecked} onChange={checkHandler} type="checkbox" />
+        <p className='text-xs'>Show password</p>
+        </div>
+        <button onClick={()=>{submitPassword()}}  className='w-full text-white py-1.5 rounded-sm bg-themeBlue mt-2 text-sm'>Reset Password</button>
         </div>
         </div>
         

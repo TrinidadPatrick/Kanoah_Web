@@ -20,12 +20,21 @@ module.exports = {
       colors: {
         themeBlue : "#002349",
         white : "#ffffff",
+        themeOrange : "#EB6B23"
         
       },
       width : {
         0.2 : "1px"
       },
-      
+      borderRadius : {
+        "4xl" : "2rem"
+      },
+      textShadow: {
+        sm: '0 1px 2px var(--tw-shadow-color)',
+        DEFAULT: '0 2px 4px var(--tw-shadow-color)',
+        lg: '0 8px 16px var(--tw-shadow-color)',
+      },
+    
       
     },
   },
