@@ -20,7 +20,8 @@ module.exports = {
       colors: {
         themeBlue : "#002349",
         white : "#ffffff",
-        themeOrange : "#EB6B23"
+        themeOrange : "#EB6B23",
+        themeGray : "#505050"
         
       },
       width : {
@@ -34,10 +35,11 @@ module.exports = {
         DEFAULT: '0 2px 4px var(--tw-shadow-color)',
         lg: '0 8px 16px var(--tw-shadow-color)',
       },
+
     
       
     },
   },
-  plugins: [],
+  plugins: [require("daisyui")],
 }
 

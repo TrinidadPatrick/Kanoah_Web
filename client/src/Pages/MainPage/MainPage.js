@@ -1,10 +1,15 @@
 import React from 'react'
 import { useState } from 'react'
 import Login from '../LoginPage/Login'
-import Logo from "./Components/LogoWhite.png"
-import CoverPhoto from '../MainPage/Components/business.jpg'
-import CoverPhoto2 from '../MainPage/Components/business2.jpg'
+import Logo from "./Components//UtilImage/LogoWhite.png"
+import CoverPhoto from '../MainPage/Components//UtilImage/business.jpg'
+import CoverPhoto2 from '../MainPage/Components/UtilImage/business2.jpg'
 import SearchIcon from '@mui/icons-material/Search';
+import TurnedInRoundedIcon from '@mui/icons-material/TurnedInRounded';
+import { categories } from './Components/Categories'
+import Tag from '../MainPage/Components/CategoryImage/Tag.png'
+import TopRatedServices from './TopRatedServices'
+import RecentServices from './RecentServices'
 
 const MainPage = () => {
     const [showMenu, setShowMenu] = useState(false)
@@ -17,6 +22,8 @@ const MainPage = () => {
             setShowMenu(true)
         }
     }
+
+
   return (
     <div className='h-full w-full relative'>
       {/* Main Page Top Part */}
@@ -35,28 +42,42 @@ const MainPage = () => {
       </section>
       
 {/* ************************************************************************************************ */}
-      {/* Featured Categories */}
-      <section className='w-full h-screen bg-white py-16 px-5 md:px-36'>
+      {/* FEATURED CATEGORIES */}
+      <section className='w-full h-fit bg-[#f9f9f9] py-16 px-5 md:px-20 lg:px-16 xl:px-32'>
       {/* Main Container */}
   <div className='w-full '>
       {/* Header Container */}
-      <div className='border-l-4 border-x-black pl-3'>
-      <h1 className='text-4xl font-bold'>Featured Categories</h1>
+      <div className='border-l-4 border-x-themeGray pl-3'>
+      <h1 className='text-4xl text-themeGray font-bold'>Featured Categories</h1>
       <p className='text-gray-500 font-medium'>Pick from our categories</p>
       </div>
       {/* Category Cards Container */}
-      <div className='w-full grid grid-cols-2 lg:grid-cols-3 gap-2 h-fit border-2 px-1 py-5 mt-5'>
-      <div className=" bg-black h-56">1</div>
-      <div className=" bg-black h-56">1</div>
-      <div className=" bg-black h-56">1</div>
-      <div className=" bg-black h-56">1</div>
-      <div className=" bg-black h-56">1</div>
-      <div className=" bg-black h-56">1</div>
-      </div>
-
+      <div className='w-full grid sm:grid-cols-2  lg:grid-cols-3 gap-10  h-fit  px-1 py-5 mt-5'>
+      {
+        categories.map((category, index)=>{
+          return (
+          <div key={index} className="categoryContainerBox w-full xl:w-full hover:shadow-2xl relative rounded-lg saturate-100 brightness-90 border-2 border-white h-52 md:h-56 xl:h-64 " style={{backgroundImage : `url(${category.category_image})`,backgroundSize: "cover",boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}>
+          <div className='absolute top-3 w-31 py-0 h-9  -right-[1px] pl-6 pr-4 flex items-center 'f style={{backgroundImage : `url(${Tag})`,backgroundSize: "100% 35.9px",backgroundRepeat : "no-repeat"}}>
+          {/* <img className='w-full h-full brightness-75' src={Tag} alt="tag" /> */}
+          <p className='font-medium relative -top-[0.4px] text-gray-500'>{category.category_name}</p>
+          </div> 
+          <div className='absolute flex items-center w-full h-full rounded-md  hover:translate-y-0 bg-black opacity-0 hover:opacity-40 hover:rounded-md ease-in duration-200'></div>
+          
+          </div> 
+          )})}   
   </div>
-      </section>
+  </div>
+  </section>
     
+    {/* TOP RATED SERVICES */}
+    <section className='top_rated_service w-full h-fit bg-[#f9f9f9] py-14 px-0 md:px-24 lg:px-36'>
+    <TopRatedServices />
+    </section>
+
+    {/* RECENT SERVICES */}
+    <section className='top_rated_service w-full h-fit bg-[#f9f9f9] py-14 px-5 md:px-24 lg:px-36'>
+    <RecentServices />
+    </section>
     
     </div>
   )

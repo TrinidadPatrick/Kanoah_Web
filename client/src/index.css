@@ -9,3 +9,55 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.navbarLink a {
+   background-image: linear-gradient(
+    to right,
+    #014d9e,
+    #014d9e 50%,
+    #fff 50%
+  );
+  font-weight: 800 !important;
+  background-size: 200% 100%;
+  background-position: -100%;
+  display: inline-block;
+  padding: 5px 0;
+  position: relative;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbarLink a:before{
+  content: '';
+  background: #014d9e;
+  display: block;
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbarLink a:hover {
+   background-position: 0;
+  }
+  
+.navbarLink a:hover::before{
+    width: 100%;
+  }
+
+  /* Categories */
+
+
+  /* Service */
+  .TRS{
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+  }
+
+@media screen and (max-width: 500px) {
+  .components_menu {
+    width: 92vw !important;
+  }
+}

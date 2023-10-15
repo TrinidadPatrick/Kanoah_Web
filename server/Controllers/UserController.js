@@ -137,6 +137,10 @@ module.exports.login = async (req,res) => {
                 profileImage : result.profileImage
     
             }, process.env.SECRET_KEY)
+            // setTimeout(()=>{
+            //     const data = jwt.verify(token,process.env.SECRET_KEY )
+            //     console.log(data.data)
+            // }, 11000)
             return res.json({status : 'authenticated', data : token})
         }else {
             return res.json({status : 'invalid username or password'})
@@ -147,6 +151,7 @@ module.exports.login = async (req,res) => {
     }
     
 }
+
 
 // Forgot Password-----------------------------------------------------------------------------FORGOT PASSWORD---------------------------------------
 let FPcode = ''

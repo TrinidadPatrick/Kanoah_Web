@@ -78,7 +78,7 @@ const Register = () => {
       setIsValidPassword(false)
     }if(password.length >= 8){
       setIsValidPassword(true)
-    }if(username.length >= 5 && password.length > 8){
+    }if(username.length >= 5 && password.length >= 8){
       await axios.post(BASE_URL+"/api/verifyUsername", {username : userInfos.username}).then((res)=>{
         if(res.data.status == "unavailable"){
           setIsUsernameExist(true)

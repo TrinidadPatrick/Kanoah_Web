@@ -57,20 +57,18 @@ const Navbar = () => {
       }else{
         console.log("Not Logged IN")
       }
-      
-      
     }, [])
     
-    console.log(userInfo)
+
     
 
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
     <>
-  <div className='relative'>
+<div className='relative'>
         {/* NAV BAR */}
 <nav className=" bg-themeBlue fixed w-full z-20 top-0 left-0  dark:border-gray-600">
-<div className="px-3 md:px-10 flex  items-center justify-between mx-auto py-2">
+<div className="px-1 md:px-10 flex  items-center justify-between mx-auto py-2">
 
 <div className='flex items-center justify-evenly'>
     {/* Dropdown button for mobile view  */}
@@ -84,37 +82,20 @@ const Navbar = () => {
 
 
 
- {/* Components Button */}
-  <div className={`items-center justify-between  w-11/12 transition ease-in-out  ${showMenu ? "absolute" : "hidden"} top-14 left-3.5 md:relative md:top-0  md:flex md:w-auto md:order-1" id="navbar-sticky`}>
-    <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-themeBlue md:dark:bg-themeBlue dark:border-gray-700">
-      <li>
-        <a href="#" className="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent  md:p-0 " aria-current="page">Explore</a>
-      </li>
-      <li>
-        <a href="#" className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Categories</a>
-      </li>
-      <li>
-        <a href="#" className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">About Us</a>
-      </li>
-      <li>
-        <a href="#" className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
-      </li>
-    </ul>
-  </div>
+
   </div>
 
   <img src={Logo} className="h-9 md:h-12 block md:hidden  brightness-0 invert" alt="Logo"/>
-  
+  {/* Profile */}
   <div className="flex md:order-2 ">
     {/* Condition to show login and join button if logged out and show profile if Logged in */}
     {
       userInfo != null ?
       (
-        <div className='flex items-center justify-evenly space-x-3 mr-4'>
-          
-          <NotificationsIcon className='text-white' />
-          <ForumRoundedIcon className='text-white'/>
-          <img className='w-8  rounded-full' src={userInfo.profileImage} />
+        <div className='flex items-center justify-evenly space-x-2 md:space-x-5 mr-4'>
+          <ForumRoundedIcon fontSize='small' className='text-white'/>
+          <NotificationsIcon fontSize='small' className='text-white' />
+          <img className=' md:w-8 w-7  border-1 border-white  rounded-full' src={userInfo.profileImage} />
         </div>
       )
       :
@@ -128,6 +109,23 @@ const Navbar = () => {
 
 </div>
 </div>
+ {/* Components Button */}
+ <div className={`components_menu items-center justify-between  w-[95vw] transition ease-in-out  ${showMenu ? "absolute" : "hidden"} top-11 left-3.5 md:relative md:top-0  md:flex md:w-auto md:order-1" id="navbar-sticky `}>
+    <ul className="navbarLink flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-themeBlue md:dark:bg-themeBlue dark:border-gray-700">
+      <li>
+        <a href="#" className="explore block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Explore</a>
+      </li>
+      <li>
+        <a href="#" className="categories block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Categories</a>
+      </li>
+      <li>
+        <a href="#" className="about block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">About Us</a>
+      </li>
+      <li>
+        <a href="#" className="contact block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
+      </li>
+    </ul>
+  </div>
 </nav>
   
 {/* Modal */}
