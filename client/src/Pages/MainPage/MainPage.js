@@ -48,15 +48,15 @@ const MainPage = () => {
   <div className='w-full '>
       {/* Header Container */}
       <div className='border-l-4 border-x-themeGray pl-3'>
-      <h1 className='text-4xl text-themeGray font-bold'>Featured Categories</h1>
+      <h1 className='text-3xl md:text-4xl text-themeGray font-bold'>Featured Categories</h1>
       <p className='text-gray-500 font-medium'>Pick from our categories</p>
       </div>
       {/* Category Cards Container */}
-      <div className='w-full grid sm:grid-cols-2  lg:grid-cols-3 gap-10  h-fit  px-1 py-5 mt-5'>
+      <div className='w-full grid sm:grid-cols-2 lg:grid-cols-3 gap-10  h-fit  px-1 py-5 mt-5'>
       {
         categories.map((category, index)=>{
           return (
-          <div key={index} className="categoryContainerBox w-full xl:w-full hover:shadow-2xl relative rounded-lg saturate-100 brightness-90 border-2 border-white h-52 md:h-56 xl:h-64 " style={{backgroundImage : `url(${category.category_image})`,backgroundSize: "cover",boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}>
+          <div key={index} className="categoryContainerBox origin-center w-full xl:w-full hover:shadow-2xl relative rounded-lg saturate-100 brightness-90 border-2 border-white h-80 sm:h-44 md:h-56 xl:h-64 " style={{backgroundImage : `url(${category.category_image})`,backgroundSize: "cover",boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}>
           <div className='absolute top-3 w-31 py-0 h-9  -right-[1px] pl-6 pr-4 flex items-center 'f style={{backgroundImage : `url(${Tag})`,backgroundSize: "100% 35.9px",backgroundRepeat : "no-repeat"}}>
           {/* <img className='w-full h-full brightness-75' src={Tag} alt="tag" /> */}
           <p className='font-medium relative -top-[0.4px] text-gray-500'>{category.category_name}</p>
@@ -70,12 +70,12 @@ const MainPage = () => {
   </section>
     
     {/* TOP RATED SERVICES */}
-    <section className='top_rated_service w-full h-fit bg-[#f9f9f9] py-14 px-0 md:px-24 lg:px-36'>
+    <section className='w-full h-fit bg-[#f9f9f9] py-[1rem] sm:px-10 md:px-16 lg:px-36'>
     <TopRatedServices />
     </section>
 
     {/* RECENT SERVICES */}
-    <section className='top_rated_service w-full h-fit bg-[#f9f9f9] py-14 px-5 md:px-24 lg:px-36'>
+    <section className='top_rated_service w-full h-fit bg-[#f9f9f9] py-[1rem] sm:px-10 md:px-16 lg:px-36'>
     <RecentServices />
     </section>
     

@@ -4,12 +4,15 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Roboto', sans-serif;
+    
  }
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
+/* NAVBAR ************************************************************************************************************* */
 .navbarLink a {
    background-image: linear-gradient(
     to right,
@@ -51,10 +54,22 @@
   /* Categories */
 
 
-  /* Service */
+  /* Service *******************************************************************************************************************/
   .TRS{
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   }
+
+  .TRS_Container {
+    scrollbar-color: #4a90e2 #e0e0e0; /* Scrollbar color (track, thumb) */
+  }
+  
+  .TRS_Container::-webkit-scrollbar {
+    height: 0px;
+    width: 1px; /* Width of the scrollbar */
+  }
+  
+
+  
 
 @media screen and (max-width: 500px) {
   .components_menu {
