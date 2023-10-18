@@ -158,6 +158,7 @@ useEffect(()=>{
     }
 }, [timer])
 
+console.log(userInfos)
 
   // Signup User
   const signup = async () => { 
