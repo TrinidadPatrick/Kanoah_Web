@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@100;200;300;400;500;600;700;800;900&family=Josefin+Sans:wght@100;200;300;400;500;600;700&family=League+Spartan:wght@500;700&family=Roboto:wght@100;300;400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@100;200;300;400;500;600;700;800;900&family=Josefin+Sans:wght@100;200;300;400;500;600;700&family=League+Spartan:wght@500;700&family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Outfit:wght@100;300;400;500;600;700;800&family=Poppins:wght@100&family=Roboto:wght@100;300;400;500;700;900&family=Tilt+Neon&display=swap');
  *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Outfit', sans-serif;
+
     
  }
 
@@ -20,7 +21,7 @@
     #014d9e 50%,
     #fff 50%
   );
-  font-weight: 800 !important;
+  font-weight: 600 !important;
   background-size: 200% 100%;
   background-position: -100%;
   display: inline-block;
@@ -72,7 +73,12 @@
     height: 0px;
     width: 1px; /* Width of the scrollbar */
   }
-  
+
+  /* Carousel Dot */
+  .custom-dot-list-style {
+    margin-top: 20px; /* Adjust margin as needed */
+  }
+
 
   /* How it works************************************************************** */
 
@@ -80,8 +86,41 @@
     box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
   }
 
+  /* Spinner STYLE */
+  .lds-dual-ring {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+  }
+  .lds-dual-ring:after {
+    content: " ";
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border-radius: 50%;
+    border: 6px solid #fff;
+    border-color: black transparent black transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+  }
+  @keyframes lds-dual-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
 @media screen and (max-width: 500px) {
   .components_menu {
     width: 92vw !important;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .service_card{
+    height: 70%;
+    width: 95%;
   }
 }

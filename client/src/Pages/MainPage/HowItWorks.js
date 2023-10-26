@@ -6,7 +6,7 @@ import view from './Components/howitworks/view.png'
 
 const HowItWorks = () => {
   return (
-    <div className='w-full p-1 mt-10`'>
+    <div className='w-full p-1 mt-10 `'>
     <div className='border-l-4 mx-7 border-x-themeGray pl-3 mt-10'>
       <h1 className='text-sm md:text-sm text-gray-400 font-bold'>How it Works</h1>
       <p className='text-gray-700 text-3xl md:text-4xl font-medium'>Get Started with 4 Easy Steps</p>
@@ -17,7 +17,7 @@ const HowItWorks = () => {
             <div className='w-[215px] h-[290px] HIW_box p-2 bg-white rounded-lg relative flex flex-col items-center'>
                 {/* Circle Container */}
                 <div className='w-fit p-1 rounded-full   border-2 bg-white border-blue-400 flex justify-center  mt-1'>
-                <div className='w-[30px] h-[30px] rounded-full bg-white z-20 flex items-center justify-center'>
+                <div className='w-[30px] h-[30px] rounded-full bg-white  flex items-center justify-center'>
                 <p className='text-themeBlue font-medium text-2xl'>1</p>
                 </div>
                 </div>
@@ -32,14 +32,13 @@ const HowItWorks = () => {
             <div className='w-[215px] h-[290px] HIW_box p-2 bg-white rounded-lg relative flex flex-col items-center'>
                 {/* Circle Container */}
                 <div className='w-fit p-1 rounded-full   border-2 bg-white border-blue-400 flex justify-center  mt-1'>
-                <div className='w-[30px] h-[30px] rounded-full bg-white z-20 flex items-center justify-center'>
+                <div className='w-[30px] h-[30px] rounded-full bg-white  flex items-center justify-center'>
                 <p className='text-themeBlue font-medium text-2xl'>2</p>
                 </div>
                 </div>
                 <img className='w-[90%] h-[100px]' src={view} />
                 <h2 className='text-sm font-medium mt-2'>View Services</h2>
-                <p className='text-semiXs text-center mt-2'>Navigate to the website and browse through the various service categories available.
-                Click on a category to view the services offered within that category.
+                <p className='text-semiXs text-center mt-2'>Browse through the list of service providers, view their profiles, ratings, and reviews to make an informed choice.
                 </p>
                 
             </div>
@@ -48,7 +47,7 @@ const HowItWorks = () => {
             <div className='w-[215px] h-[290px] HIW_box p-2 bg-white rounded-lg relative flex flex-col items-center'>
                 {/* Circle Container */}
                 <div className='w-fit p-1 rounded-full   border-2 bg-white border-blue-400 flex justify-center  mt-1'>
-                <div className='w-[30px] h-[30px] rounded-full bg-white z-20 flex items-center justify-center'>
+                <div className='w-[30px] h-[30px] rounded-full bg-white  flex items-center justify-center'>
                 <p className='text-themeBlue font-medium text-2xl'>3</p>
                 </div>
                 </div>
@@ -63,7 +62,7 @@ const HowItWorks = () => {
                 <div className='w-[215px] h-[290px] HIW_box p-2 bg-white rounded-lg relative flex flex-col items-center'>
                 {/* Circle Container */}
                 <div className='w-fit p-1 rounded-full   border-2 bg-white border-blue-400 flex justify-center  mt-1'>
-                <div className='w-[30px] h-[30px] rounded-full bg-white z-20 flex items-center justify-center'>
+                <div className='w-[30px] h-[30px] rounded-full bg-white  flex items-center justify-center'>
                 <p className='text-themeBlue font-medium text-2xl'>4</p>
                 </div>
                 </div>

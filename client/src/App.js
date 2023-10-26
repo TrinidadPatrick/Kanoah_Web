@@ -7,6 +7,8 @@ import VerifyEmail from './Pages/VerifyAccountPage/VerifyEmail';
 import ForgotPassword from './Pages/ForgotPasswordPage/ForgotPassword';
 import MainPage from './Pages/MainPage/MainPage';
 import Navbar from './Pages/Navbar/Navbar';
+import Explore from './Pages/ExplorePage/Explore';
+import Map from './Pages/MainPage/Map';
 
 function App() {
   const NavbarLayout = () => (
@@ -16,7 +18,7 @@ function App() {
     </>
   );
   return (
-    <div className="App w-100 z-20 h-screen grid place-items-center bg-slate-400">
+    <div className="App w-100  h-fit grid place-items-center bg-slate-400">
       <BrowserRouter>
       <Routes>
         <Route element={<NavbarLayout />} >
@@ -24,6 +26,8 @@ function App() {
         <Route path='/verify' element={<VerifyEmail />} />
         <Route path='/forgotPassword' element={<ForgotPassword />} />
         <Route path='/register' element={<Register />} />
+        <Route path='/explore' element={<Explore />} />
+        <Route path='/map' element={<Map />} />
         <Route path='/' element={<MainPage />} />
         </Route>
         <Route path='/login' element={<Login />} />

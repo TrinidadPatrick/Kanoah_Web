@@ -11,6 +11,7 @@ import Tag from '../MainPage/Components/CategoryImage/Tag.png'
 import TopRatedServices from './TopRatedServices'
 import RecentServices from './RecentServices'
 import HowItWorks from './HowItWorks'
+import Footer from './Footer'
 
 const MainPage = () => {
     const [showMenu, setShowMenu] = useState(false)
@@ -23,7 +24,6 @@ const MainPage = () => {
             setShowMenu(true)
         }
     }
-
 
   return (
     <div className='h-full w-full relative'>
@@ -55,7 +55,7 @@ const MainPage = () => {
       {/* Category Cards Container */}
       <div className='w-full grid sm:grid-cols-2 lg:grid-cols-3 gap-10  h-fit  px-1 py-5 mt-5'>
       {
-        categories.map((category, index)=>{
+        categories.filter(category => category.featured == true).map((category, index)=>{
           return (
           <div key={index} className="categoryContainerBox origin-center w-full xl:w-full hover:shadow-2xl relative rounded-lg saturate-100 brightness-90 border-2 border-white h-80 sm:h-44 md:h-56 xl:h-64 " style={{backgroundImage : `url(${category.category_image})`,backgroundSize: "cover",boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}>
           <div className='absolute top-3 w-31 py-0 h-9  -right-[1px] pl-6 pr-4 flex items-center ' style={{backgroundImage : `url(${Tag})`,backgroundSize: "100% 35.9px",backgroundRepeat : "no-repeat"}}>
@@ -71,19 +71,26 @@ const MainPage = () => {
   </section>
     
     {/* TOP RATED SERVICES */}
-    <section className='w-full h-screen bg-[#f9f9f9] py-[1rem] sm:px-10 md:px-16 lg:px-36'>
+    <section className='top_rated_service w-full h-screen bg-[#F9F9F9] py-[1rem] sm:px-0 md:px-16 lg:px-16'>
     <TopRatedServices />
     </section>
 
     {/* RECENT SERVICES */}
-    <section className='top_rated_service w-full h-screen bg-  py-[1rem] sm:px-10 md:px-16 lg:px-36'>
+    <section className='top_rated_service w-full h-screen bg-[#F9F9F9] py-[1rem] sm:px-0 md:px-16 lg:px-16'>
     <RecentServices />
     </section>
 
      {/* How it works */}
-     <section className='top_rated_service w-full h-fit lg:h-screen bg-gray-100 py-[1rem] sm:px-10 md:px-16 lg:px-36' >
+     <section className='top_rated_service w-full h-fit lg:h-fit pb-20 bg-gray-100 py-[1rem] sm:px-10 md:px-16 lg:px-36' >
     <HowItWorks />
     </section>
+
+    {/* Footer */}
+    <section className='top_rated_service w-full pb-10 bg-[#071B22] py-[1rem] sm:px-10 md:px-16 lg:px-36' >
+      <Footer />
+    </section>
+
+    
     
     </div>
   )
