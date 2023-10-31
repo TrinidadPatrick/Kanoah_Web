@@ -8,9 +8,13 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import { Context } from '../Navbar/Navbar';
+import { ToastContainer, toast } from 'react-toastify';
+  import 'react-toastify/dist/ReactToastify.css';
+import http from '../../http'
 
 
 const ForgotPassword = () => {
+    const [isLoading, setIsLoading] = useState(false)
     const [showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose] = useContext(Context)
     const navigate = useNavigate()
     const [email, setEmail] = useState('')
@@ -25,6 +29,8 @@ const ForgotPassword = () => {
     const [emailVerified, setEmailVerified] = useState(false)
     const [isChecked, setIsChecked] = useState(false)
 
+    
+
     // To get verification code
     const sendCode = async () => {
         
@@ -36,7 +42,7 @@ const ForgotPassword = () => {
         else if(email != ""){
         
             setIsvalidEmail(true)
-            await axios.post("http://localhost:5000/api/forgotPassword", {email}).then((res)=>{
+            await http.post("forgotPassword", {email}).then((res)=>{
                 if(res.data.message == 'Found'){
                 setEmailVerified(true)
                 setTimer(10)
@@ -59,7 +65,7 @@ const ForgotPassword = () => {
 
     // Submit Code for new Password
     const submitCode =  async () => {
-        axios.post("http://localhost:5000/api/forgotPassword/sendOtp", {code : otp, email}).then((res)=>{
+        http.post("forgotPassword/sendOtp", {code : otp, email}).then((res)=>{
             if(res.data.status == 'verified'){
             console.log('verified')
             setIsValidOtp(true)
@@ -77,9 +83,10 @@ const ForgotPassword = () => {
     // Submit new password
     const submitPassword = async () => {
         if(password != "" && password == confirmPassword){
-            await axios.post("http://localhost:5000/api/forgotPassword/newPassword", {email, password}).then((res)=>{
+            await http.post("forgotPassword/newPassword", {email, password}).then((res)=>{
             if(res.data.status == "updated"){
-                navigate('/')
+                setShowFP(false)
+                setShowLogin(true)
             }else{
                 console.log("failed")
             }
@@ -94,6 +101,8 @@ const ForgotPassword = () => {
         }if(password.length < 9){
             setPasswordError(3)
         }
+
+        setIsLoading(false)
     }
 
     // FOr 10 seconds Countdown
@@ -207,8 +216,9 @@ const ForgotPassword = () => {
         <input id='showPassword' checked={isChecked} onChange={checkHandler} type="checkbox" />
         <p className='text-xs'>Show password</p>
         </div>
-        <button onClick={()=>{submitPassword()}}  className='w-full text-white py-1.5 rounded-sm bg-themeBlue mt-2 text-sm'>Reset Password</button>
+        <button onClick={()=>{submitPassword();setIsLoading(true)}}  className={`${isLoading ? "bg-blue-300" : "bg-themeBlue"} w-full text-white py-1.5 rounded-sm mt-2 text-sm`}>Reset Password</button>
         </div>
+        <ToastContainer />
         </div>
         
        

@@ -19,7 +19,7 @@
     to right,
     #014d9e,
     #014d9e 50%,
-    #fff 50%
+    #ffffff 50%
   );
   font-weight: 600 !important;
   background-size: 200% 100%;
@@ -50,6 +50,20 @@
   
 .navbarLink a:hover::before{
     width: 100%;
+  }
+
+  .categoryDropdown::-webkit-scrollbar {
+    width: 9px;
+  }
+
+  /* .categoryDropdown::-webkit-scrollbar-track {
+    background: #ffffff;
+  } */
+
+  .categoryDropdown::-webkit-scrollbar-thumb {
+    background-color: #454545;
+    border-radius: 10px;
+    border: 3px solid #ffffff;
   }
 
   /* Categories */
@@ -103,6 +117,46 @@
     border-color: black transparent black transparent;
     animation: lds-dual-ring 1.2s linear infinite;
   }
+
+/* Image gallery */
+.image-gallery-original{
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+}
+
+.image-gallery-original img {
+  height: 370px ;
+  width: 100%;
+  object-fit: cover !important;
+  border-radius: 6px;
+  
+}
+
+.image-gallery-thumbnail img{
+  height: 60px;
+  /* width: 200px !important; */
+  object-fit: cover !important;
+  border-radius: 3px;
+}
+
+.image-gallery-thumbnail{
+  height: 70px;
+  width: 16.4% !important;
+  object-fit: cover !important;
+  border-radius: 3px;
+}
+
+.image-gallery-icon {
+  color: red; /* Change the arrow color */
+  font-size: 24px; /* Change the arrow size */
+}
+
+
+
+
+/*  */
   @keyframes lds-dual-ring {
     0% {
       transform: rotate(0deg);

@@ -1,6 +1,6 @@
-import Carwash_Image from "../Components/CategoryImage/Carwash.jpg"
+import automotive_service from "../Components/CategoryImage/automotive_service.jpg"
 import Appliance_Image from "../Components/CategoryImage/Appliance.jpg"
-import Plumbing_Image from "../Components/CategoryImage/Plumbing.jpeg"
+import home_service_image from "../Components/CategoryImage/home_service.jpg"
 import Technician_Image from "../Components/CategoryImage/Technician.jpg"
 import Transportation_Image from "../Components/CategoryImage/Transportation.jpg"
 import Construction_Image from "../Components/CategoryImage/Construction.jpg"
@@ -8,8 +8,8 @@ import Construction_Image from "../Components/CategoryImage/Construction.jpg"
 export const categories = [
     {   
         id : 1,
-        category_name : "Carwash",
-        category_image : Carwash_Image,
+        category_name : "Automotive Services",
+        category_image : automotive_service,
         featured : true
     },
     {   
@@ -20,8 +20,8 @@ export const categories = [
     },
     {   
         id : 3,
-        category_name : "Plumbing",
-        category_image : Plumbing_Image,
+        category_name : "Home Service",
+        category_image : home_service_image,
         featured : true
     },
     {   
@@ -42,18 +42,7 @@ export const categories = [
         category_image : Construction_Image,
         featured : true
     },
-    {   
-        id : 7,
-        category_name : "Automotive Services",
-        // category_image : Construction_Image,
-        featured : false
-    },
-    {   
-        id : 8,
-        category_name : "Home Services",
-        // category_image : Construction_Image,
-        featured : false
-    },
+
     {   
         id : 9,
         category_name : "Health and Wellness",
@@ -102,12 +91,7 @@ export const categories = [
         // category_image : Construction_Image,
         featured : false
     },
-    {   
-        id : 17,
-        category_name : "Beauty and Personal Care",
-        // category_image : Construction_Image,
-        featured : false
-    },
+
     {   
         id : 18,
         category_name : "Childcare and Family Services",

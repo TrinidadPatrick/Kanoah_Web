@@ -12,6 +12,7 @@ import RemoveRedEyeRoundedIcon from '@mui/icons-material/RemoveRedEyeRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import { Context } from '../Navbar/Navbar';
 import jwtDecode from 'jwt-decode';
+import http from '../../http'
 
 const Login = () => {
   const [showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose] = useContext(Context)
@@ -19,6 +20,7 @@ const Login = () => {
   const [isValidUsername, setIsValidUsername, ] = useState(undefined)
   const [isValidPassword, setIsValidPassword] = useState(undefined)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [invalidLogin, setInvalidLogin] = useState(false)
   
 
   const [userInfos, setUserInfo] = useState({
@@ -54,10 +56,14 @@ const Login = () => {
       setIsValidPassword(false)
     }
     if(password != "" && UsernameOrEmail != ""){
-      axios.post("http://localhost:5000/api/login", {UsernameOrEmail, password}).then((res)=>{
-      localStorage.setItem("token", res.data.data)
-      console.log(jwtDecode(res.data.data))
-      window.location.reload(false)
+      http.post("login", {UsernameOrEmail, password}).then((res)=>{
+      if(res.data.status == "authenticated"){
+        localStorage.setItem("token", res.data.data)
+        window.location.reload(false)
+      }else if (res.data.status == "invalid username or password"){
+        setInvalidLogin(true)
+      }
+
     }).catch((err)=>{
       console.log(err)
     })
@@ -78,6 +84,11 @@ const Login = () => {
     <div className='LogReg_container mx-auto w-fit flex'>
     <button className='flex items-center justify-center gap-2 px-7 md:px-9  rounded-sm text-sm py-1 bg-themeBlue text-white'><FaUserLarge /> Sign In </button>
     <button className='text-black flex items-center justify-center  gap-2 px-9 md:px-11  rounded-sm text-sm py-1  '><FaUserPlus/> Sign Up </button>
+    </div>
+
+    {/* Invalid username or password indicator */}
+    <div className={`${invalidLogin ? "block" : "hidden"} w-full bg-red-200 py-2 mt-3 rounded-sm`}>
+      <p className='text-center text-sm text-red-600'>Invalid username/email or password.</p>
     </div>
 
     {/* Input field Container */}

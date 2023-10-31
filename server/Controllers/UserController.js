@@ -4,7 +4,11 @@ const nodemailer = require('nodemailer')
 require("dotenv").config();
 const jwt = require('jsonwebtoken')
 
-
+// Get All Users
+module.exports.getUsers = async (req,res) =>{
+    const users = await user.find()
+    return res.json(users);
+}
 
 // CHECK USERNAME AVAILABILITY
 module.exports.verifyUsername = async (req,res) => {

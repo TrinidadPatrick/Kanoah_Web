@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import Login from '../LoginPage/Login'
 import Logo from "./Components//UtilImage/LogoWhite.png"
@@ -12,8 +12,12 @@ import TopRatedServices from './TopRatedServices'
 import RecentServices from './RecentServices'
 import HowItWorks from './HowItWorks'
 import Footer from './Footer'
+import axios from 'axios'
+import http from '../../http'
+import { services } from './Components/Services/Services'
 
 const MainPage = () => {
+    const [trendingServices, setTrendingServices] = useState(null)
     const [showMenu, setShowMenu] = useState(false)
     const [showLogin, setShowLogin] = useState(false)
     // Handles the showing oh menu on small screens
@@ -24,6 +28,15 @@ const MainPage = () => {
             setShowMenu(true)
         }
     }
+
+    useEffect(()=>{
+      http.get('getUsers').then((res)=>{
+        console.log(res.data)
+      }).catch((err)=>{
+        console.log(err)
+      })
+    },[])
+
 
   return (
     <div className='h-full w-full relative'>
@@ -36,7 +49,7 @@ const MainPage = () => {
       {/* Search field and search button */}
       <div className='p-1 relative flex'>
       <input type="text" placeholder='Search for service' className='text-white w-full text-md md:text-xl py-4 px-6 bg-themeBlue rounded-4xl border-2'/>
-      <button className='absolute bg-white px-2.5 md:px-6 py-2.5 rounded-3xl top-[12px] md:top-[13.5px] flex space-x-2 right-3 md:right-4'><SearchIcon /> <span className='hidden md:block'>Search</span></button>
+      <button className='absolute bg-white px-2.5 md:px-6 py-2.5 rounded-3xl top-[12px] md:top-[13.5px] flex space-x-2 right-3 md:right-3'><SearchIcon /> <span className='hidden md:block'>Search</span></button>
       </div>
       </div>
       

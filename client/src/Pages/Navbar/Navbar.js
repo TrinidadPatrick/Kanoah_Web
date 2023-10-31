@@ -11,6 +11,8 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import jwtDecode from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
+import { categories } from '../MainPage/Components/Categories'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 export const Context = React.createContext()
 
 
@@ -91,7 +93,27 @@ const Navbar = () => {
         <Link to="explore"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
       </li>
       <li>
-        <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a>
+        {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}
+      <div className="flex items-center mt-[0.17rem]">
+      <div className="group inline-block relative">
+        <button className=" text-white text-sm font-normal  px-2 rounded inline-flex items-center">Categories
+        <ExpandMoreIcon />
+        </button>
+        <ul className="categoryDropdown absolute hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
+          {
+            categories.map((category, index)=>{
+              return (
+            <li key={index} className="">
+            <button className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+          </li>
+              )
+            })
+          }
+          
+          
+        </ul>
+      </div>
+        </div>
       </li>
       <li>
         <a href="#" className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md">About Us</a>

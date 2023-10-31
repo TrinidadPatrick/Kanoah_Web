@@ -16,6 +16,7 @@ import RemoveRedEyeRoundedIcon from '@mui/icons-material/RemoveRedEyeRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import {BASE_URL} from '../../Utilities/ApiRoutes'
 import { Context } from '../Navbar/Navbar';
+import http from '../../http'
 
 
 
@@ -23,6 +24,7 @@ import { Context } from '../Navbar/Navbar';
 const Register = () => {
   const [showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose] = useContext(Context)
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(false)
   const [isValidUsername, setIsValidUsername] = useState(undefined)
   const [isValidEmail, setIsValidEmail] = useState(undefined)
   const [isValidPassword, setIsValidPassword] = useState(undefined)
@@ -79,7 +81,7 @@ const Register = () => {
     }if(password.length >= 8){
       setIsValidPassword(true)
     }if(username.length >= 5 && password.length >= 8){
-      await axios.post(BASE_URL+"/api/verifyUsername", {username : userInfos.username}).then((res)=>{
+      await http.post("verifyUsername", {username : userInfos.username}).then((res)=>{
         if(res.data.status == "unavailable"){
           setIsUsernameExist(true)
         }else if(res.data.status == "available"){
@@ -114,7 +116,7 @@ const Register = () => {
       setIsValidEmail(true)
       
       const {email, username} = userInfos
-      await axios.post(BASE_URL+"/api/verifyEmail", {email : email}).then((res)=>{
+      await http.post("verifyEmail", {email : email}).then((res)=>{
         console.log(res.data.status)
         if(res.data.status == "emailSent"){
       setIsEmailExist(false)
@@ -158,7 +160,7 @@ useEffect(()=>{
     }
 }, [timer])
 
-console.log(userInfos)
+
 
   // Signup User
   const signup = async () => { 
@@ -174,22 +176,22 @@ console.log(userInfos)
     
     if(firstname != "" && lastname != "" & contact != "" && email != ""){
 
-      axios.post(BASE_URL+"/api/verifyOTP", {otp}).then((res)=>{
+      http.post("verifyOTP", {otp}).then((res)=>{
         // IF OTP IS CORRECT
             if(res.data == 'verified'){
-              axios.post(BASE_URL+"/api/register", {username, email, password, firstname, lastname, contact, birthDate}).then((res)=>{
+              http.post("register", {username, email, password, firstname, lastname, contact, birthDate}).then((res)=>{
                 if(res.data.status == 'registered'){
                 localStorage.setItem("token", res.data.userToken)
                 console.log(res.data)
                 setIsValidOtp(true)
-                handleClose()
-                // navigate('/verify')
+                setShowSignup(false)
+                setShowLogin(true)
                 }else {
                     // IF FAILED REGISTRATION
                     console.log(res.data)
                 }
                 }).catch((err)=>{
-                console.log(err)  
+                  alert("Signup failed please try again after a few minutes.")  
                 })
                 }else{
                 // IF OTP IS NOT CORRECT
@@ -199,6 +201,7 @@ console.log(userInfos)
                 console.log(err)
                 })
                 }
+      setIsLoading(false)
   }
  
 
@@ -380,7 +383,7 @@ console.log(userInfos)
   {/* Signup Button Container */}
     {
       acceptedTNC ? 
-      <button onClick={()=>{signup()}} className='w-full text-white py-1 rounded-sm bg-themeBlue'>Signup</button>
+      <button onClick={()=>{signup();setIsLoading(true)}} className={`${isLoading ? "bg-blue-300" : "bg-themeBlue"} w-full text-white py-1 rounded-sm`}>Signup</button>
       :
       <button disabled onClick={()=>{signup()}} className='w-full text-white py-1 rounded-sm bg-themeBlue disabled:bg-slate-600'>Signup</button>
     }   
