@@ -26,9 +26,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import Description from './Components/Description';
 import Reviews from './Components/Reviews';
 import { galleryImage } from './Components/ForGallery';
-import { Gallery } from "react-grid-gallery";
-import Lightbox from "react-image-lightbox";
-import "react-image-lightbox/style.css";
 import ResponsiveGallery from 'react-responsive-gallery';
 
 
@@ -374,10 +371,13 @@ const ViewService = () => {
         </section>
         
         {/* Gallery */}
-        <div className='w-full border-2  p-6'>
-      <ResponsiveGallery useLightBox={true} numOfMediaPerRow={{s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={galleryImage} />
-      
+        <section className='w-full   mt-10 p-2'>
+        <div className='galleryContainer w-full max-h-[550px] bg-white rounded-lg h-[550px] overflow-auto border-2 px-6 relative'>
+        <h1 className='text-4xl text-center font-semibold mt-0 bg-white p-4 sticky top-0 z-10'>Gallery</h1>
+        <ResponsiveGallery mediaMaxWidth={{xxl: 100}} colsPadding={{xs:2,s:2,m:2,l:2, xl:2,xxl:2}} useLightBox={true} numOfMediaPerRow={{xs:1,s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={galleryImage} />
         </div>
+        </section>
+       
         
     </div>
   )

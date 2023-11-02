@@ -182,6 +182,24 @@
   max-height: 240px; /* Adjust the desired height */
 }
 
+.galleryImage{
+  border-radius: 100px;
+}
+
+.galleryContainer::-webkit-scrollbar {
+  width: 9px;
+}
+
+/* .categoryDropdown::-webkit-scrollbar-track {
+  background: #ffffff;
+} */
+
+.galleryContainer::-webkit-scrollbar-thumb {
+  background-color: #454545;
+  border-radius: 10px;
+  border: 2px solid #ffffff;
+}
+
 
 /*  */
   @keyframes lds-dual-ring {
