@@ -120,14 +120,15 @@
 
 /* Image gallery */
 .image-gallery-original{
+  margin-top: 25px;
   max-width: 100%;
   max-height: 100%;
   width: auto;
-  height: auto;
+  height: 460px;
 }
 
 .image-gallery-original img {
-  height: 370px ;
+  height: 450px ;
   width: 100%;
   object-fit: cover !important;
   border-radius: 6px;
@@ -135,14 +136,14 @@
 }
 
 .image-gallery-thumbnail img{
-  height: 60px;
+  height: 90px;
   /* width: 200px !important; */
   object-fit: cover !important;
   border-radius: 3px;
 }
 
 .image-gallery-thumbnail{
-  height: 70px;
+  height: 100px;
   width: 16.4% !important;
   object-fit: cover !important;
   border-radius: 3px;
@@ -153,7 +154,14 @@
   font-size: 24px; /* Change the arrow size */
 }
 
+/* View Profile */
+.misc_container{
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
 
+.formatted-input{
+  resize: both;
+}
 
 
 /*  */
