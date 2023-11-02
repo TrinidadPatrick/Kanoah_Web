@@ -27,11 +27,17 @@ import Description from './Components/Description';
 import Reviews from './Components/Reviews';
 import { galleryImage } from './Components/ForGallery';
 import ResponsiveGallery from 'react-responsive-gallery';
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import Download from "yet-another-react-lightbox/plugins/download";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import Footer from '../MainPage/Footer';
+
 
 
 
 const ViewService = () => {
-  const [rerender, setRerender] = useState(0);
+  const [open, setOpen] = React.useState(false);
   const [selectedOptions, setSelectedOptions] = useState('Description')
   const [currentDay, setCurrentDay] = useState('')
   const schedule = [{day: "Monday", "startTime" : "9:00 AM", endTime : "8:00 PM"},
@@ -177,8 +183,9 @@ const ViewService = () => {
   },[])
 
   
-  
+
   return (
+    <>
     <div className='w-full h-full bg-[#f7f7f7] md:px-12 lg:px-20 xl:px-32 pb-10 pt-20 flex flex-col'>
         {/* Top Layer *******************************************************************/}
         <section className='w-full  h-fit flex flex-col xl:flex-row justify-between p-2 gap-1 mt-5' >
@@ -372,14 +379,27 @@ const ViewService = () => {
         
         {/* Gallery */}
         <section className='w-full   mt-10 p-2'>
-        <div className='galleryContainer w-full max-h-[550px] bg-white rounded-lg h-[550px] overflow-auto border-2 px-6 relative'>
+        <div className=' w-full max-h-[550px] bg-white rounded-lg h-[550px] border-2 px-6 relative'>
         <h1 className='text-4xl text-center font-semibold mt-0 bg-white p-4 sticky top-0 z-10'>Gallery</h1>
-        <ResponsiveGallery mediaMaxWidth={{xxl: 100}} colsPadding={{xs:2,s:2,m:2,l:2, xl:2,xxl:2}} useLightBox={true} numOfMediaPerRow={{xs:1,s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={galleryImage} />
+        <div className='galleryContainer bg-white mb-2 max-h-[460px] overflow-auto'>
+        <ResponsiveGallery mediaStyle={{borderRadius : "5px"}} key={galleryImage} onClick={()=>{setOpen(true)}} mediaMaxWidth={{xxl: 100}} colsPadding={{xs:2,s:2,m:2,l:2, xl:2,xxl:2}} useLightBox={false} numOfMediaPerRow={{xs:1,s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={galleryImage} />
         </div>
-        </section>
+        <Lightbox
+        plugins={[Download,Fullscreen]}
+        open={open}
+        close={() => setOpen(false)}
+        slides={galleryImage}
+      />
+      </div>
+      </section>
        
-        
+    
     </div>
+
+<footer className='w-full pb-10 bg-[#071B22] py-[1rem] sm:px-10 md:px-16 lg:px-36'>
+<Footer />
+</footer>
+</>
   )
 }
 

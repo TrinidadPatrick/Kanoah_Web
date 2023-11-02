@@ -17,64 +17,58 @@ import pic6 from '../img/pic6.jpg'
 
 export const galleryImage = [
     {
-        src : image1,
-        original : image1,
+        src : image1
+        ,
         
 
 
     }
     ,
     {
-        src : image2,
-        original : image2
+        src : image2
+        
     },
     {
-        src : image3,
-        original : image3
+        src : image3
+        
     },
     {
-        src : image4,
-        original : image4
+        src : image4
+        
     },
     {
-        src : image5,
-        original : image5
+        src : image5
+        
     },
     {
-        src : image6,
-        original : image6
+        src : image6
+        
     },
     {
-        src : image4,
-        original : image4
+        src : image4
+        
     },
     {
-        src : image8,
-        original : image8
+        src : image8
+        
     },
     {
-        src : pic1,
-        original : pic1
-    },
+        src : pic1
+           },
     {
-        src : pic2,
-        original : pic2
-    },
+        src : pic2
+           },
     {
-        src : pic3,
-        original : pic3
-    },
+        src : pic3
+           },
     {
-        src : pic4,
-        original : pic4
-    },
+        src : pic4
+           },
     {
-        src : pic5,
-        original : pic5
-    },
+        src : pic5
+           },
     {
-        src : pic6,
-        original : pic6
-    },
+        src : pic6
+           },
 
 ]
