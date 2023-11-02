@@ -12,11 +12,10 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
-import PermContactCalendarOutlinedIcon from '@mui/icons-material/PermContactCalendarOutlined';
+import CalendarMonthOutlinedIcon from '@mui/icons-material/CalendarMonthOutlined';
 import CallOutlinedIcon from '@mui/icons-material/CallOutlined';
 import MiscellaneousServicesOutlinedIcon from '@mui/icons-material/MiscellaneousServicesOutlined';
 import ReviewsOutlinedIcon from '@mui/icons-material/ReviewsOutlined';
-import FacebookIcon from '@mui/icons-material/Facebook';
 import ImageGallery from "react-image-gallery";
 import 'react-image-gallery/styles/css/image-gallery.css'
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -24,11 +23,28 @@ import 'react-gallery-carousel/dist/index.css';
 import { FaInstagram, FaMapLocation, FaPhone, FaRegEnvelope, FaSquareFacebook } from 'react-icons/fa6';
 import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import Description from './Components/Description';
+import Reviews from './Components/Reviews';
+import { galleryImage } from './Components/ForGallery';
+import { Gallery } from "react-grid-gallery";
+import Lightbox from "react-image-lightbox";
+import "react-image-lightbox/style.css";
+import ResponsiveGallery from 'react-responsive-gallery';
+
 
 
 const ViewService = () => {
+  const [rerender, setRerender] = useState(0);
+  const [selectedOptions, setSelectedOptions] = useState('Description')
+  const [currentDay, setCurrentDay] = useState('')
+  const schedule = [{day: "Monday", "startTime" : "9:00 AM", endTime : "8:00 PM"},
+  {day: "Tuesday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
+  {day: "Wednesday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
+  {day: "Thursday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
+  {day: "Friday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
+  {day: "Saturday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
+  {day: "Sunday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"}]
+
   const [description, setDescription] = useState(null)
   const [location, setLocation] = useState({
     longitude : null,
@@ -136,7 +152,6 @@ const ViewService = () => {
           const street = location.adminArea6
           const city = location.adminArea5
           const province = location.adminArea4
-          console.log(street + " " + city + ", " + province);
         } else {
           console.error('Geocoding failed. Check the API response.');
         }
@@ -156,6 +171,15 @@ const ViewService = () => {
     
   },[location])
 
+  // Get current Day name
+  useEffect(()=>{
+    const currentDate = new Date()
+    const currentDay = currentDate.getDay()
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    setCurrentDay(daysOfWeek[currentDay])
+  },[])
+
+  
   
   return (
     <div className='w-full h-full bg-[#f7f7f7] md:px-12 lg:px-20 xl:px-32 pb-10 pt-20 flex flex-col'>
@@ -291,87 +315,70 @@ const ViewService = () => {
         </section>
 
         {/* Description reviews and services */}
-        <section className='w-full border-2 border-black mt-10 p-2'>
+        <section className='w-full   mt-10 p-2'>
           {/* Main Container */}
-          <div className='misc_container'>
+          <div className='misc_container bg-white rounded-md overflow-hidden'>
           {/* Buttons container */}
           <div className=' flex'>
-            <button className='border border-r-0 border-b-[3px] border-b-themeOrange w-40 py-3 flex items-center justify-center gap-1'><DescriptionOutlinedIcon /> Description</button>
-            <button className='border border-r-0 w-40 py-3 flex items-center justify-center gap-1'><ReviewsOutlinedIcon /> Reviews</button>
-            <button className='border w-40 py-3 flex items-center justify-center gap-1'><MiscellaneousServicesOutlinedIcon /> Services</button>
+            {/* Description Button */}
+            <div className='border border-r-0 rounded-ss-md'>
+            <button onClick={()=>{setSelectedOptions("Description")}} className='  px-10 py-3 flex items-center justify-center gap-1'><DescriptionOutlinedIcon /> Description</button>
+            <div id="descriptionBtn" className={`${selectedOptions == "Description" ? "active" : ""} slidingBorder`}></div>
+            </div>
+            {/* Reviews Button */}
+            <div className='border border-r-0'>
+            <button  onClick={()=>{setSelectedOptions("Reviews")}} className=' px-10 py-3 flex items-center justify-center gap-1'><ReviewsOutlinedIcon /> Reviews</button>
+            <div id="reviewsBtn" className={`${selectedOptions == "Reviews" ? "active" : ""} slidingBorder`}></div>
+            </div>
+            {/* Service Button */}
+            <div className='border border-r-0'>
+            <button onClick={()=>{setSelectedOptions("Services")}} className=' px-10 py-3 flex items-center justify-center gap-1'><MiscellaneousServicesOutlinedIcon /> Services</button>
+            <div id="serviceBtn" className={`${selectedOptions == "Services" ? "active" : ""} slidingBorder`}></div>
+            </div>
+            
+            <button className='border w-full'></button>
           </div>
           {/* Description container */}
-          <article className='w-full p-2'>
-          <h1 className='text-3xl font-semibold mt-4'>Description</h1>
-          {/* Description box */}
-          <div>
-            {/* <p>Revitalize Your Vehicle with Our Premium Carwash Service
-
-Is your car in need of some serious TLC? Look no further! Our carwash service is your one-stop destination for a complete automotive transformation. We take pride in delivering the most comprehensive and professional car cleaning experience available.
-
-Why Choose Our Carwash Service:
-
-1. Unparalleled Quality:
-
-We set the industry standard for superior car cleaning. Your vehicle deserves the best, and that's exactly what we offer.
-2. Expert Team:
-
-Our skilled team of automotive enthusiasts knows every inch of your car. We handle your vehicle with the utmost care and attention.
-3. State-of-the-Art Equipment:
-
-We invest in cutting-edge equipment and technology to ensure an impeccable finish, from the exterior to the interior.
-4. Environmentally Conscious:
-
-We care about the planet. Our eco-friendly products and practices help reduce our carbon footprint while keeping your car pristine.
-Our Comprehensive Carwash Services:
-
-1. Exterior Bliss:
-
-Witness the magic of our high-pressure wash, removing dirt and grime with ease. Our meticulous hand-drying process ensures a spotless shine.
-2. Interior Elegance:
-
-Step into a clean and fresh interior. We vacuum, shampoo, and sanitize, leaving no corner untouched. Say goodbye to those stubborn stains!
-3. Paint Protection:
-
-Our wax and sealant application safeguards your car's finish from the elements, preserving that showroom-worthy shine.
-4. Attention to Detail:
-
-We love your car as much as you do. Our team takes pride in the little things, like tire dressing, wheel cleaning, and window perfection.
-5. Tailored Packages:
-
-We offer a variety of packages to suit your car's unique needs. From a quick refresh to a complete rejuvenation, there's an option for everyone.
-Convenience Is Our Promise:
-
-Don't waste time waiting in long lines. Our efficient service ensures you get back on the road in no time. While you relax, we work our magic on your vehicle.
-
-A Clean Car, A Happy You:
-
-We understand that your car isn't just a machine; it's a part of your life. Our carwash service ensures your vehicle is not only spotless but also a source of pride.
-
-Visit Us Today:
-
-Experience the ultimate car cleaning service. Trust us to give your vehicle the care and attention it deserves. Your car will thank you.
-
-Address: [Insert Address]
-Phone: [Insert Phone Number]
-
-Rediscover the joy of driving with a car that's as clean as the day you bought it. Book your appointment with us today and let us bring your vehicle back to life.
-
-Feel free to customize and adapt this long description to fit the specific details and offerings of your carwash service. Your description should emphasize the quality, care, and attention to detail your service provides, and the benefits of choosing your carwash over others.
-
-
-
-
-
-
-            </p> */}
-            <div>
-     
-      </div>
-          </div>
+          <article className='w-full py-2 px-5'>
+          {selectedOptions == "Description" ? (<Description />) : selectedOptions == "Reviews" ? (<Reviews />) : ""}
+          
           </article>
           </div>
         </section>
+        
+        {/* Schedule or business hours */}
+        <section className='w-full   mt-10 p-2'>
+          {/* Schedule container */}
+        <article className='w-full mt-5'>
+          <div className='misc_container py-2 px-5 bg-white rounded-md'>
+          <h1 className='text-3xl font-semibold mt-4 mb-5'>Service Schedule</h1>
+          <div className='grid grid-cols-5 gap-5 py-1 w-full'>
+          {
+            schedule.map((sched, index)=>{
+              return(
+                <div key={index} className={`sched_container ${sched.day == currentDay ? "border-2 border-blue-500" : ""} w-full flex flex-col justify-center items-center py-9 rounded-md`}>
+                <CalendarMonthOutlinedIcon />
+                <h1 className='text-xl font-semibold'>{sched.day}</h1>
+                <div className='flex mt-2'>
+                <div className='flex items-center space-x-1  px-2'><p className='text-lg font-normal text-gray-700'>{sched.startTime}</p></div>
+                -
+                <div className='flex items-center space-x-1  px-2'><p className='text-lg font-normal text-gray-700'>{sched.endTime}</p></div>
+                </div>
+                </div>
+              )
+            })
+          }
+          </div>
+          </div>
+          </article>
+        </section>
+        
+        {/* Gallery */}
+        <div className='w-full border-2  p-6'>
+      <ResponsiveGallery useLightBox={true} numOfMediaPerRow={{s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={galleryImage} />
+      
+        </div>
+        
     </div>
   )
 }

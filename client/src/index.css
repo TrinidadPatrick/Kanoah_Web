@@ -159,8 +159,27 @@
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
+.sched_container{
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
 .formatted-input{
   resize: both;
+}
+
+.slidingBorder {
+  border-bottom: 3px solid #EB6B23; /* Initial border */
+  width: 0; /* Initial width (hidden) */
+  transition: width 0.5s; /* Transition property for width */
+}
+
+.active {
+  width: 100%; /* Expanded width after button click */
+}
+
+.thumbnailForGallery {
+  max-width: 240px; /* Adjust the desired width */
+  max-height: 240px; /* Adjust the desired height */
 }
 
 
