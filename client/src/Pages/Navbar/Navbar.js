@@ -13,7 +13,9 @@ import jwtDecode from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
 import { categories } from '../MainPage/Components/Categories'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import axios from 'axios'
 export const Context = React.createContext()
+
 
 
 const Navbar = () => {
@@ -64,7 +66,6 @@ const Navbar = () => {
     }, [])
     
 
-    
 
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
@@ -136,7 +137,10 @@ const Navbar = () => {
         <div className='flex items-center justify-evenly space-x-5 mr-4'>
                     <ForumRoundedIcon className='text-white'/>
           <NotificationsIcon className='text-white' />
+          <Link to='/myAccount'>
           <img className='w-8 ml- border-1 border-white  rounded-full' src={userInfo.profileImage} />
+          </Link>
+          
         </div>
       )
       :

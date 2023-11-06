@@ -10,6 +10,7 @@ import Navbar from './Pages/Navbar/Navbar';
 import Explore from './Pages/ExplorePage/Explore';
 import Map from './Pages/MainPage/Map';
 import ViewService from './Pages/ViewService/ViewService';
+import CustomerAccount from './Pages/AccountSetting/CustomerAccount';
 
 function App() {
   const NavbarLayout = () => (
@@ -29,6 +30,7 @@ function App() {
         <Route path='/register' element={<Register />} />
         <Route path='/explore' element={<Explore />} />
         <Route path='explore/viewService' element={<ViewService />} />
+        <Route path='/myAccount' element={<CustomerAccount />} />
         <Route path='/' element={<MainPage />} />
         </Route>
         <Route path='/login' element={<Login />} />

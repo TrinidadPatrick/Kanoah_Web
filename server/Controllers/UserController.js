@@ -10,6 +10,46 @@ module.exports.getUsers = async (req,res) =>{
     return res.json(users);
 }
 
+// Get specific User
+module.exports.getUser = async (req,res) => {
+        const id = req.params._id
+        const userInfo = await user.findOne({_id : id})
+        return res.json(userInfo)
+    
+   
+}
+
+// Update user information
+module.exports.updateUser = async (req,res) =>{
+
+    const _id = req.params._id
+    const data = req.body
+    try {
+        // Find duplicates except for the active users information
+        const verifyUsername= await user.findOne({username : req.body.username, _id : {$ne : _id}})
+        const verifyEmail = await user.findOne({email : req.body.email, _id : {$ne : _id}})
+        const verifyContact = await user.findOne({contact : req.body.contact, _id : {$ne : _id}})
+        if(verifyUsername){return res.json({status: "usernameDuplicate"})}
+        if(verifyEmail){return res.json({status: "emailDuplicate"})}
+        if(verifyContact){return res.json({status: "contactDuplicate"})}
+        else{
+            const result = await user.findByIdAndUpdate(_id, data, {
+                new: true,
+                runValidators: true
+            })
+            return res.json({data: result, status: "updated" });
+        }
+        
+    if (!result) {
+        return res.status(404).json({ message: 'Document not found' });
+        }
+      
+    
+    } catch (error) {
+        return res.status(500).json({ message: 'Internal server error', error: error.message });
+    }
+}
+
 // CHECK USERNAME AVAILABILITY
 module.exports.verifyUsername = async (req,res) => {
     const username = req.body.username
@@ -24,18 +64,20 @@ module.exports.verifyUsername = async (req,res) => {
 }
 
 // Registers the user
-module.exports.register = async (req,res) => {
+module.exports.register = async (req,res) => {  
     const {username, email, password, firstname, lastname, contact, birthDate} = req.body
-
-    // res.json(birthDates)
+    const filterContact = await user.findOne({contact : contact})
     const filterEmail = await user.findOne({email : email})
     const filterusername = await user.findOne({username : username})
-    const image = `https://ui-avatars.com/api/?name=${firstname}+${lastname}`
+    const image = `https://ui-avatars.com/api/?name=${firstname}+${lastname}&background=0D8ABC&color=fff`
+    if(filterContact){
+        return res.json({message : "Contact already Exist"})
+    }
     if(filterEmail){
         return res.json({message : "Email already Exist"})
     }if(filterusername) {
         return res.json({message : "Username already Exist"})
-    }else if (!filterEmail && !filterusername){
+    }else if (!filterEmail && !filterusername && !filterContact){
         
         const hashedPassword = await bcrypt.hash(password, 10)
         await user.create({username, email, password : hashedPassword, firstname, lastname, contact, birthDate : birthDate, profileImage : image, verified : true}).then((response)=>{
@@ -59,16 +101,18 @@ module.exports.register = async (req,res) => {
     let code = []
 // ------------------------------------------------------------------------------------------------
 
-    // FOR EMAIL VERIFICATION SEND OTP EMAIL
+// FOR EMAIL VERIFICATION SEND OTP EMAIL
 module.exports.verifyEmail = async (req,res) => {
    
     
     const verifyDuplicateEmail = await user.findOne({email : req.body.email})
+    
     // console.log(verifyDuplicateEmail)
     if(verifyDuplicateEmail){
         res.json({status : "EmailExist"})
-    }else{
-        const letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    }
+    else{
+        const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "j", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 1, 2, 3, 4, 5, 6, 7, 8, 9]
         const arr = []
         for(var i=1; i<7;i++){
             arr.push(letters[Math.floor(Math.random() * letters.length)])
@@ -164,7 +208,7 @@ module.exports.forgotPassword = async (req,res) => {
 
       if(result != null){
 
-        const letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        const letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "j", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 1, 2, 3, 4, 5, 6, 7, 8, 9]
         const arr = []
         for(var i=1; i<7;i++){
         arr.push(letters[Math.floor(Math.random() * letters.length)])

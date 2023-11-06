@@ -100,7 +100,7 @@ const MainPage = () => {
 
     {/* Footer */}
     <section className='top_rated_service w-full pb-10 bg-[#071B22] py-[1rem] sm:px-10 md:px-16 lg:px-36' >
-      <Footer />
+    <Footer />
     </section>
 
     

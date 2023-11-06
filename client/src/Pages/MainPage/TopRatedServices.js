@@ -75,7 +75,7 @@ const TopRatedServices = () => {
     // active is provided by this lib for checking if the item is active or not.
     return (
       <button
-        className={` mx-1 bg-black transition-all duration-300 rounded-full mb-4 ${active ? "active w-3 h-3 bg-gray-700" : "inactive bg-gray-400 w-3 h-3"}`}
+        className={` mx-1 bg-black transition-all duration-300 rounded-full mb-4 ${active ? " w-[12px] max-w-[12px] h-3 bg-gray-700" : "inactive bg-gray-400 w-3 h-3"}`}
         onClick={() => onClick()}
       >
       </button>

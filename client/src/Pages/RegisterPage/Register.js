@@ -33,6 +33,7 @@ const Register = () => {
   const [isValidContact, setIsValidContact] = useState(undefined)
   const [isValidOtp, setIsValidOtp] = useState(undefined)
   const [isEmailExist, setIsEmailExist] = useState(undefined)
+  const [isContactExist, setIsContactExist] = useState(undefined)
   const [isUsernameExist, setIsUsernameExist] = useState(undefined)
   const [emailSent, setEmailSent] = useState(false)
   const [registerPage, setRegisterPage] = useState(1)
@@ -115,8 +116,8 @@ const Register = () => {
     }else{
       setIsValidEmail(true)
       
-      const {email, username} = userInfos
-      await http.post("verifyEmail", {email : email}).then((res)=>{
+      const {email, contact} = userInfos
+      await http.post("verifyEmail", {email : email, contact : contact}).then((res)=>{
         console.log(res.data.status)
         if(res.data.status == "emailSent"){
       setIsEmailExist(false)
@@ -137,6 +138,7 @@ const Register = () => {
         else if(res.data.status = 'EmailExist'){
           setIsEmailExist(true)
         } 
+       
       }).catch((err)=>{
         console.log(err)  
       })
@@ -179,6 +181,7 @@ useEffect(()=>{
       http.post("verifyOTP", {otp}).then((res)=>{
         // IF OTP IS CORRECT
             if(res.data == 'verified'){
+              
               http.post("register", {username, email, password, firstname, lastname, contact, birthDate}).then((res)=>{
                 if(res.data.status == 'registered'){
                 localStorage.setItem("token", res.data.userToken)
@@ -188,7 +191,10 @@ useEffect(()=>{
                 setShowLogin(true)
                 }else {
                     // IF FAILED REGISTRATION
-                    console.log(res.data)
+                    if(res.data.message == "Contact already Exist")
+                    {
+                      setIsContactExist(true)
+                    }
                 }
                 }).catch((err)=>{
                   alert("Signup failed please try again after a few minutes.")  
@@ -324,6 +330,7 @@ useEffect(()=>{
     <div className='absolute left-11 flex text-gray-600'>+63 <div className='bg-gray-600 ml-3 w-0.2 flex items-start justify-start'></div></div>
     <input onChange={(e)=>handleChange(e)} type="text" placeholder=' ' maxLength={10} name='contact' className={`text-sm border-b-1 border-gray outline-none w-full mx-auto pl-24 py-2 ${isValidLastname == false ? "border-b-red-500" : ""}`} />
     <p className={`text-xs text-start absolute text-red-500 -bottom-4 ${isValidContact == false ? "block" : "hidden"}`}>Contact is required</p>
+    <p className={`text-xs text-start absolute text-red-500 -bottom-4 ${isContactExist == true ? "block" : "hidden"}`}>Contact already exist</p>
     </div>
 
     {/* Email Field */}
