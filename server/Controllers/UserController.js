@@ -12,11 +12,37 @@ module.exports.getUsers = async (req,res) =>{
 
 // Get specific User
 module.exports.getUser = async (req,res) => {
+    try {
         const id = req.params._id
         const userInfo = await user.findOne({_id : id})
+        console.log(userInfo)
         return res.json(userInfo)
+    } catch (error) {
+        
+    }
+        
     
    
+}
+
+// Verify Password for update information
+module.exports.verifyPassword = async (req,res)=>{
+    const id = req.body._id
+    const password = req.body.password
+    const found = await user.findOne({_id : id})
+    if(found != null)
+    {
+     const comparePassword = await bcrypt.compare(password, found.password)
+     if(comparePassword)
+     {
+        return res.json({status : "verified"})
+     }
+     else
+     {
+        return res.json({status : "invalid"})
+     }
+    }
+    
 }
 
 // Update user information
@@ -80,7 +106,7 @@ module.exports.register = async (req,res) => {
     }else if (!filterEmail && !filterusername && !filterContact){
         
         const hashedPassword = await bcrypt.hash(password, 10)
-        await user.create({username, email, password : hashedPassword, firstname, lastname, contact, birthDate : birthDate, profileImage : image, verified : true}).then((response)=>{
+        await user.create({username, email, password : hashedPassword, firstname, lastname, contact, birthDate : birthDate, profileImage : image, verified : true, Address : null}).then((response)=>{
             const token = jwt.sign({
                 username : username,
                 email : email,
@@ -94,6 +120,35 @@ module.exports.register = async (req,res) => {
     }
 
    
+}
+
+// Update user password
+module.exports.updatePassword = async (req,res) => {
+    const password = req.body.password
+    const newPassword = req.body.newPassword
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10)
+    const id = req.body._id
+    try {
+      const result = await user.findOne({_id : id})  
+      if(result != null)
+      {
+        const verifyPassword = await bcrypt.compare(password, result.password)
+        console.log(verifyPassword)
+        if(verifyPassword)
+        {
+            await user.findOneAndUpdate({_id : id}, {password : hashedNewPassword})
+            return res.json({status : "updated"})
+        }
+        else
+        {
+            return res.json({status : "invalid"})
+        }
+      }
+      
+    } catch (error) {
+        return res.json({error : error})
+    }
+    
 }
 
 // CODE GENERATOR FOR OTP--------------------------------------------------------------------------

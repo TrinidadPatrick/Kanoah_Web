@@ -44,7 +44,10 @@ const userSchema = new mongoose.Schema({
         type : String,
         required : true
     },
-    Active : {
+    Address : {
+        type : Object,
+    },
+    Status : {
         type : String,
         default : "Active"
     }

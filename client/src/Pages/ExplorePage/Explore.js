@@ -42,7 +42,6 @@ const Explore = () => {
   const ratingValues = [5,4,3,2,1]
   const [search, setSearch] = useState('')
   const [locationFilterValue, setLocationFilterValue] = useState('')
-
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');

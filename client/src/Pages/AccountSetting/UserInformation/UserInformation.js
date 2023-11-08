@@ -3,12 +3,50 @@ import { useEffect, useState } from 'react'
 import { DateData } from '../../RegisterPage/RegisterComponents/MMDDYY/Date'
 import http from '../../../http'
 import jwtDecode from 'jwt-decode'
+import axios from 'axios'
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
+import EditLocationOutlinedIcon from '@mui/icons-material/EditLocationOutlined';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import phil from 'phil-reg-prov-mun-brgy';
+import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
+import 'mapbox-gl/dist/mapbox-gl.css';
+import cloudinaryCore from '../../../CloudinaryConfig'
+
 
 const UserInformation = () => {
+    const [disableSaveChange, setDisableSaveChange] = useState(true)
+    const [isloadingImage, setIsloadingImage] = useState(false)
+    const [password, setPassword] = useState('')
+    const [newPassword, setNewPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [isDragging, setIsDragging] = useState(false);
+    const [closeAutofill, setCloseAutofill] = useState(false)
+    const [places, setPlaces] = useState([])
+    const [locationFilterValue, setLocationFilterValue] = useState({
+        location : '',
+        longitude : '',
+        latitude : ''
+    })
+    const [location, setLocation] = useState({
+        longitude : 122.5320,
+        latitude : 13.4124
+      })
+    const [locCodesSelected, setLocCodesSelected] = useState([
+        ['', '-1'], //Region
+        ['','-1'], //Province
+        ['','-1'], //Municipality
+        ['','-1'] //Barangay
+    ])
+    const [open, setOpen] = React.useState(false);
+    const [openCPModal, setOpenCPModal] = React.useState(false);
+    const [openNPModal, setOpenNPModal] = React.useState(false);
     const [errors, setErrors] = useState({
         contactError : null, //0 = invalid, 1 = isDuplicate
         emailError : null, //0 = invalid, 1 = isDuplicate
-        usernameError : null //0 = invalid, 1 = isDuplicate
+        usernameError : null, //0 = invalid, 1 = isDuplicate
+        passwordError : null //0 = invalid, 1 = newPassword and confirm does not mwatch 
     })
     const [userInformation, setUserInformation] = useState({username : "",
     email : "",
@@ -16,6 +54,7 @@ const UserInformation = () => {
     firstname: "",
     lastname : "",
     contact : "",
+    Address: {},
     birthDate : {}})
     const [birthDate, setBirthDate] = useState({
         month : "January",
@@ -37,6 +76,13 @@ const UserInformation = () => {
     })
     }
 
+    // Clear password input fields
+    const clearPasswords = () => {
+        setPassword('')
+        setNewPassword('')
+        setConfirmPassword('')
+    }
+
     // Get user
     const getUserInfo = async () => {
         try {
@@ -56,6 +102,7 @@ const UserInformation = () => {
 
     // handle the change of inputs
     const handleChange = (e) => {
+        setDisableSaveChange(false)
         const {name, value} = e.target
         setUserInformation({...userInformation, [name]:value})
     }
@@ -65,12 +112,53 @@ const UserInformation = () => {
         setBirthDate({...birthDate, [e.target.name]: e.target.value})
     }
 
+    // For Modals
+    const handleOpen = () => setOpen(true);
+    const handleClose = (event, reason) => {
+      if (reason !== 'backdropClick') {
+        setOpen(false)
+      }
+    } 
+    const handleOpenCPModal = (e) => {
+    e.preventDefault()
+    setOpenCPModal(true)};
+    const handleCloseCPModal = (event, reason) => {
+      if (reason !== 'backdropClick') {
+        setOpenCPModal(false)
+        clearPasswords()
+      }
+    } 
+    const handleOpenNPModal = () => {
+    setOpenNPModal(true)};
+    const handleCloseNPModal = (event, reason) => {
+      if (reason !== 'backdropClick') {
+        setOpenNPModal(false)
+        clearPasswords()
+      }
+    } 
+    const style = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        bgcolor: 'background.paper',
+        boxShadow: 0,
+        padding : 0,
+        borderRadius : 1,
+  
+        
+      };
+
     // So that whenever birthdate is updated so is the userinfo
   useEffect(()=>{
     setUserInformation({...userInformation, birthDate : birthDate})
     },[birthDate])
 
-    const updateUser = () => {
+    // Updates the user Information
+    const updateUser = async () => {
+        const result = await verifyPassword()
+        if(result.status == "verified")
+        {
         const id = userInformation._id
         http.put(`updateUser/${id}`, userInformation).then((res)=>{
         // Set errors if there are any
@@ -86,10 +174,166 @@ const UserInformation = () => {
         }).catch((err)=>{
             console.log(err)
         })
+        }
+        else
+        {
+            setErrors({passwordError : 0})
+        }
+        
+        
+    }
+    // Handles the location seleced by the user
+    const handleLocationSelect = (value, index) => {
+        const newData = [...locCodesSelected]
+        newData.splice(index, 1, value)
+        setLocCodesSelected(newData)
+        
+    }
+
+    // Submits the selected address
+    const submitAddress = () => {
+        
+        const address = {
+            region : locCodesSelected[0][0],
+            province :  locCodesSelected[1][0],
+            municipality : locCodesSelected[2][0],
+            barangay : locCodesSelected[3][0],
+            longitude : location.longitude,
+            latitude : location.latitude
+        }
+
+        const newData = {...userInformation, Address : address} 
+        setUserInformation(newData)
+        handleClose()
+    }
+    // Get my location
+    useEffect(() => {
+        // Use the Geolocation API to get the user's location
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              setLocation({ latitude, longitude });
+              
+            },
+            (error) => {
+              // Handle any errors here
+              console.error('Geolocation error:', error);
+            }
+          );
+        } else {
+          // Geolocation is not available in this browser
+          console.error('Geolocation is not available.');
+        }
+      }, []);
+
+    // Map Viewport
+    const [viewport, setViewPort] = useState({    
+        width: "100%",
+        height: "100%",
+        zoom : 16,
+        latitude : location.latitude,
+        longitude : location.longitude
+      })
+
+      // For autofill location search
+      useEffect(() => {
+        const accessToken = 'pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ydzQ2YzYwNWhvMmtyeTNwNDl3ejNvIn0.9n7wjqLZye4DtZcFneM3vw'; // Replace with your actual Mapbox access token
+        const location = locationFilterValue.location; // Replace with your desired location
+      
+        axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${location}.json?access_token=pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ydzQ2YzYwNWhvMmtyeTNwNDl3ejNvIn0.9n7wjqLZye4DtZcFneM3vw`)
+          .then((res) => {
+           setPlaces(res.data.features) // Logging the response data
+           
+
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }, [locationFilterValue]);
+
+    //   password validation for update information
+    const verifyPassword = () => {
+        const data = {
+          _id: userInformation._id,
+          password: password,
+        };
+      
+        // Return the Promise here
+        return http.post('verifyPassword', data)
+          .then((res) => {
+            console.log(res.data);
+            return res.data;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      };
+
+    // For profile picture
+    const addImage = async (files) => {
+        setIsloadingImage(true)
+        const file = files[0];
+
+        if(file){
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('upload_preset', 'KanoahProfileUpload');
+
+            axios.post(`https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`, formData).then((res)=>{
+            setUserInformation({...userInformation, profileImage : res.data.url})
+            setDisableSaveChange(false)
+            setIsloadingImage(false)
+            }).catch((err)=>{
+                console.log(err)
+            })
+        }
     }
     
-    
-  return (
+    // For removing profile
+    const removeProfile = () => {
+        const firstname = userInformation.firstname
+        const lastname = userInformation.lastname
+        const url = `https://ui-avatars.com/api/?name=${firstname}+${lastname}&background=0D8ABC&color=fff`
+        setUserInformation({...userInformation, profileImage : url})
+    }
+
+    // FOr change password
+    const changePassword = async () => {
+        if(newPassword != confirmPassword){setErrors({passwordError : 1})}
+        else if(newPassword == "" && confirmPassword == ""){setErrors({passwordError : 0})}
+        else if(password != "" && newPassword === confirmPassword)
+        {
+        const id = await getUserId()
+        const data = {
+            _id : id,
+            password : password,
+            newPassword : newPassword
+        }
+            await http.patch('updatePassword', data).then((res)=>
+            
+            {
+            console.log(res.data)
+            if(res.data.status == "updated")
+            {
+                window.location.reload()
+            }
+            else
+            {
+                setErrors({passwordError : 0})
+            }
+            
+            }).catch((err)=>console.log(err))
+
+        }else
+        {
+            setErrors({passwordError : 0}) // meaning passwordfield is invalid
+        }
+    }
+
+
+ 
+      return (
     
     <div className='w-full h-full '>
         {
@@ -97,31 +341,40 @@ const UserInformation = () => {
         (
             
         /* main container */
-        <div className='flex'>
+        <div className='flex flex-col lg:flex-row'>
         {/* Left side */}
-        <section className='flex bg-gray-100 h-screen w-[400px] flex-col px-10'>
+        <section className='flex bg-white h-fit lg:h-screen w-full lg:w-[400px] flex-col px-10'>
         <div className='mt-24'>
         <h1 className='text-2xl font-semibold'>Profile</h1>
         </div>
+        <div className='w-full flex flex-col justify-between h-full pb-10'>
         {/* Image Container */}
-        <div className=' flex flex-col mt-10 p-2 items-center justify-center'>
-            <img className='rounded-full w-32' src={userInformation.profileImage} />
-            <p className='mt-2 text-sm text-blue-500 underline'>Change profile picture</p>
+        <div className=' flex flex-col lg:mt-10 p-2 items-center justify-center'>
+        <img className='rounded-full object-cover w-24 lg:w-32 lg:h-32 max-h-32 max-w-32' src={userInformation.profileImage} />
+        <div className='flex flex-col mt-5 space-y-2 w-full '>
+        {/* INput Profile Picture */}
+        <label htmlFor="fileInput" className={`${isloadingImage ? "bg-orange-300" : "bg-themeOrange"} relative inline-block px-4 py-1 text-white text-center rounded cursor-pointer`}>
+        {isloadingImage ? "Uploading" : "Change Picture"}
+        <input type="file" onChange={(e)=>{addImage(e.target.files)}} id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
+        </label>
+        <button onClick={()=>{removeProfile()}} className='px-2 py-1 rounded-sm text-sm whitespace-nowrap border'>Remove Picture</button>
+        </div>
         </div>
 
-        {/* Account deletion container */}
-        <div className='mt-10 bg-gray-200 flex flex-col p-2 rounded-md'>
-        <h1 className='font-semibold text-lg text-red-500'>Delete Account</h1>
-        <p className='text-sm'>Deleting your account will remove all the datas associated with it.</p>
-        <button className='bg-red-500 text-white px-2 py-1 w-fit self-end mt-2 rounded-sm relative '>I understand, delete</button>
+
+
+        {/* Change Password */}
+        <div className='mx-auto'>
+        <button onClick={()=>{handleOpenNPModal()}} className='bg-gray-100 py-1 px-2 rounded-sm shadow-sm text-gray-700 border'>Change Password</button>
+        </div>
         </div>
         </section>
 
         {/* Right side */}
         <section className=' w-full h-fit '>
-        <div className=" w-full h-screen  p-6 pt-[6rem] ">
-            <h1 className="text-2xl font-semibold text-gray-800 mb-4">User Profile Settings</h1>
-            <div>
+        <div className=" w-full h-fit lg:h-screen  p-6 lg:pt-[6rem] ">
+            <h1 className="text-xl lg:text-2xl font-semibold text-gray-800 mb-4">User Profile Settings</h1>
+            <form>
                 {/* Username */}
                 <div className="mb-4">
                     <label htmlFor="username" className="text-sm text-gray-600">Username</label>
@@ -185,18 +438,321 @@ const UserInformation = () => {
                 </select>
                 </div>
                 </div>
-                            <div className="mt-4">
-                             <button onClick={()=>{updateUser()}} className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Save Changes</button>
-                            </div>
-                        </div>
-                    </div>
-                    </section>
-                </div>
-                        )
-                    }
+
+
+                {/* Address */}
+                <p className='text-sm text-gray-500 mt-4'>Address</p>
+                {
+                    userInformation.Address == null ? 
+                    (
+                    <p onClick={()=>{handleOpen()}} className=' cursor-pointer font-medium border-1 underline w-fit px-2 py-1 rounded-md'>Setup your Address <EditLocationOutlinedIcon className='ml-1 text-gray-500' /></p>
+                    )
+                    :
+                    (
+                        <p onClick={()=>{handleOpen()}} className=' cursor-pointer font-medium border-1 underline w-fit px-2 py-1 rounded-md'>{
+                            `Brgy. ${userInformation.Address.barangay}, ${userInformation.Address.municipality}, ${userInformation.Address.province}`
+                                
+                            }<EditLocationOutlinedIcon className='ml-1 text-gray-500' /></p>
+                    )
+                }
                 
-                
+                        
+                <div className="mt-2 lg:mt-4">
+                {/* <button onClick={(e)=>{handleOpenCPModal(e)}} className="bg-blue-500 text-white px-2 py-1 lg:py-2 text-sm lg:text-md lg:px-4 rounded-sm lg:rounded-md hover:bg-blue-600">Save Changes</button> */}
+                <button disabled={disableSaveChange} onClick={(e)=>{handleOpenCPModal(e)}} className={` disabled:bg-gray-300 bg-gray-400 hover:bg-gray-400 text-white px-2 py-1 lg:py-2 text-sm lg:text-md lg:px-4 rounded-sm lg:rounded-sm`}>Save Changes</button>
                 </div>
+                </form>
+        </div>
+                
+                {/* Modal for Address */}
+                <Modal open={open} onClose={handleClose}> 
+                <Box sx={style} style={{height: "fitContent", width: "fitContent"}}> 
+                <div className='p-4'>
+                <h1 className='font-medium'>Address</h1>
+                {/* Regions ***************************************/}
+                <div className="mb-4">
+                <label htmlFor="region" className="text-sm text-gray-600">Region</label>
+                <select
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 0)}}
+                id="region"
+                name="region"
+                defaultValue=""
+                className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                >
+                <option className='w-fit' value=""  >Select Region</option>
+                {
+                phil.regions.map((regions, index)=>(
+                <option key={index} value={[regions.name , regions.reg_code]}>{regions.name}</option>
+                ))
+                }
+                </select>
+                </div>
+
+
+                {/* Provinces***************************************************************** */}
+                <div className="mb-4">
+                <label htmlFor="province" className="text-sm text-gray-600">Province</label>
+                <select
+                disabled={`${locCodesSelected[0][1] == "-1" ? "disabled" : ""}`}
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1)}}
+                id="province"
+                name="province"
+                defaultValue=""
+                className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                >
+                <option value="" disabled >Select Province</option>
+                {
+                phil.getProvincesByRegion(locCodesSelected[0][1]).sort((a, b) => a.name.localeCompare(b.name)).map((province, index)=>(
+                <option key={index} value={[province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase() , province.prov_code]}>{province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase()}</option>
+                ))
+                }
+                </select>
+                </div>
+
+
+                {/* Cities ***********************************************************/}
+                <div className="mb-4">
+                <label htmlFor="city" className="text-sm text-gray-600">City</label>
+                <select
+                disabled={`${locCodesSelected[1][1] == "-1" ? "disabled" : ""}`}
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','),2)}}
+                id="city"
+                name="city"
+                defaultValue=""
+                className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                >
+                <option value="" disabled >Select City</option>
+                {
+                phil.getCityMunByProvince(locCodesSelected[1][1]).sort((a, b) => a.name.localeCompare(b.name)).map((city, index) => (
+                <option key={index} onClick={()=>{console.log("Hello")}}  value={[city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase(), city.mun_code]}>
+                {city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase()}
+                </option>
+                ))
+                }
+                </select>
+                </div>
+
+
+                {/* Barangays *****************************************************************8*/}
+                <div className="mb-4">
+                <label htmlFor="barangay" className="text-sm text-gray-600">Barangay</label>
+                <select
+                disabled={`${locCodesSelected[2][1] == "-1" ? "disabled" : ""}`}
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','),3)}}
+                id="barangay"
+                name="barangay"
+                className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                defaultValue=""
+                >
+                <option value="" disabled  >Select Barangay</option>
+                {
+                phil.getBarangayByMun(locCodesSelected[2][1]).sort((a, b) => a.name.localeCompare(b.name)).map((barangay, index)=>(
+                <option key={index} value={[barangay.name , barangay.mun_code]}>{barangay.name}</option>
+                ))
+                }
+                </select>
+                </div>
+                
+
+                {/* MAP******************************************************************* */}
+            <div className='relative'>
+            <ReactMapGL
+            {...viewport}
+            onViewportChange={(newViewport) => setViewPort(newViewport)}
+            // onClick={()=>{window.open(`https://www.google.com/maps?q=${location.latitude},${location.longitude}`, '_black')}}
+            draggable={true}
+            onMove={evt => setViewPort(evt.viewport)}
+            mapboxAccessToken="pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ybWJhb2MwMmR4MnFyeWRjMWtuZDVwIn0.mJug0iHxD8aq8ZdT29B-fg"
+            mapStyle="mapbox://styles/patrick021/clo2m5s7f006a01rf9mtv318u"
+            style={{
+              width: "100%",
+              height: "250px",
+              backgroundColor : "none",
+              position: "relative",
+              borderRadius: "10px",
+              marginBottom: "7px",
+              top: "10px", // Use top instead of marginTop
+              transition: "width 0.5s, height 0.5s, top 0.5s",
+            }}
+            onLoad={() => {
+                const newViewport = {
+                  ...viewport,
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                };
+                setViewPort(newViewport);
+              }}
+
+            >
+            <Marker
+            latitude={location.latitude}
+            longitude={location.longitude}
+            draggable={true}
+            onDragStart={()=>{setIsDragging(true)}}
+            // onDrag={(evt) => {setLocation({longitude : evt.lngLat.lng, latitude : evt.lngLat.lat});setViewPort({longitude : evt.lngLat.lng, latitude : evt.lngLat.lng})}}
+            onDrag={(evt) => {
+                const sensitivityFactor = 1;
+                const newLocation = {
+                  longitude: evt.lngLat.lng / sensitivityFactor,
+                  latitude: evt.lngLat.lat / sensitivityFactor,
+                };
+                setLocation(newLocation);
+                setViewPort((prevViewport) => ({
+                  ...prevViewport,
+                  latitude: newLocation.latitude,
+                  longitude: newLocation.longitude ,
+                }));
+              }}
+            onDragEnd={()=>[setIsDragging(false)]}
+            >
+        
+            </Marker>
+            <GeolocateControl />
+            
+            </ReactMapGL>
+            {/* Location Filter Search*/}
+            <div className='flex flex-col w-1/2 space-y-1 absolute top-4 left-2'>
+            <div className="w-full shadow-sm mx-auto rounded-lg overflow-hidden md:max-w-xl">
+            <div className="md:flex">
+            <div className="w-full">
+            <div className="relative">
+            <SearchOutlinedIcon fontSize='small' className="absolute text-gray-400 top-[0.69rem] left-2"/>
+            <input value={locationFilterValue.location} onChange={(e)=>{setLocationFilterValue({location : e.target.value});setCloseAutofill(false)}} placeholder="Enter location" type="text" className="bg-white h-10 w-full ps-8 pe-2 text-semiXs border rounded-lg focus:outline-none hover:cursor-arrow" />
+            </div> 
+            </div>
+            </div>
+            </div>
+
+            <div className={`${closeAutofill == true && locationFilterValue.location != "" ? "hidden" : locationFilterValue.location != "" && !closeAutofill ? "relative"  : "hidden"} bg-white h-44 overflow-auto flex flex-col shadow-sm border rounded-sm`}>
+            {
+            places.map((place, index) => {
+                return (
+                <div
+                    key={index}
+                    onClick={() => {
+                    setLocationFilterValue({
+                        location: place.place_name,
+                        longitude: place.center[0],
+                        latitude: place.center[1],
+                    });
+                    setLocation({
+                        longitude: place.center[0],
+                        latitude: place.center[1],
+                    });
+
+                    // Update the location first and then set the viewport
+                    const newViewport = {
+                        ...viewport,
+                        latitude: place.center[1],  // Use the new latitude
+                        longitude: place.center[0], // Use the new longitude
+                    };
+                    setViewPort(newViewport);
+                    setCloseAutofill(true)
+                    }}
+                    className='m-3 flex flex-col items-start cursor-pointer '
+                >
+                    <h1 className=' text-sm font-semibold'>{place.text}</h1>
+                    <p className=' text-[0.72rem]'>{place.place_name}</p>
+                </div>
+                );
+            })
+                }
+            </div>
+            </div>
+            </div>
+            <div className=' flex justify-end space-x-2'>
+            <button onClick={()=>{submitAddress()}} className='px-3 py-1 bg-blue-400 text-white rounded-sm mt-4'>Save</button>
+            <button onClick={()=>{handleClose()}} className='px-3 py-1 bg-gray-200 text-black rounded-sm mt-4'>Cancel</button>
+            </div>
+            
+            </div>
+            
+                </Box>
+                </Modal> 
+
+                {/* Modal for confirm Password */}
+                <Modal open={openCPModal} onClose={handleCloseCPModal}> 
+                <Box sx={style} style={{height: "fitContent", width: "fitContent", padding: "10px"}}>
+                <div className='w-full flex justify-end  '><CloseOutlinedIcon onClick={()=>{handleCloseCPModal()}} className=' cursor-pointer ' /></div>
+                <div className="mb-0">
+                <label htmlFor="password" className="text-sm text-gray-600">
+                    Enter Password
+                </label>
+                <input
+                value={password}
+                onChange={(e)=>setPassword(e.target.value)}
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Password"
+                    className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                />
+                <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
+                <button onClick={()=>{updateUser()}} className='bg-themeOrange text-sm text-white px-2 py-1 rounded-sm mt-4'>Update</button>
+                </div>
+                </Box>
+                </Modal>
+
+                {/* Modal for Change Password */}
+                <Modal open={openNPModal} onClose={handleCloseNPModal}> 
+                <Box sx={style} style={{height: "fitContent", width: "fitContent", padding: "10px"}}>
+                <div className='w-full flex justify-end  '><CloseOutlinedIcon onClick={()=>{handleCloseNPModal()}} className=' cursor-pointer ' /></div>
+                <div className="space-y-4">
+
+                <div className="flex flex-col">
+                    <label htmlFor="password" className="text-sm font-semibold text-gray-600">Current Password</label>
+                    <input
+                    value={password}
+                    onChange={(e)=>{setPassword(e.target.value)}}
+                    type="password"
+                    id="password"
+                    name="newPassword"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                    placeholder="Enter your new password"
+                    />
+                    <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
+                    
+                </div>
+
+
+                <div className="flex flex-col">
+                    <label htmlFor="newPassword" className="text-sm font-semibold text-gray-600">New Password</label>
+                    <input
+                    value={newPassword}
+                    onChange={(e)=>{setNewPassword(e.target.value)}}
+                    type="password"
+                    id="newPassword"
+                    name="password"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                    placeholder="Enter your password"
+                    />
+                    <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 1 ? "block":"hidden"}`}>Password do not match</p>
+                    <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
+                </div>
+
+
+                <div className="flex flex-col">
+                    <label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-600">Confirm Password</label>
+                    <input
+                    value={confirmPassword}
+                    onChange={(e)=>{setConfirmPassword(e.target.value)}}
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                    placeholder="Confirm your password"
+                    />
+                    <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 1 ? "block":"hidden"}`}>Password do not match</p>
+                    <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
+                </div>
+                <button onClick={()=>{changePassword()}} className='px-2 py-1 bg-gray-200'>Update</button>
+                </div>
+                </Box>
+                </Modal>
+        </section>
+        </div>
+        )}
+        </div>
   )
 }
 

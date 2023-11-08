@@ -70,9 +70,9 @@ const Navbar = () => {
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
     <>
-  <div className='relative'>
+<div className='fixed h-fit p-0 top-0 left-0 bg-transparent w-full z-50'>
         {/* NAV BAR */}
-<nav className=" bg-themeBlue fixed w-full z-20 top-0 left-0  dark:border-gray-600">
+<nav className=" bg-themeBlue relative w-full z-20 top-0 left-0  dark:border-gray-600">
 <div className="px-3 md:px-10 flex  items-center justify-between mx-auto py-5">
 
 <div className='flex items-center justify-evenly'>
@@ -88,7 +88,7 @@ const Navbar = () => {
 
 
  {/* Components Button */}
-  <div className={`items-center justify-between  w- transition ease-in-out  ${showMenu ? "absolute" : "hidden"} top-14 left-3.5 md:relative md:top-0  md:flex md:w-auto md:order-1" id="navbar-sticky`}>
+  <div className={`items-center justify-between  w-screen transition ease-in-out hidden top-14 md:relative md:top-0  md:flex md:w-auto md:order-1" id="navbar-sticky`}>
     <ul className="navbarLink flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-themeBlue md:dark:bg-themeBlue dark:border-gray-700">
       <li>
         <Link to="explore"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
@@ -155,6 +155,43 @@ const Navbar = () => {
 </div>
 </div>
 </nav>
+{/* Mobile Components Options */}
+<div className={`${showMenu ? "relative" : "hidden"} h-[200px] relative md:hidden w-full px-3 pb-3 bg-transparent bg-black`}>
+<ul className="navbarLink flex flex-col p-4 md:p-0 font-medium border border-gray-100 rounded-lg  md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-themeBlue">
+      <li>
+        <Link to="explore"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
+      </li>
+      <li>
+        {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}
+      <div className="flex items-center mt-[0.17rem]">
+      <div className="group inline-block relative">
+        <button className=" text-white text-md font-normal  rounded inline-flex items-center">Categories
+        <ExpandMoreIcon />
+        </button>
+        <ul className="categoryDropdown absolute left-[6.2rem] top-1 hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
+          {
+            categories.map((category, index)=>{
+              return (
+            <li key={index} className="">
+            <button className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+          </li>
+              )
+            })
+          }
+          
+          
+        </ul>
+      </div>
+        </div>
+      </li>
+      <li>
+        <a href="#" className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md">About Us</a>
+      </li>
+      <li>
+        <a href="#" className="contact block py-2 pl-3 pr-4 md:text-sm lg:text-md">Contact</a>
+      </li>
+</ul>
+</div>
   
 {/* Modal */}
 <Modal open={open} onClose={handleClose}> 
