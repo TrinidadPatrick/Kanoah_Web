@@ -61,7 +61,7 @@ const Navbar = () => {
       if(token){
         setUserInfo(jwtDecode(token))
       }else{
-        console.log("Not Logged IN")
+        // console.log("Not Logged IN")
       }
     }, [])
     
@@ -138,7 +138,7 @@ const Navbar = () => {
                     <ForumRoundedIcon className='text-white'/>
           <NotificationsIcon className='text-white' />
           <Link to='/myAccount'>
-          <img className='w-8 ml- border-1 border-white  rounded-full' src={userInfo.profileImage} />
+          <img className='w-8 h-8 max-h-8 ml- border-1 border-white  rounded-full' src={userInfo.profileImage} />
           </Link>
           
         </div>

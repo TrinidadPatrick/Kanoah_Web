@@ -57,10 +57,13 @@ const Login = () => {
     }
     if(password != "" && UsernameOrEmail != ""){
       http.post("login", {UsernameOrEmail, password}).then((res)=>{
+        console.log(res.data)
       if(res.data.status == "authenticated"){
         localStorage.setItem("token", res.data.data)
         window.location.reload(false)
       }else if (res.data.status == "invalid username or password"){
+        setInvalidLogin(true)
+      }else if (res.data.status == "account not found"){
         setInvalidLogin(true)
       }
 

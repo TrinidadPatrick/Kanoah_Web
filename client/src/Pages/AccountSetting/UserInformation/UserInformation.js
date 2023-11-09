@@ -9,6 +9,8 @@ import Modal from '@mui/material/Modal';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import EditLocationOutlinedIcon from '@mui/icons-material/EditLocationOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import WarningIcon from '@mui/icons-material/Warning';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';    
 import phil from 'phil-reg-prov-mun-brgy';
 import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -42,6 +44,7 @@ const UserInformation = () => {
     const [open, setOpen] = React.useState(false);
     const [openCPModal, setOpenCPModal] = React.useState(false);
     const [openNPModal, setOpenNPModal] = React.useState(false);
+    const [openADModal, setOpenADModal] = React.useState(false);
     const [errors, setErrors] = useState({
         contactError : null, //0 = invalid, 1 = isDuplicate
         emailError : null, //0 = invalid, 1 = isDuplicate
@@ -128,7 +131,8 @@ const UserInformation = () => {
         clearPasswords()
       }
     } 
-    const handleOpenNPModal = () => {
+    const handleOpenNPModal = (e) => {
+    e.preventDefault()
     setOpenNPModal(true)};
     const handleCloseNPModal = (event, reason) => {
       if (reason !== 'backdropClick') {
@@ -136,6 +140,13 @@ const UserInformation = () => {
         clearPasswords()
       }
     } 
+    const handleOpenADModal = () => {setOpenADModal(true)};
+        const handleCloseADModal = (event, reason) => {
+          if (reason !== 'backdropClick') {
+            setOpenADModal(false)
+
+          }
+        } 
     const style = {
         position: 'absolute',
         top: '50%',
@@ -171,6 +182,7 @@ const UserInformation = () => {
         case "contactDuplicate" : setErrors({contactError : 1});break;
         case "updated" : window.location.reload(); break;
         }
+        handleCloseCPModal()
         }).catch((err)=>{
             console.log(err)
         })
@@ -296,6 +308,7 @@ const UserInformation = () => {
         const lastname = userInformation.lastname
         const url = `https://ui-avatars.com/api/?name=${firstname}+${lastname}&background=0D8ABC&color=fff`
         setUserInformation({...userInformation, profileImage : url})
+        setDisableSaveChange(false)
     }
 
     // FOr change password
@@ -331,8 +344,28 @@ const UserInformation = () => {
         }
     }
 
+    const deactivateAccount = async () => {
+        if(password != "")
+        {
+            const id = await getUserId()
+            const data = {
+                _id : id,
+                password : password
+            }
 
- 
+            http.patch('deactivateAccount', data).then((res)=>{
+            if(res.data.status == "Deactivated"){handleCloseADModal();localStorage.clear();window.location.reload()
+            }
+            else if (res.data.status == "invalid"){setErrors({passwordError : 0})}
+            }).catch((err)=>{
+                console.log(err)
+            })
+
+        }
+    }
+
+
+    
       return (
     
     <div className='w-full h-full '>
@@ -361,12 +394,9 @@ const UserInformation = () => {
         </div>
         </div>
 
+        {/* Account deletion Warning */}
 
-
-        {/* Change Password */}
-        <div className='mx-auto'>
-        <button onClick={()=>{handleOpenNPModal()}} className='bg-gray-100 py-1 px-2 rounded-sm shadow-sm text-gray-700 border'>Change Password</button>
-        </div>
+        <p onClick={()=>handleOpenADModal()} className='text-center text-red-500 cursor-pointer'>Deactivate account</p>
         </div>
         </section>
 
@@ -374,38 +404,47 @@ const UserInformation = () => {
         <section className=' w-full h-fit '>
         <div className=" w-full h-fit lg:h-screen  p-6 lg:pt-[6rem] ">
             <h1 className="text-xl lg:text-2xl font-semibold text-gray-800 mb-4">User Profile Settings</h1>
-            <form>
+            <form onSubmit={(e)=>{handleOpenCPModal(e)}}>
                 {/* Username */}
                 <div className="mb-4">
                     <label htmlFor="username" className="text-sm text-gray-600">Username</label>
-                    <input onChange={handleChange} type="text" id="username" name="username" className="w-full p-2 border border-gray-300 rounded-md" value={userInformation.username}/>
+                    <input onChange={handleChange} type="text" id="username" name="username" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userInformation.username}/>
                     <p className={`text-xs text-red-500 ml-1 ${errors.usernameError == 1 ? "block":"hidden"}`}>Username already exist</p>
                 </div>
                 {/* Full name */}
                 <div className="mb-4 flex w-full space-x-3">
                     <div className='w-full'>
                     <label htmlFor="firstname" className="text-sm text-gray-600">First Name</label>
-                    <input onChange={handleChange} type="text" id="firstname" name="firstname" className="w-full p-2 border border-gray-300 rounded-md" value={userInformation.firstname}/>
+                    <input onChange={handleChange} type="text" id="firstname" name="firstname" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userInformation.firstname}/>
                     </div>
                     <div className='w-full'>
                     <label htmlFor="lastname" className="text-sm text-gray-600">Last Name</label>
-                    <input onChange={handleChange} type="text" id="lastname" name="lastname" className="w-full p-2 border border-gray-300 rounded-md" value={userInformation.lastname}/>
+                    <input onChange={handleChange} type="text" id="lastname" name="lastname" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userInformation.lastname}/>
                     </div>
                 </div>
                 {/* Contact */}
-                <div className="mb-4 relative">
+                <div className="mb-4 relative flex items-end space-x-3 ">
+                    <div className='w-1/2'>
                     <label htmlFor="contact" className="text-sm text-gray-600">Contact</label>
                     <div className="relative flex items-center">
-                    <input onChange={handleChange} type="text" id="contact" name="contact" className="w-full py-2 ps-9 border border-gray-300 rounded-md pl-8" value={userInformation.contact} />
+                    <input onChange={handleChange} type="text" id="contact" name="contact" className="w-full py-2 ps-9 border border-gray-300 rounded-md pl-8 shadow-sm" value={userInformation.contact} />
                     <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-600">+63</span>
                     <div className="absolute h-8 bg-gray-300 top-1/2 -translate-y-1/2 w-px"></div>
                     </div>
-                    <p className={`text-xs text-red-500 ml-1 ${errors.contactError == 1 ? "block":"hidden"}`}>Contact already exist</p>
+                    <p className={`text-xs text-red-500 ml-1 ${errors.contactError == 1 ? "block":"hidden"}`}>Contact already exist</p> 
+                    </div>
+                    {/* Change Password */}
+                    <div className='w-1/2 flex flex-col'>
+                    <label htmlFor="changePassword" className="text-sm text-gray-600">Password Settings</label>
+                    <button onClick={(e)=>{handleOpenNPModal(e)}} className='bg-gray-100 py-2 px-5 w-fit rounded-sm shadow-sm text-gray-700 border flex  items-center gap-1 '><LockOutlinedIcon /> Change Password</button>
+                    </div>
+                    
+                    
                 </div>
                 {/* Email */}
                 <div className="mb-4">
                     <label htmlFor="email" className="text-sm text-gray-600">Email</label>
-                    <input onChange={handleChange} type="email" id="email" name="email" className="w-full p-2 border border-gray-300 rounded-md" value={userInformation.email}/>
+                    <input onChange={handleChange} type="email" id="email" name="email" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userInformation.email}/>
                     <p className={`text-xs text-red-500 ml-1 ${errors.emailError == 1 ? "block":"hidden"}`}>Email already exist</p>
                 </div>
                  {/* birth Field */}
@@ -459,7 +498,7 @@ const UserInformation = () => {
                         
                 <div className="mt-2 lg:mt-4">
                 {/* <button onClick={(e)=>{handleOpenCPModal(e)}} className="bg-blue-500 text-white px-2 py-1 lg:py-2 text-sm lg:text-md lg:px-4 rounded-sm lg:rounded-md hover:bg-blue-600">Save Changes</button> */}
-                <button disabled={disableSaveChange} onClick={(e)=>{handleOpenCPModal(e)}} className={` disabled:bg-gray-300 bg-gray-400 hover:bg-gray-400 text-white px-2 py-1 lg:py-2 text-sm lg:text-md lg:px-4 rounded-sm lg:rounded-sm`}>Save Changes</button>
+                <button type='submit' disabled={disableSaveChange}className={` disabled:bg-orange-200 bg-orange-500 hover:bg-orange-400 text-white px-2 py-1 lg:py-2 text-sm lg:text-md lg:px-4 rounded-sm lg:rounded-sm`}>Save Changes</button>
                 </div>
                 </form>
         </div>
@@ -746,6 +785,40 @@ const UserInformation = () => {
                     <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
                 </div>
                 <button onClick={()=>{changePassword()}} className='px-2 py-1 bg-gray-200'>Update</button>
+                </div>
+                </Box>
+                </Modal>
+
+                {/* Modal for Account deletion */}
+                <Modal open={openADModal} onClose={handleCloseADModal}> 
+                <Box sx={style} style={{height: "fitContent", width: "fitContent", padding: "10px", outline : "none", width : "350px"}}>
+   
+                <p className="text-lg font-semibold mb-4 text-center">Confirm Account Deactivate</p>
+                <p className="text-gray-600 mb-6 text-center">Are you sure you want to deactivate your account? This action is irreversible.</p>
+                <div className="flex justify-center">
+                
+                {/* Password Input */}
+                <div className='flex flex-col'>
+                <div className="flex flex-col">
+
+                    <input
+                    value={password}
+                    onChange={(e)=>{setPassword(e.target.value)}}
+                    type="password"
+                    id="password"
+                    name="newPassword"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                    placeholder="Enter your new password"
+                    />
+                    <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
+                    
+                </div>
+                <div className=' w-full mt-5 flex justify-center'>
+                <button onClick={()=>{deactivateAccount()}}  className="bg-red-500 text-white py-2 px-4 rounded mr-4 hover:bg-red-600" >Yes, Delete</button>
+                <button onClick={()=>handleCloseADModal()} className="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400" >Cancel</button>
+                </div>
+                </div>
+
                 </div>
                 </Box>
                 </Modal>

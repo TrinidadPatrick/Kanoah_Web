@@ -201,6 +201,17 @@
 }
 
 
+/* service registration */
+
+
+
+
+.customBG{
+  background-image: url(./Pages/ServiceRegistration/Utils/images/background4.svg) !important;
+  background-size: cover;
+}
+
+
 /*  */
   @keyframes lds-dual-ring {
     0% {
@@ -208,6 +219,15 @@
     }
     100% {
       transform: rotate(360deg);
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    .customBG{
+      background-image: url(./Pages/ServiceRegistration/Utils/images/background6.svg) !important;
+      background-size:cover;
+      background-position:bottom;
+      /* background-repeat: no-repeat; */
     }
   }
 

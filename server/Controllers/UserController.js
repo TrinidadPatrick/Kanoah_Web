@@ -151,6 +151,35 @@ module.exports.updatePassword = async (req,res) => {
     
 }
 
+// Deactivate Account
+module.exports.deactivateAccount = async (req,res)=> {
+    const id = req.body._id
+    const password = req.body.password
+    console.log(password)
+    // Find the user similar to the req id
+    const result = await user.findOne({_id : id})
+    if(result != null)
+    {   
+        // Verify if the req password is same as the result password
+        const verifyPassword = await bcrypt.compare(password, result.password)
+        if(verifyPassword)
+        {
+            try {
+                await user.findOneAndUpdate({_id : id}, {Status : "Deactivated"})
+                return res.json({status : "Deactivated"})
+            } catch (error) {
+                return res.json({error : error, message : "Connection error, please try again later."})
+            }
+            
+            
+        }else
+        {
+            return res.json({status : "invalid"})
+        }
+
+    }
+}
+
 // CODE GENERATOR FOR OTP--------------------------------------------------------------------------
 
     let code = []
@@ -230,6 +259,7 @@ module.exports.login = async (req,res) => {
     const password = req.body.password
 
     const result = await user.findOne({ $or : [{username : UsernameOrEmail}, {email : UsernameOrEmail} ] })
+    console.log(result)
     if(result != null){
         const comparePassword = await bcrypt.compare(password, result.password)
         if(comparePassword){
@@ -250,6 +280,7 @@ module.exports.login = async (req,res) => {
         }
         
     }else{
+        // console.log("Hello")
         return res.json({status : 'account not found'})
     }
     
