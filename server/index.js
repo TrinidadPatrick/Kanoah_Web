@@ -2,7 +2,8 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const app = express()
-const userRoute = require('./Routes/userRoute')
+const Route = require('./Routes/Routes')
+const tempServiceRoute = require('./Routes/TempServiceRoute')
 
 app.use(express.json())
 app.use(cors())
@@ -15,7 +16,8 @@ mongoose.connect(process.env.MONGO_URI)
     console.log(err)
 })
 
-app.use("/api", userRoute)
+app.use("/api", Route) //For User Table
+
 
 
 

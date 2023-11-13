@@ -202,7 +202,10 @@
 
 
 /* service registration */
-
+.gcashNote::-webkit-scrollbar{
+  height: 0px;
+  width: 1px; /* Width of the scrollbar */
+}
 
 
 

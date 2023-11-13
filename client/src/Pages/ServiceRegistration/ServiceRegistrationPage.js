@@ -1,12 +1,46 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import AddressRegistration from './AddressRegistration'
 import BusinessInformation from './BusinessInformation'
-import ContactAndPayment from './ContactAndPayment'
+import Tags from './Tags'
+import AdvanceInformation from './AdvanceInformation'
+import ServiceHours from './ServiceHours'
 import background1 from './Utils/images/background5.svg'
+import jwtDecode from 'jwt-decode';
+export const pageContext = React.createContext()
+
 
 const ServiceRegistrationPage = () => {
-    const page = 2
+    const [step, setStep] = useState(1)
+    const [userId, setUserId] = useState(null)
+    const [serviceInformation, setServiceInformation] = useState({})
+
+    // Get the userID
+    const getUserId = () => {
+      return new Promise((resolve, reject)=>{
+          const jwtToken = localStorage.getItem('token')
+          if(jwtToken == null){
+              reject('Not a valid User')
+          }else{
+              const id = jwtDecode(jwtToken)._id
+              resolve(id)
+          }
+          
+      })
+      }
+
+  const getId = async () => {
+    const userId = await getUserId()
+    setUserId(userId)
+  }
+  
+  useEffect(()=>{
+    getId()
+  }, [])
+
+
   return (
-    // Main Container
+    <pageContext.Provider value={[step, setStep, userId, serviceInformation, setServiceInformation]} >
+    {/* // Main Container */}
     <div className='w-full h-fit md:h-screen  bg-[#f9f9f9] flex items-center justify-center'>
     
     {/* Main Card */}
@@ -20,7 +54,7 @@ const ServiceRegistrationPage = () => {
     <div className='flex h-12 px-2 md:px-0 md:w-full justify-center md:justify-start'>
     {/* For circle */}
     <div className='w-12 p-1.5 h-full '>
-    <div style={{backgroundColor: page == 1 ? "hsl(229, 24%, 87%)" : "", color: page == 1 ? "hsl(213, 96%, 18%)" : "hsl(229, 24%, 87%)"}} className='border-2 w-full h-full rounded-full grid place-items-center'>1</div>
+    <div style={{backgroundColor: step == 1 ? "hsl(229, 24%, 87%)" : "", color: step == 1 ? "hsl(213, 96%, 18%)" : "hsl(229, 24%, 87%)"}} className='border-2 w-full h-full rounded-full grid place-items-center'>1</div>
     </div>
     {/* For Words */}
     <div className='hidden md:flex pt-1 flex-col text-left ps-1'>
@@ -32,12 +66,12 @@ const ServiceRegistrationPage = () => {
     <div className='flex h-12 px-2 md:px-0 md:w-full justify-center md:justify-start'>
         {/* For circle */}
         <div className='w-12 p-1.5 h-full '>
-            <div style={{backgroundColor: page == 2 ? "hsl(229, 24%, 87%)" : "", color: page == 2 ? "hsl(213, 96%, 18%)" : "hsl(229, 24%, 87%)"}} className=' w-full h-full rounded-full border-2  text-Lightgray grid place-items-center'>2</div>
+            <div style={{backgroundColor: step == 2 ? "hsl(229, 24%, 87%)" : "", color: step == 2 ? "hsl(213, 96%, 18%)" : "hsl(229, 24%, 87%)"}} className=' w-full h-full rounded-full border-2  text-Lightgray grid place-items-center'>2</div>
         </div>
         {/* For Words */}
         <div className='hidden md:flex pt-1 flex-col text-left ps-1'>
             <h2 className='text-sm text-gray-200 font-medium'>STEP 2</h2>
-            <p className='text-sm text-gray-100 font-bold'>Contact and Payment</p>
+            <p className='text-sm text-gray-100 font-bold'>Advance Information</p>
         </div>
     </div>
 
@@ -45,12 +79,36 @@ const ServiceRegistrationPage = () => {
     <div className='flex h-12 px-2 md:px-0 md:w-full justify-center md:justify-start'>
     {/* For circle */}
     <div className='w-12 p-1.5 h-full '>
-    <div style={{backgroundColor: page == 3 ? "hsl(229, 24%, 87%)" : "", color: page == 3 ? "hsl(213, 96%, 18%)" : "hsl(229, 24%, 87%)"}} className=' w-full h-full rounded-full border-2  text-Lightgray grid place-items-center'>2</div>
+    <div style={{backgroundColor: step == 3 ? "hsl(229, 24%, 87%)" : "", color: step == 3 ? "hsl(213, 96%, 18%)" : "hsl(229, 24%, 87%)"}} className=' w-full h-full rounded-full border-2  text-Lightgray grid place-items-center'>3</div>
     </div>
     {/* For Words */}
     <div className='hidden md:flex pt-1 flex-col text-left ps-1'>
     <h2 className='text-sm text-gray-200 font-medium'>STEP 3</h2>
     <p className='text-sm text-gray-100 font-bold'>Address</p>
+    </div>
+    </div>
+    {/* Step 4 */}
+    <div className='flex h-12 px-2 md:px-0 md:w-full justify-center md:justify-start'>
+    {/* For circle */}
+    <div className='w-12 p-1.5 h-full '>
+    <div style={{backgroundColor: step == 4 ? "hsl(229, 24%, 87%)" : "", color: step == 4 ? "hsl(213, 96%, 18%)" : "hsl(229, 24%, 87%)"}} className=' w-full h-full rounded-full border-2  text-Lightgray grid place-items-center'>4</div>
+    </div>
+    {/* For Words */}
+    <div className='hidden md:flex pt-1 flex-col text-left ps-1'>
+    <h2 className='text-sm text-gray-200 font-medium'>STEP 4</h2>
+    <p className='text-sm text-gray-100 font-bold'>Service Hours</p>
+    </div>
+    </div>
+    {/* Step 5 */}
+    <div className='flex h-12 px-2 md:px-0 md:w-full justify-center md:justify-start'>
+    {/* For circle */}
+    <div className='w-12 p-1.5 h-full '>
+    <div style={{backgroundColor: step == 5 ? "hsl(229, 24%, 87%)" : "", color: step == 5 ? "hsl(213, 96%, 18%)" : "hsl(229, 24%, 87%)"}} className=' w-full h-full rounded-full border-2  text-Lightgray grid place-items-center'>5</div>
+    </div>
+    {/* For Words */}
+    <div className='hidden md:flex pt-1 flex-col text-left ps-1'>
+    <h2 className='text-sm text-gray-200 font-medium'>STEP 5</h2>
+    <p className='text-sm text-gray-100 font-bold'>Tags</p>
     </div>
     </div>
 
@@ -59,11 +117,11 @@ const ServiceRegistrationPage = () => {
 
     {/* Right Side */}
     {/* Container */}
-    <div className='w-full h-fit md:h-full flex flex-col justify-stretch bg-white p-4 '>
+    <div className='w-full h-full md:h-full flex flex-col justify-stretch bg-white p-4 '>
     {/* Card */}
 
-    <h1 className='text-xl font-semibold block md:hidden'>Service Information</h1>
-    {page == 1 ? (<BusinessInformation />) : page == 2 ? (<ContactAndPayment />) : ""}
+    <h1 className='text-xl font-semibold block md:hidden'>{step == 1 ? "Service Information" : step == 2 ? "Contacts and Payment" : ""}</h1>
+    {step == 1 ? (<BusinessInformation />) : step == 2 ? (<AdvanceInformation />) : step == 3 ? <AddressRegistration /> : step == 4 ? <ServiceHours /> : step == 5 ? <Tags /> : ""}
     
     </div>
     </section>
@@ -73,6 +131,7 @@ const ServiceRegistrationPage = () => {
     
 
     </div>
+    </pageContext.Provider>
   )
 }
 
