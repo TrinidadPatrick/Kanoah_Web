@@ -1,6 +1,6 @@
 
 const {Router} = require('express')
-const { getTempServices } = require('../Controllers/TempServiceController')
+const { getServices, addService } = require('../Controllers/ServiceController')
 const router = Router()
 const {register, verifyEmail, verifyOTP, login, forgotPassword, newPassword, submitOtpForNewPassword, verifyUsername, getUsers, getUser, updateUser, verifyPassword, updatePassword, deactivateAccount} = require('../Controllers/UserController')
 
@@ -21,7 +21,8 @@ router.get("/getUsers", getUsers)
 router.get("/getUser/:_id", getUser)
 
 // Temp Service Route
-router.get("/getTempServices", getTempServices) //Get All Temp Services
+router.get("/getServices", getServices) //Get All Temp Services
+router.post("/addService", addService) //Get All Temp Services
 
 
 

@@ -18,6 +18,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import HideSourceIcon from '@mui/icons-material/HideSource';
 import ReportIcon from '@mui/icons-material/Report';
+import {Link} from "react-router-dom"
 
 
 const Explore = () => {
@@ -473,7 +474,7 @@ const Explore = () => {
               if(checkboxFilter.includes(Math.floor(ratingAverage)))
               {
                   return (         
-                    <div key={index} className='border flex flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
+                    <div key={index} className='border flex flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3 cursor-pointer'>
                       {/* Image Container */}
                       
                       <div className='flex relative xl:w-[330px] xl:min-w-[330px] xl:h-[200px]'>
@@ -483,7 +484,7 @@ const Explore = () => {
                       {/* Info Container */}
                       <div className=' px-1 py-3 w-full overflow-hidden flex flex-col justify-between space-y-5'>
                       {/* Title and Reviews*/}
-                      <div className='Header_Container space-y-2 xl:space-y-0 w-full flex flex-col xl:flex-row justify-between'>
+                      <div className='Header_Container cursor-pointer bg-black p-1 space-y-2 xl:space-y-0 w-full flex flex-col xl:flex-row justify-between'>
                       <div>
                       <h1 className='font-bold text-md md:text-xl ps-1'>{service.title}</h1>
                       <p className='text-sm md:text-md text-gray-400  flex items-center gap-1'><Person2OutlinedIcon  />{service.owner}</p>
@@ -518,7 +519,7 @@ const Explore = () => {
               }else if(checkboxFilter.length == 0){
                 return (  
                       
-                  <div key={index} className='border relative flex flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
+                  <Link to="/explore/viewService" key={index}  className='border relative flex cursor-pointer flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
                     {/* Image Container */}
                     <div className='flex relative xl:w-[330px] xl:min-w-[330px] xl:h-[200px]'>
                     <p className='absolute bg-white px-2 py-1 text-sm font-semibold rounded-full top-1 left-1'>{service.category}</p>
@@ -584,7 +585,7 @@ const Explore = () => {
                       </div>
                       
                     </div>
-                  </div>
+                  </Link>
                         )
               }
                 

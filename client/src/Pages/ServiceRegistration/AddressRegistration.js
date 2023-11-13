@@ -10,7 +10,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 const AddressRegistration = () => {
 const [street, setStreet] = useState('')
 const [fullAddress, setFullAddress] = useState({})
-const [step, setStep] = useContext(pageContext)
+const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
 const [isDragging, setIsDragging] = useState(false);
 const [closeAutofill, setCloseAutofill] = useState(false)
 const [places, setPlaces] = useState([])
@@ -29,6 +29,15 @@ const [locCodesSelected, setLocCodesSelected] = useState([
         ['','-1'], //Municipality
         ['','-1'] //Barangay
 ])
+
+// For errors
+const [errors, setErrors] = useState({
+  RegionError : false,
+  ProvinceError : false,
+  CityError : false,
+  BarangayError : false,
+
+})
 
 // Handles the location seleced by the user
 const handleLocationSelect = (value, index) => {
@@ -51,8 +60,24 @@ const submitAddress = () => {
             latitude : location.latitude
     }
 
-    setFullAddress(address)
+    const checkError = (input, errorKey) => (
+      setErrors((prevErrors)=>({...prevErrors, [errorKey] : address[input] == "" ? true : false}))
+    )
+
+    checkError("region", "RegionError")
+    checkError("province", "ProvinceError")
+    checkError("municipality", "CityError")
+    checkError("barangay", "BarangayError")
+
+    // setFullAddress(address)
+    if(address.region != "" && address.province != "" && address.municipality != "" && address.barangay != "")
+    {
+      setServiceInformation({...serviceInformation, address : address})
+      setStep(4)
+    }
+    
 }
+// console.log(address)
 
 // Get my location
 useEffect(() => {
@@ -100,8 +125,11 @@ useEffect(() => {
           });
 }, [locationFilterValue]);
 
-console.log(fullAddress) 
+useEffect(()=>{
+  setFullAddress(serviceInformation.address)
+},[step])
 
+console.log(fullAddress)
   return (
     <div className='w-full flex flex-col h-fit md:h-full p-1'>
     {/* <div className='p-4 bg-black h-full'> */}
@@ -115,12 +143,12 @@ console.log(fullAddress)
                 id="region"
                 name="region"
                 defaultValue=""
-                className="block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className={`${errors.RegionError ? "border-red-500" : ""} block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 <option className='w-fit' value=""  >Select Region</option>
                 {
                 phil.regions.map((regions, index)=>(
-                <option key={index} value={[regions.name , regions.reg_code]}>{regions.name}</option>
+                <option key={index} selected={fullAddress.region == regions.name ? true : false} value={[regions.name , regions.reg_code]}>{regions.name}</option>
                 ))
                 }
                 </select>
@@ -136,12 +164,12 @@ console.log(fullAddress)
                 id="province"
                 name="province"
                 defaultValue=""
-                className="block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className={`${errors.ProvinceError ? "border-red-500" : ""} block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 <option value="" disabled >Select Province</option>
                 {
                 phil.getProvincesByRegion(locCodesSelected[0][1]).sort((a, b) => a.name.localeCompare(b.name)).map((province, index)=>(
-                <option key={index} value={[province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase() , province.prov_code]}>{province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase()}</option>
+                <option key={index} selected={fullAddress.province == province.name ? true : false} value={[province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase() , province.prov_code]}>{province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase()}</option>
                 ))
                 }
                 </select>
@@ -158,12 +186,12 @@ console.log(fullAddress)
                 id="city"
                 name="city"
                 defaultValue=""
-                className="block text-xs xl:text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className={`${errors.CityError ? "border-red-500" : ""} block text-xs xl:text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 <option value="" disabled >Select City</option>
                 {
                 phil.getCityMunByProvince(locCodesSelected[1][1]).sort((a, b) => a.name.localeCompare(b.name)).map((city, index) => (
-                <option key={index} onClick={()=>{console.log("Hello")}}  value={[city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase(), city.mun_code]}>
+                <option key={index} selected={fullAddress.municipality == city.name ? true : false} onClick={()=>{console.log("Hello")}}  value={[city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase(), city.mun_code]}>
                 {city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase()}
                 </option>
                 ))
@@ -181,13 +209,13 @@ console.log(fullAddress)
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','),3)}}
                 id="barangay"
                 name="barangay"
-                className="block text-xs xl:text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className={`${errors.BarangayError ? "border-red-500" : ""} block text-xs xl:text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
                 defaultValue=""
                 >
                 <option value="" disabled  >Select Barangay</option>
                 {
                 phil.getBarangayByMun(locCodesSelected[2][1]).sort((a, b) => a.name.localeCompare(b.name)).map((barangay, index)=>(
-                <option key={index} value={[barangay.name , barangay.mun_code]}>{barangay.name}</option>
+                <option selected={fullAddress.barangay == barangay.name ? true : false} key={index} value={[barangay.name , barangay.mun_code]}>{barangay.name}</option>
                 ))
                 }
                 </select>
@@ -319,7 +347,7 @@ console.log(fullAddress)
             {/* </div> */}
             <div className='w-full flex justify-end space-x-2'>
             <button onClick={()=>{setStep(2)}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-gray-200 text-gray-500'>Back</button>
-            <button onClick={()=>{setStep(4);submitAddress()}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-themeBlue text-white'>Next</button>
+            <button onClick={()=>{submitAddress()}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-themeBlue text-white'>Next</button>
             </div>
     </div>
   )

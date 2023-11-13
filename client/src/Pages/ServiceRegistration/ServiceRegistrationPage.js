@@ -10,9 +10,48 @@ export const pageContext = React.createContext()
 
 
 const ServiceRegistrationPage = () => {
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] 
     const [step, setStep] = useState(1)
     const [userId, setUserId] = useState(null)
-    const [serviceInformation, setServiceInformation] = useState({})
+    const [serviceInformation, setServiceInformation] = useState(
+      {
+      basicInformation : {
+        ServiceTitle : "",
+        OwnerEmail : "",
+        OwnerContact : "",
+        Description : ""
+      },
+      advanceInformation : {
+        ServiceContact : "",
+        ServiceFax : "",
+        ServiceEmail : "",
+        ServiceCategory : "",
+        ServiceOptions : [],
+        AcceptBooking : false,
+        SocialLink : [{media : "Youtube",link : ""}, {media : "Facebook",link : ""}, {media : "Instagram",link : ""}],
+        PaymentMethod : {Gcash : {}, Cash : false},
+      },
+      address : {
+             region : "",
+            province :  "",
+            municipality : "",
+            barangay : "",
+            street : "",
+            longitude : 0,
+            latitude : 0
+      },
+      serviceHour : 
+        days.map((day) => ({
+          day,
+          isOpen: false,
+          fromTime: '',
+          toTime: '',
+        }))
+      ,
+      tags : []
+      }
+     
+    )
 
     // Get the userID
     const getUserId = () => {

@@ -1,10 +1,10 @@
 import React from 'react'
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import { pageContext } from './ServiceRegistrationPage'
 
 const ServiceHours = () => {
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] 
-  const [step, setStep] = useContext(pageContext)
+  const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
   const [schedule, setSchedule] = useState(
     days.map((day) => ({
       day,
@@ -33,8 +33,14 @@ const ServiceHours = () => {
   };
 
   const submitSchedule = () => {
-    console.log(schedule)
+    setServiceInformation({...serviceInformation, serviceHour : schedule})
   }
+
+  useEffect(()=>{
+    setSchedule(serviceInformation.serviceHour)
+  },[step])
+
+  console.log(serviceInformation.serviceHour)
  
   return (
     <div className=' h-full w-full flex flex-col'>

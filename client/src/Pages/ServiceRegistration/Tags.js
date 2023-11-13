@@ -1,10 +1,13 @@
 import React from 'react'
-import { useState } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
+import { pageContext } from './ServiceRegistrationPage'
+import http from '../../http'
 
 const Tags = () => {
   const [input, setInput] = useState('')
   const [tags, setTags] = useState([])
+  const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
 
   const addTag = () => {
     const newInput = [...tags]
@@ -20,7 +23,22 @@ const Tags = () => {
     setTags(newTag)
   }
 
-  
+  const submitService = () => {
+    setServiceInformation({...serviceInformation, tags : tags})
+
+    http.post("addService", {serviceInformation, userId}).then((res)=>{
+      console.log(res.data)
+    }).catch((err)=>{
+      console.log(err)
+    })
+    
+  }
+
+  useEffect(()=>{
+    setTags(serviceInformation.tags)
+  },[step])
+
+  console.log(serviceInformation)
   return (
     <div className='h-full border flex flex-col justify-stretch items-stretch w-full'>
       <div className='w-3/4 mx-auto border'>
@@ -38,7 +56,8 @@ const Tags = () => {
     </div>
 
     {/* Tags Container */}
-    <div className='w-3/4 border h-fit max-h-full overflow-auto flex flex-wrap justify-start items-start mx-auto my-3'>
+    <div className='w-3/4 border h-full max-h-full overflow-auto flex flex-wrap justify-start items-start mx-auto my-3'>
+      <div className='h-fit  w-full flex flex-wrap'>
   {
     tags.map((tag, index) => (
       <div key={index} className='relative h-fit w-fit flex items-center m-2 px-2 space-x-2 rounded-sm bg-blue-400 shadow-sm'>
@@ -47,7 +66,12 @@ const Tags = () => {
       </div>
     ))
   }
-</div>
+  </div>
+</div>  
+        <div className='w-full flex justify-end'>
+        <button onClick={()=>{setStep(4)}} className='px-2 py-1 bg-blue-700 text-white w-fit relative rounded-sm'>back</button>
+        <button onClick={()=>{submitService()}} className='px-2 py-1 bg-blue-700 text-white w-fit relative rounded-sm'>Submit</button>
+        </div>
         
     </div>
   )

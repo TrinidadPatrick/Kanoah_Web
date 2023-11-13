@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { pageContext } from './ServiceRegistrationPage';
 
 
@@ -14,7 +14,7 @@ const BusinessInformation = () => {
     })
     const [descriptionInput, setDescriptionInput] = useState(''); // State to track textarea content
     const [basicInformation, setBasicInformation] = useState({
-      Title : "",
+      ServiceTitle : "",
       OwnerEmail : "",
       OwnerContact : "",
       Description : ""
@@ -48,19 +48,23 @@ const BusinessInformation = () => {
       checkError("OwnerContact", "OwnerContactError")
       checkError("Description", "DescriptionError")
       if(basicInformation["Title"] !== "" && basicInformation["OwberEmail"] !== "" && basicInformation["OwnerContact"] !== "" && basicInformation["Description"] !== ""){
-        setServiceInformation({...serviceInformation, basicInformation : basicInformation});setStep(2)}
+      setServiceInformation({...serviceInformation, basicInformation : basicInformation});setStep(2)}
     }
 
-    // console.log(basicInformation)
+    useEffect(()=>{
+      setBasicInformation(serviceInformation.basicInformation)
+    },[page])
+    // console.log()
 
-    
+    console.log(basicInformation)
   return (
     
     <form onSubmit={(e)=>{submitBasicInfo(e)}} className='flex flex-col w-full bg-white h-full md:h-full  relative p-1'>
     {/* Business Information */}
+
     <div className="mb-5">
         <label className={` block text-sm text-gray-500 font-semibold mb-2" htmlFor="businessTitle`}>Service Title</label>
-        <input value={basicInformation.Title} onChange={(e)=>{setBasicInformation((prevBasicInformation)=>({...prevBasicInformation, Title : e.target.value}))}} type="text" id="businessTitle" className={`${errors.TitleError == 0 ? " border-2 border-red-500" : ""} w-full p-2 border rounded outline-none shadow-sm`} placeholder="Enter business title"/>
+        <input value={basicInformation.ServiceTitle} onChange={(e)=>{setBasicInformation({...basicInformation, ServiceTitle : e.target.value})}} type="text" id="businessTitle" className={`${errors.TitleError == 0 ? " border-2 border-red-500" : ""} w-full p-2 border rounded outline-none shadow-sm`} placeholder="Enter business title"/>
         <p className='text-[0.65rem] text-red-500'>{errors.TitleError == 0 ? "This field cannot be empty" : ""}</p>
     </div>
 

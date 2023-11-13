@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 const app = express()
 const Route = require('./Routes/Routes')
-const tempServiceRoute = require('./Routes/TempServiceRoute')
+// const tempServiceRoute = require('./Routes/ServiceRoute')
 
 app.use(express.json())
 app.use(cors())

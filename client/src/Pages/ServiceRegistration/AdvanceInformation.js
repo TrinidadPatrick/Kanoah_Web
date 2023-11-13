@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { pageContext } from './ServiceRegistrationPage'
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import Modal from 'react-modal';
@@ -78,16 +78,6 @@ const openGcashSetupModal = () => {
 }
 const closeGcashMethodModal = () => {
     setIsGcashModalOpen(false)
-    setAdvanceInformation({
-      ...advanceInformation,
-      PaymentMethod: {
-        ...advanceInformation.PaymentMethod,
-        Gcash: {
-          ...advanceInformation.PaymentMethod.Gcash,
-          Enabled: !advanceInformation.PaymentMethod.Gcash.Enabled,
-        },
-      },
-    });
 }
 
 // Handle service options select
@@ -114,16 +104,7 @@ const handleGcashCheckbox = () => {
   // Toggle the state
   setIsGcashChecked(prevState => !prevState);
   setGcashInfo({...gcashInfo, Enabled : !gcashInfo.Enabled})
-  setAdvanceInformation({
-    ...advanceInformation,
-    PaymentMethod: {
-      ...advanceInformation.PaymentMethod,
-      Gcash: {
-        ...advanceInformation.PaymentMethod.Gcash,
-        Enabled: !advanceInformation.PaymentMethod.Gcash.Enabled,
-      },
-    },
-  });
+
   
 
   // Check the updated state value
@@ -183,11 +164,22 @@ const submitAdvanceInformation = () => {
   if(advanceInformation.ServiceContact != "" && advanceInformation.ServiceEmail != "" && advanceInformation.ServiceCategory != "")
   {
     setServiceInformation({...serviceInformation, advanceInformation : advanceInformation})
+    setStep(3)
   }
 }
 
-console.log(serviceInformation)
+useEffect(()=>{
+  setAdvanceInformation(serviceInformation.advanceInformation)
+  if(serviceInformation.advanceInformation.PaymentMethod.Gcash.Enabled == true)
+  {
+    setIsGcashChecked(true)
+  }else if (serviceInformation.advanceInformation.PaymentMethod.Gcash.Enabled == false)
+  {
+    setIsGcashChecked(false)
+  }
+},[step])
 
+console.log(advanceInformation)
   return (
     <div className='w-full h-full flex flex-col justify-between p-1'>
     
@@ -217,7 +209,7 @@ console.log(serviceInformation)
   {/* Category */}
   <div>
   <label className="block text-gray-500 text-sm lg:text-md font-semibold mb-2" htmlFor="category">Category</label>
-  <select defaultValue={advanceInformation["ServiceCategory"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceCategory : e.target.value})}} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border w-full p-2 rounded-md text-sm`}>
+  <select value={advanceInformation["ServiceCategory"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceCategory : e.target.value})}} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border w-full p-2 rounded-md text-sm`}>
   <option >Select Category</option>
     {
       categories.map((category, index)=>(
@@ -254,7 +246,7 @@ console.log(serviceInformation)
   <div >
   <p className='text-sm text-gray-500 font-semibold mb-1'>Accept Booking</p>
   <label className="relative inline-flex items-center cursor-pointer">
-  <input type="checkbox" value={advanceInformation["AcceptBooking"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, AcceptBooking : !advanceInformation["AcceptBooking"]})}} className="sr-only peer outline-none"/>
+  <input type="checkbox" checked={advanceInformation["AcceptBooking"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, AcceptBooking : !advanceInformation["AcceptBooking"]})}} className="sr-only peer outline-none"/>
   <div className="w-7 h-4 lg:w-11 lg:h-6 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[3px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[1.2rem] after:h-[0.8rem] after:lg:w-[1.2rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
   </label>
   </div>
@@ -270,7 +262,7 @@ console.log(serviceInformation)
   <p className='text-sm text-gray-500 font-semibold mb-1'>Payment method</p>
   <div className='flex w-full space-x-5'>
   <div className='flex items-center space-x-3'>
-  <img src={Gcash} alt="paypal image" className=' w-20 h-5' />
+  <img  src={Gcash} alt="paypal image" className=' w-20 h-5 cursor-pointer' />
   <label className="relative inline-flex items-center cursor-pointer">
   <input checked={isGcashChecked} onChange={()=>handleGcashCheckbox()} type="checkbox" value="" className="sr-only peer outline-none"/>
   <div className="w-[29px] h-4 lg:w-11 lg:h-6 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[3px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[1.2rem] after:h-[0.8rem] after:lg:w-[1.2rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
@@ -280,7 +272,7 @@ console.log(serviceInformation)
   <img src={cash} alt="paypal image" className=' w-6 h-6' />
   <p className='font-semibold text-gray-600'>Cash</p>
   <label className="relative inline-flex items-center cursor-pointer">
-  <input value={false} onClick={()=>{setAdvanceInformation({...advanceInformation, PaymentMethod : {...advanceInformation.PaymentMethod, Cash : !advanceInformation.PaymentMethod.Cash}})}} type="checkbox" value=""  className="sr-only peer outline-none"/>
+  <input  onClick={()=>{setAdvanceInformation({...advanceInformation, PaymentMethod : {...advanceInformation.PaymentMethod, Cash : !advanceInformation.PaymentMethod.Cash}})}} type="checkbox" value=""  className="sr-only peer outline-none"/>
   <div className="w-[29px] h-4 lg:w-11 lg:h-6 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[3px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[1.2rem] after:h-[0.8rem] after:lg:w-[1.2rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
   </label>
   </div>
