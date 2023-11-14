@@ -365,7 +365,7 @@ const UserInformation = () => {
     }
 
 
-    
+    console.log(phil)
       return (
     
     <div className='w-full h-full '>

@@ -4,6 +4,9 @@ const ServiceSchema = new mongoose.Schema({
         userId : {
             type : String
         }, 
+        owner : {
+            type : String
+        },
         basicInformation : {
             type : Object
         }, 

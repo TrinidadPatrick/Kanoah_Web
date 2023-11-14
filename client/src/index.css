@@ -17,8 +17,8 @@
 .navbarLink a {
    background-image: linear-gradient(
     to right,
-    #014d9e,
-    #014d9e 50%,
+    #EB6B23,
+    #EB6B23 50%,
     #ffffff 50%
   );
   font-weight: 600 !important;
@@ -34,7 +34,7 @@
 
 .navbarLink a:before{
   content: '';
-  background: #014d9e;
+  background: #EB6B23;
   display: block;
   position: absolute;
   bottom: -3px;

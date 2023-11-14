@@ -2,9 +2,13 @@ import React from 'react'
 import { useState, useContext, useEffect } from 'react'
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
 import { pageContext } from './ServiceRegistrationPage'
+import Modal from 'react-modal';
+import { useNavigate } from 'react-router-dom';
 import http from '../../http'
 
 const Tags = () => {
+  const navigate = useNavigate()
+  const [submitModalOpen, setSubmitModalOpen] = useState(false);
   const [input, setInput] = useState('')
   const [tags, setTags] = useState([])
   const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
@@ -23,22 +27,50 @@ const Tags = () => {
     setTags(newTag)
   }
 
+  // Modal Style
+const submitModalDesign = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    padding : '0'
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Adjust the color and transparency here
+  },
+};
+
+// handle submit modal
+const openSubmitModal = () => {
+  setSubmitModalOpen(true)
+}
+const closeSubmitModal = () => {
+  setSubmitModalOpen(false)
+}
+
+const submitTag = () => {
+  setServiceInformation({...serviceInformation, tags : tags})
+  openSubmitModal()
+}
   const submitService = () => {
-    setServiceInformation({...serviceInformation, tags : tags})
 
     http.post("addService", {serviceInformation, userId}).then((res)=>{
       console.log(res.data)
+      navigate("/")
     }).catch((err)=>{
       console.log(err)
     })
     
   }
 
+  console.log(tags)
   useEffect(()=>{
     setTags(serviceInformation.tags)
   },[step])
 
-  console.log(serviceInformation)
   return (
     <div className='h-full border flex flex-col justify-stretch items-stretch w-full'>
       <div className='w-3/4 mx-auto border'>
@@ -68,12 +100,29 @@ const Tags = () => {
   }
   </div>
 </div>  
-        <div className='w-full flex justify-end'>
-        <button onClick={()=>{setStep(4)}} className='px-2 py-1 bg-blue-700 text-white w-fit relative rounded-sm'>back</button>
-        <button onClick={()=>{submitService()}} className='px-2 py-1 bg-blue-700 text-white w-fit relative rounded-sm'>Submit</button>
+        <div className='w-full space-x-2 flex justify-end'>
+        <button onClick={()=>{setStep(4)}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-gray-200 text-gray-500'>Back</button>
+  <button onClick={()=>{submitTag()}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-themeBlue text-white'>submit</button>
         </div>
-        
+
+       {/*  submit Modal */}
+       <Modal isOpen={submitModalOpen} style={submitModalDesign} >
+        <div className='w-fit p-5'>
+        <div class="mb-4">
+      <p class="text-lg font-semibold">Are you sure you want to Submit?</p>
     </div>
+
+
+    <div class="flex justify-end">
+      <button class="px-4 py-1 mr-2 text-white bg-themeOrange rounded-sm hover:bg-orange-300 focus:outline-none focus:ring " onClick={()=>{submitService()}}>Submit</button>
+      <button class="px-4 py-1 text-gray-700 bg-gray-300 rounded-sm hover:bg-gray-400 focus:outline-none focus:ring " onClick={()=>{closeSubmitModal()}}>Cancel</button>
+    </div>
+        </div>
+      </Modal>
+</div>
+
+    // Submit Modal
+    
   )
 }
 

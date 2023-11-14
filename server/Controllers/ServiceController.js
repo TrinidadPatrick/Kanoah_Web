@@ -1,4 +1,5 @@
 const Service = require('../Models/TempServiceModel')
+const user = require('../Models/UserModel')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 require("dotenv").config();
@@ -18,12 +19,16 @@ module.exports.addService = async (req,res) => {
     const tags  = req.body.serviceInformation.tags
     const userId = req.body.userId
 
-    // console.log(req.body.serviceInformation)
-    try {
-        const result = await Service.create({userId, basicInformation, advanceInformation, address, serviceHour, tags})
+    const result = await user.findOne({_id : userId})
 
+    const fullname = result.firstname + " " + result.lastname
+  
+    console.log(result)
+    try {
+
+        const result = await Service.create({userId, owner: fullname, basicInformation, advanceInformation, address, serviceHour, tags})
         return res.json({result})
     } catch (error) {
-        
+        return res.json({status : 0, message : error})
     }
 }
