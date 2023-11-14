@@ -78,6 +78,7 @@ const openGcashSetupModal = () => {
 }
 const closeGcashMethodModal = () => {
     setIsGcashModalOpen(false)
+    setGcashInfo({...gcashInfo, Enabled : !gcashInfo.Enabled})
 }
 
 // Handle service options select
@@ -104,6 +105,7 @@ const handleGcashCheckbox = () => {
   // Toggle the state
   setIsGcashChecked(prevState => !prevState);
   setGcashInfo({...gcashInfo, Enabled : !gcashInfo.Enabled})
+  // setAdvanceInformation({...advanceInformation, {...PaymentMethod, Gcash, status : "Enabled"}})
 
   
 
@@ -135,6 +137,7 @@ const addQrImage = async (files) => {
   
 }
 
+//submits the gcash setup information
 const submitGcashPayment = () => {
   const checkErrors = (input, errorKey) => (
     setErrors((prevErrors)=>({...prevErrors, [errorKey] : gcashInfo[input] == "" ? true : false}))
@@ -147,7 +150,7 @@ const submitGcashPayment = () => {
   {
   setGcashInfo({...gcashInfo, Enabled : true})
   setAdvanceInformation({...advanceInformation, PaymentMethod: {...advanceInformation.PaymentMethod, Gcash :  gcashInfo}})
-  closeGcashMethodModal()
+  setIsGcashModalOpen(false)
   }
   
 }
@@ -179,11 +182,11 @@ useEffect(()=>{
   }
 },[step])
 
-console.log(advanceInformation)
+
   return (
-    <div className='w-full h-full flex flex-col justify-between p-1'>
+    <div className='w-full h-full flex flex-col  p-1'>
     
-  <div className="flex  flex-col space-y-4 justify-between h-full">
+  <div className="flex  flex-col space-y-3 justify-start h-full">
   {/* Phone and Fax */}
   <div className='flex space-x-3'>
     {/* Phone */}
@@ -200,7 +203,7 @@ console.log(advanceInformation)
   </div>
 
 {/* Email and Category */}
-    <div className='grid grid-cols-2 items-center gap-4'>
+    <div className='grid grid-cols-2 m-0 items-center gap-4'>
   <div className="w-full">
     <label className="block text-gray-500 text-sm lg:text-md font-semibold mb-2" htmlFor="email">Email</label>
     <input value={advanceInformation["ServiceEmail"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} type="email" id="email" className={`${errors.ServiceEmailError ? "border-red-500 border-2" : ""} w-full text-sm lg:text-md p-2 border rounded`} placeholder="example@email.com" />
@@ -230,7 +233,7 @@ console.log(advanceInformation)
   {
   serviceOptions.map((service, index)=>(
     
-    <button key={index} onClick={()=>handleSelectServiceOption(service)} className={`${selectedServiceOptions.includes(service) ? "bg-blue-500 text-white" : "bg-gray-200"} px-2 lg:px-3 py-2 relative shadow-sm  rounded-sm text-[0.65rem] lg:text-sm`}>
+    <button key={index} onClick={()=>handleSelectServiceOption(service)} className={`${selectedServiceOptions.includes(service) ? "bg-[#0E2F41] text-white" : "bg-gray-200 text-[#4F7080]"} px-2 lg:px-2 py-1  relative shadow-sm  rounded-md text-[0.65rem] lg:text-sm`}>
     <span>{service}</span>
     <div className={`absolute -top-3 -right-2 ${selectedServiceOptions.includes(service) ? "rotate-360 opacity-100 transition-transform duration-[0.5s] ease-out" : "opacity-0 transform -rotate-180 transition-transform duration-300 ease-in-out"}`}>
     <CheckCircleIcon fontSize='small' className={`text-blue-500 relative  bg-white rounded-full`} />
@@ -247,7 +250,7 @@ console.log(advanceInformation)
   <p className='text-sm text-gray-500 font-semibold mb-1'>Accept Booking</p>
   <label className="relative inline-flex items-center cursor-pointer">
   <input type="checkbox" checked={advanceInformation["AcceptBooking"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, AcceptBooking : !advanceInformation["AcceptBooking"]})}} className="sr-only peer outline-none"/>
-  <div className="w-7 h-4 lg:w-11 lg:h-6 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[3px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[1.2rem] after:h-[0.8rem] after:lg:w-[1.2rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+  <div className="w-7 h-4 lg:w-[2.4rem] lg:h-[1.3rem] bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[1.1rem] after:h-[0.8rem] after:lg:w-[1.1rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
   </label>
   </div>
 
@@ -260,28 +263,40 @@ console.log(advanceInformation)
   
   <div className="flex flex-col space-x-0">
   <p className='text-sm text-gray-500 font-semibold mb-1'>Payment method</p>
-  <div className='flex w-full space-x-5'>
-  <div className='flex items-center space-x-3'>
+  <div className='flex flex-col w-full space-y-2'>
+    {/* Gcash */}
+  <div className='flex items-center justify-between space-x-3 rounded-sm border-1 shadow-sm p-3'>
   <img  src={Gcash} alt="paypal image" className=' w-20 h-5 cursor-pointer' />
+  <div className='flex space-x-5 md:space-x-20'>
+  <p className='text-gray-500 text-xs'>{isGcashChecked ? "Enabled" : "Not set"}</p>
   <label className="relative inline-flex items-center cursor-pointer">
   <input checked={isGcashChecked} onChange={()=>handleGcashCheckbox()} type="checkbox" value="" className="sr-only peer outline-none"/>
-  <div className="w-[29px] h-4 lg:w-11 lg:h-6 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[3px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[1.2rem] after:h-[0.8rem] after:lg:w-[1.2rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+  <div className="w-[29px] h-4 lg:w-[1.85rem] lg:h-4 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[0.8rem] after:h-[0.8rem] after:lg:w-[0.8rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
   </label>
   </div>
-  <div className='flex items-center space-x-3'>
+  </div>
+
+
+  {/* Cash */}
+  <div className='flex items-center space-x-3 rounded-sm justify-between border-1 shadow-sm p-3'>
+  <div className='flex items-center space-x-2'>
   <img src={cash} alt="paypal image" className=' w-6 h-6' />
   <p className='font-semibold text-gray-600'>Cash</p>
+  </div>
+  <div className='flex space-x-5 md:space-x-20'>
+  <p className='text-gray-500 text-xs'>{advanceInformation.PaymentMethod.Cash ? "Enabled" : "Not set"}</p>
   <label className="relative inline-flex items-center cursor-pointer">
   <input  onClick={()=>{setAdvanceInformation({...advanceInformation, PaymentMethod : {...advanceInformation.PaymentMethod, Cash : !advanceInformation.PaymentMethod.Cash}})}} type="checkbox" value=""  className="sr-only peer outline-none"/>
-  <div className="w-[29px] h-4 lg:w-11 lg:h-6 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[3px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[1.2rem] after:h-[0.8rem] after:lg:w-[1.2rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+  <div className="w-[29px] h-4 lg:w-[1.85rem] lg:h-4 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[0.8rem] after:h-[0.8rem] after:lg:w-[0.8rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
   </label>
+  </div>
   </div>
   </div>
   </div>
 
   <div className='w-full flex justify-end space-x-2'>
   <button onClick={()=>{setStep(1)}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-gray-200 text-gray-500'>Back</button>
-  <button onClick={()=>{submitAdvanceInformation()}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-themeBlue text-white'>Next</button>
+  <button onClick={()=>{submitAdvanceInformation()}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-themeBlue text-white hover:bg-blue-900'>Next</button>
   </div>
   
 

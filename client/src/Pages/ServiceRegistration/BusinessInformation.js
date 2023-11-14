@@ -14,10 +14,6 @@ const BusinessInformation = () => {
     })
     const [descriptionInput, setDescriptionInput] = useState(''); // State to track textarea content
     const [basicInformation, setBasicInformation] = useState({
-      ServiceTitle : "",
-      OwnerEmail : "",
-      OwnerContact : "",
-      Description : ""
     })
 
     // So that what the user type in the description, its the same format as the output
@@ -43,7 +39,7 @@ const BusinessInformation = () => {
       setErrors((prevErrors)=>({...prevErrors, [errorKey] : basicInformation[input] === "" ? 0  : null}))
      )
 
-      checkError("Title", "TitleError")
+      checkError("ServiceTitle", "TitleError")
       checkError("OwnerEmail", "OwnerEmailError")
       checkError("OwnerContact", "OwnerContactError")
       checkError("Description", "DescriptionError")
@@ -87,6 +83,7 @@ const BusinessInformation = () => {
         <label className="block text-sm text-gray-500 font-semibold mb-2" htmlFor="description">Service Description</label>
         <div className={`${errors.DescriptionError == 0 ? " border-2 border-red-500" : ""} border h-[200px]  md:h-[90%]`}>
         <textarea
+        maxLength={1000}
         id="description"
         value={basicInformation.Description} onChange={(e)=>{setBasicInformation({...basicInformation, Description : e.target.value})}}
         className="w-full p-2  resize-none outline-none min-h-[20px] max-h-[260px] "

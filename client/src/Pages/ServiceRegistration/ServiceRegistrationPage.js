@@ -11,7 +11,7 @@ export const pageContext = React.createContext()
 
 const ServiceRegistrationPage = () => {
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] 
-    const [step, setStep] = useState(1)
+    const [step, setStep] = useState(2)
     const [userId, setUserId] = useState(null)
     const [serviceInformation, setServiceInformation] = useState(
       {

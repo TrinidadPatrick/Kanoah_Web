@@ -113,6 +113,7 @@ const UserInformation = () => {
     // Handles the data change
     const handleDate = (e) => {
         setBirthDate({...birthDate, [e.target.name]: e.target.value})
+        setDisableSaveChange(false)
     }
 
     // For Modals

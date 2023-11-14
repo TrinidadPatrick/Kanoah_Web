@@ -18,7 +18,7 @@ module.exports = {
         darkGray : " color: rgb(107 114 128 / var(--tw-text-opacity))"
       },
       colors: {
-        themeBlue : "#002349",
+        themeBlue : "#0E2F41",
         white : "#ffffff",
         themeOrange : "#EB6B23",
         themeGray : "#505050"

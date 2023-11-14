@@ -13,6 +13,9 @@ import jwtDecode from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
 import { categories } from '../MainPage/Components/Categories'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PersonIcon from '@mui/icons-material/Person';
+import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined';
+import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import axios from 'axios'
 export const Context = React.createContext()
 
@@ -64,9 +67,12 @@ const Navbar = () => {
         // console.log("Not Logged IN")
       }
     }, [])
+
+    const signout = () => {
+      localStorage.removeItem("token")
+      window.location.reload()
+    }
     
-
-
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
     <>
@@ -135,11 +141,32 @@ const Navbar = () => {
       userInfo != null ?
       (
         <div className='flex items-center justify-evenly space-x-5 mr-4'>
-                    <ForumRoundedIcon className='text-white'/>
+          <ForumRoundedIcon className='text-white'/>
           <NotificationsIcon className='text-white' />
-          <Link to='/myAccount'>
-          <img className='w-8 h-8 max-h-8 ml- border-1 border-white  rounded-full' src={userInfo.profileImage} />
-          </Link>
+          <div >
+            {/* PROFILE IMAGE */}
+          <img className='peer w-8 h-8 max-h-8 ml- border-1 border-white  rounded-full' src={userInfo.profileImage} />
+          {/* Dropdown Profile */}
+          <div className="hidden absolute p-2 right-14 peer-hover:flex hover:flex w-fit rounded-md top-[3.3rem] delay-150 flex-col bg-white drop-shadow-lg overflow-hidden">
+          <header className='flex border-b pb-2'>
+          {/* Image container */}
+          <div className=' flex items-center'>
+          <img className='peer w-9 h-9 max-h-9 ml- border-1 border-white  rounded-full' src={userInfo.profileImage} />
+          </div>
+          <div className='ml-1'>
+          <h1 className='text-sm font-semibold'>{userInfo.username}</h1>
+          <p className='text-xs text-gray-500'>{userInfo.email}</p>
+          </div>
+          
+          </header>
+          <Link to='/myAccount' className="px-1 py-3 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon  />Profile Settings</Link>
+          <Link to='/serviceRegistration' className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
+
+          <footer className='px-1 text-red-500 border-t-1 pt-3'>
+            <button onClick={()=>{signout()}} className='flex items-center gap-2'><ExitToAppOutlinedIcon />Sign out</button>
+          </footer>
+          </div>
+          </div>
           
         </div>
       )
@@ -192,6 +219,10 @@ const Navbar = () => {
       </li>
 </ul>
 </div>
+
+<div>
+    
+    </div>
   
 {/* Modal */}
 <Modal open={open} onClose={handleClose}> 
