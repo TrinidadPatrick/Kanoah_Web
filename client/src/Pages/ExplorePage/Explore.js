@@ -264,10 +264,11 @@ const Explore = () => {
 
       const setRatingFilter = () => {
 
-        if(serviceList != null)
+        if(services != null)
         {
           if(search == "")
           {
+            console.log("Hello")
             const filtered = services.filter((service) => {
               const { rating } = service;
             
@@ -331,9 +332,15 @@ const Explore = () => {
                     1 * rating['1star']) /
                     totalStars
                 );
-            
-                // Check if the averageRating is included in the array [4, 3, 2]
-                return checkBoxValuesArray.length == 0 ? [5,4,3,2,1,0].includes(averageRating) : checkBoxValuesArray.includes(averageRating)
+                
+                if(checkBoxValuesArray.length == 0)
+                {
+                  return [5,4,3,2,1,0].includes(averageRating)
+                }
+                else 
+                {
+                  return checkBoxValuesArray.includes(averageRating)
+                }
               }
             
               return false;
@@ -344,23 +351,22 @@ const Explore = () => {
           
         }
       }
-        
+       
+      //update the filter value whenever the checkbox rating is check
       useEffect(()=>{
         const result = setRatingFilter()
-        if(search == "")
-        {
-
-          setRatingFilterValue(result)
+        if(result == undefined){
+          setRatingFilter()
         }
         else{
           setRatingFilterValue(result)
         }
+       
         
        
       }, [checkBoxValuesArray])
-      console.log(ratingFilterValue)
 
-      
+      console.log(ratingFilterValue)
   return (
         <div className=' w-full flex h-full'>
         {/* Left Section */}
