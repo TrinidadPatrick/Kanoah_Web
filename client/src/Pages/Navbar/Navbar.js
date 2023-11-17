@@ -17,12 +17,20 @@ import PersonIcon from '@mui/icons-material/Person';
 import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import axios from 'axios'
+import http from '../../http'
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
 export const Context = React.createContext()
 
 
 
 const Navbar = () => {
+const dispatch = useDispatch();
+const userId = useSelector(selectUserId);
+const [isLoggedIn, setIsLoggedIn] = useState(undefined)
  const navigate = useNavigate()
+ const [accessToken, setAccessToken] = useState(null);
+ const [refreshToken, setRefreshToken] = useState(null);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = (event, reason) => {
@@ -58,20 +66,49 @@ const Navbar = () => {
       
     };
 
-    // Get and decode JWT
+    // check if Logged In
+    const getUserProfile = async (token) => {
+      try {
+        const response = await http.get('profile', {
+          headers : {Authorization: `Bearer ${token}`},
+        })
+        setIsLoggedIn(true)
+        getUser(response.data.user._id)
+        
+      } catch (error) {
+          setIsLoggedIn(false)
+        console.error('Profile Error:', error.response.data.error);
+        setIsLoggedIn(false)
+        navigate("/")
+      }
+    }
+
+    // Get userInformation
+    const getUser = async (id) => {
+      http.get(`getUser/${id}`).then((res)=>{
+        setUserInfo(res.data)
+        dispatch(setUserId(res.data._id));
+      }).catch((err)=>{
+        console.log(err)
+      })
+    }
     useEffect(() => {
-      const token = localStorage.getItem("token")
-      if(token){
-        setUserInfo(jwtDecode(token))
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        setAccessToken(accessToken);
+        setRefreshToken(refreshToken);
+        getUserProfile(accessToken);
+        // getUser()
       }else{
-        // console.log("Not Logged IN")
+        setIsLoggedIn(false)
       }
     }, [])
 
     const signout = () => {
-      localStorage.removeItem("token")
+      localStorage.removeItem("accessToken")
       window.location.reload()
     }
+
     
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
@@ -138,7 +175,7 @@ const Navbar = () => {
   <div className="flex md:order-2 ">
     {/* Condition to show login and join button if logged out and show profile if Logged in */}
     {
-      userInfo != null ?
+      userInfo != null && isLoggedIn ?
       (
         <div className='flex items-center justify-evenly space-x-5 mr-4'>
           <ForumRoundedIcon className='text-white'/>
@@ -161,6 +198,7 @@ const Navbar = () => {
           </header>
           <Link to='/myAccount' className="px-1 py-3 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon  />Profile Settings</Link>
           <Link to='/serviceRegistration' className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
+          <Link to='/serviceSettings' className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
 
           <footer className='px-1 text-red-500 border-t-1 pt-3'>
             <button onClick={()=>{signout()}} className='flex items-center gap-2'><ExitToAppOutlinedIcon />Sign out</button>
@@ -171,12 +209,18 @@ const Navbar = () => {
         </div>
       )
       :
+      isLoggedIn == false ?
       (
       <div className='flex space-x-2'>
       <button onClick={()=>{setShowLogin(true);handleOpen()}} className='text-white border-2 px-4 py-1 rounded-md border-white'>Login</button>
       <button onClick={()=>{setShowSignup(true);handleOpen()}} className='text-white bg-themeOrange border-2 border-themeOrange px-6 py-1 rounded-md '>Join</button>
       </div>    
       ) 
+
+      :
+      (
+        ""
+      )
     }
 
 </div>

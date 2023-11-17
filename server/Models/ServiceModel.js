@@ -1,6 +1,9 @@
 const mongoose = require('mongoose')
 
 const ServiceSchema = new mongoose.Schema({
+        createdAt : {
+            type : Date
+        },
         userId : {
             type : String
         }, 
@@ -22,6 +25,22 @@ const ServiceSchema = new mongoose.Schema({
         tags : {
             type : [String]
         },
+        galleryImages : {
+            type : Array
+        },
+        featuredImages : {
+            type : Array
+        },
+        ratings: {
+            type: Array,
+            default: [
+              { stars: 5, count: 0 },
+              { stars: 4, count: 0 },
+              { stars: 3, count: 0 },
+              { stars: 2, count: 0 },
+              { stars: 1, count: 0 },
+            ]
+          }
         
 })
 

@@ -6,13 +6,16 @@ import AdvanceInformation from './AdvanceInformation'
 import ServiceHours from './ServiceHours'
 import background1 from './Utils/images/background5.svg'
 import jwtDecode from 'jwt-decode';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
 export const pageContext = React.createContext()
 
 
 const ServiceRegistrationPage = () => {
+  const userId = useSelector(selectUserId)
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] 
-    const [step, setStep] = useState(2)
-    const [userId, setUserId] = useState(null)
+    const [step, setStep] = useState(1)
+    // const [userId, setUserId] = useState(null)
     const [serviceInformation, setServiceInformation] = useState(
       {
       basicInformation : {
@@ -52,30 +55,6 @@ const ServiceRegistrationPage = () => {
       }
      
     )
-
-    // Get the userID
-    const getUserId = () => {
-      return new Promise((resolve, reject)=>{
-          const jwtToken = localStorage.getItem('token')
-          if(jwtToken == null){
-              reject('Not a valid User')
-          }else{
-              const id = jwtDecode(jwtToken)._id
-              resolve(id)
-          }
-          
-      })
-      }
-
-  const getId = async () => {
-    const userId = await getUserId()
-    setUserId(userId)
-  }
-  
-  useEffect(()=>{
-    getId()
-  }, [])
-
 
   return (
     <pageContext.Provider value={[step, setStep, userId, serviceInformation, setServiceInformation]} >

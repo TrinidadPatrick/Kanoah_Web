@@ -4,6 +4,14 @@ const nodemailer = require('nodemailer')
 require("dotenv").config();
 const jwt = require('jsonwebtoken')
 
+const generateToken = (user) => {
+    return jwt.sign({ _id : user._id }, process.env.SECRET_KEY, { expiresIn: '1day' });
+}
+
+const generateRefreshToken = (user) => {
+    return jwt.sign({ _id : user._id }, process.env.REFRESH_SECRET_KEY);
+}
+
 // Get All Users
 module.exports.getUsers = async (req,res) =>{
     const users = await user.find()
@@ -15,7 +23,6 @@ module.exports.getUser = async (req,res) => {
     try {
         const id = req.params._id
         const userInfo = await user.findOne({_id : id})
-        console.log(userInfo)
         return res.json(userInfo)
     } catch (error) {
         
@@ -47,7 +54,7 @@ module.exports.verifyPassword = async (req,res)=>{
 
 // Update user information
 module.exports.updateUser = async (req,res) =>{
-
+    console.log(req.body)
     const _id = req.params._id
     const data = req.body
     try {
@@ -107,13 +114,16 @@ module.exports.register = async (req,res) => {
         
         const hashedPassword = await bcrypt.hash(password, 10)
         await user.create({username, email, password : hashedPassword, firstname, lastname, contact, birthDate : birthDate, profileImage : image, verified : true, Address : null}).then((response)=>{
-            const token = jwt.sign({
-                username : username,
-                email : email,
-                _id : response._id
+            // const token = jwt.sign({
+            //     username : username,
+            //     email : email,
+            //     _id : response._id
     
-            }, process.env.SECRET_KEY)
-            res.json({message : "Registration completed Successfully" , status : "registered", userToken : token})
+            // }, process.env.SECRET_KEY)
+            // Generate jwt token
+            const accessToken = generateToken({username : username, email : email, _id : response._id})
+            const refreshToken = generateRefreshToken({username : username, email : email, _id : response._id})
+            res.json({message : "Registration completed Successfully" , status : "registered", accessToken : accessToken, refreshToken : refreshToken})
         }).catch((err)=>{
             res.send(err)
         })
@@ -263,18 +273,9 @@ module.exports.login = async (req,res) => {
     if(result != null){
         const comparePassword = await bcrypt.compare(password, result.password)
         if(comparePassword){
-            const token = jwt.sign({
-                username : result.username,
-                email : result.email,
-                _id : result._id,
-                profileImage : result.profileImage
-    
-            }, process.env.SECRET_KEY)
-            // setTimeout(()=>{
-            //     const data = jwt.verify(token,process.env.SECRET_KEY )
-            //     console.log(data.data)
-            // }, 11000)
-            return res.json({status : 'authenticated', data : token})
+            const accessToken = generateToken({ _id : result._id})
+
+            return res.json({status : 'authenticated', accessToken })
         }else {
             return res.json({status : 'invalid username or password'})
         }
@@ -285,6 +286,27 @@ module.exports.login = async (req,res) => {
     }
     
 }
+
+
+
+
+// For profile authentication to get profile
+module.exports.profile =  (req,res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    res.json({status : "logged in", user });
+  });
+}
+
 
 
 // Forgot Password-----------------------------------------------------------------------------FORGOT PASSWORD---------------------------------------

@@ -59,7 +59,8 @@ const Login = () => {
       http.post("login", {UsernameOrEmail, password}).then((res)=>{
         console.log(res.data)
       if(res.data.status == "authenticated"){
-        localStorage.setItem("token", res.data.data)
+        localStorage.setItem("accessToken", res.data.accessToken)
+        localStorage.setItem("refreshToken", res.data.refreshToken)
         window.location.reload(false)
       }else if (res.data.status == "invalid username or password"){
         setInvalidLogin(true)

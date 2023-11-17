@@ -15,9 +15,17 @@ import phil from 'phil-reg-prov-mun-brgy';
 import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import cloudinaryCore from '../../../CloudinaryConfig'
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserId, selectUserId } from '../../../ReduxTK/userSlice';
+import { useNavigate } from 'react-router-dom'
 
 
 const UserInformation = () => {
+    const navigate = useNavigate()
+    const dispatch = useDispatch();
+    const userId = useSelector(selectUserId); 
+    const [access, setAccessToken] = useState(null);
+    const [refreshToken, setRefreshToken] = useState(null);
     const [disableSaveChange, setDisableSaveChange] = useState(true)
     const [isloadingImage, setIsloadingImage] = useState(false)
     const [password, setPassword] = useState('')
@@ -64,20 +72,41 @@ const UserInformation = () => {
         day : "1",
         year : DateData.year[0]
     })
-    
-    // Get the userID
-    const getUserId = () => {
-    return new Promise((resolve, reject)=>{
-        const jwtToken = localStorage.getItem('token')
-        if(jwtToken == null){
-            reject('Not a valid User')
-        }else{
-            const id = jwtDecode(jwtToken)._id
-            resolve(id)
-        }
+    // validate access token
+    const getUserProfile = async (token) => {
+      try {
+        const response = await http.get('profile', {
+          headers : {Authorization: `Bearer ${token}`},
+        })
+        getUser()
         
-    })
+      } catch (error) {
+        console.error('Profile Error:', error.response.data.error);
+ 
+      }
     }
+
+    // Get userInformation
+    const getUser = async () => {
+
+          await http.get(`getUser/${userId}`).then((res)=>{
+            setUserInformation(res.data)
+          }).catch((err)=>{
+            console.log(err)
+          })
+    }
+
+    //Get Tokens fro Local Storage
+    useEffect(() => {
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        setAccessToken(accessToken);
+        getUserProfile(accessToken);
+      }else{
+        // setIsLoggedIn(false)
+        navigate("/")
+      }
+    }, [userId])
 
     // Clear password input fields
     const clearPasswords = () => {
@@ -86,22 +115,7 @@ const UserInformation = () => {
         setConfirmPassword('')
     }
 
-    // Get user
-    const getUserInfo = async () => {
-        try {
-        const userId = await getUserId()
-        const response = await http.get(`getUser/${userId}`)
-        setUserInformation(response.data)
-        } catch (error) {
-        console.log(error)
-        }
-        
-        
-    }
 
-    useEffect(()=>{
-    getUserInfo()
-    },[])
 
     // handle the change of inputs
     const handleChange = (e) => {
@@ -171,8 +185,7 @@ const UserInformation = () => {
         const result = await verifyPassword()
         if(result.status == "verified")
         {
-        const id = userInformation._id
-        http.put(`updateUser/${id}`, userInformation).then((res)=>{
+        http.put(`updateUser/${userId}`, userInformation).then((res)=>{
         // Set errors if there are any
         
         const status = res.data.status
@@ -266,7 +279,7 @@ const UserInformation = () => {
       }, [locationFilterValue]);
 
     //   password validation for update information
-    const verifyPassword = () => {
+    const verifyPassword = async () => {
         const data = {
           _id: userInformation._id,
           password: password,
@@ -318,7 +331,7 @@ const UserInformation = () => {
         else if(newPassword == "" && confirmPassword == ""){setErrors({passwordError : 0})}
         else if(password != "" && newPassword === confirmPassword)
         {
-        const id = await getUserId()
+        const id = userInformation._id
         const data = {
             _id : id,
             password : password,
@@ -348,7 +361,7 @@ const UserInformation = () => {
     const deactivateAccount = async () => {
         if(password != "")
         {
-            const id = await getUserId()
+            const id = userInformation._id
             const data = {
                 _id : id,
                 password : password
@@ -365,8 +378,8 @@ const UserInformation = () => {
         }
     }
 
+    
 
-    console.log(phil)
       return (
     
     <div className='w-full h-full '>
@@ -485,11 +498,11 @@ const UserInformation = () => {
                 {
                     userInformation.Address == null ? 
                     (
-                    <p onClick={()=>{handleOpen()}} className=' cursor-pointer font-medium border-1 underline w-fit px-2 py-1 rounded-md'>Setup your Address <EditLocationOutlinedIcon className='ml-1 text-gray-500' /></p>
+                    <p onClick={()=>{handleOpen();setDisableSaveChange(false)}} className=' cursor-pointer font-medium border-1 underline w-fit px-2 py-1 rounded-md'>Setup your Address <EditLocationOutlinedIcon className='ml-1 text-gray-500' /></p>
                     )
                     :
                     (
-                        <p onClick={()=>{handleOpen()}} className=' cursor-pointer font-medium border-1 underline w-fit px-2 py-1 rounded-md'>{
+                        <p onClick={()=>{handleOpen();setDisableSaveChange(false)}} className=' cursor-pointer font-medium border-1 underline w-fit px-2 py-1 rounded-md'>{
                             `Brgy. ${userInformation.Address.barangay}, ${userInformation.Address.municipality}, ${userInformation.Address.province}`
                                 
                             }<EditLocationOutlinedIcon className='ml-1 text-gray-500' /></p>

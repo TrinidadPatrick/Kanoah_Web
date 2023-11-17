@@ -17,11 +17,8 @@ import pic6 from '../img/pic6.jpg'
 
 export const galleryImage = [
     {
-        src : image1
-        ,
-        
-
-
+        src : image1,
+        caption : "Caption1"
     }
     ,
     {

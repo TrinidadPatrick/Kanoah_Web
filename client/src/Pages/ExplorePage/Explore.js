@@ -98,8 +98,6 @@ const Explore = () => {
       document.getElementById("sort_arrow-down").classList.toggle("hidden");
   }
     
-
-
       // Get my current location
       useEffect(() => {
         // Use the Geolocation API to get the user's location
@@ -268,7 +266,6 @@ const Explore = () => {
         {
           if(search == "")
           {
-            console.log("Hello")
             const filtered = services.filter((service) => {
               const { rating } = service;
             
@@ -366,7 +363,6 @@ const Explore = () => {
        
       }, [checkBoxValuesArray])
 
-      console.log(ratingFilterValue)
   return (
         <div className=' w-full flex h-full'>
         {/* Left Section */}
@@ -564,7 +560,7 @@ const Explore = () => {
                         <p className='text-sm md:text-md text-gray-400  flex items-center gap-1'><Person2OutlinedIcon  />{service.owner}</p>
                         {
                         years > 0 ? (<p className='text-xs text-gray-400 ml-1 mt-1'>{years}{years > 1 ? " years ago" : " year ago"}</p>) : months > 0 ? (<p className='text-xs text-gray-400 ml-1 mt-1'>{months}{months > 1 ? " months ago" : " month ago"}</p>) : days > 0  ? (<p className='text-xs text-gray-400 ml-1 mt-1'>{days} {days > 1 ? " days ago" : " day ago"}</p>) : (<p className='text-xs text-gray-400 ml-1 mt-1'>Less than a day ago</p>)
-                      }
+                        }
                       </div>
                       {/* Reviews */}
                       <div className='flex flex-col w- whitespace-nowrap relative ml-0  xl:ml-3 mr-2 space-x-1'>

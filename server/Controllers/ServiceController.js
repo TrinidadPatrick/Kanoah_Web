@@ -1,10 +1,10 @@
-const Service = require('../Models/TempServiceModel')
+const Service = require('../Models/ServiceModel')
 const user = require('../Models/UserModel')
 const bcrypt = require('bcrypt')
 const nodemailer = require('nodemailer')
 require("dotenv").config();
 
-// Get All Temp Services
+// Get All Services
 module.exports.getServices = async (req,res) =>{
     const services = await Service.find()
     return res.json(services);
@@ -18,6 +18,7 @@ module.exports.addService = async (req,res) => {
     const serviceHour = req.body.serviceInformation.serviceHour
     const tags  = req.body.serviceInformation.tags
     const userId = req.body.userId
+    const createdAt = req.body.createdAt
 
     const result = await user.findOne({_id : userId})
 
@@ -26,9 +27,180 @@ module.exports.addService = async (req,res) => {
     console.log(result)
     try {
 
-        const result = await Service.create({userId, owner: fullname, basicInformation, advanceInformation, address, serviceHour, tags})
+        const result = await Service.create({userId, owner: fullname, basicInformation, advanceInformation, address, serviceHour, tags, createdAt})
         return res.json({result})
     } catch (error) {
         return res.json({status : 0, message : error})
     }
 }
+
+// Get Service
+module.exports.getService = async (req,res) => {
+    const {userId} = req.params
+    try {
+        const response = await Service.findOne({userId})
+
+        return res.json({response})
+    } catch (error) {
+        return res.json({error})
+    }
+}
+
+// Update or Add Gallery Images
+module.exports.addGalleryImage = async (req,res) => {
+    const {_id} = req.params
+    const images = req.body.galleryImages
+
+    try {
+        const response = await Service.updateOne(
+            {_id : _id},
+            { $push : {galleryImages : { $each : images}}}
+        )
+
+        return res.json({message : response})
+    } catch (error) {
+        return res.json({message : error})
+    }
+}
+
+// Get Gallery Images
+module.exports.getGalleryImages = async (req,res) => {
+    const {userId} = req.params
+    try {
+        const images = await Service.findOne({userId}).select({galleryImages : 1})
+
+        if(images)
+        {
+            return res.json({images : images.galleryImages})
+        }
+        return res.json({message : "no image found"})
+    } catch (error) {
+        return res.json({message : error})
+    }
+}
+
+// Delete single image gallery
+module.exports.deleteImage = async (req,res) => {
+    const imageId = req.body.imageId
+    const userId = req.body.userId
+
+    try {
+        const service = await Service.findOne({userId})
+
+        if(!service)
+        {
+            return res.json({ success: false, message: 'Service not found' });
+        }
+
+        const index = service.galleryImages.findIndex(image => image.imageId == imageId)
+        const deleted = service.galleryImages.splice(index, 1)
+        await service.save()
+
+        return res.json({success : true})
+    } catch (error) {
+        return res.json({message : error})
+    }
+}
+
+// Delete multiple images from galler
+module.exports.deleteMultipleImages = async (req, res) => {
+  const userId = req.body.userId;
+  const imagesToDelete = req.body.imagesToDelete;
+
+  try {
+    const service = await Service.findOne({ userId });
+
+    if (!service) {
+      return res.json({ success: false, message: 'Service not found' });
+    }
+
+    // Filter images to keep only those not in imagesToDelete
+    service.galleryImages = service.galleryImages.filter((image) => !imagesToDelete.includes(image.imageId));
+
+    // Save the updated service
+    await service.save();
+
+    return res.json({ success: true });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+};
+
+// Update or Add Featured Images
+module.exports.addFeaturedImage = async (req,res) => {
+    const {_id} = req.params
+    const images = req.body.featuredImages
+
+    try {
+        const response = await Service.updateOne(
+            {_id : _id},
+            { $push : {featuredImages : { $each : images}}}
+        )
+        return res.json({message : response})
+    } catch (error) {
+        return res.json({message : error})
+    }
+}
+
+// Get Featured Images
+module.exports.getFeaturedImages = async (req,res) => {
+    const {userId} = req.params
+    try {
+        const images = await Service.findOne({userId}).select({featuredImages : 1})
+        console.log(images)
+        if(images)
+        {
+            return res.json({images : images.featuredImages})
+        }
+        return res.json({message : "no image found"})
+    } catch (error) {
+        return res.json({message : error})
+    }
+}
+
+// Delete single image featured
+module.exports.deleteFeaturedImage = async (req,res) => {
+    const imageId = req.body.imageId
+    const userId = req.body.userId
+
+    try {
+        const service = await Service.findOne({userId})
+
+        if(!service)
+        {
+            return res.json({ success: false, message: 'Service not found' });
+        }
+
+        const index = service.featuredImages.findIndex(image => image.imageId == imageId)
+        const deleted = service.featuredImages.splice(index, 1)
+        await service.save()
+
+        return res.json({success : true})
+    } catch (error) {
+        return res.json({message : error})
+    }
+}
+
+// Delete multiple images from galler
+module.exports.deleteMultipleFeaturedImages = async (req, res) => {
+    const userId = req.body.userId;
+    const imagesToDelete = req.body.imagesToDelete;
+  
+    try {
+      const service = await Service.findOne({ userId });
+  
+      if (!service) {
+        return res.json({ success: false, message: 'Service not found' });
+      }
+  
+      // Filter images to keep only those not in imagesToDelete
+      service.featuredImages = service.featuredImages.filter((image) => !imagesToDelete.includes(image.imageId));
+  
+      // Save the updated service
+      await service.save();
+  
+      return res.json({ success: true });
+    } catch (error) {
+      return res.json({ success: false, message: error.message });
+    }
+  };

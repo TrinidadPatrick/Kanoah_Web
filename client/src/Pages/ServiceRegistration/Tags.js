@@ -8,6 +8,11 @@ import http from '../../http'
 
 const Tags = () => {
   const navigate = useNavigate()
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+  const currentDay = currentDate.getDate().toString().padStart(2, '0');
+  const thisDate = currentYear + "-" + currentMonth + "-" + currentDay
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   const [input, setInput] = useState('')
   const [tags, setTags] = useState([])
@@ -57,7 +62,7 @@ const submitTag = () => {
 }
   const submitService = () => {
 
-    http.post("addService", {serviceInformation, userId}).then((res)=>{
+    http.post("addService", {serviceInformation, userId, createdAt :thisDate}).then((res)=>{
       console.log(res.data)
       navigate("/")
     }).catch((err)=>{
@@ -108,14 +113,14 @@ const submitTag = () => {
        {/*  submit Modal */}
        <Modal isOpen={submitModalOpen} style={submitModalDesign} >
         <div className='w-fit p-5'>
-        <div class="mb-4">
-      <p class="text-lg font-semibold">Are you sure you want to Submit?</p>
+        <div className="mb-4">
+      <p className="text-lg font-semibold">Are you sure you want to Submit?</p>
     </div>
 
 
-    <div class="flex justify-end">
-      <button class="px-4 py-1 mr-2 text-white bg-themeOrange rounded-sm hover:bg-orange-300 focus:outline-none focus:ring " onClick={()=>{submitService()}}>Submit</button>
-      <button class="px-4 py-1 text-gray-700 bg-gray-300 rounded-sm hover:bg-gray-400 focus:outline-none focus:ring " onClick={()=>{closeSubmitModal()}}>Cancel</button>
+    <div className="flex justify-end">
+      <button className="px-4 py-1 mr-2 text-white bg-themeOrange rounded-sm hover:bg-orange-300 focus:outline-none focus:ring " onClick={()=>{submitService()}}>Submit</button>
+      <button className="px-4 py-1 text-gray-700 bg-gray-300 rounded-sm hover:bg-gray-400 focus:outline-none focus:ring " onClick={()=>{closeSubmitModal()}}>Cancel</button>
     </div>
         </div>
       </Modal>
