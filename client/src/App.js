@@ -7,12 +7,12 @@ import VerifyEmail from './Pages/VerifyAccountPage/VerifyEmail';
 import ForgotPassword from './Pages/ForgotPasswordPage/ForgotPassword';
 import MainPage from './Pages/MainPage/MainPage';
 import Navbar from './Pages/Navbar/Navbar';
-import Explore from './Pages/ExplorePage/Explore';
 import Map from './Pages/MainPage/Map';
 import ViewService from './Pages/ViewService/ViewService';
 import CustomerAccount from './Pages/AccountSetting/CustomerAccount';
 import ServiceRegistrationPage from './Pages/ServiceRegistration/ServiceRegistrationPage';
 import ServiceSettings from './Pages/ServiceSetting/ServiceSettings';
+import Explore from './Pages/ExplorePage/Explore';
 
 function App() {
   const NavbarLayout = () => (

@@ -104,7 +104,6 @@ const handleAddImage = async (files) => {
 }
 setUploadProgress(0)
 }
-console.log(value.value.id)
 
 // get images
 const getGalleryImages = async () => {

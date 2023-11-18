@@ -11,7 +11,7 @@ import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import ShareLocationOutlinedIcon from '@mui/icons-material/ShareLocationOutlined';
 import 'mapbox-gl/dist/mapbox-gl.css';
-// import { services } from '../MainPage/Components/Services/Services';
+import { services } from '../MainPage/Components/Services/Services';
 import { categories } from '../MainPage/Components/Categories';
 import OutsideClickHandler from 'react-outside-click-handler';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -21,15 +21,15 @@ import ReportIcon from '@mui/icons-material/Report';
 import {Link} from "react-router-dom"
 import http from "../../http"
 
-const Explore = () => {
-  const [mainServiceList, setMainServiceList] = useState([])
+
+const Explores = () => {
   const [rerender, setRerender] = useState(0)
   const [activeId, setActiveId] = useState(0)
   const [checkboxFilter, setCheckboxFilter] = useState([])
   const [categoryFilter, setCategoryFilter] = useState('')
   const [ratingFilterValue, setRatingFilterValue] = useState([])
   const [sortFilter, setSortFilter] = useState('Recent Services')
-  const [serviceList, setServiceList] = useState([])
+  const [serviceList, setServiceList] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState('Select Category')
   const [checkBoxValuesArray, setCheckBoxValuesArray] = useState([])
   const [currentPage, setCurrentPage] = useState(1)
@@ -52,7 +52,7 @@ const Explore = () => {
   const thisDate = currentYear + "-" + currentMonth + "-" + currentDay
 
   
-    if(serviceList == []){
+    if(serviceList == null){
 
     }else {
       page = Math.ceil(serviceList.length / servicePerPage)
@@ -167,12 +167,12 @@ const Explore = () => {
   
         if(sortFilter == "Recent Services"){
           setCurrentPage(1)
-          const newService = [...serviceList]
+          const newService = [...services]
           const sort = newService.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
           setServiceList(sort)
           }else if (sortFilter == "Oldest Services"){
           const newService = [...serviceList]
-          const sort = newService.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          const sort = newService.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
           setServiceList(sort)
           }
 
@@ -198,24 +198,23 @@ const Explore = () => {
         if(selectedCategory == 'Select Category'){
           if(sortFilter == "Recent Services"){
             const newServices = [...ratingFilterValue]
-            console.log(newServices)
-            const sort = newServices.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            const sort = newServices.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
             setServiceList(sort)
             }else if (sortFilter == "Oldest Services"){
-            const sort = serviceList.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+            const sort = serviceList.sort((a, b) => new Date(a.dateCreated) - new Date(b.dateCreated))
             setServiceList(sort)
             }
         }
         else{
-          const filtered = mainServiceList.filter(service => service.advanceInformation.ServiceCategory == selectedCategory)
+          const filtered = ratingFilterValue.filter(service => service.category == selectedCategory)
           console.log(filtered)
           if(sortFilter == "Recent Services"){
             setCurrentPage(1)
-            const sort = filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            const sort = filtered.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
             setServiceList(sort)
             }else if (sortFilter == "Oldest Services"){
             setCurrentPage(1)
-            const sort = filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+            const sort = filtered.sort((a, b) => new Date(a.dateCreated) - new Date(b.dateCreated))
             setServiceList(sort)
             }
         }
@@ -233,7 +232,7 @@ const Explore = () => {
 
         // Resets the sort
         setSortFilter("Recent Services")
-        const newServices = [...serviceList]
+        const newServices = [...services]
         const sort = newServices.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
         setServiceList(sort)
         setCurrentPage(1)
@@ -251,8 +250,8 @@ const Explore = () => {
           
         }else {
           
-          const results = mainServiceList.filter((item) => item.basicInformation.ServiceTitle.toLowerCase().includes(value.toLowerCase())
-        || item.tags.some((tag) => tag.toLowerCase().includes(value.toLowerCase()))
+          const results = services.filter((item) => item.title.toLowerCase().includes(value.toLowerCase())
+        || item.Tags.some((tag) => tag.toLowerCase().includes(value.toLowerCase()))
         )
         const sorted =  results.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
         setServiceList(sorted)
@@ -264,33 +263,33 @@ const Explore = () => {
 
       const setRatingFilter = () => {
 
-        if(serviceList != null)
+        if(services != null)
         {
           if(search == "")
           {
-            const filtered = mainServiceList.filter((service) => {
-              const { ratings } = service;
+            const filtered = services.filter((service) => {
+              const { rating } = service;
             
               if (
-                ratings &&
-                ratings[0].count !== undefined &&
-                ratings[1].count !== undefined &&
-                ratings[2].count !== undefined &&
-                ratings[3].count !== undefined &&
-                ratings[4].count!== undefined
+                rating &&
+                rating['5star'] !== undefined &&
+                rating['4star'] !== undefined &&
+                rating['3star'] !== undefined &&
+                rating['2star'] !== undefined &&
+                rating['1star'] !== undefined
               ) {
                 const totalStars =
-                  ratings[0].count +
-                  ratings[1].count +
-                  ratings[2].count +
-                  ratings[3].count +
-                  ratings[4].count;
+                  rating['5star'] +
+                  rating['4star'] +
+                  rating['3star'] +
+                  rating['2star'] +
+                  rating['1star'];
                 const averageRating = Math.floor(
-                  (5 * ratings[0].count +
-                    4 * ratings[1].count +
-                    3 * ratings[2].count +
-                    2 * ratings[3].count +
-                    1 * ratings[4].count) /
+                  (5 * rating['5star'] +
+                    4 * rating['4star'] +
+                    3 * rating['3star'] +
+                    2 * rating['2star'] +
+                    1 * rating['1star']) /
                     totalStars
                 );
             
@@ -303,33 +302,33 @@ const Explore = () => {
           }
           else{
             
-            const servicesOnSearch = mainServiceList.filter((item) => item.title.toLowerCase().includes(search.toLowerCase())
+            const servicesOnSearch = services.filter((item) => item.title.toLowerCase().includes(search.toLowerCase())
             || item.Tags.some((tag) => tag.toLowerCase().includes(search.toLowerCase()))
             )
             const filtered = servicesOnSearch.filter((service) => {
-              const { ratings } = service;
+              const { rating } = service;
             
               if (
-                ratings &&
-                ratings[0].count !== undefined &&
-                ratings[1].count !== undefined &&
-                ratings[2].count !== undefined &&
-                ratings[3].count !== undefined &&
-                ratings[4].count!== undefined
+                rating &&
+                rating['5star'] !== undefined &&
+                rating['4star'] !== undefined &&
+                rating['3star'] !== undefined &&
+                rating['2star'] !== undefined &&
+                rating['1star'] !== undefined
               ) {
                 const totalStars =
-                ratings[0].count +
-                ratings[1].count +
-                ratings[2].count +
-                ratings[3].count +
-                ratings[4].count;
+                  rating['5star'] +
+                  rating['4star'] +
+                  rating['3star'] +
+                  rating['2star'] +
+                  rating['1star'];
                 const averageRating = Math.floor(
-                    (5 * ratings[0].count +
-                        4 * ratings[1].count +
-                        3 * ratings[2].count +
-                        2 * ratings[3].count +
-                        1 * ratings[4].count) /
-                        totalStars
+                  (5 * rating['5star'] +
+                    4 * rating['4star'] +
+                    3 * rating['3star'] +
+                    2 * rating['2star'] +
+                    1 * rating['1star']) /
+                    totalStars
                 );
                 
                 if(checkBoxValuesArray.length == 0)
@@ -355,10 +354,7 @@ const Explore = () => {
       const getServices = async () => {
         await http.get("getServices").then((res)=>{
           console.log(res.data.service)
-          setServiceList(res.data.service)
-          setMainServiceList(res.data.service)
-          setRatingFilterValue(res.data.service)
-        //   console.log(res.data.service)
+          // setServiceList(res.data.service)
         }).catch((err)=>{
           console.log(err)
         })
@@ -367,7 +363,6 @@ const Explore = () => {
       //update the filter value whenever the checkbox rating is check
       useEffect(()=>{
         const result = setRatingFilter()
-        console.log(result)
         if(result == undefined){
           setRatingFilter()
         }
@@ -384,8 +379,9 @@ const Explore = () => {
         getServices()
       },[])
 
+      
   return (
-    <div className=' w-full flex h-full'>
+        <div className=' w-full flex h-full'>
         {/* Left Section */}
         <section className='w-[500px] hidden lg:flex h-full relative flex-col space-y-5 pb-5 pt-20 lg:ps-20 pe-5 bg-[#F9F9F9]'>
         
@@ -501,7 +497,7 @@ const Explore = () => {
         <section className='w-[100%] grid place-items-center h-full pt-[100px] ps-2 lg:pe-20 pb-5 bg-[#F9F9F9]'>
         {/* Sort Container */}
         {
-          serviceOnPage.length == 0 ?
+          serviceOnPage == null ?
           (
             <div className="lds-dual-ring w-full h-screen"></div>
           )
@@ -557,31 +553,31 @@ const Explore = () => {
           {
           
             serviceOnPage.map((service, index)=>{
-              const ratings = service.ratings; // Assuming "services" is the array of services
-              const ratingTotal = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
-              const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / ratingTotal;
+              const ratings = service.rating; // Assuming "services" is the array of services
+              const ratingTotal = ratings['5star'] + ratings['4star'] + ratings['3star'] + ratings['2star'] + ratings['1star'];
+              const ratingAverage = (5 * ratings['5star'] + 4 * ratings['4star'] + 3 * ratings['3star'] + 2 * ratings['2star'] + 1 * ratings['1star']) / ratingTotal;
               const rounded = Math.round(ratingAverage * 100) / 100;
               const from = new Date(service.dateCreated);
               const to = new Date(thisDate);
               const years = to.getFullYear() - from.getFullYear();
               const months = to.getMonth() - from.getMonth();
               const days = to.getDate() - from.getDate();
-              
+             
                   return (  
                            
-                    <div  key={index}  className='border relative flex cursor-pointer flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
+                    <Link to="/explore/viewService" key={index}  className='border relative flex cursor-pointer flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
                     {/* Image Container */}
-                    <Link to="/explore/viewService" className='flex relative xl:w-[330px] xl:min-w-[330px] xl:h-[200px] cursor-pointer'>
-                    <p className='absolute bg-white px-2 py-1 text-sm font-semibold rounded-full top-1 left-1'>{service.advanceInformation.ServiceCategory}</p>
-                    <img className='w-full h-full min-h-[200px] max-h-[200px] rounded-lg' src={service.serviceProfileImage} alt="Cover"/>
-                    </Link>
+                    <div className='flex relative xl:w-[330px] xl:min-w-[330px] xl:h-[200px]'>
+                    <p className='absolute bg-white px-2 py-1 text-sm font-semibold rounded-full top-1 left-1'>{service.category}</p>
+                    <img className='w-full h-full min-h-[200px] max-h-[200px] rounded-lg' src={service.image} alt="Cover"/>
+                    </div>
                     {/* Info Container */}
                     <div className=' px-1 py-3 w-full overflow-hidden flex flex-col justify-between space-y-5'>
                       {/* Title and Reviews*/}
                       <div className='Header_Container space-y-2 xl:space-y-0 w-full flex flex-col xl:flex-row justify-between'>
                       <div className='w-full overflow-hidden'>
-                        <h1 className='font-bold text-md md:text-xl ps-1 w-full whitespace-nowrap text-ellipsis overflow-hidden'>{service.basicInformation.ServiceTitle}</h1>
-                        <p className='text-sm md:text-md text-gray-400  flex items-center gap-1'><Person2OutlinedIcon  />{service.owner.firstname + " " + service.owner.lastname}</p>
+                        <h1 className='font-bold text-md md:text-xl ps-1 w-full whitespace-nowrap text-ellipsis overflow-hidden'>{service.title}</h1>
+                        <p className='text-sm md:text-md text-gray-400  flex items-center gap-1'><Person2OutlinedIcon  />{service.owner}</p>
                         {
                         years > 0 ? (<p className='text-xs text-gray-400 ml-1 mt-1'>{years}{years > 1 ? " years ago" : " year ago"}</p>) : months > 0 ? (<p className='text-xs text-gray-400 ml-1 mt-1'>{months}{months > 1 ? " months ago" : " month ago"}</p>) : days > 0  ? (<p className='text-xs text-gray-400 ml-1 mt-1'>{days} {days > 1 ? " days ago" : " day ago"}</p>) : (<p className='text-xs text-gray-400 ml-1 mt-1'>Less than a day ago</p>)
                         }
@@ -590,7 +586,7 @@ const Explore = () => {
                       <div className='flex flex-col w- whitespace-nowrap relative ml-0  xl:ml-3 mr-2 space-x-1'>
                       <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={rounded} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
                       <div className='flex items-center space-x-2'>
-                      <p className='text-gray-400 text-sm font-medium'>({ratingTotal == 0  ? "0" : rounded.toFixed(1)})</p> 
+                      <p className='text-gray-400 text-sm font-medium'>({rounded.toFixed(1)})</p> 
                       <p className='text-gray-300'>|</p>
                       <p className='text-gray-700 text-sm pt-[2.5px] font-medium'>{ratingTotal + " Reviews"}</p> 
                       </div>
@@ -600,7 +596,7 @@ const Explore = () => {
     
                       {/* Description */}
                       <div className=' p-2 w-full h-[3.2em]  overflow-hidden text-ellipsis'>
-                      <p className='text-sm'>{service.basicInformation.Description}</p>
+                      <p className='text-sm'>{service.description}</p>
                       
                       </div>
     
@@ -608,12 +604,12 @@ const Explore = () => {
                       <div className='flex space-x-1 w-[300px] xl:w-full justify-between  ml-1 xl:ml-2 '>
                         <div className='flex space-x-1'>
                         <ShareLocationOutlinedIcon className='text-themeGray' />
-                        <p className='text-themeGray whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay + ", " + service.address.municipality + ", " + service.address.province}</p>
+                        <p className='text-themeGray whitespace-nowrap overflow-hidden text-ellipsis'>{service.Address}</p>
                         </div>
                         {/* More Options Button */}
                         <OutsideClickHandler onOutsideClick={()=>{setActiveId(null)}}>
-                        <MoreVertIcon onClick={()=>{openMoreOptions(service._id)}} className={` ${service._id == activeId ? "text-gray-300" : "text-gray-600"} cursor-pointer hover:text-gray-300`} />
-                        <div id={service.id} className={`${service._id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200 z-20  bg-gray-100 shadow-lg rounded-md right-[2rem] top-[12rem]`}>
+                        <MoreVertIcon onClick={()=>{openMoreOptions(service.id)}} className={` ${service.id == activeId ? "text-gray-300" : "text-gray-600"} cursor-pointer hover:text-gray-300`} />
+                        <div id={service.id} className={`${service.id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200 z-20  bg-gray-100 shadow-lg rounded-md right-[2rem] top-[12rem]`}>
                         <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
                         <LibraryAddIcon />
                         <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Add to Library</p>
@@ -635,7 +631,7 @@ const Explore = () => {
                       </div>
                       
                     </div>
-                  </div>
+                  </Link>
 
                           )
                 
@@ -698,4 +694,5 @@ const Explore = () => {
   )
 }
 
-export default Explore
+export default Explores
+

@@ -86,7 +86,7 @@ const BusinessInformation = () => {
         maxLength={1000}
         id="description"
         value={basicInformation.Description} onChange={(e)=>{setBasicInformation({...basicInformation, Description : e.target.value})}}
-        className="w-full p-2  resize-none outline-none min-h-[20px] max-h-[260px] "
+        className="w-full p-2 h-full  resize-none outline-none min-h-[20px] max-h-[260px] "
         rows={descriptionInput.split('\n').length + 1} 
         placeholder="Enter business description..."
       ></textarea>

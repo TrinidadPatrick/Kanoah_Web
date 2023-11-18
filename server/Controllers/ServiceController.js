@@ -6,8 +6,8 @@ require("dotenv").config();
 
 // Get All Services
 module.exports.getServices = async (req,res) =>{
-    const services = await Service.find()
-    return res.json(services);
+    const services = await Service.find().populate('owner', 'firstname lastname')
+    return res.json({service : services});
 }
 
 // add Service
@@ -27,7 +27,7 @@ module.exports.addService = async (req,res) => {
     console.log(result)
     try {
 
-        const result = await Service.create({userId, owner: fullname, basicInformation, advanceInformation, address, serviceHour, tags, createdAt})
+        const result = await Service.create({userId, owner: userId, basicInformation, advanceInformation, address, serviceHour, tags, createdAt})
         return res.json({result})
     } catch (error) {
         return res.json({status : 0, message : error})
@@ -37,13 +37,14 @@ module.exports.addService = async (req,res) => {
 // Get Service
 module.exports.getService = async (req,res) => {
     const {userId} = req.params
-    try {
-        const response = await Service.findOne({userId})
-
-        return res.json({response})
-    } catch (error) {
-        return res.json({error})
-    }
+        try {
+            const result = await Service.findOne({userId}).populate('owner', 'firstname lastname')
+            return res.json({result})
+        } catch (error) {
+            return res.json({status : "failed", message : err})
+        }
+        
+    
 }
 
 // Update or Add Gallery Images
@@ -204,3 +205,19 @@ module.exports.deleteMultipleFeaturedImages = async (req, res) => {
       return res.json({ success: false, message: error.message });
     }
   };
+
+// Update service Profile Picture
+module.exports.updateProfilePicture = async (req,res) => {
+    const userId = req.body.userId
+    const profile = req.body.profile
+
+    try {
+        const service = await Service.findOneAndUpdate({userId}, {serviceProfileImage : profile})
+
+        return res.json({status : "success"})
+
+    } catch (error) {
+        return res.json({status : "failed" , message : err})
+    }
+}
+    

@@ -5,7 +5,10 @@ import FeaturedPhotos from './FeaturedPhotos';
 import Gallery from './Gallery';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
+import CameraAltOutlinedIcon from '@mui/icons-material/CameraAltOutlined';
 import { useNavigate } from 'react-router-dom'
+import cloudinaryCore from '../../CloudinaryConfig';
+import axios from 'axios';
 import http from '../../http';
 
 
@@ -18,10 +21,32 @@ const MyService = () => {
   
   const getService = async () => {
     http.get(`getService/${userId}`).then((res)=>{
-        setServiceInformation(res.data.response)
+        setServiceInformation(res.data.result)
     }).catch((err)=>{
         console.log(err)
     })
+  }
+
+  // Update profile image
+  const handleProfileChange = async (files) => {
+    const file = files[0]
+
+    if(file){
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', 'KanoahProfileUpload');
+
+      await axios.post(`https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`, formData).then((res)=>{
+        http.post("updateProfilePicture", {userId, profile : res.data.secure_url}).then((res)=>{
+          console.log(res)
+          getService()
+        }).catch((err)=>{
+          console.log(err)
+        })
+      }).catch((err)=>{
+          console.log(err)
+      })
+  }
   }
 
   useEffect(()=>{
@@ -46,17 +71,25 @@ const MyService = () => {
         (
     <>
     <section className='flex space-x-5 '>
-
-    <div className='w-[250px] h-[170px] rounded-lg border-2 overflow-hidden object-cover'>
-    <img className='w-full h-full object-cover' src={pic3} alt="service profile" />
+    {/* Profile Picture */}
+    <div className='w-[250px] h-[170px] relative group hover:brightness-50 cursor-pointer rounded-lg border-2 overflow-hidden object-cover'>
+    <div className='absolute hidden group-hover:block cursor-pointer text-white top-[40%] left-[43%]'>
+    <CameraAltOutlinedIcon fontSize='large' className='' />
     </div>
+    <label htmlFor="fileInput" className='cursor-pointer'>
+        <img id='profile' className='w-full h-full object-cover ' src={serviceInformation.serviceProfileImage == null ? "" : serviceInformation.serviceProfileImage} alt="service profile" />
+    </label>
+    
+    <input onChange={(e)=>{handleProfileChange(e.target.files)}} type="file" id="fileInput" className='hidden'/>
+</div>
     {/* Informations */}
     <div>
     {/* Service Title and buttons */}
     <div className='h-full flex flex-col'>
     <div className='flex flex-col justify-start space-y-3 h-full'>
     <h1 className='text-4xl font-semibold text-themeBlue'>{serviceInformation.basicInformation.ServiceTitle}</h1>
-    <h2 className='text-gray-600 text-lg font-semibold'>{serviceInformation.basicInformation.OwnerEmail}</h2>
+    <h1 className='text-xl font-semibold text-themeBlue'>{serviceInformation.owner.firstname + " " + serviceInformation.owner.lastname}</h1>
+    <h2 className='text-gray-600 text-sm font-semibold'>{serviceInformation.basicInformation.OwnerEmail}</h2>
     <h2 className='text-gray-600 text-sm font-semibold'>+63{serviceInformation.basicInformation.OwnerContact}</h2>
     </div>
     {/* Buttons */}

@@ -8,10 +8,12 @@ import background1 from './Utils/images/background5.svg'
 import jwtDecode from 'jwt-decode';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
+import { useNavigate } from 'react-router-dom'
 export const pageContext = React.createContext()
 
 
 const ServiceRegistrationPage = () => {
+  const navigate = useNavigate()
   const userId = useSelector(selectUserId)
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] 
     const [step, setStep] = useState(1)
@@ -55,7 +57,13 @@ const ServiceRegistrationPage = () => {
       }
      
     )
-
+    
+    useEffect(()=>{
+      if(userId == null)
+      {
+        navigate("/")
+      }
+    },[])
   return (
     <pageContext.Provider value={[step, setStep, userId, serviceInformation, setServiceInformation]} >
     {/* // Main Container */}

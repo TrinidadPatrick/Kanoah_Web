@@ -1,6 +1,6 @@
 
 const {Router} = require('express')
-const { getServices, addService, getService, addGalleryImage, getGalleryImages, deleteImage, deleteMultipleImages, addFeaturedImage, getFeaturedImages, deleteFeaturedImage, deleteMultipleFeaturedImages } = require('../Controllers/ServiceController')
+const { getServices, addService, getService, addGalleryImage, getGalleryImages, deleteImage, deleteMultipleImages, addFeaturedImage, getFeaturedImages, deleteFeaturedImage, deleteMultipleFeaturedImages, updateProfilePicture } = require('../Controllers/ServiceController')
 const authenticateToken = require('../Controllers/UserController')
 const router = Router()
 const {register, verifyEmail, verifyOTP, login, forgotPassword, newPassword, submitOtpForNewPassword, verifyUsername, getUsers, getUser, updateUser, verifyPassword, updatePassword, deactivateAccount, refresh, profile} = require('../Controllers/UserController')
@@ -40,4 +40,7 @@ router.patch("/addFeaturedImage/:_id", addFeaturedImage) //Add images to feature
 router.get("/getFeaturedImages/:userId", getFeaturedImages) //get images to featured
 router.post("/deleteFeaturedImage/", deleteFeaturedImage) //delete images to featured
 router.post("/deleteMultipleFeaturedImages/", deleteMultipleFeaturedImages) //delete images to featured
+
+// Profile Picture of service
+router.post("/updateProfilePicture", updateProfilePicture)
 module.exports = router;

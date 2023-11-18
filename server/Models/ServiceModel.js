@@ -2,13 +2,14 @@ const mongoose = require('mongoose')
 
 const ServiceSchema = new mongoose.Schema({
         createdAt : {
-            type : Date
+            type : String
         },
         userId : {
             type : String
         }, 
         owner : {
-            type : String
+            type :  mongoose.Schema.Types.ObjectId,
+            ref: "User_Info"
         },
         basicInformation : {
             type : Object
@@ -30,6 +31,10 @@ const ServiceSchema = new mongoose.Schema({
         },
         featuredImages : {
             type : Array
+        },
+        serviceProfileImage : {
+            type : String,
+            default : null
         },
         ratings: {
             type: Array,
