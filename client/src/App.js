@@ -22,16 +22,16 @@ function App() {
     </>
   );
   return (
-    <div className="App w-100  h-fit grid place-items-center bg-slate-400">
+    <div className="App w-100  h-fit grid place-items-center ">
       <BrowserRouter>
       <Routes>
         <Route element={<NavbarLayout />} >
         
-        <Route path='/verify' element={<VerifyEmail />} />
+        {/* <Route path='/verify' element={<VerifyEmail />} /> */}
         <Route path='/forgotPassword' element={<ForgotPassword />} />
         <Route path='/register' element={<Register />} />
-        <Route path='/explore' element={<Explore />} />
-        <Route path='explore/viewService' element={<ViewService />} />
+        <Route path='/explore/' element={<Explore />} />
+        <Route path='explore/viewService/:serviceId' element={<ViewService />} />
         <Route path='/myAccount' element={<CustomerAccount />} />
         <Route path='/serviceRegistration' element={<ServiceRegistrationPage />} />
         <Route path='/serviceSettings' element={<ServiceSettings />} />

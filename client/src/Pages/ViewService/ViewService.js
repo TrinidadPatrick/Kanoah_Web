@@ -25,18 +25,21 @@ import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Description from './Components/Description';
 import Reviews from './Components/Reviews';
-import { galleryImage } from './Components/ForGallery';
 import ResponsiveGallery from 'react-responsive-gallery';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Download from "yet-another-react-lightbox/plugins/download";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import { useParams } from 'react-router-dom';
+import http from '../../http';
 import Footer from '../MainPage/Footer';
 
 
 
 
 const ViewService = () => {
+  const [serviceInfo, setServiceInfo] = useState(null)
+  const { serviceId } = useParams();
   const [open, setOpen] = React.useState(false);
   const [selectedOptions, setSelectedOptions] = useState('Description')
   const [currentDay, setCurrentDay] = useState('')
@@ -54,46 +57,19 @@ const ViewService = () => {
     latitude : null
   })
 
-  // Images for gallery
-  const images = [
-    {
-      original : pic1,
-      thumbnail : pic1,
-      originalClass: 'image-gallery-original', // Apply the custom CSS class for original image
-      thumbnailClass: 'image-gallery-thumbnail', // Apply the custom CSS class for thumbnails
-      
-    },
-    {
-      original : pic2,
-      thumbnail : pic2,
-      originalClass: 'image-gallery-original', // Apply the custom CSS class for original image
-    thumbnailClass: 'image-gallery-thumbnail', // Apply the custom CSS class for thumbnails
-    },
-    {
-      original : pic3,
-      thumbnail : pic3,
-      originalClass: 'image-gallery-original', // Apply the custom CSS class for original image
-    thumbnailClass: 'image-gallery-thumbnail', // Apply the custom CSS class for thumbnails
-    },
-    {
-      original : pic4,
-      thumbnail : pic4,
-      originalClass: 'image-gallery-original', // Apply the custom CSS class for original image
-    thumbnailClass: 'image-gallery-thumbnail', // Apply the custom CSS class for thumbnails
-    },
-    {
-      original : pic5,
-      thumbnail : pic5,
-      originalClass: 'image-gallery-original', // Apply the custom CSS class for original image
-    thumbnailClass: 'image-gallery-thumbnail', // Apply the custom CSS class for thumbnails
-    },
-    {
-      original : pic6,
-      thumbnail : pic6,
-      originalClass: 'image-gallery-original', // Apply the custom CSS class for original image
-    thumbnailClass: 'image-gallery-thumbnail', // Apply the custom CSS class for thumbnails
-    },
-  ]
+  // Generated format for featured Images
+  const generatedFeaturedImages = (featuredImages) => {
+    return featuredImages.map((image)=>(
+      {
+        original : image.src,
+        thumbnail : image.src,
+        originalClass: 'image-gallery-original', // Apply the custom CSS class for original image
+        thumbnailClass: 'image-gallery-thumbnail', // Apply the custom CSS class for thumbnails
+      }
+    ))
+  }
+
+  
 
   // Rating stars
   const StyledRating = styled(Rating)({
@@ -182,12 +158,27 @@ const ViewService = () => {
     setCurrentDay(daysOfWeek[currentDay])
   },[])
 
-  
+  // Get the service information
+  const getService = async () => {
+    await http.get(`getServiceInfo/${serviceId}`).then((res)=>{
+      setServiceInfo(res.data.service)
+    }).catch((err)=>{
+      console.log(err)
+    })
+  }
+
+  useEffect(()=>{
+    getService()
+  },[])
 
   return (
-    <>
-    <div className='w-full h-full bg-[#f7f7f7] md:px-12 lg:px-20 xl:px-32 pb-10 pt-20 flex flex-col'>
-        {/* Top Layer *******************************************************************/}
+    
+   <div className='grid place-items-center h-screen  w-full'>
+    
+    {
+      serviceInfo == null ? (<div className="lds-dual-ring w-full  h-screen"></div>) :
+      (
+        <div className='w-full h-full bg-[#F9F9F9] md:px-12 lg:px-20 xl:px-32 pb-10 pt-20 flex flex-col'>
         <section className='w-full  h-fit flex flex-col xl:flex-row justify-between p-2 gap-1 mt-5' >
 
         {/* Left Side ********************************************************************/}
@@ -196,7 +187,8 @@ const ViewService = () => {
         <div className='flex justify-between w-full mx-auto'>
         {/* Title and rating */}
         <div className=''>
-        <div className='flex justify-between'><span className='text-3xl font-semibold'>R & Next Carwash</span></div>
+          {/* Title */}
+        <div className='flex justify-between'><span className='text-3xl font-semibold'>{serviceInfo.basicInformation.ServiceTitle}</span></div>
         {/* Ratings ********************************************************************/}
         <div className='flex  relative ml-0 space-x-1 justify-between items-center mt-5 w-full'>
         <div className='flex space-x-2'>
@@ -216,7 +208,7 @@ const ViewService = () => {
         </div>
         </div>
 
-        {/* Image Gallery Container */}
+        {/* Image Featured Images Container */}
         <div className='w-full h-[fit]  flex items-center justify-center '>
         <div className='w-full relative z-10'>
           <ImageGallery 
@@ -225,7 +217,7 @@ const ViewService = () => {
           slideInterval={6000} 
           showFullscreenButton={false} 
           showPlayButton={false} 
-          items={images}
+          items={generatedFeaturedImages(serviceInfo.featuredImages)}
           
           />
           </div>
@@ -242,13 +234,13 @@ const ViewService = () => {
         <div className='flex  bg-gray-100 p-2'>
         {/* Img container */}
         <div className='w-[100px] min-w-[100px]  flex justify-center items-center'>
-        <img className='w-20 h-20 rounded-full object-cover' src={profile} />
+        <img className='w-20 h-20 rounded-full object-cover' src={serviceInfo.owner.profileImage} />
         </div>
         {/* Personal Information */}
         <div className=' w-full  p-1 flex flex-col space-y-2 px-2'>
-        <p className='flex items-center justify-start gap-2 text-gray-700'><AccountCircleOutlinedIcon fontSize="medium" className='text-gray-500 ' />John Patrick C. Trinidad</p>
-        <p className='flex items-center justify-start gap-2 text-gray-700'><EmailOutlinedIcon fontSize="medium" className='text-gray-500 ' />Ptrinidad765@gmail.com</p>
-        <p className='flex items-center justify-start gap-2 text-gray-700'><CallOutlinedIcon fontSize="medium" className='text-gray-500 ' />+63 991 413 8519</p>
+        <p className='flex items-center justify-start gap-2 text-gray-700'><AccountCircleOutlinedIcon fontSize="medium" className='text-gray-500 ' />{serviceInfo.owner.firstname + " " + serviceInfo.owner.lastname}</p>
+        <p className='flex items-center justify-start gap-2 text-gray-700'><EmailOutlinedIcon fontSize="medium" className='text-gray-500 ' />{serviceInfo.basicInformation.OwnerEmail}</p>
+        <p className='flex items-center justify-start gap-2 text-gray-700'><CallOutlinedIcon fontSize="medium" className='text-gray-500 ' />+63{serviceInfo.basicInformation.OwnerContact}</p>
         </div>
         </div>
         {/* Business Information */}
@@ -256,8 +248,8 @@ const ViewService = () => {
           <h1 className='text-xl font-semibold mb-3'>Service Contact</h1>
           {/* Accounts and social media */}
           <div className='flex flex-col space-y-3'>
-          <p className=' tracking-wide text-sm flex items-center gap-2'><FaPhone className='text-gray-500' fontSize={15} /> 555-3327/09673143709</p>
-          <p className=' tracking-wide text-sm flex items-center gap-2'><FaRegEnvelope className='text-gray-500' fontSize={20} /> KanoahSF@gmail.com</p>
+          <p className=' tracking-wide text-sm flex items-center gap-2'><FaPhone className='text-gray-500' fontSize={15} /> {serviceInfo.advanceInformation.ServiceFax == "" ? "N/A" : serviceInfo.advanceInformation.ServiceFax} | {serviceInfo.advanceInformation.ServiceContact}</p>
+          <p className=' tracking-wide text-sm flex items-center gap-2'><FaRegEnvelope className='text-gray-500' fontSize={20} />{serviceInfo.advanceInformation.ServiceEmail}</p>
           <p className=' tracking-wide text-sm flex items-center gap-2 text-blue-500 underline'><FaSquareFacebook className='text-gray-500' fontSize={20}  /> www.facebook.com/34124/asq3e</p>
           <p className=' tracking-wide text-sm flex items-center gap-2 text-blue-500 underline'><FaInstagram className='text-gray-500' fontSize={20}   /> www.instagram.com/341/asghtrq3e</p>
           </div>
@@ -266,25 +258,34 @@ const ViewService = () => {
           {/* Payment methods */}
           <p className='font-medium'>Payment methods</p>
           <div className='flex mt-2 mb-2'>
-          <p className='w-20 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>Paypal</p>
-          <p className='w-20 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>Gcash</p>
-          <p className='w-20 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>Cash</p>
+            {
+              serviceInfo.advanceInformation.PaymentMethod.filter(payment => payment.enabled == true).map((payment, index)=>(
+                <p className='w-20 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>{payment.method}</p>
+              ))
+            }
+          
           </div>
 
           <p className='font-medium'>Service Options</p>
           <div className='flex my-2'>
-          <p className='w-32 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>Home Service</p>
-          <p className='w-20 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>Walk in</p>
+            {
+              serviceInfo.advanceInformation.ServiceOptions.map((options, index)=>(
+                <p className='w-32 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>{options}</p>
+              ))
+            }
+          
           </div>
           {/* Location */}
           <div className='flex flex-col  h-fit' style={{ position: 'relative' }}>
           <p className='text-start font-medium'>Location</p>
           <div className='flex items-center gap-2 text-gray-700 font-semibold'>
           <FaMapLocation className='text-black' />
-            <a className=' cursor-pointer' onClick={()=>{window.open(`https://www.google.com/maps?q=${location.latitude},${location.longitude}`, '_black');}}>B. Leviste Street Poblacion Malvar Batangas</a>
+            <a className=' cursor-pointer' onClick={()=>{window.open(`https://www.google.com/maps?q=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black');}}>
+            {serviceInfo.address.barangay + " " + serviceInfo.address.municipality + ", " + serviceInfo.address.province } 
+            </a>
           </div>
           <ReactMapGL
-          onClick={()=>{window.open(`https://www.google.com/maps?q=${location.latitude},${location.longitude}`, '_black')}}
+          onClick={()=>{window.open(`https://www.google.com/maps?q=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black')}}
             draggable={false}
             onMove={evt => setViewPort(evt.viewport)}
             mapboxAccessToken="pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ybWJhb2MwMmR4MnFyeWRjMWtuZDVwIn0.mJug0iHxD8aq8ZdT29B-fg"
@@ -299,18 +300,17 @@ const ViewService = () => {
               transition: "width 0.5s, height 0.5s, top 0.5s",
             }}
             {...viewport}
-            latitude={location.latitude}
-            longitude={location.longitude}
+            latitude={serviceInfo.address.latitude}
+            longitude={serviceInfo.address.longitude}
             >
             <Marker
-            latitude={location.latitude}
-            longitude={location.longitude}
+            latitude={serviceInfo.address.latitude}
+            longitude={serviceInfo.address.longitude}
             draggable={false}
             onDrag={evt => setLocation({longitude : evt.lngLat.lng, latitude : evt.lngLat.lat})}
             >
         
             </Marker>
-            <GeolocateControl />
           </ReactMapGL>
         </div>
         </div>
@@ -318,7 +318,7 @@ const ViewService = () => {
 
         </section>
 
-        {/* Description reviews and services */}
+          {/* Descriptions */}
         <section className='w-full   mt-10 p-2'>
           {/* Main Container */}
           <div className='misc_container bg-white rounded-md overflow-hidden'>
@@ -344,7 +344,7 @@ const ViewService = () => {
           </div>
           {/* Description container */}
           <article className='w-full py-2 px-5'>
-          {selectedOptions == "Description" ? (<Description />) : selectedOptions == "Reviews" ? (<Reviews />) : ""}
+          {selectedOptions == "Description" ? (<Description description={serviceInfo.basicInformation.Description} />) : selectedOptions == "Reviews" ? (<Reviews />) : ""}
           
           </article>
           </div>
@@ -358,16 +358,27 @@ const ViewService = () => {
           <h1 className='text-3xl font-semibold mt-4 mb-5'>Service Schedule</h1>
           <div className='grid grid-cols-5 gap-5 py-1 w-full'>
           {
-            schedule.map((sched, index)=>{
+            serviceInfo.serviceHour.map((sched, index)=>{
               return(
                 <div key={index} className={`sched_container ${sched.day == currentDay ? "border-2 border-blue-500" : ""} w-full flex flex-col justify-center items-center py-9 rounded-md`}>
                 <CalendarMonthOutlinedIcon />
                 <h1 className='text-xl font-semibold'>{sched.day}</h1>
-                <div className='flex mt-2'>
-                <div className='flex items-center space-x-1  px-2'><p className='text-lg font-normal text-gray-700'>{sched.startTime}</p></div>
-                -
-                <div className='flex items-center space-x-1  px-2'><p className='text-lg font-normal text-gray-700'>{sched.endTime}</p></div>
-                </div>
+                {
+                  sched.isOpen ? 
+                  (
+                    <div className='flex mt-2'>
+                  
+                    <div className='flex items-center space-x-1  px-2'><p className='text-lg font-normal text-gray-700'>{sched.fromTime}</p></div>
+                    -
+                    <div className='flex items-center space-x-1  px-2'><p className='text-lg font-normal text-gray-700'>{sched.toTime}</p></div>
+                    </div>
+                  )
+                  :
+                  (
+                    <h1 className='text-red-500'>Closed</h1>
+                  )
+                }
+               
                 </div>
               )
             })
@@ -382,24 +393,35 @@ const ViewService = () => {
         <div className=' w-full max-h-[550px] bg-white rounded-lg h-[550px] border-2 px-6 relative'>
         <h1 className='text-4xl text-center font-semibold mt-0 bg-white p-4 sticky top-0 z-10'>Gallery</h1>
         <div className='galleryContainer bg-white mb-2 max-h-[460px] overflow-auto'>
-        <ResponsiveGallery mediaStyle={{borderRadius : "5px"}} key={galleryImage} onClick={()=>{setOpen(true)}} mediaMaxWidth={{xxl: 100}} colsPadding={{xs:2,s:2,m:2,l:2, xl:2,xxl:2}} useLightBox={false} numOfMediaPerRow={{xs:1,s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={galleryImage} />
+        <ResponsiveGallery mediaClassName="hello" mediaStyle={{borderRadius : "5px"}} key={serviceInfo.galleryImages} onClick={()=>{setOpen(true)}} mediaMaxWidth={{xxl: 100}} colsPadding={{xs:2,s:2,m:2,l:2, xl:2,xxl:2}} useLightBox={false} numOfMediaPerRow={{xs:1,s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={serviceInfo.galleryImages} />
         </div>
         <Lightbox
         plugins={[Download,Fullscreen]}
         open={open}
         close={() => setOpen(false)}
-        slides={galleryImage}
+        slides={serviceInfo.galleryImages}
       />
       </div>
       </section>
-       
+     
+     </div>
+      )
+    }
+
+    {
+      serviceInfo == null ? ("") :
+      (
+        <footer className='w-full pb-10 bg-[#071B22] py-[1rem] sm:px-10 md:px-16 lg:px-36'>
+        <Footer />
+        </footer>
+      )
+    }
+     
     
     </div>
+    
+ 
 
-<footer className='w-full pb-10 bg-[#071B22] py-[1rem] sm:px-10 md:px-16 lg:px-36'>
-<Footer />
-</footer>
-</>
   )
 }
 

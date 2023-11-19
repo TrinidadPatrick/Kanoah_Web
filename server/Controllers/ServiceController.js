@@ -34,7 +34,7 @@ module.exports.addService = async (req,res) => {
     }
 }
 
-// Get Service
+// Get Service for profile
 module.exports.getService = async (req,res) => {
     const {userId} = req.params
         try {
@@ -44,6 +44,20 @@ module.exports.getService = async (req,res) => {
             return res.json({status : "failed", message : err})
         }
         
+    
+}
+
+//get service in the viewService from explore
+module.exports.getServiceInfo = async (req,res) => {
+    const {_id} = req.params
+    if(_id){
+        try {
+            const service = await Service.findById(_id).populate('owner', 'firstname lastname profileImage')
+            return res.json({status : "success", service})
+        } catch (error) {
+            return res.json({status : "failed" , message : error})
+        }
+    }
     
 }
 

@@ -9,6 +9,7 @@ import jwtDecode from 'jwt-decode';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
 import { useNavigate } from 'react-router-dom'
+import http from '../../http'
 export const pageContext = React.createContext()
 
 
@@ -34,7 +35,7 @@ const ServiceRegistrationPage = () => {
         ServiceOptions : [],
         AcceptBooking : false,
         SocialLink : [{media : "Youtube",link : ""}, {media : "Facebook",link : ""}, {media : "Instagram",link : ""}],
-        PaymentMethod : {Gcash : {}, Cash : false},
+        PaymentMethod : [{method : "Gcash", enabled: false, gcashInfo : {}}, {method : "Cash", enabled : false}],
       },
       address : {
              region : "",
@@ -58,12 +59,37 @@ const ServiceRegistrationPage = () => {
      
     )
     
-    useEffect(()=>{
-      if(userId == null)
-      {
-        navigate("/")
+       // get user profile
+       const getUserProfile = async (token) => {
+        try {
+          const response = await http.get('profile', {
+            headers : {Authorization: `Bearer ${token}`},
+          })
+          if(response.data.status == "logged in")
+          {
+            // setLoading(false)
+          }
+          else{
+            navigate("/")
+          }
+        } catch (error) {
+          console.error('Profile Error:', error.response.data.error);
+   
+        }
       }
-    },[])
+  
+      // check if user is logged In
+      useEffect(()=>{
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+          getUserProfile(accessToken);
+        }else{
+          navigate("/")
+        }
+      },[])
+
+
+  
   return (
     <pageContext.Provider value={[step, setStep, userId, serviceInformation, setServiceInformation]} >
     {/* // Main Container */}

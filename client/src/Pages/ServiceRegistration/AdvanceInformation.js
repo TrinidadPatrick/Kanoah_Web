@@ -37,16 +37,15 @@ const [advanceInformation, setAdvanceInformation] = useState({
   ServiceOptions : [],
   AcceptBooking : false,
   SocialLink : [{media : "Youtube",link : ""}, {media : "Facebook",link : ""}, {media : "Instagram",link : ""}],
-  PaymentMethod : {Gcash : {}, Cash : false},
+  PaymentMethod : [{method : "Gcash", enabled: false, gcashInfo : {}}, {method : "Cash", enabled : false}],
 })
 const [isPhotoLoading, setIsPhotoLoading] = useState(false)
 
-const [gcashInfo, setGcashInfo] = useState({
+const [gcashInformation, setGcashInformation] = useState({
   QRCode : "https://via.placeholder.com/150",
   ServiceTitle : "",
   EmailForGcash : "",
   GcashNote : "",
-  Enabled : false
 })
 
 
@@ -78,7 +77,7 @@ const openGcashSetupModal = () => {
 }
 const closeGcashMethodModal = () => {
     setIsGcashModalOpen(false)
-    setGcashInfo({...gcashInfo, Enabled : !gcashInfo.Enabled})
+    setGcashInformation(advanceInformation.PaymentMethod[0].enabled = !advanceInformation.PaymentMethod[0].enabled )
 }
 
 // Handle service options select
@@ -89,13 +88,13 @@ const handleSelectServiceOption = (serviceOption) => {
     {
       const filtered = newData.filter(option => option != serviceOption)
       setSelectedServiceOptions(filtered)
-      setAdvanceInformation({...advanceInformation, ServiceOptions  : [filtered]})
+      setAdvanceInformation({...advanceInformation, ServiceOptions  : filtered})
     }
     else
     {
       newData.push(serviceOption)
       setSelectedServiceOptions(newData)
-      setAdvanceInformation({...advanceInformation, ServiceOptions  : [newData]})
+      setAdvanceInformation({...advanceInformation, ServiceOptions  : newData})
     }
     
 }
@@ -104,8 +103,17 @@ const handleSelectServiceOption = (serviceOption) => {
 const handleGcashCheckbox = () => {
   // Toggle the state
   setIsGcashChecked(prevState => !prevState);
-  setGcashInfo({...gcashInfo, Enabled : !gcashInfo.Enabled})
-  // setAdvanceInformation({...advanceInformation, {...PaymentMethod, Gcash, status : "Enabled"}})
+  setGcashInformation(advanceInformation.PaymentMethod[0].enabled = !advanceInformation.PaymentMethod[0].enabled )
+  setAdvanceInformation({
+    ...advanceInformation,
+    PaymentMethod: [
+      {
+        ...advanceInformation.PaymentMethod[0],
+        gcashInfo: {}
+      },
+      ...advanceInformation.PaymentMethod.slice(1),
+    ],
+  });
 
   
 
@@ -127,7 +135,7 @@ const addQrImage = async (files) => {
 
       axios.post(`https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`, formData).then((res)=>{
         console.log(res)
-        setGcashInfo({...gcashInfo, QRCode : res.data.secure_url})
+        setGcashInformation({...gcashInformation, QRCode : res.data.secure_url})
         setIsPhotoLoading(false)
       }).catch((err)=>{
           console.log(err)
@@ -140,16 +148,25 @@ const addQrImage = async (files) => {
 //submits the gcash setup information
 const submitGcashPayment = () => {
   const checkErrors = (input, errorKey) => (
-    setErrors((prevErrors)=>({...prevErrors, [errorKey] : gcashInfo[input] == "" ? true : false}))
+    setErrors((prevErrors)=>({...prevErrors, [errorKey] : gcashInformation[input] == "" ? true : false}))
   )
 
   checkErrors("ServiceTitle", "GcashServiceTitleError")
   checkErrors("EmailForGcash", "GcashEmailError")
-  if(gcashInfo.QRCode == "https://via.placeholder.com/150"){setErrors({...errors, GcashQRError : true})}
-  if(gcashInfo.ServiceTitle != "" && gcashInfo.EmailForGcash !="" && gcashInfo.QRCode != "https://via.placeholder.com/150")
+  if(gcashInformation.QRCode == "https://via.placeholder.com/150"){setErrors({...errors, GcashQRError : true})}
+  if(gcashInformation.ServiceTitle != "" && gcashInformation.EmailForGcash !="" && gcashInformation.QRCode != "https://via.placeholder.com/150")
   {
-  setGcashInfo({...gcashInfo, Enabled : true})
-  setAdvanceInformation({...advanceInformation, PaymentMethod: {...advanceInformation.PaymentMethod, Gcash :  gcashInfo}})
+    setAdvanceInformation({
+      ...advanceInformation,
+      PaymentMethod: [
+        {
+          ...advanceInformation.PaymentMethod[0],
+          gcashInfo: gcashInformation
+        },
+        ...advanceInformation.PaymentMethod.slice(1),
+      ],
+    });
+  // console.log(advanceInformation.PaymentMethod[0].gcashInfo)
   setIsGcashModalOpen(false)
   }
   
@@ -173,16 +190,17 @@ const submitAdvanceInformation = () => {
 
 useEffect(()=>{
   setAdvanceInformation(serviceInformation.advanceInformation)
-  if(serviceInformation.advanceInformation.PaymentMethod.Gcash.Enabled == true)
+  if(serviceInformation.advanceInformation.PaymentMethod[0].Gcash == true)
   {
     setIsGcashChecked(true)
-  }else if (serviceInformation.advanceInformation.PaymentMethod.Gcash.Enabled == false)
+  }
+  else if (serviceInformation.advanceInformation.PaymentMethod[0].Gcash == false)
   {
     setIsGcashChecked(false)
   }
 },[step])
 
-
+console.log(advanceInformation)
   return (
     <div className='w-full h-full flex flex-col  p-1'>
     
@@ -284,9 +302,17 @@ useEffect(()=>{
   <p className='font-semibold text-gray-600'>Cash</p>
   </div>
   <div className='flex space-x-5 md:space-x-20'>
-  <p className='text-gray-500 text-xs'>{advanceInformation.PaymentMethod.Cash ? "Enabled" : "Not set"}</p>
+  <p className='text-gray-500 text-xs'>{advanceInformation.PaymentMethod[1].Cash ? "Enabled" : "Not set"}</p>
   <label className="relative inline-flex items-center cursor-pointer">
-  <input  onClick={()=>{setAdvanceInformation({...advanceInformation, PaymentMethod : {...advanceInformation.PaymentMethod, Cash : !advanceInformation.PaymentMethod.Cash}})}} type="checkbox" value=""  className="sr-only peer outline-none"/>
+  <input  onClick={() => {
+    setAdvanceInformation((prevAdvanceInformation) => ({
+      ...prevAdvanceInformation,
+      PaymentMethod: [
+        ...prevAdvanceInformation.PaymentMethod.slice(0, 1), // Keep the first element unchanged
+        { ...prevAdvanceInformation.PaymentMethod[1], enabled: !advanceInformation.PaymentMethod[1].enabled },
+      ],
+    }));
+  }} type="checkbox" value=""  className="sr-only peer outline-none"/>
   <div className="w-[29px] h-4 lg:w-[1.85rem] lg:h-4 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[0.8rem] after:h-[0.8rem] after:lg:w-[0.8rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
   </label>
   </div>
@@ -399,7 +425,7 @@ useEffect(()=>{
   {/* Image Container */}
   <div className={`${errors.GcashQRError ? "border-red-500" : ""} flex items-center justify-center w-[100px] h-[100px] mx-auto bg-gray-200 border border-gray-300 rounded-lg overflow-hidden`}>
       <img
-        src={gcashInfo.QRCode}
+        src={gcashInformation.QRCode}
         alt="Empty Photo"
         className="w-full h-full object-contain"
       />
@@ -411,19 +437,19 @@ useEffect(()=>{
   {/* Service Title */}
   <div className="relative mb-1 mt-3 w-[90%] mx-auto flex flex-col">
   <label htmlFor='ServiceTitle' className='text-semiXs text-gray-400'>Service Title</label>
-  <input value={gcashInfo.ServiceTitle} onChange={(e)=>{setGcashInfo({...gcashInfo, ServiceTitle : e.target.value})}} type="text" name='ServiceTitle' className={`${errors.GcashServiceTitleError ? "border-red-500" : ""} text-sm outline-none border border-blue-400 rounded-sm p-0.5`} placeholder='' />
+  <input value={gcashInformation.ServiceTitle} onChange={(e)=>{setGcashInformation({...gcashInformation, ServiceTitle : e.target.value})}} type="text" name='ServiceTitle' className={`${errors.GcashServiceTitleError ? "border-red-500" : ""} text-sm outline-none border border-blue-400 rounded-sm p-0.5`} placeholder='' />
   </div>
   {/* Email */}
   <div className="relative mb-1 mt-3 w-[90%] mx-auto flex flex-col">
   <label htmlFor='Email' className='text-semiXs text-gray-400'>Email</label>
-  <input value={gcashInfo.EmailForGcash} onChange={(e)=>{setGcashInfo({...gcashInfo, EmailForGcash : e.target.value})}} type="text" name='Email' className={`${errors.GcashEmailError ? "border-red-500" : ""} text-sm outline-none border border-blue-400 rounded-sm p-0.5`} placeholder='' />
+  <input value={gcashInformation.EmailForGcash} onChange={(e)=>{setGcashInformation({...gcashInformation, EmailForGcash : e.target.value})}} type="text" name='Email' className={`${errors.GcashEmailError ? "border-red-500" : ""} text-sm outline-none border border-blue-400 rounded-sm p-0.5`} placeholder='' />
   </div>
   
 
   {/* Note */}
   <label htmlFor='fullname' className='text-semiXs w-[90%] mx-auto text-gray-400'>Note (Optional)</label>
   <div className='w-[90%] mx-auto h-[70px] border overflow-hidden mt-1'>
-  <textarea value={gcashInfo.GcashNote} onChange={(e)=>{setGcashInfo({...gcashInfo, GcashNote : e.target.value})}} rows={2} className='gcashNote p-1 w-full text-sm h-full outline-none resize-none scrol '/>
+  <textarea value={gcashInformation.GcashNote} onChange={(e)=>{setGcashInformation({...gcashInformation, GcashNote : e.target.value})}} rows={2} className='gcashNote p-1 w-full text-sm h-full outline-none resize-none scrol '/>
   </div>
   <button onClick={()=>{submitGcashPayment()}} className='w-[95%] mt-2 mx-auto py-0.5 bg-[#007DFE] rounded-sm text-gray-100'>Submit</button>
   </div>

@@ -20,8 +20,18 @@ import HideSourceIcon from '@mui/icons-material/HideSource';
 import ReportIcon from '@mui/icons-material/Report';
 import {Link} from "react-router-dom"
 import http from "../../http"
+import { useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 const Explore = () => {
+  // For Parameters
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get('search')
+  const category = searchParams.get('category')
+  const sort = searchParams.get('sort')
+  const rating = searchParams.get('rating')
+
+  const [noSearchResult, setNoSearchResult] = useState(false)
   const [mainServiceList, setMainServiceList] = useState([])
   const [rerender, setRerender] = useState(0)
   const [activeId, setActiveId] = useState(0)
@@ -43,7 +53,7 @@ const Explore = () => {
   const [places, setPlaces] = useState([])
   const [location, setLocation] = useState(null);
   const ratingValues = [5,4,3,2,1]
-  const [search, setSearch] = useState('')
+  const [searchInput, setSearchInput] = useState('')
   const [locationFilterValue, setLocationFilterValue] = useState('')
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -194,6 +204,7 @@ const Explore = () => {
       const applyFilter = () => {
         setCheckboxFilter(checkBoxValuesArray)
         handleCategory()
+        setSearchParams({category : selectedCategory, search : search == null ? "" : search, sort : sortFilter, rating : checkBoxValuesArray.join(',')})
         // By default
         if(selectedCategory == 'Select Category'){
           if(sortFilter == "Recent Services"){
@@ -208,7 +219,7 @@ const Explore = () => {
         }
         else{
           const filtered = mainServiceList.filter(service => service.advanceInformation.ServiceCategory == selectedCategory)
-          console.log(filtered)
+          if(filtered.length === 0){setNoSearchResult(true)}
           if(sortFilter == "Recent Services"){
             setCurrentPage(1)
             const sort = filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -224,8 +235,10 @@ const Explore = () => {
       }
 
       const clearFilter = () => {
+        setSearchParams({category : "Select Category", search : search == null ? "" : search, sort : "Recent Services", rating : ""})
         // Resets the checkboxes
         setCheckboxFilter([])
+        setCheckBoxValuesArray([])
         const checkboxes = document.querySelectorAll(".chkbox")
         checkboxes.forEach((chk)=>{
           chk.checked = false
@@ -242,31 +255,35 @@ const Explore = () => {
         setSelectedCategory("Select Category")
         setCategoryFilter("Select Category")
 
+          setRerender(rerender + 1)
+
+          window.location.reload()
       }
 
       // Apply the search for service
-      const SearchService = (value) => {
-        setSearch(value)
-        if(value == ""){
-          
-        }else {
-          
-          const results = mainServiceList.filter((item) => item.basicInformation.ServiceTitle.toLowerCase().includes(value.toLowerCase())
-        || item.tags.some((tag) => tag.toLowerCase().includes(value.toLowerCase()))
-        )
-        const sorted =  results.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
-        setServiceList(sorted)
+      const SearchService = () => {
+        if (search === null || mainServiceList.length === 0) {
+          // Handle the case when search is null or mainServiceList is empty
+          return;
         }
-
-        
-        
-      }
+      
+        const filteredResults = serviceList.filter((item) =>
+          item.basicInformation.ServiceTitle.toLowerCase().includes(search.toLowerCase()) ||
+          item.tags.some((tag) => tag.toLowerCase().includes(search.toLowerCase()))
+        );
+      
+        const sortedResults = filteredResults.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
+      
+        setServiceList(sortedResults);
+        setNoSearchResult(sortedResults.length === 0);
+      };
+      
 
       const setRatingFilter = () => {
 
-        if(serviceList != null)
+        if(serviceList != null )
         {
-          if(search == "")
+          if(search == "" || search == null)
           {
             const filtered = mainServiceList.filter((service) => {
               const { ratings } = service;
@@ -303,8 +320,8 @@ const Explore = () => {
           }
           else{
             
-            const servicesOnSearch = mainServiceList.filter((item) => item.title.toLowerCase().includes(search.toLowerCase())
-            || item.Tags.some((tag) => tag.toLowerCase().includes(search.toLowerCase()))
+            const servicesOnSearch = mainServiceList.filter((item) =>  item.basicInformation.ServiceTitle.toLowerCase().includes(search.toLowerCase())
+            || item.tags.some((tag) => tag.toLowerCase().includes(search.toLowerCase()))
             )
             const filtered = servicesOnSearch.filter((service) => {
               const { ratings } = service;
@@ -353,21 +370,23 @@ const Explore = () => {
 
       // Get All services
       const getServices = async () => {
-        await http.get("getServices").then((res)=>{
-          console.log(res.data.service)
-          setServiceList(res.data.service)
-          setMainServiceList(res.data.service)
-          setRatingFilterValue(res.data.service)
-        //   console.log(res.data.service)
-        }).catch((err)=>{
-          console.log(err)
-        })
-      }
+        try {
+          const res = await http.get("getServices");
+          const services = res.data.service;
+    
+          setServiceList(services);
+          setMainServiceList(services);
+          setRatingFilterValue(services);
+        } catch (err) {
+          console.error("Error fetching services:", err);
+        }
+      };
+        
+      
        
       //update the filter value whenever the checkbox rating is check
       useEffect(()=>{
         const result = setRatingFilter()
-        console.log(result)
         if(result == undefined){
           setRatingFilter()
         }
@@ -381,9 +400,36 @@ const Explore = () => {
 
       // get all services
       useEffect(()=>{
+        setSearchInput(search)
+        if(category != null)
+        {
+          setSelectedCategory(category)
+          
+        }
+        if(sort != null)
+        {
+          setSortFilter(sort)
+        }
+        if(rating != null)
+        {
+          setCheckBoxValuesArray(rating)
+        }
+        if(rating != null)
+        { 
+          const array = rating.split(',')
+          setCheckBoxValuesArray(array.map(Number))
+        }
         getServices()
+        applyFilter()
+ 
       },[])
 
+      useEffect(() => {
+        SearchService();
+      }, [mainServiceList, search]);
+
+      // checkBoxValuesArray.length === 0 ? false : 
+      console.log(serviceOnPage)
   return (
     <div className=' w-full flex h-full'>
         {/* Left Section */}
@@ -391,7 +437,7 @@ const Explore = () => {
         
         <div className='flex flex-col space-y-5 px-7 mt-10'>
         <h1 className='font-bold text-2xl'>Find your Service</h1>
-        {/* Search box */}
+        {/* Sort box */}
         <div className='flex-none w-full relative'>
         <h1 className='font-medium text-lg mb-2'>Sort By</h1>
         <button onClick={()=>{showFilterOption()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
@@ -447,11 +493,12 @@ const Explore = () => {
         <h1 className='font-medium text-lg mb-2'>Rating</h1>
         <div className='flex flex-col space-y-3 items-center'>
         {
-        ratingValues.map((rating)=>{
+        ratingValues.map((ratings)=>{
             return (
-                <div key={rating} className='flex items-center justify-center space-x-2'>
-                <input value={rating} onChange={()=>{setCheckboxValues(rating)}} className='chkbox w-5 h-5' type='checkbox'/><StyledRating className='relative'  readOnly defaultValue={rating} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
-                <p className='w-3'>{rating}.0</p>
+                <div key={ratings} className='flex items-center justify-center space-x-2'>
+
+                <input checked={checkBoxValuesArray.includes(ratings)} value={ratings} onChange={()=>{setCheckboxValues(ratings)}} className='chkbox w-5 h-5' type='checkbox'/><StyledRating className='relative'  readOnly defaultValue={ratings} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
+                <p className='w-3'>{ratings}.0</p>
                 </div>
             )
         })
@@ -503,34 +550,29 @@ const Explore = () => {
         {
           serviceOnPage.length == 0 ?
           (
-            <div className="lds-dual-ring w-full h-screen"></div>
-          )
-          :
-          serviceList.length == 0
-          ?
-          (
-            // Search Box for when search has no result
-          <div className='w-full h-full flex flex-col space-y-3 justify-center items-center'>
-
-            <p className='text-4xl'>No results found</p>
-
-            <div className='flex flex-col ml-2.5 w-fit items-end '>
-            <div className="w-full flex space-x-2 shadow-sm mx-auto rounded-lg overflow-hidden md:max-w-xl">
-            <div className="md:flex">
-            <div className="w-full">
-            <div className="relative">
-              <SearchOutlinedIcon className="absolute text-gray-500 top-[0.9rem] left-4"/>
-              <input onKeyDown={(e)=>{if(e.key == "Enter"){SearchService(e.target.value)}}} type="text" className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" placeholder='Search'/>
-
-            </div> 
-            </div>
-            </div>
-            </div>
-            </div>
             
-          </div>
-          
+              noSearchResult ? 
+              (
+        <div className='flex flex-col ml-2.5 w-fit items-end '>
+          <p className='text-2xl text-center w-full'>No Result</p>
+        <div className="w-full flex space-x-2 shadow-sm mx-auto rounded-lg overflow-hidden md:max-w-xl">
+        <div className="md:flex">
+        <div className="w-full">
+        <div className="relative">
+          <SearchOutlinedIcon className="absolute text-gray-500 top-[0.9rem] left-4"/>
+          <input value={searchInput} onChange={(e)=>{setSearchInput(e.target.value)}}  onKeyDown={(e)=>{if(e.key == "Enter"){setSearchParams({category : selectedCategory, search : e.target.value, sort : sortFilter, rating : checkBoxValuesArray.toString()});SearchService(e.target.value)}}} type="text" className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" placeholder='Search'/>
+
+        </div> 
+        
+        </div>
+        </div>
+        </div>
+        </div>
+              ) 
+              :
+              <div className="lds-dual-ring w-full h-screen"></div>
           )
+
           :
           
           (
@@ -542,7 +584,7 @@ const Explore = () => {
         <div className="w-full">
         <div className="relative">
           <SearchOutlinedIcon className="absolute text-gray-500 top-[0.9rem] left-4"/>
-          <input onKeyDown={(e)=>{if(e.key == "Enter"){SearchService(e.target.value)}}} type="text" className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" placeholder='Search'/>
+          <input value={searchInput} onChange={(e)=>{setSearchInput(e.target.value)}}  onKeyDown={(e)=>{if(e.key == "Enter"){setSearchParams({category : selectedCategory, search : e.target.value, sort : sortFilter, rating : checkBoxValuesArray.join(',')});SearchService(e.target.value)}}} type="text" className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" placeholder='Search'/>
 
         </div> 
         
@@ -566,12 +608,12 @@ const Explore = () => {
               const years = to.getFullYear() - from.getFullYear();
               const months = to.getMonth() - from.getMonth();
               const days = to.getDate() - from.getDate();
-              
+              // console.log(service._id)
                   return (  
                            
                     <div  key={index}  className='border relative flex cursor-pointer flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
                     {/* Image Container */}
-                    <Link to="/explore/viewService" className='flex relative xl:w-[330px] xl:min-w-[330px] xl:h-[200px] cursor-pointer'>
+                    <Link key={service._id} to={`/explore/viewService/${service._id}`} className='flex relative xl:w-[330px] xl:min-w-[330px] xl:h-[200px] cursor-pointer'>
                     <p className='absolute bg-white px-2 py-1 text-sm font-semibold rounded-full top-1 left-1'>{service.advanceInformation.ServiceCategory}</p>
                     <img className='w-full h-full min-h-[200px] max-h-[200px] rounded-lg' src={service.serviceProfileImage} alt="Cover"/>
                     </Link>

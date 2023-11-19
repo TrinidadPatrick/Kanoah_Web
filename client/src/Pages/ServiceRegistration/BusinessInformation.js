@@ -16,23 +16,7 @@ const BusinessInformation = () => {
     const [basicInformation, setBasicInformation] = useState({
     })
 
-    // So that what the user type in the description, its the same format as the output
-    // const formatText = (input) => {
-    //   const lines = input.split('\n')
-    //   const formattedLines = lines.map((line, index)=>(
-    //     <li key={index} >{line}</li>
-    //   ))
-
-    //   return <ul>{formattedLines}</ul>
-    // }
-    // const handleDescriptionChange = (e) => {
-    //   const descriptionText = e.target.value
-    //   setDescriptionInput(descriptionText)
-      
-      
-    //   const formattedText = formatText(descriptionText)
-    //   setDescription(formattedText)
-    // }
+    
     const submitBasicInfo = (e) => {
       e.preventDefault()
      const checkError = (input, errorKey) => (

@@ -1,6 +1,6 @@
 
 const {Router} = require('express')
-const { getServices, addService, getService, addGalleryImage, getGalleryImages, deleteImage, deleteMultipleImages, addFeaturedImage, getFeaturedImages, deleteFeaturedImage, deleteMultipleFeaturedImages, updateProfilePicture } = require('../Controllers/ServiceController')
+const { getServices, addService, getService, addGalleryImage, getGalleryImages, deleteImage, deleteMultipleImages, addFeaturedImage, getFeaturedImages, deleteFeaturedImage, deleteMultipleFeaturedImages, updateProfilePicture, getServiceInfo } = require('../Controllers/ServiceController')
 const authenticateToken = require('../Controllers/UserController')
 const router = Router()
 const {register, verifyEmail, verifyOTP, login, forgotPassword, newPassword, submitOtpForNewPassword, verifyUsername, getUsers, getUser, updateUser, verifyPassword, updatePassword, deactivateAccount, refresh, profile} = require('../Controllers/UserController')
@@ -26,6 +26,7 @@ router.get("/getUser/:_id", getUser)
 router.get("/getServices", getServices) //Get All Temp Services
 router.post("/addService", addService) //Get All Temp Services
 router.get("/getService/:userId", getService) //Get All Temp Services
+router.get("/getServiceInfo/:_id", getServiceInfo) //Get service info in view service
 
 
 // Gallery Images ROute

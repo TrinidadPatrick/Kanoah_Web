@@ -182,13 +182,13 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
           <NotificationsIcon className='text-white' />
           <div >
             {/* PROFILE IMAGE */}
-          <img className='peer w-8 h-8 max-h-8 ml- border-1 border-white  rounded-full' src={userInfo.profileImage} />
+          <img className='peer w-8 h-8 max-h-8 object-cover border-1 border-white  rounded-full' src={userInfo.profileImage} />
           {/* Dropdown Profile */}
           <div className="hidden absolute p-2 right-14 peer-hover:flex hover:flex w-fit rounded-md top-[3.3rem] delay-150 flex-col bg-white drop-shadow-lg overflow-hidden">
           <header className='flex border-b pb-2'>
           {/* Image container */}
           <div className=' flex items-center'>
-          <img className='peer w-9 h-9 max-h-9 ml- border-1 border-white  rounded-full' src={userInfo.profileImage} />
+          <img className='peer w-9 h-9 max-h-9 object-cover border-1 border-white  rounded-full' src={userInfo.profileImage} />
           </div>
           <div className='ml-1'>
           <h1 className='text-sm font-semibold'>{userInfo.username}</h1>

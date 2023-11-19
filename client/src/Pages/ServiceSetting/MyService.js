@@ -88,7 +88,6 @@ const MyService = () => {
     <div className='h-full flex flex-col'>
     <div className='flex flex-col justify-start space-y-3 h-full'>
     <h1 className='text-4xl font-semibold text-themeBlue'>{serviceInformation.basicInformation.ServiceTitle}</h1>
-    <h1 className='text-xl font-semibold text-themeBlue'>{serviceInformation.owner.firstname + " " + serviceInformation.owner.lastname}</h1>
     <h2 className='text-gray-600 text-sm font-semibold'>{serviceInformation.basicInformation.OwnerEmail}</h2>
     <h2 className='text-gray-600 text-sm font-semibold'>+63{serviceInformation.basicInformation.OwnerContact}</h2>
     </div>

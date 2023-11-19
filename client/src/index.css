@@ -190,6 +190,10 @@
   width: 9px;
 }
 
+.hello:hover{
+  filter: brightness(50%);
+}
+
 /* .categoryDropdown::-webkit-scrollbar-track {
   background: #ffffff;
 } */
