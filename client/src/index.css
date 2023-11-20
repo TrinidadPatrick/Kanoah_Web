@@ -219,6 +219,33 @@
 }
 
 
+/* Pagination style */
+.explorePagination{
+  display: flex;
+  justify-content: center;
+  width:fit-content;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 10px;
+  padding: 0 10px;
+}
+
+.explorePagination .paginationNumber {
+  color: white !important;
+  padding: 5px 10px;
+  border-radius: 2px;
+  background-color: black;
+}
+
+.previousArrow{
+  font: 900 !important;
+}
+
+.explorePagination .activePage{
+  background-color: white !important;
+}
+
+
 /*  */
   @keyframes lds-dual-ring {
     0% {
