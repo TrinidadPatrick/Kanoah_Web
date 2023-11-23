@@ -18,6 +18,7 @@ import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlin
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import axios from 'axios'
 import http from '../../http'
+import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
 export const Context = React.createContext()
@@ -75,6 +76,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         setIsLoggedIn(true)
         getUser(response.data.user._id)
         
+        
       } catch (error) {
           setIsLoggedIn(false)
         console.error('Profile Error:', error.response.data.error);
@@ -82,7 +84,6 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         navigate("/")
       }
     }
-
     // Get userInformation
     const getUser = async (id) => {
       http.get(`getUser/${id}`).then((res)=>{
@@ -148,7 +149,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
             categories.map((category, index)=>{
               return (
             <li key={index} className="">
-            <button className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+            <button onClick={()=>{navigate(`explore?${"category="+category.category_name}`)}} className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
           </li>
               )
             })
@@ -178,7 +179,8 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
       userInfo != null && isLoggedIn ?
       (
         <div className='flex items-center justify-evenly space-x-5 mr-4'>
-          <ForumRoundedIcon className='text-white'/>
+          {/* chat */}
+          <Link to="chat"><ForumRoundedIcon className='text-white'/></Link>
           <NotificationsIcon className='text-white' />
           <div >
             {/* PROFILE IMAGE */}
@@ -196,7 +198,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
           </div>
           
           </header>
-          <Link to='/myAccount' className="px-1 py-3 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon  />Profile Settings</Link>
+          <Link to={`/myAccount/${"Profile"}`} className="px-1 py-3 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon  />Profile Settings</Link>
           <Link to='/serviceRegistration' className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
           <Link to='/serviceSettings' className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
 

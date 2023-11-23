@@ -52,7 +52,7 @@ module.exports.getServiceInfo = async (req,res) => {
     const {_id} = req.params
     if(_id){
         try {
-            const service = await Service.findById(_id).populate('owner', 'firstname lastname profileImage')
+            const service = await Service.findById(_id).populate('owner', 'firstname lastname profileImage username')
             return res.json({status : "success", service})
         } catch (error) {
             return res.json({status : "failed" , message : error})

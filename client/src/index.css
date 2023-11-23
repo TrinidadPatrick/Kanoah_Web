@@ -14,7 +14,7 @@
 
 
 /* NAVBAR ************************************************************************************************************* */
-.navbarLink a {
+.navbarLink a, .categoryNavbar {
    background-image: linear-gradient(
     to right,
     #EB6B23,
@@ -32,7 +32,7 @@
   transition: all 0.3s ease-in-out;
 }
 
-.navbarLink a:before{
+.navbarLink a:before, .categoryNavbar::before{
   content: '';
   background: #EB6B23;
   display: block;
@@ -231,19 +231,31 @@
 }
 
 .explorePagination .paginationNumber {
-  color: white !important;
+  color: black !important;
   padding: 5px 10px;
   border-radius: 2px;
-  background-color: black;
+  /* background-color: black; */
 }
 
 .previousArrow{
-  font: 900 !important;
+  /* font: bolder !important; */
+  font-weight: 900;
+  
 }
 
 .explorePagination .activePage{
-  background-color: white !important;
+  padding: 5px 12px;
+  background-color: #0E2F41 !important;
+  border-radius: 100%;
+  color: white !important;
 }
+
+.exploreSidebarOpen{
+  box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+}
+
+
+
 
 
 /*  */

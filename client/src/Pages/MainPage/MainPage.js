@@ -13,10 +13,15 @@ import RecentServices from './RecentServices'
 import HowItWorks from './HowItWorks'
 import Footer from './Footer'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 import http from '../../http'
 import { services } from './Components/Services/Services'
+import { useParams } from 'react-router-dom'
 
 const MainPage = () => {
+
+  const navigate = useNavigate()
+  const [searchInput,setSearchInput] = useState('')
     const [trendingServices, setTrendingServices] = useState(null)
     const [showMenu, setShowMenu] = useState(false)
     const [showLogin, setShowLogin] = useState(false)
@@ -48,7 +53,8 @@ const MainPage = () => {
       <h1 className='font-medium mb-4 text-3xl md:text-5xl text-center' style={{color: "#FFFFFF", textShadow: "1px 1px 5px black"}}>Search smarter find faster</h1>
       {/* Search field and search button */}
       <div className='p-1 relative flex'>
-      <input type="text" placeholder='Search for service' className='text-white w-full text-md md:text-xl py-4 px-6 bg-themeBlue rounded-4xl border-2'/>
+        {/* Search Field */}
+      <input onKeyDown={(e)=>{if(e.key === "Enter"){navigate(`explore?search=${e.target.value}`)}}} type="text" placeholder='Search for service' className='text-white w-full text-md md:text-xl py-4 px-6 bg-themeBlue rounded-4xl border-2'/>
       <button className='absolute bg-white px-2.5 md:px-6 py-2.5 rounded-3xl top-[12px] md:top-[13.5px] flex space-x-2 right-3 md:right-3'><SearchIcon /> <span className='hidden md:block'>Search</span></button>
       </div>
       </div>

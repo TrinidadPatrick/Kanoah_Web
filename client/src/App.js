@@ -13,6 +13,7 @@ import CustomerAccount from './Pages/AccountSetting/CustomerAccount';
 import ServiceRegistrationPage from './Pages/ServiceRegistration/ServiceRegistrationPage';
 import ServiceSettings from './Pages/ServiceSetting/ServiceSettings';
 import Explore from './Pages/ExplorePage/Explore';
+import Chat from './Pages/ChatSystem/Chat';
 
 function App() {
   const NavbarLayout = () => (
@@ -31,8 +32,9 @@ function App() {
         <Route path='/forgotPassword' element={<ForgotPassword />} />
         <Route path='/register' element={<Register />} />
         <Route path='/explore/' element={<Explore />} />
+        <Route path='/chat' element={<Chat />} />
         <Route path='explore/viewService/:serviceId' element={<ViewService />} />
-        <Route path='/myAccount' element={<CustomerAccount />} />
+        <Route path='/myAccount/:optn' element={<CustomerAccount />} />
         <Route path='/serviceRegistration' element={<ServiceRegistrationPage />} />
         <Route path='/serviceSettings' element={<ServiceSettings />} />
         <Route path='/' element={<MainPage />} />

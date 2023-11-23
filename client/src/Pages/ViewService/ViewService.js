@@ -30,6 +30,7 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Download from "yet-another-react-lightbox/plugins/download";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import http from '../../http';
 import Footer from '../MainPage/Footer';
@@ -38,6 +39,7 @@ import Footer from '../MainPage/Footer';
 
 
 const ViewService = () => {
+  const navigate = useNavigate()
   const [serviceInfo, setServiceInfo] = useState(null)
   const { serviceId } = useParams();
   const [open, setOpen] = React.useState(false);
@@ -59,8 +61,9 @@ const ViewService = () => {
 
   // Generated format for featured Images
   const generatedFeaturedImages = (featuredImages) => {
-    return featuredImages.map((image)=>(
+    return featuredImages.map((image,index)=>(
       {
+        key : index,
         original : image.src,
         thumbnail : image.src,
         originalClass: 'image-gallery-original', // Apply the custom CSS class for original image
@@ -170,7 +173,7 @@ const ViewService = () => {
   useEffect(()=>{
     getService()
   },[])
-
+console.log(serviceInfo)
   return (
     
    <div className='grid place-items-center h-screen  w-full'>
@@ -203,7 +206,7 @@ const ViewService = () => {
         </div>
         {/* Buttons */}
         <div className='flex flex-col space-y-2 '>
-        <button className='text-lg font-semibold bg-green-500 h-full text-white w-36 rounded-[0.150rem]'>Chat now</button>
+        <button onClick={()=>{navigate(`/chat?to=${serviceInfo.owner.username}`)}} className='text-lg font-semibold bg-green-500 h-full text-white w-36 rounded-[0.150rem]'>Chat now</button>
         <button className='text-lg font-semibold bg-themeOrange h-full text-white w-36 rounded-[0.150rem]'>Book Service</button>
         </div>
         </div>
@@ -260,7 +263,7 @@ const ViewService = () => {
           <div className='flex mt-2 mb-2'>
             {
               serviceInfo.advanceInformation.PaymentMethod.filter(payment => payment.enabled == true).map((payment, index)=>(
-                <p className='w-20 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>{payment.method}</p>
+                <p key={index} className='w-20 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>{payment.method}</p>
               ))
             }
           
@@ -270,7 +273,7 @@ const ViewService = () => {
           <div className='flex my-2'>
             {
               serviceInfo.advanceInformation.ServiceOptions.map((options, index)=>(
-                <p className='w-32 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>{options}</p>
+                <p key={index} className='w-32 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>{options}</p>
               ))
             }
           
