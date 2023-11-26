@@ -206,7 +206,7 @@ console.log(serviceInfo)
         </div>
         {/* Buttons */}
         <div className='flex flex-col space-y-2 '>
-        <button onClick={()=>{navigate(`/chat?to=${serviceInfo.owner.username}`)}} className='text-lg font-semibold bg-green-500 h-full text-white w-36 rounded-[0.150rem]'>Chat now</button>
+        <button onClick={()=>{navigate(`/chat?to=${serviceInfo.owner.username}&service=${serviceInfo._id}`)}} className='text-lg font-semibold bg-green-500 h-full text-white w-36 rounded-[0.150rem]'>Chat now</button>
         <button className='text-lg font-semibold bg-themeOrange h-full text-white w-36 rounded-[0.150rem]'>Book Service</button>
         </div>
         </div>

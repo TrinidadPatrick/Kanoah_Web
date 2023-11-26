@@ -254,9 +254,7 @@ const Explore = () => {
       // Apply the filter
       const applyFilter = () => {    
           setServiceList(filteredService)
-          setTimeout(()=>{
-            setLoadingPage(false)
-          },500)
+          
           
       }
 
@@ -371,7 +369,11 @@ const Explore = () => {
        }
     }, [filteredService, donotApplyFilter]);
     
-
+    useEffect(()=>{
+      if(serviceList.length!== 0){
+          setLoadingPage(false)
+      }
+    },[serviceList])
 
     return (
         <div className=' w-full flex h-full relative'>

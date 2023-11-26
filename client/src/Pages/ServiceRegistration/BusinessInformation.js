@@ -67,7 +67,7 @@ const BusinessInformation = () => {
         <label className="block text-sm text-gray-500 font-semibold mb-2" htmlFor="description">Service Description</label>
         <div className={`${errors.DescriptionError == 0 ? " border-2 border-red-500" : ""} border h-[200px]  md:h-[90%]`}>
         <textarea
-        maxLength={1000}
+        maxLength={10000}
         id="description"
         value={basicInformation.Description} onChange={(e)=>{setBasicInformation({...basicInformation, Description : e.target.value})}}
         className="w-full p-2 h-full  resize-none outline-none min-h-[20px] max-h-[260px] "
