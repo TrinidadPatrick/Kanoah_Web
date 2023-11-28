@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, createContext } from 'react'
-import logo from '../RegisterPage/RegisterComponents/img/Logo.png'
+import logo from '../RegisterPage/RegisterComponents/img/DarkLogo.png'
 import {FaUserLarge, FaUserPlus, FaCircleUser, FaArrowTrendUp} from 'react-icons/fa6'
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -16,6 +16,7 @@ import RemoveRedEyeRoundedIcon from '@mui/icons-material/RemoveRedEyeRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import {BASE_URL} from '../../Utilities/ApiRoutes'
 import { Context } from '../Navbar/Navbar';
+import "./Register.css"
 import http from '../../http'
 
 
@@ -82,6 +83,7 @@ const Register = () => {
     }if(password.length >= 8){
       setIsValidPassword(true)
     }if(username.length >= 5 && password.length >= 8){
+      setIsLoading(true)
       await http.post("verifyUsername", {username : userInfos.username}).then((res)=>{
         if(res.data.status == "unavailable"){
           setIsUsernameExist(true)
@@ -91,6 +93,8 @@ const Register = () => {
         }
       }).catch((err)=>{
         console.log(err)
+      }).finally(()=>{
+        setIsLoading(false)
       })
       
 
@@ -175,9 +179,11 @@ useEffect(()=>{
     if(contact != ""){setIsValidContact(true)}
     if(email == ""){setIsValidEmail(false)}
     if(email != ""){setIsValidEmail(true)}
+    if(otp == ""){setIsValidOtp(false)}
+    if(otp != ""){setIsValidOtp(true)}
     
-    if(firstname != "" && lastname != "" & contact != "" && email != ""){
-
+    if(firstname !== "" && lastname !== "" && contact !== "" && email !== "" && otp !== ""){
+      setIsLoading(true)
       http.post("verifyOTP", {otp}).then((res)=>{
         // IF OTP IS CORRECT
             if(res.data == 'verified'){
@@ -185,7 +191,6 @@ useEffect(()=>{
               http.post("register", {username, email, password, firstname, lastname, contact, birthDate}).then((res)=>{
                 if(res.data.status == 'registered'){
                 localStorage.setItem("token", res.data.userToken)
-                console.log(res.data)
                 setIsValidOtp(true)
                 setShowSignup(false)
                 setShowLogin(true)
@@ -205,9 +210,11 @@ useEffect(()=>{
                 }
                 }).catch((err)=>{
                 console.log(err)
+                }).finally(()=>{
+                  setIsLoading(false)
                 })
                 }
-      setIsLoading(false)
+      
   }
  
 
@@ -275,7 +282,19 @@ useEffect(()=>{
     </div>
 
     <div>
-    <button onClick={()=>{next()}} className='w-full text-white py-1 rounded-sm bg-themeBlue mt-2'>Next</button>
+    <button onClick={()=>{next()}} className={`${isLoading ? "bg-slate-600" : "bg-themeBlue"} w-full text-white h-[40px] rounded-sm mt-2`}>
+    {
+        isLoading ? (
+          <div className="typing-indicator mx-auto">
+          <div className="typing-circle"></div>
+          <div className="typing-circle"></div>
+          <div className="typing-circle"></div>
+          </div>
+        )
+        :
+        "Next"
+      }
+    </button>
     <p className='text-xs text-center text-gray-500 mt-2'>Already have an account? <button onClick={()=>{setShowSignup(false);setShowLogin(true)}} className='text-blue-600'>Login now</button></p>
     </div>
     </div>       
@@ -344,7 +363,7 @@ useEffect(()=>{
     {/* Code Field */}
     <div className='code_container w-3/5  relative  '>
     <VpnKeyIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidOtp == false ? "text-red-500" : ""}`}/>
-    <input onChange={(e)=>setOtp(e.target.value)} type="text" placeholder='Enter OTP' name='otp' className={`text-sm border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidOtp == false ? "text-red-500 border-b-red-500" : ""}`} />
+    <input onChange={(e)=>setOtp(e.target.value)} type="text" placeholder='Enter OTP' name='otp' className={`text-sm border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidOtp == false ? "text-red-500 border-b-red-500 placeholder:text-red-500" : ""}`} />
     <button id='sendEmail' onClick={()=>{verifyEmail()}} className='absolute bg-themeBlue flex gap-1 text-xs p-1 px-2 text-white top-2 right-2 rounded-sm disabled:bg-gray-300'>Get <p id="timer" className='hidden text-xs'>{timer}</p></button>
     <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidOtp == false ? "block" : "hidden"}`}>Invalid Otp</p>
     </div>
@@ -388,12 +407,20 @@ useEffect(()=>{
   </div>
 
   {/* Signup Button Container */}
-    {
-      acceptedTNC ? 
-      <button onClick={()=>{signup();setIsLoading(true)}} className={`${isLoading ? "bg-blue-300" : "bg-themeBlue"} w-full text-white py-1 rounded-sm`}>Signup</button>
-      :
-      <button disabled onClick={()=>{signup()}} className='w-full text-white py-1 rounded-sm bg-themeBlue disabled:bg-slate-600'>Signup</button>
-    }   
+
+      <button disabled={!acceptedTNC} onClick={()=>{signup()}} className={`${isLoading ? "bg-slate-600" : "bg-themeBlue"} w-full text-white h-[40px] rounded-sm`}>
+      {
+        isLoading ? (
+          <div className="typing-indicator mx-auto">
+          <div className="typing-circle"></div>
+          <div className="typing-circle"></div>
+          <div className="typing-circle"></div>
+          </div>
+        )
+        :
+        "Signup"
+      }
+      </button>  
     <p className='text-xs text-center text-gray-500 mt-2'>Already have an account? <button onClick={()=>{setShowSignup(false);setShowLogin(true)}} className='text-blue-600'>Login now</button></p>
     </div>
     

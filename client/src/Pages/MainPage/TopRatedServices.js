@@ -18,6 +18,8 @@ import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
+import { Link } from 'react-router-dom';
+import http from '../../http';
 
 
 
@@ -25,6 +27,12 @@ const TopRatedServices = () => {
   const [trendingServices, setTrendingServices] = useState(null)
   const [showMoreOption, setShowMoreOption] = useState(false)
   const [activeId, setActiveId] = useState(0)
+
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
+  const currentDay = currentDate.getDate().toString().padStart(2, '0');
+  const thisDate = currentYear + "-" + currentMonth + "-" + currentDay
   
   const StyledRating = styled(Rating)({
     '& .MuiRating-iconFilled': {
@@ -82,7 +90,6 @@ const TopRatedServices = () => {
     );
   };
 
-
   const openMoreOptions = (id) => {
     
     if(activeId == id){
@@ -93,17 +100,62 @@ const TopRatedServices = () => {
 
   }
 
-  useEffect(()=>{
-    initializedTopRatedServices()
-  }, [])
-  // b.rating['5star']+b.rating['4star']+b.rating['3star']+b.rating['2star']+b.rating['1star']
-  const initializedTopRatedServices = () => {
-    const newService = [...services]
-    const trendingServices = newService.sort((a,b)=> 
-    ((5*b.rating['5star'] + 4*b.rating['4star'] + 3*b.rating['3star'] + 2*b.rating['2star'] + 1*b.rating['1star'])/(b.rating['5star']+b.rating['4star']+b.rating['3star']+b.rating['2star']+b.rating['1star']))
-     - ((5*a.rating['5star'] + 4*a.rating['4star'] + 3*a.rating['3star'] + 2*a.rating['2star'] + 1*a.rating['1star'])/(a.rating['5star']+a.rating['4star']+a.rating['3star']+a.rating['2star']+a.rating['1star'])))
-    setTrendingServices(trendingServices)
+  // Computes the average and other
+    // Computes the rating Average
+    const ratingAverage = (services) => {
+      return services.map((service, index) => {
+        const ratings = service.ratings
+        const totalRatings = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
+        const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / totalRatings;
+        const rounded = Math.round(ratingAverage * 100) / 100;
+        const average = rounded.toFixed(1)
+        const from = new Date(service.createdAt);
+        const to = new Date(thisDate);
+        const years = to.getFullYear() - from.getFullYear();
+        const months = to.getMonth() - from.getMonth();
+        const days = to.getDate() - from.getDate();
+        const createdAgo = years > 0 ? years + " years ago" : months > 0 ? months + `${months <= 1 ? " month ago" : " months ago"}` : days > 0  ? days + `${days <= 1 ? " day ago" : " days ago"}` : "Less than a day ago"
+        return ({
+          _id : service._id,
+          key : index,
+          basicInformation: service.basicInformation,
+          advanceInformation: service.advanceInformation,
+          address: service.address,
+          serviceHour: service.serviceHour,
+          tags: service.tags,
+          owner : service.owner,
+          galleryImages: service.galleryImages,
+          featuredImages: service.featuredImages,
+          serviceProfileImage: service.serviceProfileImage,
+          ratings : average,
+          ratingRounded : Math.floor(average),
+          totalReviews : totalRatings,
+          createdAgo : createdAgo,
+          createdAt : service.createdAt
+        });
+      });
+    };
+
+  // Gets all services
+  const getServices = async () => {
+    try {
+      const result = await http.get("getServices")
+      const services = result.data.service
+      const computed = ratingAverage(services)
+      const sorted = computed.sort((a,b)=>(
+      Number(b.ratings) - Number(a.ratings)
+      ))
+      setTrendingServices(sorted)
+    } catch (error) {
+      console.log(error)
+    }
   }
+
+  useEffect(()=>{
+    getServices()
+
+  }, [])
+
 
   
 
@@ -153,27 +205,25 @@ const TopRatedServices = () => {
     
       {
       trendingServices.map((service)=>{
-        const ratings = service.rating;
-        const ratingTotal = ratings['5star'] + ratings['4star'] + ratings['3star'] + ratings['2star'] + ratings['1star'];
-        const ratingAverage = (5 * ratings['5star'] + 4 * ratings['4star'] + 3 * ratings['3star'] + 2 * ratings['2star'] + 1 * ratings['1star']) / ratingTotal;
-        const rounded = Math.round(ratingAverage * 100) / 100;
         return (
-          <div key={service.id} className='w-full h-[400px] flex items-center justify-center  py-4'>
+          <div key={service._id} className='w-full h-[400px] flex items-center justify-center  py-4'>
               {/* Cards */}
               <div className='TRS service_card h-fit w-[80%] sm:w-[92%] sm:h-fit pb-2 rounded-lg bg-white overflow-hidden'>
-              <img className='h-48 w-full ' src={service.image} />
+              <Link to={`/explore/viewService/${service._id}`}>
+              <img className='h-48 w-full cursor-pointer ' src={service.serviceProfileImage} />
+              </Link>
               {/* Profile */}
-              <div className='w-16 h-16 absolute left-16 top-[11.5rem] sm:top-[11.5rem] md:top-[11.5rem] lg:top-[11.5rem] xl:top-[11.6rem] sm:left-8 rounded-full border-4 border-gray-700 bg-cover' style={{backgroundImage : `url(${service.profile})`}}></div>
+              <div className='w-16 h-16 absolute left-16 top-[11.5rem] sm:top-[11.5rem] md:top-[11.5rem] lg:top-[11.5rem] xl:top-[11.6rem] sm:left-8 rounded-full border-4 border-gray-700 bg-cover' style={{backgroundImage : `url(${service.owner.profileImage})`}}></div>
               <div className='relative mt-7 flex flex-col space-y-1 '>
                 {/* Service Title */}
-              <p className='text-black ml-3 font-semibold mt-2 text-lg'>{service.title}</p> 
-              <p className='text-gray-400 ml-3 font-medium mt-0 text-sm'>{service.owner}</p> 
+              <p className='text-black ml-3 font-semibold mt-2 text-lg'>{service.basicInformation.ServiceTitle}</p> 
+              <p className='text-gray-400 ml-3 font-medium mt-0 text-sm'>{service.owner.firstname + service.owner.lastname}</p> 
               {/* More Options Button */}
               <OutsideClickHandler onOutsideClick={()=>{
                   setActiveId(null)
                 }}>
-                <MoreVertIcon onClick={()=>{openMoreOptions(service.id)}} className={`absolute ${service.id == activeId ? "text-gray-300" : "text-gray-600"} cursor-pointer hover:text-gray-300 -top-5 right-1`} />
-                <div id={service.id} className={`${service.id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200  bg-gray-50 shadow-md rounded-md -top-20 right-7`}>
+                <MoreVertIcon onClick={()=>{openMoreOptions(service._id)}} className={`absolute ${service._id == activeId ? "text-gray-300" : "text-gray-600"} cursor-pointer hover:text-gray-300 -top-5 right-1`} />
+                <div id={service._id} className={`${service._id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200  bg-gray-50 shadow-md rounded-md -top-20 right-7`}>
                 <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
                 <LibraryAddIcon />
                 <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Add to Library</p>
@@ -192,15 +242,15 @@ const TopRatedServices = () => {
                 </OutsideClickHandler>
                 {/* Rating */}
                 <div className='flex relative items-center ml-3 space-x-1'>
-                <StyledRating className='relative -left-1'  readOnly defaultValue={rounded} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
-                <p className='text-gray-400 text-sm font-medium'>({rounded.toFixed(1)})</p> 
+                <StyledRating className='relative -left-1'  readOnly defaultValue={service.ratingRounded} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
+                <p className='text-gray-400 text-sm font-medium'>{service.ratings}</p> 
                 <p className='text-gray-300'>|</p>
-                <p className='text-gray-700 text-sm pt-[2.5px] font-medium'>{ratingTotal + " Reviews"}</p> 
+                <p className='text-gray-700 text-sm pt-[2.5px] font-medium'>{service.totalReviews + " Reviews"}</p> 
                 </div>
                 {/* Address */}
                 <div className='flex items-center ml-2'>
                 <PlaceOutlinedIcon className='text-gray-400' />
-                <p className='mt-1 font-normal text-gray-400 ml-1 me-4 whitespace-nowrap overflow-hidden text-ellipsis'>{service.Address}</p>
+                <p className='mt-1 font-normal text-gray-400 ml-1 me-4 whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay + " " + service.address.municipality +", " + service.address.province}</p>
                 </div>
               </div>
               </div>

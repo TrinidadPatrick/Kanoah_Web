@@ -31,6 +31,7 @@ const UserInformation = () => {
     const [password, setPassword] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+    const [loading, setLoading] = useState(true)
     const [isDragging, setIsDragging] = useState(false);
     const [closeAutofill, setCloseAutofill] = useState(false)
     const [places, setPlaces] = useState([])
@@ -78,19 +79,25 @@ const UserInformation = () => {
         const response = await http.get('profile', {
           headers : {Authorization: `Bearer ${token}`},
         })
-        getUser()
+        
+        if(response.status == 200)
+        {
+          const userId = response.data.user._id
+          getUser(userId)
+        }
         
       } catch (error) {
-        console.error('Profile Error:', error.response.data.error);
+        console.error('Profile Error:', error.response);
  
       }
     }
 
     // Get userInformation
-    const getUser = async () => {
+    const getUser = async (accId) => {
 
-          await http.get(`getUser/${userId}`).then((res)=>{
+          await http.get(`getUser/${accId}`).then((res)=>{
             setUserInformation(res.data)
+            setLoading(false)
           }).catch((err)=>{
             console.log(err)
           })
@@ -100,10 +107,8 @@ const UserInformation = () => {
     useEffect(() => {
       const accessToken = localStorage.getItem('accessToken');
       if (accessToken) {
-        setAccessToken(accessToken);
         getUserProfile(accessToken);
       }else{
-        // setIsLoggedIn(false)
         navigate("/")
       }
     }, [userId])
@@ -384,7 +389,12 @@ const UserInformation = () => {
     
     <div className='w-full h-full '>
         {
-        userInformation == null ? "" :
+        loading ? 
+        (
+          <div className='w-full h-screen grid place-items-center'>
+            <div className="spinner"></div>
+            </div>
+        ) :
         (
             
         /* main container */
@@ -397,7 +407,7 @@ const UserInformation = () => {
         <div className='w-full flex flex-col justify-between h-full pb-10'>
         {/* Image Container */}
         <div className=' flex flex-col lg:mt-10 p-2 items-center justify-center'>
-        <img className='rounded-full object-cover w-24 lg:w-32 lg:h-32 max-h-32 max-w-32' src={userInformation.profileImage} />
+        <img className='rounded-full object-cover w-24 h-24 lg:w-32 lg:h-32 max-h-32 max-w-32' src={userInformation.profileImage} />
         <div className='flex flex-col mt-5 space-y-2 w-full '>
         {/* INput Profile Picture */}
         <label htmlFor="fileInput" className={`${isloadingImage ? "bg-orange-300" : "bg-themeOrange"} relative inline-block px-4 py-1 text-white text-center rounded cursor-pointer`}>

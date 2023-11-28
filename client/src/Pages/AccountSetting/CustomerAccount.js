@@ -14,11 +14,11 @@ const CustomerAccount = () => {
   const {optn} = useParams()
     const [accessToken, setAccessToken] = useState(null);
     const [refreshToken, setRefreshToken] = useState(null);
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
     const [selectedSettings, setSelectedSettings] = useState(optn)
 
-    console.log(optn)
+   
 
     // Handle the selected settings options
     const handleSelectSettings = (value) => {
@@ -30,36 +30,6 @@ const CustomerAccount = () => {
     useEffect(() => {
       setSelectedSettings(optn)
     }, [])
-
-    // get user profile
-    const getUserProfile = async (token) => {
-      try {
-        const response = await http.get('profile', {
-          headers : {Authorization: `Bearer ${token}`},
-        })
-        if(response.data.status == "logged in")
-        {
-          setLoading(false)
-        }
-        else{
-          navigate("/")
-        }
-      } catch (error) {
-        console.error('Profile Error:', error.response.data.error);
- 
-      }
-    }
-
-    // check if user is logged In
-    useEffect(()=>{
-      const accessToken = localStorage.getItem('accessToken');
-      if (accessToken) {
-        setAccessToken(accessToken);
-        getUserProfile(accessToken);
-      }else{
-        navigate("/")
-      }
-    },[])
 
   //  Log the user out
   const logout = () => {

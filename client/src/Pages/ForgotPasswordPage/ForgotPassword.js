@@ -10,11 +10,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Context } from '../Navbar/Navbar';
 import { ToastContainer, toast } from 'react-toastify';
   import 'react-toastify/dist/ReactToastify.css';
+  import './FP.css'
 import http from '../../http'
 
 
 const ForgotPassword = () => {
     const [isLoading, setIsLoading] = useState(false)
+    const [isLoadingNewPass, setIsLoadingNewPass] = useState(false)
     const [showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose] = useContext(Context)
     const navigate = useNavigate()
     const [email, setEmail] = useState('')
@@ -40,7 +42,7 @@ const ForgotPassword = () => {
         }
         
         else if(email != ""){
-        
+            setIsLoading(true)
             setIsvalidEmail(true)
             await http.post("forgotPassword", {email}).then((res)=>{
                 if(res.data.message == 'Found'){
@@ -59,30 +61,40 @@ const ForgotPassword = () => {
                 }
             }).catch((err)=>{
                 console.log(err)
+            }).finally(()=>{
+                setIsLoading(false)
             })
         }
     }
 
     // Submit Code for new Password
     const submitCode =  async () => {
-        http.post("forgotPassword/sendOtp", {code : otp, email}).then((res)=>{
-            if(res.data.status == 'verified'){
-            console.log('verified')
-            setIsValidOtp(true)
-            setIsvalidEmail(undefined)
-            document.getElementById('verifyCode').setAttribute("disabled", "disabled")
-            document.getElementById('sendCode').setAttribute("disabled", "disabled")
-            }else if(res.data.status == "invalid"){
-            setIsValidOtp(false)
-            }
-        }).catch((err)=>{
-            console.log(err)
-        })
+        if(otp != "")
+        {
+            setIsLoading(true)
+            http.post("forgotPassword/sendOtp", {code : otp, email}).then((res)=>{
+                if(res.data.status == 'verified'){
+                console.log('verified')
+                setIsValidOtp(true)
+                setIsvalidEmail(undefined)
+                document.getElementById('verifyCode').setAttribute("disabled", "disabled")
+                document.getElementById('sendCode').setAttribute("disabled", "disabled")
+                }else if(res.data.status == "invalid"){
+                setIsValidOtp(false)
+                }
+            }).catch((err)=>{
+                console.log(err)
+            }).finally(()=>{
+                setIsLoading(false)
+            })
+        }
+        
     }
 
     // Submit new password
     const submitPassword = async () => {
-        if(password != "" && password == confirmPassword){
+        if(password != "" && password == confirmPassword && password.length >= 9){
+            setIsLoadingNewPass(true)
             await http.post("forgotPassword/newPassword", {email, password}).then((res)=>{
             if(res.data.status == "updated"){
                 setShowFP(false)
@@ -92,6 +104,8 @@ const ForgotPassword = () => {
             }
             }).catch((err)=>{
             console.log(err)
+            }).finally(()=>{
+                setIsLoadingNewPass(false)
             })
         }
         if(password == ""){
@@ -182,9 +196,21 @@ const ForgotPassword = () => {
         
         {/* Verify and Send Code Button */}
         <div className='w-full mt-4 flex space-x-2'>
-        <button onClick={()=>{submitCode()}} id="verifyCode" className='w-full text-white py-1 rounded-sm bg-themeBlue mt-2 text-sm disabled:bg-gray-200'>Verify Code</button>
+        <button onClick={()=>{submitCode()}} id="verifyCode" className={`${isLoading ? "bg-slate-600" : "bg-themeBlue"} w-full text-white py-1 rounded-sm bg-themeBlue mt-2 text-sm disabled:bg-gray-200`}>
+        {
+        isLoading ? (
+          <div className="typing-indicator mx-auto">
+          <div className="typing-circle"></div>
+          <div className="typing-circle"></div>
+          <div className="typing-circle"></div>
+          </div>
+        )
+        :
+        "Verify Code"
+      }
+        </button>
         <button onClick={()=>{sendCode()}} id='sendCode' className='w-full flex items-center justify-center text-white py-1 rounded-sm bg-themeBlue mt-2 text-sm disabled:bg-gray-300'>Send Code <p id="timer" className='ml-2 hidden' >{timer}</p></button>
-        
+        {/* --------------------------------------------------------- */}
         </div>
         
         {/* Password Field */}
@@ -216,7 +242,19 @@ const ForgotPassword = () => {
         <input id='showPassword' checked={isChecked} onChange={checkHandler} type="checkbox" />
         <p className='text-xs'>Show password</p>
         </div>
-        <button onClick={()=>{submitPassword();setIsLoading(true)}}  className={`${isLoading ? "bg-blue-300" : "bg-themeBlue"} w-full text-white py-1.5 rounded-sm mt-2 text-sm`}>Reset Password</button>
+        <button onClick={()=>{submitPassword()}}  className={`${isLoadingNewPass ? "bg-slate-600" : "bg-themeBlue"} w-full text-white py-1.5 rounded-sm mt-2 text-sm`}>
+        {
+        isLoadingNewPass ? (
+          <div className="typing-indicator mx-auto">
+          <div className="typing-circle"></div>
+          <div className="typing-circle"></div>
+          <div className="typing-circle"></div>
+          </div>
+        )
+        :
+        "Reset Password"
+      }
+        </button>
         </div>
         <ToastContainer />
         </div>

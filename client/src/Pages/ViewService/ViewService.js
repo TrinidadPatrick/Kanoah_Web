@@ -179,7 +179,11 @@ console.log(serviceInfo)
    <div className='grid place-items-center h-screen  w-full'>
     
     {
-      serviceInfo == null ? (<div className="lds-dual-ring w-full  h-screen"></div>) :
+      serviceInfo == null ? (
+        <div className='w-full h-screen grid place-items-center'>
+            <div class="spinner"></div>
+            </div>
+      ) :
       (
         <div className='w-full h-full bg-[#F9F9F9] md:px-12 lg:px-20 xl:px-32 pb-10 pt-20 flex flex-col'>
         <section className='w-full  h-fit flex flex-col xl:flex-row justify-between p-2 gap-1 mt-5' >

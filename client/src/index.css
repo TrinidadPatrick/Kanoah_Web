@@ -117,6 +117,99 @@
     border-color: black transparent black transparent;
     animation: lds-dual-ring 1.2s linear infinite;
   }
+  .spinner {
+    width: 72px;
+    height: 72px;
+    display: grid;
+ }
+
+.spinner::before,
+.spinner::after {
+   content: "";
+   grid-area: 1/1;
+   background: var(--c) 50%  0, 
+        var(--c) 50%  100%, 
+        var(--c) 100% 50%, 
+        var(--c) 0    50%;
+   background-size: 17.3px 17.3px;
+   background-repeat: no-repeat;
+   animation: spinner-3hs4a3 1s infinite;
+}
+
+.spinner::before {
+   --c: radial-gradient(farthest-side,#474bff 92%,#0000);
+   margin: 5.8px;
+   background-size: 11.5px 11.5px;
+   animation-timing-function: linear;
+}
+
+.spinner::after {
+   --c: radial-gradient(farthest-side,#474bff 92%,#0000);
+}
+
+@keyframes spinner-3hs4a3 {
+   100% {
+      transform: rotate(.5turn);
+   }
+}
+
+/* Checkbox for navbar */
+.icon-menu {
+  --gap: 5px;
+  --height-bar: 2.5px;
+  --pos-y-bar-one: 0;
+  --pos-y-bar-three: 0;
+  --scale-bar: 1;
+  --rotate-bar-one: 0;
+  --rotate-bar-three: 0;
+  width: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  cursor: pointer;
+  position: relative;
+}
+
+.bar {
+  position: relative;
+  height: var(--height-bar);
+  width: 100%;
+  border-radius: .5rem;
+  background-color: #f6f6f6;
+}
+
+.bar--1 {
+  top: var(--pos-y-bar-one);
+  transform: rotate(var(--rotate-bar-one));
+  transition: top 200ms 100ms, transform 100ms;
+}
+
+.bar--2 {
+  transform: scaleX(var(--scale-bar));
+  transition: transform 150ms 100ms;
+}
+
+.bar--3 {
+  bottom: var(--pos-y-bar-three);
+  transform: rotate(var(--rotate-bar-three));
+  transition: bottom 200ms 100ms, transform 100ms;
+}
+
+.check-icon:checked + .icon-menu > .bar--1 {
+  transition: top 200ms, transform 200ms 100ms;
+}
+
+.check-icon:checked + .icon-menu > .bar--3 {
+  transition: bottom 200ms, transform 200ms 100ms;
+}
+
+.check-icon:checked + .icon-menu {
+  --pos-y-bar-one: calc(var(--gap) + var(--height-bar));
+  --pos-y-bar-three: calc(var(--gap) + var(--height-bar));
+  --scale-bar: 0;
+  --rotate-bar-one: 45deg;
+  --rotate-bar-three: -45deg;
+}
 
 /* Image gallery */
 .image-gallery-original{

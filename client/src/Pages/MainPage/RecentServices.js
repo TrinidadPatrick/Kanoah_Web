@@ -12,7 +12,9 @@ import HideSourceIcon from '@mui/icons-material/HideSource';
 import ReportIcon from '@mui/icons-material/Report';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Carousel from 'react-multi-carousel';
+import http from '../../http';
 import 'react-multi-carousel/lib/styles.css';
+import { Link } from 'react-router-dom';
 
 
 
@@ -75,22 +77,66 @@ const RecentServices = () => {
     // active is provided by this lib for checking if the item is active or not.
     return (
       <button
-        className={` mx-0.5 bg-black transition-all duration-300 rounded-full mb-4 ${active ? " w-3 h-3 bg-gray-700" : "inactive bg-gray-400 w-3 h-3"}`}
+        className={` mx-0.5 bg-black transition-all duration-300 rounded-full mb-0 ${active ? " w-3 h-3 bg-gray-700" : "inactive bg-gray-400 w-3 h-3"}`}
         onClick={() => onClick()}
       >
       </button>
     );
   };
 
-  const initializeRecentServices = () =>{
-    const sorted = services.sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated))
-    const sliced = sorted.slice(0,9)
-    setNewServices(sliced)
-  }
+  // Computes the rating Average
+  const ratingAverage = (services) => {
+        return services.map((service, index) => {
+          const ratings = service.ratings
+          const totalRatings = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
+          const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / totalRatings;
+          const rounded = Math.round(ratingAverage * 100) / 100;
+          const average = rounded.toFixed(1)
+          const from = new Date(service.createdAt);
+          const to = new Date(thisDate);
+          const years = to.getFullYear() - from.getFullYear();
+          const months = to.getMonth() - from.getMonth();
+          const days = to.getDate() - from.getDate();
+          const createdAgo = years > 0 ? years + " years ago" : months > 0 ? months + `${months <= 1 ? " month ago" : " months ago"}` : days > 0  ? days + `${days <= 1 ? " day ago" : " days ago"}` : "Less than a day ago"
+          return ({
+            _id : service._id,
+            key : index,
+            basicInformation: service.basicInformation,
+            advanceInformation: service.advanceInformation,
+            address: service.address,
+            serviceHour: service.serviceHour,
+            tags: service.tags,
+            owner : service.owner,
+            galleryImages: service.galleryImages,
+            featuredImages: service.featuredImages,
+            serviceProfileImage: service.serviceProfileImage,
+            ratings : average,
+            ratingRounded : Math.floor(average),
+            totalReviews : totalRatings,
+            createdAgo : createdAgo,
+            createdAt : service.createdAt
+          });
+        });
+  };
 
-  useEffect(() => {
-    initializeRecentServices()
-  }, [])
+    // Gets all services
+    const getServices = async () => {
+      try {
+        const result = await http.get("getServices")
+        const services = result.data.service
+        const computed = ratingAverage(services)
+        const sorted = computed.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        setNewServices(sorted)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  
+    useEffect(()=>{
+      getServices()
+  
+    }, [])
+
   
 
   const openMoreOptions = (id) => {
@@ -149,38 +195,30 @@ const RecentServices = () => {
 
   {
     newServices.map((service)=>{
-      const ratings = service.rating; // Assuming "services" is the array of services
-          const ratingTotal = ratings['5star'] + ratings['4star'] + ratings['3star'] + ratings['2star'] + ratings['1star'];
-          const ratingAverage = (5 * ratings['5star'] + 4 * ratings['4star'] + 3 * ratings['3star'] + 2 * ratings['2star'] + 1 * ratings['1star']) / ratingTotal;
-          const rounded = Math.round(ratingAverage * 100) / 100;
-          const from = new Date(service.dateCreated);
-          const to = new Date(thisDate);
-          const years = to.getFullYear() - from.getFullYear();
-          const months = to.getMonth() - from.getMonth();
-          const days = to.getDate() - from.getDate();
       return (
-        <div key={service.id} className='w-full h-[400px] flex items-center justify-center  py-4'>
+        <div key={service._id} className='w-full h-fit sm:h-[400px] flex items-center justify-center  py-4'>
               {/* Cards */}
-              <div className='TRS service_card h-fit w-[80%] sm:w-[92%] sm:h-fit pb-2 rounded-lg bg-white overflow-hidden'>
-              <img className='h-48 w-full ' src={service.image} />
+              <div className='TRS semiXs:w-[400px]  sm:w-[300px] md:w-[350px] semiMd:w-[400px] lg:w-[330px] xl:w-[330px] service_card relative h-fit sm:h-fit pb-2 rounded-lg bg-white overflow-hidden'>
+              <Link to={`/explore/viewService/${service._id}`}>
+              <img className='h-[200px] w-full semiXs:h-[250px] semiXs:w-[400px] sm:h-[200px] sm:w-[300px] md:h-[200px] md:w-[350px] semiMd:h-[220px] semiMd:w-[400px]  lg:h-[200px] lg:w-[330px] xl:h-[200px] xl:w-[330px] ' src={service.serviceProfileImage} />
+              </Link>
               {/* Profile */}
-              <div className='w-16 h-16 absolute left-16 top-[11.5rem] sm:top-[11.5rem] md:top-[11.5rem] lg:top-[11.5rem] xl:top-[11.6rem] sm:left-8 rounded-full border-4 border-gray-700 bg-cover' style={{backgroundImage : `url(${service.profile})`}}></div>
-              <div className='relative mt-7 flex flex-col space-y-1 '>
+              <div className='w-16 h-16 absolute left-5 top-[10.5rem] semiXs:top-[13.5rem] sm:top-[10.5rem] semiMd:top-[11.6rem] lg:top-[10.5rem] xl:top-[10.5rem] sm:left-5 rounded-full border-4 border-gray-700 bg-cover' style={{backgroundImage : `url(${service.owner.profileImage})`}}></div>
+              <div className='relative mt-7 flex flex-col space-y-1 pe-3'>
                 {/* Service Title */}
-              <p className='text-black ml-3 font-semibold mt-2 text-lg'>{service.title}</p> 
-              <div className='flex justify-start items-center'>
-              <p className='text-gray-400 ml-3 font-medium mt-0 text-sm'>{service.owner}</p> 
-              <div className='w-1 h-1 rounded-full ml-1 bg-gray-500'></div>
-              {
-                years > 0 ? (<p className='text-xs text-gray-400 ml-1 '>{years}{years > 1 ? " years ago" : " year ago"}</p>) : months > 0 ? (<p className='text-xs text-gray-400 ml-1 '>{months}{months > 1 ? " months ago" : " month ago"}</p>) : days > 0  ? (<p className='text-xs text-gray-400 ml-1 '>{days} {days > 1 ? " days ago" : " day ago"}</p>) : (<p className='text-xs text-gray-400 ml-1 '>Less than a day ago</p>)
-              }
+              <p className='text-black ml-3 font-semibold mt-2 text-lg whitespace-nowrap overflow-hidden'>{service.basicInformation.ServiceTitle}</p>
+              <div className='flex items-center space-x-2'>
+              <p className='text-gray-400 ml-3 font-medium mt-0 text-sm'>{service.owner.firstname + service.owner.lastname}</p>
+              <span className='w-1 h-1 bg-gray-600 rounded-full'></span>
+              <p className='text-gray-400 ml-3 font-normal mt-0 text-sm'>{service.createdAgo}</p> 
               </div>
+              
               {/* More Options Button */}
               <OutsideClickHandler onOutsideClick={()=>{
                   setActiveId(null)
                 }}>
-                <MoreVertIcon onClick={()=>{openMoreOptions(service.id)}} className={`absolute ${service.id == activeId ? "text-gray-300" : "text-gray-600"} cursor-pointer hover:text-gray-300 -top-5 right-1`} />
-                <div id={service.id} className={`${service.id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200  bg-gray-50 shadow-md rounded-md -top-20 right-7`}>
+                <MoreVertIcon onClick={()=>{openMoreOptions(service._id)}} className={`absolute ${service._id == activeId ? "text-gray-300" : "text-gray-600"} cursor-pointer hover:text-gray-300 -top-5 right-1`} />
+                <div id={service._id} className={`${service._id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200  bg-gray-50 shadow-md rounded-md -top-20 right-7`}>
                 <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
                 <LibraryAddIcon />
                 <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Add to Library</p>
@@ -199,20 +237,19 @@ const RecentServices = () => {
                 </OutsideClickHandler>
                 {/* Rating */}
                 <div className='flex relative items-center ml-3 space-x-1'>
-                <StyledRating className='relative -left-1'  readOnly defaultValue={rounded} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
-                <p className='text-gray-400 text-sm font-medium'>({rounded.toFixed(1)})</p> 
+                <StyledRating className='relative -left-1'  readOnly defaultValue={service.ratingRounded} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
+                <p className='text-gray-400 text-sm font-medium'>{service.ratings}</p> 
                 <p className='text-gray-300'>|</p>
-                <p className='text-gray-700 text-sm pt-[2.5px] font-medium'>{ratingTotal + " Reviews"}</p> 
+                <p className='text-gray-700 text-sm pt-[2.5px] font-medium'>{service.totalReviews + " Reviews"}</p> 
                 </div>
                 {/* Address */}
                 <div className='flex items-center ml-2'>
                 <PlaceOutlinedIcon className='text-gray-400' />
-                <p className='mt-1 font-normal text-gray-400 ml-1 me-4 whitespace-nowrap overflow-hidden text-ellipsis'>{service.Address}</p>
+                <p className='mt-0 font-normal text-gray-400 text-sm ml-1 me-4 whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay + " " + service.address.municipality +", " + service.address.province}</p>
                 </div>
-    
               </div>
               </div>
-            </div>
+              </div>
       )
     })
   }

@@ -1,5 +1,5 @@
 import React, { useEffect, createContext, useContext } from 'react'
-import logo from '../RegisterPage/RegisterComponents/img/Logo.png'
+import logo from '../RegisterPage/RegisterComponents/img/DarkLogo.png'
 import {FaUserLarge, FaUserPlus, FaCircleUser, FaArrowTrendUp} from 'react-icons/fa6'
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -11,7 +11,9 @@ import { useNavigate } from 'react-router-dom';
 import RemoveRedEyeRoundedIcon from '@mui/icons-material/RemoveRedEyeRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import { Context } from '../Navbar/Navbar';
+import FacebookLogin from 'react-facebook-login';
 import jwtDecode from 'jwt-decode';
+import "./Login.css"
 import http from '../../http'
 
 const Login = () => {
@@ -21,6 +23,7 @@ const Login = () => {
   const [isValidPassword, setIsValidPassword] = useState(undefined)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [invalidLogin, setInvalidLogin] = useState(false)
+  const [loading, setLoading] = useState(false)
   
 
   const [userInfos, setUserInfo] = useState({
@@ -56,24 +59,55 @@ const Login = () => {
       setIsValidPassword(false)
     }
     if(password != "" && UsernameOrEmail != ""){
+      setLoading(true)
       http.post("login", {UsernameOrEmail, password}).then((res)=>{
-        console.log(res.data)
       if(res.data.status == "authenticated"){
+        setLoading(false)
         localStorage.setItem("accessToken", res.data.accessToken)
-        localStorage.setItem("refreshToken", res.data.refreshToken)
         window.location.reload(false)
-      }else if (res.data.status == "invalid username or password"){
-        setInvalidLogin(true)
-      }else if (res.data.status == "account not found"){
-        setInvalidLogin(true)
       }
 
     }).catch((err)=>{
-      console.log(err)
+      // Check the HTTP status code for error handling
+      if (err.response.status === 401) {
+        setInvalidLogin(true);
+        setLoading(false)
+
+      } else if (err.response.status === 404) {
+        setInvalidLogin(true);
+        setLoading(false)
+
+      }
+      
+    }).finally(()=>{
+      setLoading(false)
     })
     }
-    
   }
+
+  const FacebookButton = ({ onFacebookLogin }) => {
+    const responseFacebook = (response) => {
+      console.log(response); // Handle the Facebook response here
+      onFacebookLogin(response);
+    };
+  
+    return (
+      <FacebookLogin
+        appId="893435898881863"
+        autoLoad={false}
+        fields="name,email,picture"
+        callback={responseFacebook}
+      />
+    );
+  };
+
+  const handleFacebookLogin = (userData) => {
+    // Handle the user data, e.g., send it to your server for authentication
+    console.log(userData);
+  };
+
+
+
   
   return (
     
@@ -94,6 +128,8 @@ const Login = () => {
     <div className={`${invalidLogin ? "block" : "hidden"} w-full bg-red-200 py-2 mt-3 rounded-sm`}>
       <p className='text-center text-sm text-red-600'>Invalid username/email or password.</p>
     </div>
+
+    
 
     {/* Input field Container */}
     <div className='mx-auto mt-7 flex flex-col space-y-4'>
@@ -122,7 +158,22 @@ const Login = () => {
     </div>
 
     <div>
-    <button onClick={()=>{signin()}} className='w-full text-white py-1 rounded-sm bg-themeBlue mt-4'>Login</button>
+    <button onClick={()=>{signin()}} className={`${loading ? "bg-slate-600" : "bg-themeBlue"} w-full relative text-white py-2 rounded-sm  mt-4`}>
+      {/* Login */}
+      {
+        loading ? (
+          <div className="typing-indicator mx-auto">
+          <div className="typing-circle"></div>
+          <div className="typing-circle"></div>
+          <div className="typing-circle"></div>
+          </div>
+        )
+        :
+        "Login"
+      }
+    
+    </button>
+    <FacebookButton className="bg-black" onFacebookLogin={handleFacebookLogin}>S</FacebookButton>
     <p className='text-xs text-center text-gray-500 mt-2'>Dont have an account? <button onClick={()=>{setShowLogin(false);setShowSignup(true)}} className='text-blue-600'>Register now</button></p>
     </div>
     </div>       

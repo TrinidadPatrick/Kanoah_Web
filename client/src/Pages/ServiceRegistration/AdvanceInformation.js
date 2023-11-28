@@ -211,7 +211,7 @@ console.log(advanceInformation)
   <div className="w-full relative">
     <label className="block text-sm text-gray-500 font-semibold mb-2" htmlFor="contact">Service Contact</label>
     <span className='absolute top-[2.303rem] text-sm lg:text-md text-gray-400 left-2'>+63</span>
-    <input value={advanceInformation["ServiceContact"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} type="tel" id="contact" className={`${errors.ServiceContactError ? "border-red-500 border-2" : ""} w-full ps-9 p-2 text-sm lg:text-md border rounded outline-none shadow-sm" placeholder="1234567890`} />
+    <input max={10} value={advanceInformation["ServiceContact"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} type="tel" id="contact" className={`${errors.ServiceContactError ? "border-red-500 border-2" : ""} w-full ps-9 p-2 text-sm lg:text-md border rounded outline-none shadow-sm" placeholder="1234567890`} />
   </div>
 {/* Fax */}
   <div className="w-full">

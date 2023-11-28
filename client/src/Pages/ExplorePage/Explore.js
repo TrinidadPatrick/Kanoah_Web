@@ -183,26 +183,43 @@ const Explore = () => {
 
       const getUserId = () =>{
         return new Promise((resolve,reject)=>{
-          if(userId != null)
+          if(userId == null)
         {
+        }
+        else if(userId == "NoId")
+        {
+          resolve("LoggedOut")
+        }
+        else{
           resolve(userId)
         }
         })
       }
 
 
-
       // Get All services
       const getServices = async () => {
+       
         try {
           
           const res = await http.get("getServices");
+          
           const services = res.data.service;
           const result = ratingAverage(services)
           const myId = await getUserId()
+          if(myId == "LoggedOut")
+          {
+            setServiceList(result);
+            setMainServiceList(result);
+          }
+          else if(myId != "LoggedOut" && myId != null)
+          {
           const filteredService = result.filter(service => service.owner._id !== myId)
           setServiceList(filteredService);
           setMainServiceList(filteredService);
+          }
+          
+          
           return result
         } catch (err) {
           console.error("Error fetching services:", err);
@@ -378,7 +395,12 @@ const Explore = () => {
     return (
         <div className=' w-full flex h-full relative'>
         {
-          loadingPage ? (<div className="lds-dual-ring mx-auto mt-[300px] w-full h-screen"></div>) :
+          // Loading page
+          loadingPage ? (
+            <div className='w-full h-screen grid place-items-center'>
+            <div className="spinner"></div>
+            </div>
+          ) :
           (
             <>
             {/* Left Section */}

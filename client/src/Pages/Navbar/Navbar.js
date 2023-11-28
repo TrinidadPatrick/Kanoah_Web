@@ -16,6 +16,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PersonIcon from '@mui/icons-material/Person';
 import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
+import FacebookLogin from 'react-facebook-login';
 import axios from 'axios'
 import http from '../../http'
 import { useParams } from 'react-router-dom'
@@ -69,25 +70,31 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
 
     // check if Logged In
     const getUserProfile = async (token) => {
+      
       try {
         const response = await http.get('profile', {
           headers : {Authorization: `Bearer ${token}`},
         })
-        setIsLoggedIn(true)
-        getUser(response.data.user._id)
+        if(response.status == 200)
+        {
+          setIsLoggedIn(true)
+          getUser(response.data.user._id)
+        }
+        
         
         
       } catch (error) {
-          setIsLoggedIn(false)
-        console.error('Profile Error:', error.response.data.error);
+        if(error.response.status == 403 || error.response.status == 401)
+        console.error('Profile Error:', error.response.status);
         setIsLoggedIn(false)
-        navigate("/")
+        // navigate("/")
       }
     }
     // Get userInformation
     const getUser = async (id) => {
       http.get(`getUser/${id}`).then((res)=>{
         setUserInfo(res.data)
+        
         dispatch(setUserId(res.data._id));
       }).catch((err)=>{
         console.log(err)
@@ -101,6 +108,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         getUserProfile(accessToken);
         // getUser()
       }else{
+        dispatch(setUserId("NoId"));
         setIsLoggedIn(false)
       }
     }, [])
@@ -109,6 +117,15 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
       localStorage.removeItem("accessToken")
       window.location.reload()
     }
+
+    useEffect(()=>{
+      axios.get(`https://graph.facebook.com/v12.0/me?fields=id,email,name&access_token=EAAMsk0Fh50cBO6ZAteqYZAHyY7fbzKBHjDSZADvIRA4wyi42Y5t083zdh2ASzsU7Vb2PcA9ZC1dnc21XTxKgzGB105u8ZAIZBwLwNqXPKxBI4x7kjTyh5mZC9ybZA6qEw9TdECMLEeGm8NsFjeRYXGjKuO2QWWQshjJxThxmtZBabJqUL6XaF0YVpkODWIYELvfJQVecFZBsP6ZB6MCfdHO399dJZCDcCp4YlseIk62fJncZD`)
+      .then((res)=>{
+        console.log(res.data)
+      }).catch((err)=>{
+        console.log(err)
+      })
+    },[])
 
     
   return (
@@ -121,12 +138,18 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
 
 <div className='flex items-center justify-evenly'>
     {/* Dropdown button for mobile view  */}
-    <img onClick={()=>{navigate("/")}} src={Logo} className="h-9 md:h-6 lg:h-8 mr-11 hidden md:block cursor-pointer" alt="Logo"/>
-<button  onClick={()=>{handleMenu()}} className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 ">
-<span className="sr-only">Open main menu</span>
+<img onClick={()=>{navigate("/")}} src={Logo} className="h-9 md:h-6 lg:h-8 mr-11 hidden md:block cursor-pointer" alt="Logo"/>
+<button className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden ">
+{/* <span className="sr-only">Open main menu</span>
 <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15"/>
-</svg>
+</svg> */}
+<input onChange={()=>{handleMenu()}} hidden className="check-icon" id="check-icon" name="check-icon" type="checkbox"/>
+            <label className="icon-menu" htmlFor="check-icon">
+                <div className="bar bar--1"></div>
+                <div className="bar bar--2"></div>
+                <div className="bar bar--3"></div>
+            </label>
 </button>
 
 
@@ -246,7 +269,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
             categories.map((category, index)=>{
               return (
             <li key={index} className="">
-            <button className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+            <button onClick={()=>{navigate(`explore?${"category="+category.category_name}`)}} className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
           </li>
               )
             })
@@ -280,6 +303,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
 </Modal>  
 </div>
 </>
+
 </Context.Provider>
 
   )
