@@ -11,8 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import RemoveRedEyeRoundedIcon from '@mui/icons-material/RemoveRedEyeRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import { Context } from '../Navbar/Navbar';
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
-import Facebook from '../MainPage/Components/FooterIMG/square-facebook.svg'
 import jwtDecode from 'jwt-decode';
 import "./Login.css"
 import http from '../../http'
