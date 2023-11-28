@@ -140,12 +140,23 @@ const Explore = () => {
         document.getElementById("arrow-down").classList.toggle("hidden");
     }
 
+    const showMobileDropdownOptions = () => {
+      document.getElementById("Mobileoptions").classList.toggle("hidden");
+      document.getElementById("Mobilearrow-up").classList.toggle("hidden");
+      document.getElementById("Mobilearrow-down").classList.toggle("hidden");
+  }
+
     const showFilterOption = () => {
       document.getElementById("sort_options").classList.toggle("hidden");
       document.getElementById("sort_arrow-up").classList.toggle("hidden");
       document.getElementById("sort_arrow-down").classList.toggle("hidden");
   }
     
+  const showMobileFilterOption = () => {
+    document.getElementById("Mobilesort_options").classList.toggle("hidden");
+    document.getElementById("Mobilesort_arrow-up").classList.toggle("hidden");
+    document.getElementById("Mobilesort_arrow-down").classList.toggle("hidden");
+}
       // Get my current location
       useEffect(() => {
         // Use the Geolocation API to get the user's location
@@ -521,7 +532,7 @@ const Explore = () => {
           {/* Search Box */}
         <div className='flex flex-col ml-2.5 items-end relative w-full '>
         <h1 className={`${serviceList.length === 0 ? "block" : "hidden"} w-full tra text-center text-2xl`}>No Result</h1>
-        <div className="w-fit mr-5 flex space-x-2 shadow-sm self-end lg:self-start rounded-lg overflow-hidden md:max-w-xl">
+        <div className="w-[60%] md:w-fit mr-5 flex space-x-2 shadow-sm self-end lg:self-start rounded-lg overflow-hidden md:max-w-xl">
         <div className="md:flex">
         <div className="w-full">
         <div className="relative">
@@ -550,7 +561,7 @@ const Explore = () => {
                 {/* Title and Reviews*/}
                 <div className='Header_Container space-y-2 xl:space-y-0 w-full flex flex-col xl:flex-row justify-between'>
                 <div className='w-full overflow-hidden'>
-                  <h1 className='font-bold text-2xl sm:text-md md:text-xl ps-1 w-full whitespace-nowrap text-ellipsis overflow-hidden'>{service.basicInformation.ServiceTitle}</h1>
+                  <h1 className='font-bold text-xl sm:text-md md:text-xl ps-1 w-full whitespace-nowrap text-ellipsis overflow-hidden'>{service.basicInformation.ServiceTitle}</h1>
                   <div className='flex items-center space-x-2'>
                   <p className='text-sm md:text-md text-gray-400  flex items-center gap-1'><Person2OutlinedIcon  />{service.owner.firstname + " " + service.owner.lastname}</p>
                   <span className='w-1 h-1 rounded-full bg-gray-500'></span>
@@ -585,7 +596,7 @@ const Explore = () => {
                   {/* More Options Button */}
                   <OutsideClickHandler onOutsideClick={()=>{setActiveId(null)}}>
                   <MoreVertIcon onClick={()=>{openMoreOptions(service._id)}} className={` ${service._id == activeId ? "text-gray-300" : "text-gray-600"}  absolute right-1 bottom-3 cursor-pointer hover:text-gray-300`} />
-                  <div id={service.id} className={`${service._id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200 z-20  bg-white shadow-lg rounded-md right-[2rem] top-[12rem]`}>
+                  <div id={service.id} className={`${service._id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200 z-20  bg-white shadow-lg rounded-md right-[1.5rem] xl:right-[2rem] bottom-[1rem] xl:top-[12rem]`}>
                   <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
                   <LibraryAddIcon />
                   <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Add to Library</p>
@@ -641,16 +652,16 @@ const Explore = () => {
         {/* Sort box */}
         <div className='flex-none w-full relative'>
         <h1 className='font-medium text-lg mb-2'>Sort By</h1>
-        <button onClick={()=>{showFilterOption()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+        <button onClick={()=>{showMobileFilterOption()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
             <span className="select-none font-medium">{sortFilter}</span>
 
-            <svg id="sort_arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-            <svg id="sort_arrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+            <svg id="Mobilesort_arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+            <svg id="Mobilesort_arrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
         </button>
-        <div id="sort_options" className="hidden ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl">
-            <a onClick={()=>{handleSort("Recent Services");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Recent Services</a>
-            <a onClick={()=>{handleSort("Oldest Services");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Oldest Services</a>
-            <a onClick={()=>{handleSort("Most Rated");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Most Rated</a>
+        <div id="Mobilesort_options" className="hidden ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl">
+            <a onClick={()=>{handleSort("Recent Services");showMobileFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Recent Services</a>
+            <a onClick={()=>{handleSort("Oldest Services");showMobileFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Oldest Services</a>
+            <a onClick={()=>{handleSort("Most Rated");showMobileFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Most Rated</a>
         </div>
         </div>
        
@@ -660,13 +671,13 @@ const Explore = () => {
 
         <div className="flex-none w-full relative">
         <h1 className='font-medium text-lg mb-2'>Categories</h1>
-        <button onClick={()=>{showDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+        <button onClick={()=>{showMobileDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
             <span className="select-none font-medium">{selectedCategory}</span>
 
-            <svg id="arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-            <svg id="arrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+            <svg id="Mobilearrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+            <svg id="Mobilearrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
         </button>
-        <div id="options" className=" hidden ease-in duration-100 origin-top w-full h-[300px] overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl">
+        <div id="Mobileoptions" className=" hidden ease-in duration-100 origin-top w-full h-[300px] overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl">
           {
             categories
             .slice() // Create a copy of the array to avoid modifying the original array
@@ -677,7 +688,7 @@ const Explore = () => {
                   key={category.id}
                   onClick={() => {
                   handleSelectCategory(category.category_name)
-                  showDropdownOptions();
+                  showMobileDropdownOptions();
                   }}
                   className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >

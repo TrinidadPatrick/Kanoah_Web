@@ -14,6 +14,7 @@ import ServiceRegistrationPage from './Pages/ServiceRegistration/ServiceRegistra
 import ServiceSettings from './Pages/ServiceSetting/ServiceSettings';
 import Explore from './Pages/ExplorePage/Explore';
 import Chat from './Pages/ChatSystem/Chat';
+import PageNotFound from './Pages/NotFoundPage/PageNotFound';
 
 function App() {
   const NavbarLayout = () => (
@@ -36,7 +37,8 @@ function App() {
         <Route path='explore/viewService/:serviceId' element={<ViewService />} />
         <Route path='/myAccount/:optn' element={<CustomerAccount />} />
         <Route path='/serviceRegistration' element={<ServiceRegistrationPage />} />
-        <Route path='/serviceSettings' element={<ServiceSettings />} />
+        <Route path='/serviceSettings/:option' element={<ServiceSettings />} />
+        <Route path="*" element={<PageNotFound />} />
         <Route path='/' element={<MainPage />} />
         </Route>
         <Route path='/login' element={<Login />} />

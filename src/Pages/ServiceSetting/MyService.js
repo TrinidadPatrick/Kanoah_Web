@@ -61,13 +61,15 @@ const MyService = () => {
     }
   },[userId])
 
-
-  
   return (
     <div className='w-full h-screen bg-white pt-24 px-10'>
     {/* Top Layer */}
     {
-        serviceInformation == null ? ("") :
+        serviceInformation == null ? (
+          <div className='w-full h-screen grid place-items-center'>
+            <div className="spinner"></div>
+            </div>
+        ) :
         (
     <>
     <section className='flex space-x-5 '>

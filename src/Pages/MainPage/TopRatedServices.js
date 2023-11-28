@@ -83,7 +83,7 @@ const TopRatedServices = () => {
     // active is provided by this lib for checking if the item is active or not.
     return (
       <button
-        className={` mx-1 bg-black transition-all duration-300 rounded-full mb-4 ${active ? " w-[12px] max-w-[12px] h-3 bg-gray-700" : "inactive bg-gray-400 w-3 h-3"}`}
+        className={` mx-1 bg-black transition-all duration-300 rounded-full mb-0 ${active ? " w-[12px] max-w-[12px] h-3 bg-gray-700" : "inactive bg-gray-400 w-3 h-3"}`}
         onClick={() => onClick()}
       >
       </button>
@@ -206,60 +206,65 @@ const TopRatedServices = () => {
       {
       trendingServices.map((service)=>{
         return (
-          <div key={service._id} className='w-full h-[400px] flex items-center justify-center  py-4'>
-              {/* Cards */}
-              <div className='TRS service_card h-fit w-[80%] sm:w-[92%] sm:h-fit pb-2 rounded-lg bg-white overflow-hidden'>
-              <Link to={`/explore/viewService/${service._id}`}>
-              <img className='h-48 w-full cursor-pointer ' src={service.serviceProfileImage} />
-              </Link>
-              {/* Profile */}
-              <div className='w-16 h-16 absolute left-16 top-[11.5rem] sm:top-[11.5rem] md:top-[11.5rem] lg:top-[11.5rem] xl:top-[11.6rem] sm:left-8 rounded-full border-4 border-gray-700 bg-cover' style={{backgroundImage : `url(${service.owner.profileImage})`}}></div>
-              <div className='relative mt-7 flex flex-col space-y-1 '>
-                {/* Service Title */}
-              <p className='text-black ml-3 font-semibold mt-2 text-lg'>{service.basicInformation.ServiceTitle}</p> 
-              <p className='text-gray-400 ml-3 font-medium mt-0 text-sm'>{service.owner.firstname + service.owner.lastname}</p> 
-              {/* More Options Button */}
-              <OutsideClickHandler onOutsideClick={()=>{
-                  setActiveId(null)
-                }}>
-                <MoreVertIcon onClick={()=>{openMoreOptions(service._id)}} className={`absolute ${service._id == activeId ? "text-gray-300" : "text-gray-600"} cursor-pointer hover:text-gray-300 -top-5 right-1`} />
-                <div id={service._id} className={`${service._id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200  bg-gray-50 shadow-md rounded-md -top-20 right-7`}>
-                <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
-                <LibraryAddIcon />
-                <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Add to Library</p>
+          <div key={service._id} className='w-full h-fit sm:h-[400px] flex items-center justify-center  py-4'>
+                {/* Cards */}
+                <div className='TRS semiXs:w-[400px]  sm:w-[300px] md:w-[350px] semiMd:w-[400px] lg:w-[330px] xl:w-[330px] service_card relative h-fit sm:h-fit pb-2 rounded-lg bg-white overflow-hidden'>
+                <Link to={`/explore/viewService/${service._id}`}>
+                <img className='h-[200px] w-full semiXs:h-[250px] semiXs:w-[400px] sm:h-[200px] sm:w-[300px] md:h-[200px] md:w-[350px] semiMd:h-[220px] semiMd:w-[400px]  lg:h-[200px] lg:w-[330px] xl:h-[200px] xl:w-[330px] ' src={service.serviceProfileImage} />
+                </Link>
+                {/* Profile */}
+                <div className='w-16 h-16 absolute left-5 top-[10.5rem] semiXs:top-[13.5rem] sm:top-[10.5rem] semiMd:top-[11.6rem] lg:top-[10.5rem] xl:top-[10.5rem] sm:left-5 rounded-full border-4 border-gray-700 bg-cover' style={{backgroundImage : `url(${service.owner.profileImage})`}}></div>
+                <div className='relative mt-7 flex flex-col space-y-1 pe-3'>
+                  {/* Service Title */}
+                <p className='text-black ml-3 font-semibold mt-2 text-lg whitespace-nowrap overflow-hidden'>{service.basicInformation.ServiceTitle}</p>
+                <div className='flex items-center space-x-2'>
+                <p className='text-gray-400 ml-3 font-medium mt-0 text-sm'>{service.owner.firstname + service.owner.lastname}</p>
+                <span className='w-1 h-1 bg-gray-600 rounded-full'></span>
+                <p className='text-gray-400 ml-3 font-normal mt-0 text-sm'>{service.createdAgo}</p> 
                 </div>
                 
-                <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
-                <HideSourceIcon />
-                <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Do not show</p>
+                {/* More Options Button */}
+                <OutsideClickHandler onOutsideClick={()=>{
+                    setActiveId(null)
+                  }}>
+                  <MoreVertIcon onClick={()=>{openMoreOptions(service._id)}} className={`absolute ${service._id == activeId ? "text-gray-300" : "text-gray-600"} cursor-pointer hover:text-gray-300 -top-5 right-1`} />
+                  <div id={service._id} className={`${service._id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200  bg-gray-50 shadow-md rounded-md -top-20 right-7`}>
+                  <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
+                  <LibraryAddIcon />
+                  <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Add to Library</p>
+                  </div>
+                  
+                  <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
+                  <HideSourceIcon />
+                  <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Do not show</p>
+                  </div>
+                  
+                  <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
+                  <ReportIcon />
+                  <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Report</p>
+                  </div>
+                  </div>
+                  </OutsideClickHandler>
+                  {/* Rating */}
+                  <div className='flex relative items-center ml-3 space-x-1'>
+                  <StyledRating className='relative -left-1'  readOnly defaultValue={service.ratingRounded} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
+                  <p className='text-gray-400 text-sm font-medium'>{service.ratings}</p> 
+                  <p className='text-gray-300'>|</p>
+                  <p className='text-gray-700 text-sm pt-[2.5px] font-medium'>{service.totalReviews + " Reviews"}</p> 
+                  </div>
+                  {/* Address */}
+                  <div className='flex items-center ml-2'>
+                  <PlaceOutlinedIcon className='text-gray-400' />
+                  <p className='mt-0 font-normal text-gray-400 text-sm ml-1 me-4 whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay + " " + service.address.municipality +", " + service.address.province}</p>
+                  </div>
                 </div>
-                
-                <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
-                <ReportIcon />
-                <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Report</p>
                 </div>
                 </div>
-                </OutsideClickHandler>
-                {/* Rating */}
-                <div className='flex relative items-center ml-3 space-x-1'>
-                <StyledRating className='relative -left-1'  readOnly defaultValue={service.ratingRounded} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
-                <p className='text-gray-400 text-sm font-medium'>{service.ratings}</p> 
-                <p className='text-gray-300'>|</p>
-                <p className='text-gray-700 text-sm pt-[2.5px] font-medium'>{service.totalReviews + " Reviews"}</p> 
-                </div>
-                {/* Address */}
-                <div className='flex items-center ml-2'>
-                <PlaceOutlinedIcon className='text-gray-400' />
-                <p className='mt-1 font-normal text-gray-400 ml-1 me-4 whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay + " " + service.address.municipality +", " + service.address.province}</p>
-                </div>
-              </div>
-              </div>
-              </div>
-          )
-        })
+        )
+      })
       }
       
-    </Carousel>
+      </Carousel>
         </section>
     
       )

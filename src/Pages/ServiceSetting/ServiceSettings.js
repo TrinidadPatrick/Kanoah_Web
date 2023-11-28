@@ -10,28 +10,27 @@ import { useNavigate } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
+import { useParams } from 'react-router-dom';
 import Gallery from './Gallery';
 import MyService from './MyService';
+import PageNotFound from '../NotFoundPage/PageNotFound';
 
 const ServiceSettings = () => {
+  const [notFound, setNotFound] = useState(false)
+    const {option} = useParams()
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId); 
     const [access, setAccessToken] = useState(null);
     const [loading, setLoading] = useState(true)
     const navigate = useNavigate()
-    const [selectedSettings, setSelectedSettings] = useState(null)
+    const [selectedSettings, setSelectedSettings] = useState(option)
 
     // Handle the selected settings options
     const handleSelectSettings = (value) => {
-        localStorage.setItem('serviceSettings', value)
+        navigate(`/serviceSettings/${value}`)
         window.location.reload()
     }
 
-    // Get the selected settings from localstorage
-    useEffect(() => {
-      const selectedSettings = localStorage.getItem('serviceSettings')
-      setSelectedSettings(selectedSettings)
-    }, [])
 
       // Get userInformation
       const getUser = async () => {
@@ -53,17 +52,22 @@ const ServiceSettings = () => {
     }
   }, [userId])
 
+  //Check if the url is valid
+  useEffect(()=>{
+    if(option != "myService" && option != "Bookings" && option != "BookingHistory")
+    {
+      setNotFound(true)
+    }
+  },[])
 
-  //  Log the user out
-  const logout = () => {
-    localStorage.clear()
-    window.location.reload()
-  }
+// console.log(option)
   return (
 
         <div className='w-full h-screen'>
       {
-        loading ? ("") :
+
+        notFound ? (<PageNotFound />)
+        :
         (
           // Main Container
     <div className='flex w-full'>
@@ -76,9 +80,9 @@ const ServiceSettings = () => {
 
     {/* Options */}
     <div className='flex flex-col items-start mt-10 space-y-6'>
-    <div onClick={()=>{handleSelectSettings('MyService')}} className={`${selectedSettings == "MyService" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><PersonOutlinedIcon /><Link to="" className={`${selectedSettings == "MyService" ? "text-blue-800" : "text-gray-800"}`}>My Service</Link></div>
-    <div onClick={()=>{handleSelectSettings('Bookings')}} className={`${selectedSettings == "Bookings" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><BookOnlineOutlinedIcon /><Link to="" className={`${selectedSettings == "Bookings" ? "text-blue-800" : "text-gray-800"}`}>Bookings</Link></div>
-    <div onClick={()=>{handleSelectSettings('Booking History')}} className={`${selectedSettings == "Booking History" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><UpdateOutlinedIcon /><Link to="" className={`${selectedSettings == "Booking History" ? "text-blue-800" : "text-gray-800"}`}>Booking History</Link></div>
+    <div  onClick={()=>{handleSelectSettings("myService")}}  className={`${selectedSettings == "myService" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><PersonOutlinedIcon /><Link to="" className={`${selectedSettings == "myService" ? "text-blue-800" : "text-gray-800"}`}>My Service</Link></div>
+    <div  onClick={()=>{handleSelectSettings("Bookings")}}  className={`${selectedSettings == "Bookings" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><BookOnlineOutlinedIcon /><Link to="" className={`${selectedSettings == "Bookings" ? "text-blue-800" : "text-gray-800"}`}>Bookings</Link></div>
+    <div  onClick={()=>{handleSelectSettings("BookingHistory")}}  className={`${selectedSettings == "BookingHistory" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><UpdateOutlinedIcon /><Link to="" className={`${selectedSettings == "BookingHistory" ? "text-blue-800" : "text-gray-800"}`}>Booking History</Link></div>
     
     </div>
 
@@ -87,7 +91,7 @@ const ServiceSettings = () => {
 
     {/* Right section */}
     <section className='w-full h-screen'>
-    {selectedSettings == "Gallery" ? <Gallery /> : selectedSettings == "MyService" ? <MyService /> : ""}
+    {selectedSettings == "Gallery" ? <Gallery /> : selectedSettings == "myService" ? <MyService /> : ""}
     </section>
     </div>
         )

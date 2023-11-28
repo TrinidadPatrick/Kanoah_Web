@@ -18,6 +18,7 @@ import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlin
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import axios from 'axios'
 import http from '../../http'
+import logo from "../../Utilities/Logo/Logo1.png"
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
@@ -26,6 +27,7 @@ export const Context = React.createContext()
 
 
 const Navbar = () => {
+const [windowWidth, setWindowWdith] = useState(null)
 const dispatch = useDispatch();
 const userId = useSelector(selectUserId);
 const [isLoggedIn, setIsLoggedIn] = useState(undefined)
@@ -117,6 +119,21 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
       window.location.reload()
     }
 
+    // Function to handle window resize
+function handleResize() {
+  const windowWidth = window.innerWidth;
+
+  // Update your code or perform actions based on the new size
+  setWindowWdith(windowWidth)
+}
+
+// Attach the event listener to the window resize event
+window.addEventListener('resize', handleResize);
+
+// Call the function once to get the initial size
+useEffect(()=>{
+  handleResize();
+},[])
 
     
   return (
@@ -125,6 +142,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
 <div className='fixed h-fit p-0 top-0 left-0 bg-transparent w-full z-50'>
         {/* NAV BAR */}
 <nav className=" bg-themeBlue relative w-full z-20 top-0 left-0  dark:border-gray-600">
+
 <div className="px-3 md:px-10 flex  items-center justify-between mx-auto py-5">
 
 <div className='flex items-center justify-evenly'>
@@ -185,20 +203,22 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
   </div>
   
   {/* Logo */}
-  <img src={Logo} className="h-9 md:h-12 hidden sm:block md:hidden  " alt="Logo"/>
+  <img src={Logo} className="h-5 sm:h-9 md:h-12 block md:hidden  " alt="Logo"/>
   
   <div className="flex md:order-2 ">
     {/* Condition to show login and join button if logged out and show profile if Logged in */}
     {
       userInfo != null && isLoggedIn ?
       (
-        <div className='flex items-center justify-evenly space-x-5 mr-4'>
+        <div className='flex items-center justify-evenly space-x-2 sm:space-x-5 mr-4'>
           {/* chat */}
-          <Link to="chat"><ForumRoundedIcon className='text-white'/></Link>
-          <NotificationsIcon className='text-white' />
+          <Link to="chat">
+          <ForumRoundedIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white'/>
+          </Link>
+          <NotificationsIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
           <div >
             {/* PROFILE IMAGE */}
-          <img className='peer w-8 h-8 max-h-8 object-cover border-1 border-white  rounded-full' src={userInfo.profileImage} />
+          <img className='peer w-7 h-7 sm:w-8 sm:h-8 object-cover border-1 border-white  rounded-full' src={userInfo.profileImage} />
           {/* Dropdown Profile */}
           <div className="hidden absolute p-2 right-14 peer-hover:flex hover:flex w-fit rounded-md top-[3.3rem] delay-150 flex-col bg-white drop-shadow-lg overflow-hidden">
           <header className='flex border-b pb-2'>
@@ -214,7 +234,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
           </header>
           <Link to={`/myAccount/${"Profile"}`} className="px-1 py-3 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon  />Profile Settings</Link>
           <Link to='/serviceRegistration' className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
-          <Link to='/serviceSettings' className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
+          <Link to={`/serviceSettings/myService`} className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
 
           <footer className='px-1 text-red-500 border-t-1 pt-3'>
             <button onClick={()=>{signout()}} className='flex items-center gap-2'><ExitToAppOutlinedIcon />Sign out</button>
@@ -243,8 +263,12 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
 </div>
 </nav>
 {/* Mobile Components Options */}
-<div className={`${showMenu ? "relative" : "hidden"} h-[200px] relative md:hidden w-full px-3 pb-3 bg-transparent bg-black`}>
-<ul className="navbarLink flex flex-col p-4 md:p-0 font-medium border border-gray-100 rounded-lg  md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-themeBlue">
+<div className={`${showMenu ? "relative" : "hidden"} h-[200px] relative md:hidden w-full pb-3 bg-transparent bg-black`}>
+<ul className="navbarLink flex flex-col p-4 md:p-0 font-medium space-y-5  md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-themeBlue">
+      <li>
+        <Link to="/"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Home</Link>
+      </li>
+      
       <li>
         <Link to="explore"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
       </li>
