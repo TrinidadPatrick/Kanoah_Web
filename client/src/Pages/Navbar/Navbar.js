@@ -118,14 +118,6 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
       window.location.reload()
     }
 
-    useEffect(()=>{
-      axios.get(`https://graph.facebook.com/v12.0/me?fields=id,email,name&access_token=EAAMsk0Fh50cBO6ZAteqYZAHyY7fbzKBHjDSZADvIRA4wyi42Y5t083zdh2ASzsU7Vb2PcA9ZC1dnc21XTxKgzGB105u8ZAIZBwLwNqXPKxBI4x7kjTyh5mZC9ybZA6qEw9TdECMLEeGm8NsFjeRYXGjKuO2QWWQshjJxThxmtZBabJqUL6XaF0YVpkODWIYELvfJQVecFZBsP6ZB6MCfdHO399dJZCDcCp4YlseIk62fJncZD`)
-      .then((res)=>{
-        console.log(res.data)
-      }).catch((err)=>{
-        console.log(err)
-      })
-    },[])
 
     
   return (

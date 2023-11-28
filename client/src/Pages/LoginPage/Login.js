@@ -11,7 +11,8 @@ import { useNavigate } from 'react-router-dom';
 import RemoveRedEyeRoundedIcon from '@mui/icons-material/RemoveRedEyeRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
 import { Context } from '../Navbar/Navbar';
-import FacebookLogin from 'react-facebook-login';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
+import Facebook from '../MainPage/Components/FooterIMG/square-facebook.svg'
 import jwtDecode from 'jwt-decode';
 import "./Login.css"
 import http from '../../http'
@@ -85,29 +86,6 @@ const Login = () => {
     }
   }
 
-  const FacebookButton = ({ onFacebookLogin }) => {
-    const responseFacebook = (response) => {
-      console.log(response); // Handle the Facebook response here
-      onFacebookLogin(response);
-    };
-  
-    return (
-      <FacebookLogin
-        appId="893435898881863"
-        autoLoad={false}
-        fields="name,email,picture"
-        callback={responseFacebook}
-      />
-    );
-  };
-
-  const handleFacebookLogin = (userData) => {
-    // Handle the user data, e.g., send it to your server for authentication
-    console.log(userData);
-  };
-
-
-
   
   return (
     
@@ -173,7 +151,6 @@ const Login = () => {
       }
     
     </button>
-    <FacebookButton className="bg-black" onFacebookLogin={handleFacebookLogin}>S</FacebookButton>
     <p className='text-xs text-center text-gray-500 mt-2'>Dont have an account? <button onClick={()=>{setShowLogin(false);setShowSignup(true)}} className='text-blue-600'>Register now</button></p>
     </div>
     </div>       
