@@ -72,6 +72,7 @@ const Chat = () => {
 
         const myId = await setUserId()
         const result = await http.get(`getUserChats/${myId}`)
+        
         const groupedData = () =>{
             return new Promise((resolve, reject)=>{
                 const groupedData = result.data.reduce((result, obj) => {
@@ -98,7 +99,7 @@ const Chat = () => {
            const readBy = chats[chats.length - 1].readBy
            return {receiver, sentBy, conversationId, serviceInquired, latestChat : chats[chats.length -1].message.content, latestChatTime : chats[chats.length -1].message.timestamp, dateSent : chats[chats.length -1].message.date, readBy}
             })
-          
+           
           setAllContacts(allContacts)
           setAllChats(allChat)
           //So if the conversation is a first chat, automatically retreive that message
@@ -208,7 +209,7 @@ const Chat = () => {
                         const users = res.data
                         const receiver = users.find(user => user.username == to)
                        
-                        setRecipient({_id : receiver._id, username : receiver.username, profileImage : receiver.profileImage })
+                        setRecipient({_id : receiver._id, username : receiver.username, profileImage : receiver.profileImage, fullname : receiver.firstname + ' ' + receiver.lastname })
                         setConversationId('')
                     })
                    
@@ -216,7 +217,7 @@ const Chat = () => {
                 else
                 {
                 
-                setRecipient({_id : test.receiver[0]._id, username :test.receiver[0].username, profileImage :test.receiver[0].profileImage })
+                setRecipient({_id : test.receiver[0]._id, username :test.receiver[0].username, profileImage :test.receiver[0].profileImage, fullname : test.receiver[0].firstname + ' ' + test.receiver[0].lastname })
                 setConversationId(test.conversationId)
                 setSearchParams({convoId : test.conversationId, to, service : service})
                 }
@@ -233,6 +234,7 @@ const Chat = () => {
         {
             getUserChats().then((res)=>{
                 const filtered = res.allContacts.find(contact => contact.conversationId == convoId)
+                console.log(filtered)
                 // If there is not result
                 if(filtered == undefined)
                 {
@@ -242,7 +244,7 @@ const Chat = () => {
                 else{
                     setServerError(false)
                     setSearchParams({convoId : filtered.conversationId, to : filtered.receiver[0].username, service : filtered.serviceInquired._id})
-                    setRecipient({_id: filtered.receiver[0]._id, username : filtered.receiver[0].username, profileImage : filtered.receiver[0].profileImage, serviceInquired : filtered.serviceInquired})
+                    setRecipient({_id: filtered.receiver[0]._id, username : filtered.receiver[0].username, profileImage : filtered.receiver[0].profileImage, serviceInquired : filtered.serviceInquired, fullname : filtered.receiver[0].firstname + ' ' + filtered.receiver[0].lastname})
                 }
                 
             })
@@ -255,7 +257,7 @@ const Chat = () => {
                 const filtered = res.allContacts.find(contact => contact.conversationId == convoId)
                 
                 setSearchParams({convoId : convoId, to : filtered.receiver[0].username, service : service})
-                setRecipient({_id: filtered.receiver[0]._id, username : filtered.receiver[0].username, profileImage : filtered.receiver[0].profileImage, serviceInquired : filtered.serviceInquired})
+                setRecipient({_id: filtered.receiver[0]._id, username : filtered.receiver[0].username, profileImage : filtered.receiver[0].profileImage, serviceInquired : filtered.serviceInquired, fullname : filtered.receiver[0].firstname + ' ' + filtered.receiver[0].lastname})
             })
             setConversationId(convoId)
         }
@@ -273,9 +275,9 @@ const Chat = () => {
         }
     }, [recipient])
 
-    setTimeout(()=>{
-    getUserChats()
-    },1000)
+    // setTimeout(()=>{
+    // getUserChats()
+    // },1000)
 
     // Handle the reading of message
     const handleReadMessage = async (conversationIdParam) => {
@@ -297,8 +299,7 @@ const Chat = () => {
         
     }
 
-
-// console.log(allContacts)
+    console.log(recipient)
   return (
     <div className='w-full h-screen grid place-items-center'>
     {
@@ -346,11 +347,11 @@ const Chat = () => {
             const ampm = contact.latestChatTime.split(' ')
             const splitted = contact.latestChatTime.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
             return (
-            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId);setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired});setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username});handleReadMessage(contact.conversationId)}}  key={index} >
+            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId);setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired, fullname : contact.receiver[0].firstname + " " + contact.receiver[0].lastname});setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username});handleReadMessage(contact.conversationId)}}  key={index} >
             <img className='w-11 h-11 rounded-full object-cover' src={contact.receiver[0].profileImage} alt="Profile" />
             <div className=' h-fit p-0 w-full'>
             <div className='flex w-full justify-between items-center'>
-            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold" : "font-normal"}  cursor-pointer text-lg block  `}>{contact.receiver[0].username}</span>
+            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold" : "font-normal"}  cursor-pointer text-lg block  `}>{contact.receiver[0].firstname + " " + contact.receiver[0].lastname}</span>
             <span className='cursor-pointer text-xs font-medium text-gray-600'>{splitted}</span>
             </div>
             <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold" : "font-normal"} cursor-pointer text-xs text-gray-600`}>{contact.sentBy._id == sender._id ? "You: " : ""}</span>
@@ -371,7 +372,7 @@ const Chat = () => {
             <div className='w-full h-full bg-white justify-start flex flex-col shadow-md rounded-lg px-2'>
             <div className='w-full p-3  bg-white border-b-2 shadow-sm flex space-x-2 items-center object-contain'>
                 <img className='w-10 h-10 object-cover origin-center rounded-full' src={recipient.profileImage} />
-                <p className='text-themeBlue text-xl font-semibold'>{recipient.username}</p>
+                <p className='text-themeBlue text-xl font-semibold'>{recipient.fullname}</p>
                 <span className='w-1 h-1 rounded-full bg-themeBlue'></span>
                 {
                     recipient.serviceInquired == undefined ? (<p className='text-themeBlue font-semibold'>{serviceFromParam}</p>)

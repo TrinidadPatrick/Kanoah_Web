@@ -276,7 +276,7 @@ const ViewService = () => {
           <div className='flex my-2'>
             {
               serviceInfo.advanceInformation.ServiceOptions.map((options, index)=>(
-                <p key={index} className='w-32 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>{options}</p>
+                <p key={index} className='px-3 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>{options}</p>
               ))
             }
           
@@ -362,7 +362,7 @@ const ViewService = () => {
         <article className='w-full mt-5'>
           <div className='misc_container py-2 px-5 bg-white rounded-md'>
           <h1 className='text-3xl font-semibold mt-4 mb-5'>Service Schedule</h1>
-          <div className='grid grid-cols-5 gap-5 py-1 w-full'>
+          <div className='grid semiXs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 py-1 w-full'>
           {
             serviceInfo.serviceHour.map((sched, index)=>{
               return(
@@ -399,7 +399,7 @@ const ViewService = () => {
         <div className=' w-full max-h-[550px] bg-white rounded-lg h-[550px] border-2 px-6 relative'>
         <h1 className='text-4xl text-center font-semibold mt-0 bg-white p-4 sticky top-0 z-10'>Gallery</h1>
         <div className='galleryContainer bg-white mb-2 max-h-[460px] overflow-auto'>
-        <ResponsiveGallery mediaClassName="hello" mediaStyle={{borderRadius : "5px"}} key={serviceInfo.galleryImages} onClick={()=>{setOpen(true)}} mediaMaxWidth={{xxl: 100}} colsPadding={{xs:2,s:2,m:2,l:2, xl:2,xxl:2}} useLightBox={false} numOfMediaPerRow={{xs:1,s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={serviceInfo.galleryImages} />
+        <ResponsiveGallery mediaClassName="hello" mediaStyle={{borderRadius : "5px"}} key={serviceInfo.galleryImages} onClick={()=>{setOpen(true)}} mediaMaxWidth={{xxl: 100}} colsPadding={{xs:1,s:2,m:2,l:2, xl:2,xxl:2}} useLightBox={false} numOfMediaPerRow={{xs:1,s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={serviceInfo.galleryImages} />
         </div>
         <Lightbox
         plugins={[Download,Fullscreen]}
