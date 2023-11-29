@@ -17,6 +17,7 @@ const Chat = () => {
     const convoId = searchParams.get('convoId')
     const to = searchParams.get('to')
     const service = searchParams.get('service')
+    const [serviceFromParam, setServiceFromParam] = useState('')
 
     const [loading, setLoading] = useState(true)
     const [serverError, setServerError] = useState(false)
@@ -91,7 +92,7 @@ const Chat = () => {
         const allContacts = allChat.map((chats)=>{
            const receiver =  chats[0].participants.filter(chat => chat._id != myId)
            const conversationId = chats[0].conversationId
-           const serviceInquired = chats[0].serviceInquired.basicInformation.ServiceTitle
+           const serviceInquired = chats[0].serviceInquired
            return {receiver, conversationId, serviceInquired, latestChat : chats[chats.length -1].message.content, latestChatTime : chats[chats.length -1].message.timestamp, dateSent : chats[chats.length -1].message.date}
             })
           
@@ -150,6 +151,14 @@ const Chat = () => {
 
     }
 
+
+    useEffect(()=>{
+        http.get(`getServiceInfo/${service}`).then((res)=>{
+            setServiceFromParam(res.data.service.basicInformation.ServiceTitle)
+        }).catch((err)=>{console.log(err)})
+    },[])
+
+
     // Go back page
     const goBack = () => {
         window.history.back();
@@ -168,9 +177,8 @@ const Chat = () => {
             
             const setInitialConversationId = async () => {
                 const contacts =  await (await getUserChats()).allContacts
-                console.log(contacts)
                 setConversationId(contacts[0].conversationId)
-                setSearchParams({convoId : contacts[0].conversationId, to : contacts[0].receiver[0].username, service : contacts[0].serviceInquired})
+                setSearchParams({convoId : contacts[0].conversationId, to : contacts[0].receiver[0].username, service : contacts[0].serviceInquired._id})
                 if(contacts[0].receiver[0]._id != sender._id)
                 {
                     setRecipient({_id : contacts[0].receiver[0]._id, username : contacts[0].receiver[0].username, profileImage : contacts[0].receiver[0].profileImage, serviceInquired : contacts[0].serviceInquired})
@@ -228,9 +236,8 @@ const Chat = () => {
                     setServerError(true)
                 }
                 else{
-                    
                     setServerError(false)
-                    setSearchParams({convoId : filtered.conversationId, to : filtered.receiver[0].username, service : filtered.serviceInquired})
+                    setSearchParams({convoId : filtered.conversationId, to : filtered.receiver[0].username, service : filtered.serviceInquired._id})
                     setRecipient({_id: filtered.receiver[0]._id, username : filtered.receiver[0].username, profileImage : filtered.receiver[0].profileImage, serviceInquired : filtered.serviceInquired})
                 }
                 
@@ -262,11 +269,13 @@ const Chat = () => {
         }
     }, [recipient])
 
-    setTimeout(()=>{
-    getUserChats()
-    },1000)
+    // setTimeout(()=>{
+    // getUserChats()
+    // },1000)
+        
 
-console.log(activeConversation)
+        
+
   return (
     <div className='w-full h-screen grid place-items-center'>
     {
@@ -306,28 +315,26 @@ console.log(activeConversation)
             <input className='rounded-full outline-none border-2 p-2 ps-10 w-full' type="text" placeholder='Search..'/>
             </div>
             {
-                allContacts.sort((a,b)=>{
-                    const timeA = new Date(`${a.dateSent} ${a.latestChatTime}`);
-                    const timeB = new Date(`${b.dateSent} ${b.latestChatTime}`);
+            allContacts.sort((a,b)=>{
+            const timeA = new Date(`${a.dateSent} ${a.latestChatTime}`);
+            const timeB = new Date(`${b.dateSent} ${b.latestChatTime}`);
 
-                   return timeB - timeA
-                }).map((contact,index)=>{
-                    console.log(contact)
-                    const ampm = contact.latestChatTime.split(' ')
-                    const splitted = contact.latestChatTime.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
-                    return (
-                        <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId);setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired});setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username})}}  key={index} >
-                        <img className='w-11 h-11 rounded-full object-cover' src={contact.receiver[0].profileImage} alt="Profile" />
-                        <div className=' h-fit p-0 w-full'>
-                        <div className='flex w-full justify-between items-center'>
-                        <span className='cursor-pointer text-lg block  font-semibold'>{contact.receiver[0].username}</span>
-                        <span className='cursor-pointer text-xs font-medium text-gray-600'>{splitted}</span>
-                        </div>
-                        <span className='cursor-pointer text-xs font-medium text-gray-600'>{contact.latestChat}</span>
-                        </div>
-        
-                    </div>
-                    )
+            return timeB - timeA
+            }).map((contact,index)=>{
+            const ampm = contact.latestChatTime.split(' ')
+            const splitted = contact.latestChatTime.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
+            return (
+            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId);setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired});setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username})}}  key={index} >
+            <img className='w-11 h-11 rounded-full object-cover' src={contact.receiver[0].profileImage} alt="Profile" />
+            <div className=' h-fit p-0 w-full'>
+            <div className='flex w-full justify-between items-center'>
+            <span className='cursor-pointer text-lg block  font-semibold'>{contact.receiver[0].username}</span>
+            <span className='cursor-pointer text-xs font-medium text-gray-600'>{splitted}</span>
+            </div>
+            <span className='cursor-pointer text-xs font-medium text-gray-600'>{contact.latestChat}</span>
+            </div>
+            </div>
+            )
                     
 })
             }
@@ -343,7 +350,12 @@ console.log(activeConversation)
                 <img className='w-10 h-10 object-cover origin-center rounded-full' src={recipient.profileImage} />
                 <p className='text-themeBlue text-xl font-semibold'>{recipient.username}</p>
                 <span className='w-1 h-1 rounded-full bg-themeBlue'></span>
-                <p className='text-themeBlue font-semibold'>{recipient.serviceInquired}</p>
+                {
+                    recipient.serviceInquired == undefined ? (<p className='text-themeBlue font-semibold'>{serviceFromParam}</p>)
+                    :
+                    <p className='text-themeBlue font-semibold'>{recipient.serviceInquired.basicInformation.ServiceTitle}</p>
+                }
+                {/* <p className='text-themeBlue font-semibold'>{recipient.serviceInquired.basicInformation.ServiceTitle}</p> */}
             </div>
             {/* Messages Content */}
             <ScrollToBottom  className='w-full flex h-full flex-col  overflow-auto '>
@@ -352,24 +364,66 @@ console.log(activeConversation)
             {
             allChats
             .filter((chat) => chat[0].conversationId === conversationId)
-            .map((chats, index) => (
-              chats.map((chat)=>{
-                const ampm = chat.message.timestamp.split(' ')
-                    const splitted = chat.message.timestamp.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
+            .map((chats, index) => {
+            const formatDate = (dateString) => {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const date = new Date(dateString);
+            return date.toLocaleDateString(undefined, options);
+            };
+
+            // Group messages by date
+            const groupedMessages = chats.reduce((acc, message) => {
+            const dateKey = message.message.date.split('T')[0]; // Use date part as key
+            acc[dateKey] = acc[dateKey] || [];
+            acc[dateKey].push(message);
+            return acc;
+            }, {});
+
                 return (
-                <div className={`${chat.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={chat._id}>
-                    <div className={` flex items-center ${chat.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
+                    <div key={index}>
+                      {/* <h2>Chat with {serviceProviderName}</h2> */}
+                      {/* Display messages grouped by date */}
+                      {Object.keys(groupedMessages).map((dateKey) => (
+                        <div key={dateKey}>
+                          <div className="flex items-center">
+                            <div className="flex-1 border-t border-gray-400"></div>
+                            <div className="mx-4 text-sm text-center my-2 text-gray-400">{formatDate(dateKey)}</div>
+                            <div className="flex-1 border-t border-gray-400"></div>
+                            </div>
+                          {groupedMessages[dateKey].map((message, index) => {
+                            const ampm = message.message.timestamp.split(' ')
+                            const splitted = message.message.timestamp.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
+                           return (
+                            <div className={`${message.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={message._id}>
+                    <div className={` flex items-center ${message.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
                     <p className='text-semiXs mx-2'>{splitted}</p>
-                    <p className={`${chat.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 rounded-md px-3 py-3"} shadow-md`}>{chat.message.content}</p>
-                    <img className='w-7 h-7 rounded-full object-cover' src={chat.message.sender._id == sender._id ? chat.message.sender.profileImage : chat.message.sender.profileImage} />
+                    <p className={`${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 rounded-md px-3 py-3"} shadow-md`}>{message.message.content}</p>
+                    <img className='w-7 h-7 rounded-full object-cover' src={message.message.sender._id == sender._id ? message.message.sender.profileImage : message.message.sender.profileImage} />
                     </div>
                 </div>
-                )
+                           )
+            })}
+                        </div>
+                      ))}
+                    </div>
+                  );
+            //   chats.map((chat)=>{
+                // const ampm = chat.message.timestamp.split(' ')
+                //     const splitted = chat.message.timestamp.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
+            //     return (
+                // <div className={`${chat.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={chat._id}>
+                //     <div className={` flex items-center ${chat.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
+                //     <p className='text-semiXs mx-2'>{splitted}</p>
+                //     <p className={`${chat.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 rounded-md px-3 py-3"} shadow-md`}>{chat.message.content}</p>
+                //     <img className='w-7 h-7 rounded-full object-cover' src={chat.message.sender._id == sender._id ? chat.message.sender.profileImage : chat.message.sender.profileImage} />
+                //     </div>
+                // </div>
+            //     )
                 
                 
+            // })
             })
-            ))
-        }     
+            }     
             {/* Sender Message */}
             <p>{message}</p>
             {/* </div> */}
@@ -378,11 +432,9 @@ console.log(activeConversation)
             <div className='w-full p-2 flex items-center'>
             <input className='p-2 w-full outline-none border rounded-lg bg-slate-100 justify-self-end' value={typingMessage} onChange={(e)=>{setTypingMessage(e.target.value)}} onKeyDown={(e)=>{if(e.key === "Enter"){handleMessage(e.target.value)}}} type='text' placeholder='Enter message'  />
             <button className='p-2 px-4'>
-            <SendOutlinedIcon />
-            </button>
-            
-            </div>
-            
+            <SendOutlinedIcon onClick={()=>{handleMessage(typingMessage)}} />
+            </button>   
+            </div>     
             </div>
             </section>
             </div>
