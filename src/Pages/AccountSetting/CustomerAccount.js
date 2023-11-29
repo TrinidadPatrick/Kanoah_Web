@@ -20,11 +20,6 @@ const CustomerAccount = () => {
 
    
 
-    // Handle the selected settings options
-    const handleSelectSettings = (value) => {
-        localStorage.setItem('settings', value)
-        window.location.reload()
-    }
 
     // Get the selected settings from localstorage
     useEffect(() => {

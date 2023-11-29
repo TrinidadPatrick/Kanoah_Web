@@ -40,7 +40,7 @@ const Register = () => {
   const [isContactExist, setIsContactExist] = useState(undefined)
   const [isUsernameExist, setIsUsernameExist] = useState(undefined)
   const [emailSent, setEmailSent] = useState(false)
-  const [registerPage, setRegisterPage] = useState(2)
+  const [registerPage, setRegisterPage] = useState(1)
   const [acceptedTNC, setAcceptedTNC] = useState(false)
   const [otp, setOtp] = useState('')
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
