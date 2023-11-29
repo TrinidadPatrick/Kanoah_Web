@@ -275,9 +275,9 @@ const Chat = () => {
         }
     }, [recipient])
 
-    // setTimeout(()=>{
-    // getUserChats()
-    // },1000)
+    setTimeout(()=>{
+    getUserChats()
+    },1000)
 
     // Handle the reading of message
     const handleReadMessage = async (conversationIdParam) => {
