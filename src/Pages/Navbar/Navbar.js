@@ -146,7 +146,7 @@ useEffect(()=>{
 <div className="px-3 md:px-10 flex  items-center justify-between mx-auto py-5">
 
 <div className='flex items-center justify-evenly'>
-    {/* Dropdown button for mobile view  */}
+{/* Dropdown button for mobile view  */}
 <img onClick={()=>{navigate("/")}} src={Logo} className="h-9 md:h-6 lg:h-8 mr-11 hidden md:block cursor-pointer" alt="Logo"/>
 <button className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden ">
 {/* <span className="sr-only">Open main menu</span>
@@ -181,7 +181,7 @@ useEffect(()=>{
             categories.map((category, index)=>{
               return (
             <li key={index} className="">
-            <button onClick={()=>{navigate(`explore?${"category="+category.category_name}`)}} className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+            <button onClick={()=>{navigate(`explore?${"category="+category.category_name}`);window.location.reload()}} className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
           </li>
               )
             })
@@ -232,9 +232,9 @@ useEffect(()=>{
           </div>
           
           </header>
-          <Link to={`/myAccount/${"Profile"}`} className="px-1 py-3 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon  />Profile Settings</Link>
-          <Link to='/serviceRegistration' className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
-          <Link to={`/serviceSettings/myService`} className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
+          <Link to={`/myAccount/${"Profile"}`} onClick={()=>{window.location.reload()}} className="px-1 py-3 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon  />Profile Settings</Link>
+          <Link to='/serviceRegistration' onClick={()=>{window.location.reload()}} className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
+          <Link to={`/serviceSettings/myService`} onClick={()=>{window.location.reload()}} className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
 
           <footer className='px-1 text-red-500 border-t-1 pt-3'>
             <button onClick={()=>{signout()}} className='flex items-center gap-2'><ExitToAppOutlinedIcon />Sign out</button>
@@ -284,7 +284,7 @@ useEffect(()=>{
             categories.map((category, index)=>{
               return (
             <li key={index} className="">
-            <button onClick={()=>{navigate(`explore?${"category="+category.category_name}`)}} className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+            <button onClick={()=>{navigate(`explore?${"category="+category.category_name}`);window.location.reload()}} className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
           </li>
               )
             })

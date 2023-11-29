@@ -532,12 +532,12 @@ const Explore = () => {
           {/* Search Box */}
         <div className='flex flex-col ml-2.5 items-end relative w-full '>
         <h1 className={`${serviceList.length === 0 ? "block" : "hidden"} w-full tra text-center text-2xl`}>No Result</h1>
-        <div className="w-[60%] md:w-fit mr-5 flex space-x-2 shadow-sm self-end lg:self-start rounded-lg overflow-hidden md:max-w-xl">
-        <div className="md:flex">
+        <div className="w-[50%] sm:w-fit mr-5 flex space-x-2 shadow-sm self-end lg:self-start rounded-lg overflow-hidden md:max-w-xl">
+        <div className="md:flex w-full">
         <div className="w-full">
         <div className="relative">
           <SearchOutlinedIcon className="absolute text-gray-500 top-[0.9rem] left-4"/>
-          <input value={searchInput} onChange={(e)=>{handleSearchInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSubmitSearch();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search :searchInput})}}} type="text" className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" placeholder='Search'/>
+          <input className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" value={searchInput} onChange={(e)=>{handleSearchInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSubmitSearch();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search :searchInput})}}} type="text"  placeholder='Search'/>
         </div> 
         
         </div>
