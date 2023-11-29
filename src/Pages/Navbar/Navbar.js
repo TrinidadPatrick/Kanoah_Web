@@ -309,7 +309,7 @@ useEffect(()=>{
     </div>
   
 {/* Modal */}
-<Modal open={open} onClose={handleClose}> 
+<Modal open={open} onClose={handleClose} className='mt-20'> 
 <Box sx={style} style={{height: "fitContent", width: "fitContent"}}> 
 {
   showLogin ? <Login /> : showSignup ? <Register /> : showFP ? <ForgotPassword /> :""

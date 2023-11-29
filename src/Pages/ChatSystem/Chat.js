@@ -8,6 +8,7 @@ import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import ScrollToBottom from 'react-scroll-to-bottom';
 import http from '../../http'
 
+
 const Chat = () => {
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId); 
@@ -91,9 +92,11 @@ const Chat = () => {
         //Set all contacts by setting the receiver and setting conversation id
         const allContacts = allChat.map((chats)=>{
            const receiver =  chats[0].participants.filter(chat => chat._id != myId)
+           const sentBy = chats[chats.length -1].message.sender
            const conversationId = chats[0].conversationId
            const serviceInquired = chats[0].serviceInquired
-           return {receiver, conversationId, serviceInquired, latestChat : chats[chats.length -1].message.content, latestChatTime : chats[chats.length -1].message.timestamp, dateSent : chats[chats.length -1].message.date}
+           const readBy = chats[chats.length - 1].readBy
+           return {receiver, sentBy, conversationId, serviceInquired, latestChat : chats[chats.length -1].message.content, latestChatTime : chats[chats.length -1].message.timestamp, dateSent : chats[chats.length -1].message.date, readBy}
             })
           
           setAllContacts(allContacts)
@@ -121,13 +124,14 @@ const Chat = () => {
     return allUsersInfo
 }
 
-    // Handles the messages 
+    // Handles the messages send
     const handleMessage = async (message) => {
 
     const messageData = {
         conversationId : conversationId,
         participants: [sender._id, recipient._id],
         serviceInquired : service,
+        readBy : [sender._id],
         messages: 
             {
                 sender: sender._id,
@@ -139,9 +143,9 @@ const Chat = () => {
         
     }
 
+
     try {
         const result = await http.post('sendChat', messageData)
-        console.log(result.data)
         getUserChats()
         setTypingMessage("")
     } catch (error) {
@@ -269,13 +273,32 @@ const Chat = () => {
         }
     }, [recipient])
 
-    // setTimeout(()=>{
-    // getUserChats()
-    // },1000)
-        
+    setTimeout(()=>{
+    getUserChats()
+    },1000)
 
-        
+    // Handle the reading of message
+    const handleReadMessage = async (conversationIdParam) => {
+                let updatedReadBy = []
+                const convo = allChats.find(chats => chats[0].conversationId == conversationIdParam)
+                const unReadMessages = convo.filter(chat => !chat.readBy.includes(sender._id))
 
+                unReadMessages.forEach((message)=>{
+                    const newMessage = [...unReadMessages]
+                    message.readBy.push(sender._id)
+                    updatedReadBy = newMessage[0].readBy
+                })
+
+                if(updatedReadBy.length !== 0)
+                {
+                    await http.post('readChat', {updatedReadBy, conversationIdParam}).then((res)=>console.log(res.data)).catch((err)=>console.error(err))
+                }
+        
+        
+    }
+
+
+// console.log(allContacts)
   return (
     <div className='w-full h-screen grid place-items-center'>
     {
@@ -318,20 +341,20 @@ const Chat = () => {
             allContacts.sort((a,b)=>{
             const timeA = new Date(`${a.dateSent} ${a.latestChatTime}`);
             const timeB = new Date(`${b.dateSent} ${b.latestChatTime}`);
-
             return timeB - timeA
             }).map((contact,index)=>{
             const ampm = contact.latestChatTime.split(' ')
             const splitted = contact.latestChatTime.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
             return (
-            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId);setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired});setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username})}}  key={index} >
+            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId);setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired});setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username});handleReadMessage(contact.conversationId)}}  key={index} >
             <img className='w-11 h-11 rounded-full object-cover' src={contact.receiver[0].profileImage} alt="Profile" />
             <div className=' h-fit p-0 w-full'>
             <div className='flex w-full justify-between items-center'>
-            <span className='cursor-pointer text-lg block  font-semibold'>{contact.receiver[0].username}</span>
+            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold" : "font-normal"}  cursor-pointer text-lg block  `}>{contact.receiver[0].username}</span>
             <span className='cursor-pointer text-xs font-medium text-gray-600'>{splitted}</span>
             </div>
-            <span className='cursor-pointer text-xs font-medium text-gray-600'>{contact.latestChat}</span>
+            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold" : "font-normal"} cursor-pointer text-xs text-gray-600`}>{contact.sentBy._id == sender._id ? "You: " : ""}</span>
+            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold" : "font-normal"} cursor-pointer text-xs text-gray-600`}>{contact.latestChat}</span>
             </div>
             </div>
             )
