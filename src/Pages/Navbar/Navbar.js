@@ -93,7 +93,10 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
     }
     // Get userInformation
     const getUser = async (id) => {
-      http.get(`getUser/${id}`).then((res)=>{
+      const token = localStorage.getItem('accessToken')
+      http.get(`getUser/${id}`,{
+        headers : {Authorization: `Bearer ${token}`},
+      }).then((res)=>{
         setUserInfo(res.data)
         
         dispatch(setUserId(res.data._id));
@@ -135,6 +138,24 @@ useEffect(()=>{
   handleResize();
 },[])
 
+useEffect(()=>{
+
+  const getAllUsers = async () =>{
+    const token = localStorage.getItem('accessToken')
+    try {
+      const result = await http.get('getUsers',{
+        headers : {Authorization: `Bearer ${token}`},
+      })
+
+      // console.log(result.data)
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+  getAllUsers() 
+},[])
+
     
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
@@ -149,10 +170,6 @@ useEffect(()=>{
 {/* Dropdown button for mobile view  */}
 <img onClick={()=>{navigate("/")}} src={Logo} className="h-9 md:h-6 lg:h-8 mr-11 hidden md:block cursor-pointer" alt="Logo"/>
 <button className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden ">
-{/* <span className="sr-only">Open main menu</span>
-<svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-<path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15"/>
-</svg> */}
 <input onChange={()=>{handleMenu()}} hidden className="check-icon" id="check-icon" name="check-icon" type="checkbox"/>
             <label className="icon-menu" htmlFor="check-icon">
                 <div className="bar bar--1"></div>

@@ -6,10 +6,12 @@ import { useSearchParams } from 'react-router-dom';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import ScrollToBottom from 'react-scroll-to-bottom';
+import { useNavigate } from 'react-router-dom';
 import http from '../../http'
 
 
 const Chat = () => {
+  const navigate = useNavigate()
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId); 
     const [allUsers, setAllUsers] = useState([])
@@ -60,10 +62,8 @@ const Chat = () => {
 
   //Gets all users
   const getUsers = async () => {
-    const result = await http.get('getUsers')
     const myId = await setUserId()
-    const users = result.data
-    fetchUsers(users, myId) 
+    fetchUsers(myId) 
     
   }
 
@@ -91,14 +91,43 @@ const Chat = () => {
         
         const allChat = await groupedData()
         //Set all contacts by setting the receiver and setting conversation id
-        const allContacts = allChat.map((chats)=>{
-           const receiver =  chats[0].participants.filter(chat => chat._id != myId)
-           const sentBy = chats[chats.length -1].message.sender
-           const conversationId = chats[0].conversationId
-           const serviceInquired = chats[0].serviceInquired
-           const readBy = chats[chats.length - 1].readBy
-           return {receiver, sentBy, conversationId, serviceInquired, latestChat : chats[chats.length -1].message.content, latestChatTime : chats[chats.length -1].message.timestamp, dateSent : chats[chats.length -1].message.date, readBy}
-            })
+        const allContacts = allChat.map((chats) => {
+          if (!chats || !chats[0] || !chats[0].participants || !chats[chats.length - 1]) {
+            // Handle cases where essential properties are undefined
+            return null;
+          }
+        
+          const receiver = chats[0].participants.filter((chat) => chat._id != myId);
+          const sentBy = chats[chats.length - 1].message.sender;
+          const conversationId = chats[0].conversationId;
+          const serviceInquired = chats[0].serviceInquired;
+          const latestChat = chats[chats.length - 1].message.content;
+          const latestChatTime = chats[chats.length - 1].message.timestamp;
+          const dateSent = chats[chats.length - 1].message.date;
+          const readBy = chats[chats.length - 1].readBy;
+        
+          // Ensure that essential properties are not undefined before returning the object
+          if (receiver && sentBy && conversationId && serviceInquired && latestChat && latestChatTime && dateSent && readBy) {
+            return {
+              receiver,
+              sentBy,
+              conversationId,
+              serviceInquired,
+              latestChat,
+              latestChatTime,
+              dateSent,
+              readBy,
+            };
+          }
+        
+          return null; // Handle cases where essential properties are undefined
+        });
+        
+        // Filter out null values from the array (resulting from cases where essential properties are undefined)
+        const filteredContacts = allContacts.filter((contact) => contact !== null);
+        
+        // Now, 'filteredContacts' contains only valid contact objects without undefined properties
+        
            
           setAllContacts(allContacts)
           setAllChats(allChat)
@@ -117,13 +146,26 @@ const Chat = () => {
     }
     
   //Sets the users except the active user, set my username
-     function fetchUsers(users, myId){ 
-    const allUsersInfo = users.filter(users => users._id != myId)
-    const me = users.filter(users => users._id == myId)
-    setSender({username : me[0].username, _id : me[0]._id})
-    setAllUsers(allUsersInfo)
-    return allUsersInfo
+    async function fetchUsers(myId){ 
+    const token = localStorage.getItem('accessToken')
+    if(!token)
+    {
+      navigate('/')
+    }
+    else{
+      try {
+        const myInfo = await http.get(`getUser/${myId}`,{
+          headers : {Authorization: `Bearer ${token}`},
+        })
+      const me = myInfo.data
+      setSender({username : me.username, _id : me._id, profileImage : me.profileImage})
+      } catch (error) {
+        navigate('/')
+      }
+    }
+    
 }
+
 
     // Handles the messages send
     const handleMessage = async (message) => {
@@ -133,20 +175,27 @@ const Chat = () => {
         participants: [sender._id, recipient._id],
         serviceInquired : service,
         readBy : [sender._id],
-        messages: 
+        message: 
             {
-                sender: sender._id,
-                receiver : recipient._id,
+                sender: {_id : sender._id, profileImage : sender.profileImage},
+              receiver : {_id : recipient._id},
                 content: message,
                 timestamp : timeSent,
                 date : thisDate
-            }
-        
+            } 
+    }
+    if(allChats.length > 0)
+    {
+      const test = allChats.findIndex(chats => chats[0].conversationId == activeConversation);
+      const updatedChats = [...allChats];
+      updatedChats[test].push(messageData);
+      setAllChats(updatedChats);
     }
 
-
     try {
+      
         const result = await http.post('sendChat', messageData)
+        
         getUserChats()
         setTypingMessage("")
     } catch (error) {
@@ -155,12 +204,13 @@ const Chat = () => {
    
 
     }
-
-
     useEffect(()=>{
+      const token = localStorage.getItem('accessToken')
         http.get(`getServiceInfo/${service}`).then((res)=>{
             setServiceFromParam(res.data.service.basicInformation.ServiceTitle)
         }).catch((err)=>{console.log(err)})
+
+        setActiveConversation(convoId)
     },[])
 
 
@@ -202,10 +252,13 @@ const Chat = () => {
             
             // If there is no convoId in url but there is a "To"
             getUserChats().then((res)=>{ 
+              const token = localStorage.getItem('accessToken')
                 const test = res.allContacts.find(contact => contact.receiver[0].username === to)
                 if(test == undefined)
                 {    
-                    http.get('getUsers').then((res)=>{
+                    http.get('getUsers',{
+                      headers : {Authorization: `Bearer ${token}`},
+                    }).then((res)=>{
                         const users = res.data
                         const receiver = users.find(user => user.username == to)
                        
@@ -234,7 +287,6 @@ const Chat = () => {
         {
             getUserChats().then((res)=>{
                 const filtered = res.allContacts.find(contact => contact.conversationId == convoId)
-                console.log(filtered)
                 // If there is not result
                 if(filtered == undefined)
                 {
@@ -278,7 +330,6 @@ const Chat = () => {
     setTimeout(()=>{
     getUserChats()
     },1000)
-
     // Handle the reading of message
     const handleReadMessage = async (conversationIdParam) => {
                 let updatedReadBy = []
@@ -299,7 +350,8 @@ const Chat = () => {
         
     }
 
-    console.log(recipient)
+
+
   return (
     <div className='w-full h-screen grid place-items-center'>
     {
@@ -347,7 +399,7 @@ const Chat = () => {
             const ampm = contact.latestChatTime.split(' ')
             const splitted = contact.latestChatTime.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
             return (
-            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId);setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired, fullname : contact.receiver[0].firstname + " " + contact.receiver[0].lastname});setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username});handleReadMessage(contact.conversationId)}}  key={index} >
+            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId);setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired, fullname : contact.receiver[0].firstname + " " + contact.receiver[0].lastname});setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username, service : contact.serviceInquired._id});handleReadMessage(contact.conversationId)}}  key={index} >
             <img className='w-11 h-11 rounded-full object-cover' src={contact.receiver[0].profileImage} alt="Profile" />
             <div className=' h-fit p-0 w-full'>
             <div className='flex w-full justify-between items-center'>
@@ -385,69 +437,55 @@ const Chat = () => {
             <ScrollToBottom  className='w-full flex h-full flex-col  overflow-auto '>
 
             {/* Recipient Message */}
-            {
-            allChats
-            .filter((chat) => chat[0].conversationId === conversationId)
-            .map((chats, index) => {
-            const formatDate = (dateString) => {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const date = new Date(dateString);
-            return date.toLocaleDateString(undefined, options);
-            };
+              {
+              allChats
+              .filter((chat) => chat[0].conversationId === conversationId)
+              .map((chats, index) => {
+              const formatDate = (dateString) => {
+              const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+              const date = new Date(dateString);
+              return date.toLocaleDateString(undefined, options);
+              };
 
-            // Group messages by date
-            const groupedMessages = chats.reduce((acc, message) => {
-            const dateKey = message.message.date.split('T')[0]; // Use date part as key
-            acc[dateKey] = acc[dateKey] || [];
-            acc[dateKey].push(message);
-            return acc;
-            }, {});
+              // Group messages by date
+              const groupedMessages = chats.reduce((acc, message) => {
+              const dateKey = message.message.date.split('T')[0]; // Use date part as key
+              acc[dateKey] = acc[dateKey] || [];
+              acc[dateKey].push(message);
+              return acc;
+              }, {});
+             
+                  return (
+                      <div key={chats[0].conversationId}>
+                        {/* <h2>Chat with {serviceProviderName}</h2> */}
+                        {/* Display messages grouped by date */}
+                        {Object.keys(groupedMessages).map((dateKey) => (
+                          <div key={dateKey}>
+                            <div className="flex items-center">
+                              <div className="flex-1 border-t border-gray-400"></div>
+                              <div className="mx-4 text-sm text-center my-2 text-gray-400">{formatDate(dateKey)}</div>
+                              <div className="flex-1 border-t border-gray-400"></div>
+                              </div>
+                            {groupedMessages[dateKey].map((message, index) => {
+                              const ampm = message.message.timestamp.split(' ')
+                              const splitted = message.message.timestamp.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
+                            return (
+                              <div className={`${message.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={index}>
+                      <div className={` flex items-center ${message.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
+                      <p className='text-semiXs mx-2'>{splitted}</p>
+                      <p className={`${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 rounded-md px-3 py-3"} shadow-md`}>{message.message.content}</p>
+                      <img className='w-7 h-7 rounded-full object-cover' src={message.message.sender._id == sender._id ? message.message.sender.profileImage : message.message.sender.profileImage} />
+                      </div>
+                  </div>
+                            )
+              })}
+                          </div>
+                        ))}
+                      </div>
+                    );
 
-                return (
-                    <div key={index}>
-                      {/* <h2>Chat with {serviceProviderName}</h2> */}
-                      {/* Display messages grouped by date */}
-                      {Object.keys(groupedMessages).map((dateKey) => (
-                        <div key={dateKey}>
-                          <div className="flex items-center">
-                            <div className="flex-1 border-t border-gray-400"></div>
-                            <div className="mx-4 text-sm text-center my-2 text-gray-400">{formatDate(dateKey)}</div>
-                            <div className="flex-1 border-t border-gray-400"></div>
-                            </div>
-                          {groupedMessages[dateKey].map((message, index) => {
-                            const ampm = message.message.timestamp.split(' ')
-                            const splitted = message.message.timestamp.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
-                           return (
-                            <div className={`${message.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={message._id}>
-                    <div className={` flex items-center ${message.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
-                    <p className='text-semiXs mx-2'>{splitted}</p>
-                    <p className={`${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 rounded-md px-3 py-3"} shadow-md`}>{message.message.content}</p>
-                    <img className='w-7 h-7 rounded-full object-cover' src={message.message.sender._id == sender._id ? message.message.sender.profileImage : message.message.sender.profileImage} />
-                    </div>
-                </div>
-                           )
-            })}
-                        </div>
-                      ))}
-                    </div>
-                  );
-            //   chats.map((chat)=>{
-                // const ampm = chat.message.timestamp.split(' ')
-                //     const splitted = chat.message.timestamp.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
-            //     return (
-                // <div className={`${chat.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={chat._id}>
-                //     <div className={` flex items-center ${chat.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
-                //     <p className='text-semiXs mx-2'>{splitted}</p>
-                //     <p className={`${chat.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 rounded-md px-3 py-3"} shadow-md`}>{chat.message.content}</p>
-                //     <img className='w-7 h-7 rounded-full object-cover' src={chat.message.sender._id == sender._id ? chat.message.sender.profileImage : chat.message.sender.profileImage} />
-                //     </div>
-                // </div>
-            //     )
-                
-                
-            // })
-            })
-            }     
+              })
+              }     
             {/* Sender Message */}
             <p>{message}</p>
             {/* </div> */}

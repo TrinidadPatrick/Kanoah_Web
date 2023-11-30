@@ -75,6 +75,7 @@ const UserInformation = () => {
     })
     // validate access token
     const getUserProfile = async (token) => {
+      
       try {
         const response = await http.get('profile', {
           headers : {Authorization: `Bearer ${token}`},
@@ -94,8 +95,11 @@ const UserInformation = () => {
 
     // Get userInformation
     const getUser = async (accId) => {
+      const token = localStorage.getItem('accessToken')
 
-          await http.get(`getUser/${accId}`).then((res)=>{
+          await http.get(`getUser/${accId}`,{
+            headers : {Authorization: `Bearer ${token}`},
+          }).then((res)=>{
             setUserInformation(res.data)
             setLoading(false)
           }).catch((err)=>{
