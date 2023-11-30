@@ -375,6 +375,7 @@ const Chat = () => {
       // Clean up the interval when the component is unmounted
       return () => clearInterval(intervalId);
     }, []);
+
   return (
     <div className='w-full h-screen grid place-items-center'>
     {
@@ -405,9 +406,9 @@ const Chat = () => {
             <div className='w-full h-screen flex gap-4 bg-[#f9f9f9]'>
     
              {/* Contacts and Messages */}
-            <section className='w-full h-screen sm:w-[250px] md:w-[350px] relative lg:w-[400px] lg:max-w-[400px] flex flex-col p-2 pt-20'>
+            <section className='w-full h-screen sm:w-[400px] sm:max-w-[400px] overflow-hidden md:w-[350px] relative lg:w-[400px] lg:max-w-[400px] flex flex-col sm:p-2  '>
             
-            <div className='bg-white rounded-lg shadow-md h-full'>
+            <div className='w-full mt-[73px] bg-white sm:rounded-lg shadow-md h-full'>
             {/* Search Input */}
             <div className='p-3 w-full relative'>
             <SearchOutlinedIcon className='absolute top-[1.35rem] text-gray-500 left-6' />
@@ -425,7 +426,7 @@ const Chat = () => {
             <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 w-full overflow-hidden flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId)
             setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired, fullname : contact.receiver[0].firstname + " " + contact.receiver[0].lastname})
             setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username, service : contact.serviceInquired._id})
-            handleReadMessage(contact.conversationId);document.getElementById('messageContentBox').className = "-translate-x-[50%] left-[50%] absolute sm:relative sm:flex flex-col pt-20 h-screen p-2 w-full transition duration-500 ease-out"}}  key={index} >
+            handleReadMessage(contact.conversationId);document.getElementById('messageContentBox').className = "-translate-x-[50%] left-[50%] absolute sm:relative sm:flex flex-col pt-20 h-screen w-full transition duration-500 ease-out"}}  key={index} >
             
             <div className='w-full max-w-full flex items-center p-1 h-fit  overflow-hidden'>
             {/* Profile Image */}
@@ -435,7 +436,7 @@ const Chat = () => {
             {/* Name and time */}
             <div className='flex flex-col w-full overflow-hidden  justify-center  space-y-1 md:pb-3'>
             <div className='flex justify-between h-fit  w-full items-center'>
-            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold text-blue-600" : "font-normal"}  cursor-pointer text-xs md:text-md lg:text-lg block  `}>{contact.receiver[0].firstname + " " + contact.receiver[0].lastname}</span>
+            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold text-blue-600" : "font-normal"}  cursor-pointer text-xs md:text-md whitespace-nowrap lg:text-lg block  `}>{contact.receiver[0].firstname + " " + contact.receiver[0].lastname}</span>
             <span className='cursor-pointer text-semiXs md:text-xs font-medium text-gray-600'>{splitted}</span>
             </div>
             {/* Message content */}
@@ -455,18 +456,21 @@ const Chat = () => {
             </section>
         
             {/* Chats and message contents */}
-            <section id='messageContentBox' className='w-full  -translate-x-[100%] sm:translate-x-[0%] absolute sm:relative sm:flex flex-col pt-20 h-screen p-2'>
-            <div className='w-full h-full bg-white justify-start flex flex-col shadow-md rounded-lg px-2'>
+            <section id='messageContentBox' className='w-full overflow-hidden -translate-x-[100%] sm:translate-x-[0%] absolute sm:relative sm:flex flex-col pt-20 h-screen sm:p-2'>
+            <div className='w-full h-full bg-white justify-start flex flex-col shadow-md sm:rounded-lg px-2'>
             <div className='w-full py-3  bg-white border-b-2 shadow-sm flex space-x-2 items-center object-contain'>
               <button className='sm:hidden' onClick={()=>{document.getElementById('messageContentBox').className = "w-full  -translate-x-[100%] absolute sm:relative sm:flex flex-col pt-20 h-screen p-2 transition duration-500 ease-out"}}><ArrowBackOutlinedIcon /></button>
                 <img className='w-10 h-10 object-cover origin-center rounded-full' src={recipient.profileImage} />
-                <p className='text-themeBlue text-xl font-semibold'>{recipient.fullname}</p>
-                <span className='w-1 h-1 rounded-full bg-themeBlue'></span>
+                
+                <div className='flex flex-col lg:flex-row lg:space-x-3 items-start '>
+                <p className='text-themeBlue text-ellipsis whitespace-nowrap max-w-[220px] md:max-w-[300px] lg:max-w-[230px] xl:max-w-[400px] overflow-hidden text-sm md:text-lg font-semibold'>{recipient.fullname}</p>
+                <span className='w-1 h-1 hidden lg:block rounded-full bg-themeBlue self-center'></span>
                 {
                     recipient.serviceInquired == undefined ? (<p className='text-themeBlue font-semibold'>{serviceFromParam}</p>)
                     :
-                    <p className='text-themeBlue font-semibold'>{recipient.serviceInquired.basicInformation.ServiceTitle}</p>
+                    <p className='text-gray-500 text-sm md:text-lg text-ellipsis font-semibold max-w-[220px] md:max-w-[300px] lg:max-w-[350px] xl:max-w-[400px] overflow-hidden whitespace-nowrap '>{recipient.serviceInquired.basicInformation.ServiceTitle}</p>
                 }
+                </div>
                 {/* <p className='text-themeBlue font-semibold'>{recipient.serviceInquired.basicInformation.ServiceTitle}</p> */}
             </div>
             {/* Messages Content */}
@@ -532,8 +536,8 @@ const Chat = () => {
             <p>{message}</p>
             </ScrollToBottom>
             {/* Message input */}
-            <div className='w-full p-2 flex items-center'>
-            <input id='textField' className='p-2 w-full outline-none border rounded-lg bg-slate-100 justify-self-end' value={typingMessage} onChange={(e)=>{setTypingMessage(e.target.value)}} onKeyDown={(e)=>{if(e.key === "Enter"){handleMessage(e.target.value)}}} type='text' placeholder='Enter message'  />
+            <div className='w-full p-2 flex items-center justify-between'>
+            <input id='textField' className='p-2 w-full outline-none border rounded-lg bg-slate-100 ' value={typingMessage} onChange={(e)=>{setTypingMessage(e.target.value)}} onKeyDown={(e)=>{if(e.key === "Enter"){handleMessage(e.target.value)}}} type='text' placeholder='Enter message'  />
             <button className='p-2 px-4'>
             <SendOutlinedIcon onClick={()=>{handleMessage(typingMessage)}} />
             </button>   
