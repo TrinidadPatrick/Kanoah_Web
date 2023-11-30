@@ -347,6 +347,21 @@
   box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
 }
 
+.Sendingloader {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 0, 0.534);
+  border-top-color: transparent;
+  animation: rot1 1.2s linear infinite;
+}
+
+@keyframes rot1 {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 
 
 

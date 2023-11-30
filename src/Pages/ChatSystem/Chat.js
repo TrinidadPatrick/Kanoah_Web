@@ -13,7 +13,8 @@ import http from '../../http'
 const Chat = () => {
   const navigate = useNavigate()
     const dispatch = useDispatch();
-    const userId = useSelector(selectUserId); 
+    const userId = useSelector(selectUserId);
+    const [sendingMessage, setSendingMessage] = useState(false) 
     const [allUsers, setAllUsers] = useState([])
     const [activeConversation, setActiveConversation] = useState('')
     const [searchParams, setSearchParams] = useSearchParams();
@@ -187,23 +188,36 @@ const Chat = () => {
     if(allChats.length > 0)
     {
       const test = allChats.findIndex(chats => chats[0].conversationId == activeConversation);
+      
+      if(test != -1)
+      {
+      
       const updatedChats = [...allChats];
+      console.log(updatedChats)
       updatedChats[test].push(messageData);
       setAllChats(updatedChats);
+      }
+      
     }
-
-    try {
+    if(typingMessage != "")
+    {
+      setSendingMessage(true)
+      try {
       
         const result = await http.post('sendChat', messageData)
-        
-        getUserChats()
+
+          getUserChats()
         setTypingMessage("")
+        setSendingMessage(false)
+
+        
     } catch (error) {
         console.log(error)
     }
-   
+    }
 
     }
+
     useEffect(()=>{
       const token = localStorage.getItem('accessToken')
         http.get(`getServiceInfo/${service}`).then((res)=>{
@@ -328,7 +342,13 @@ const Chat = () => {
     }, [recipient])
 
     setTimeout(()=>{
-    getUserChats()
+      if(sendingMessage || typingMessage != "")
+      {
+
+      }else{
+        getUserChats()
+      }
+    
     },1000)
     // Handle the reading of message
     const handleReadMessage = async (conversationIdParam) => {
@@ -349,6 +369,7 @@ const Chat = () => {
         
         
     }
+
 
 
 
@@ -470,10 +491,18 @@ const Chat = () => {
                               const ampm = message.message.timestamp.split(' ')
                               const splitted = message.message.timestamp.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
                             return (
-                              <div className={`${message.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={index}>
+                      <div className={`${message.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={index}>
                       <div className={` flex items-center ${message.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
                       <p className='text-semiXs mx-2'>{splitted}</p>
-                      <p className={`${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 rounded-md px-3 py-3"} shadow-md`}>{message.message.content}</p>
+                      <div className='flex items-end'>
+                      {/* <p className={`${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 rounded-md px-3 py-3"} shadow-md`}>{sendingMessage && message._id == undefined ? (<div className="Sendingloader bg-black"></div>) : ""}{message.message.content}</p> */}
+                      <div className={`${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 relative rounded-md px-3 py-3"} shadow-md`}>
+                      {message.message.content}
+                      </div>
+                      {sendingMessage && message._id == undefined ? (<div className="Sendingloader ml-1"></div>) : ""}
+                      </div>
+                      {/* <p>{sendingMessage ? "Sending" : ""}</p> */}
+                      
                       <img className='w-7 h-7 rounded-full object-cover' src={message.message.sender._id == sender._id ? message.message.sender.profileImage : message.message.sender.profileImage} />
                       </div>
                   </div>
