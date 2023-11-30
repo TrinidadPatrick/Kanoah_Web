@@ -7,6 +7,7 @@ import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import ScrollToBottom from 'react-scroll-to-bottom';
 import { useNavigate } from 'react-router-dom';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import http from '../../http'
 
 
@@ -185,38 +186,46 @@ const Chat = () => {
                 date : thisDate
             } 
     }
-    if(allChats.length > 0)
-    {
-      const test = allChats.findIndex(chats => chats[0].conversationId == activeConversation);
+
       
+    if(typingMessage != "")
+    {
+      setTypingMessage("")
+      setSendingMessage(true)
+      const test = allChats.findIndex(chats => chats[0].conversationId == activeConversation); 
       if(test != -1)
       {
       
       const updatedChats = [...allChats];
-      console.log(updatedChats)
       updatedChats[test].push(messageData);
       setAllChats(updatedChats);
       }
+      await http.post('sendChat', messageData).then((res)=>{
+      }).catch((err)=>console.log(err)).finally(()=>{setSendingMessage(false)})
       
     }
-    if(typingMessage != "")
-    {
-      setSendingMessage(true)
-      try {
-      
-        const result = await http.post('sendChat', messageData)
-
-          getUserChats()
-        setTypingMessage("")
-        setSendingMessage(false)
-
-        
-    } catch (error) {
-        console.log(error)
-    }
-    }
 
     }
+
+    // Handle the reading of message
+    const handleReadMessage = async (conversationIdParam) => {
+          let updatedReadBy = []
+          const convo = allChats.find(chats => chats[0].conversationId == conversationIdParam)
+          const unReadMessages = convo.filter(chat => !chat.readBy.includes(sender._id))
+
+          unReadMessages.forEach((message)=>{
+              const newMessage = [...unReadMessages]
+              message.readBy.push(sender._id)
+              updatedReadBy = newMessage[0].readBy
+          })
+
+          if(updatedReadBy.length !== 0)
+          {
+              await http.post('readChat', {updatedReadBy, conversationIdParam}).then((res)=>console.log(res.data)).catch((err)=>console.error(err))
+          }
+  
+  
+}
 
     useEffect(()=>{
       const token = localStorage.getItem('accessToken')
@@ -266,7 +275,7 @@ const Chat = () => {
             
             // If there is no convoId in url but there is a "To"
             getUserChats().then((res)=>{ 
-              const token = localStorage.getItem('accessToken')
+                const token = localStorage.getItem('accessToken')
                 const test = res.allContacts.find(contact => contact.receiver[0].username === to)
                 if(test == undefined)
                 {    
@@ -334,45 +343,38 @@ const Chat = () => {
 
     },[userId])
     
+
     useEffect(()=>{
         if(recipient._id !== "")
         {
             setLoading(false)
+            setActiveConversation(convoId)
         }
     }, [recipient])
 
-    setTimeout(()=>{
-      if(sendingMessage || typingMessage != "")
-      {
+    const fetchUserChats = () => {
+      if(sendingMessage)
+        {
+        }else{
+          getUserChats()
+         
+        }
+    };
 
-      }else{
-        getUserChats()
-      }
-    
-    },1000)
-    // Handle the reading of message
-    const handleReadMessage = async (conversationIdParam) => {
-                let updatedReadBy = []
-                const convo = allChats.find(chats => chats[0].conversationId == conversationIdParam)
-                const unReadMessages = convo.filter(chat => !chat.readBy.includes(sender._id))
-
-                unReadMessages.forEach((message)=>{
-                    const newMessage = [...unReadMessages]
-                    message.readBy.push(sender._id)
-                    updatedReadBy = newMessage[0].readBy
-                })
-
-                if(updatedReadBy.length !== 0)
-                {
-                    await http.post('readChat', {updatedReadBy, conversationIdParam}).then((res)=>console.log(res.data)).catch((err)=>console.error(err))
-                }
+    // Run the getuser every 6 seconds
+    useEffect(() => {
+      // Function to be executed every 4 seconds
+      const myFunction = () => {
         
-        
-    }
-
-
-
-
+        fetchUserChats()
+      };
+  
+      // Set up the interval
+      const intervalId = setInterval(myFunction, 5000);
+  
+      // Clean up the interval when the component is unmounted
+      return () => clearInterval(intervalId);
+    }, []);
   return (
     <div className='w-full h-screen grid place-items-center'>
     {
@@ -402,14 +404,14 @@ const Chat = () => {
         (
             <div className='w-full h-screen flex gap-4 bg-[#f9f9f9]'>
     
-            {/* Contacts and Messages */}
-            <section className='w-[500px] h-screen flex flex-col p-2 pt-20'>
+             {/* Contacts and Messages */}
+            <section className='w-full h-screen sm:w-[250px] md:w-[350px] relative lg:w-[400px] lg:max-w-[400px] flex flex-col p-2 pt-20'>
             
             <div className='bg-white rounded-lg shadow-md h-full'>
             {/* Search Input */}
             <div className='p-3 w-full relative'>
             <SearchOutlinedIcon className='absolute top-[1.35rem] text-gray-500 left-6' />
-            <input className='rounded-full outline-none border-2 p-2 ps-10 w-full' type="text" placeholder='Search..'/>
+            <input id='searchField' className='rounded-full outline-none border-2 p-2 ps-10 w-full' type="text" placeholder='Search..'/>
             </div>
             {
             allContacts.sort((a,b)=>{
@@ -420,30 +422,43 @@ const Chat = () => {
             const ampm = contact.latestChatTime.split(' ')
             const splitted = contact.latestChatTime.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
             return (
-            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId);setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired, fullname : contact.receiver[0].firstname + " " + contact.receiver[0].lastname});setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username, service : contact.serviceInquired._id});handleReadMessage(contact.conversationId)}}  key={index} >
-            <img className='w-11 h-11 rounded-full object-cover' src={contact.receiver[0].profileImage} alt="Profile" />
-            <div className=' h-fit p-0 w-full'>
-            <div className='flex w-full justify-between items-center'>
-            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold" : "font-normal"}  cursor-pointer text-lg block  `}>{contact.receiver[0].firstname + " " + contact.receiver[0].lastname}</span>
-            <span className='cursor-pointer text-xs font-medium text-gray-600'>{splitted}</span>
+            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 w-full overflow-hidden flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId)
+            setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired, fullname : contact.receiver[0].firstname + " " + contact.receiver[0].lastname})
+            setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username, service : contact.serviceInquired._id})
+            handleReadMessage(contact.conversationId);document.getElementById('messageContentBox').className = "-translate-x-[50%] left-[50%] absolute sm:relative sm:flex flex-col pt-20 h-screen p-2 w-full transition duration-500 ease-out"}}  key={index} >
+            
+            <div className='w-full max-w-full flex items-center p-1 h-fit  overflow-hidden'>
+            {/* Profile Image */}
+            <div className='w[40px] min-w-[40px]  lg:w-[60px] lg:min-w-[60px] h-full flex justify-center items-center'>
+            <img className='w-8 h-8 md:w-9 md:h-9 lg:w-11 lg:h-11 min-w-11 rounded-full object-cover' src={contact.receiver[0].profileImage} alt="Profile" />
             </div>
-            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold" : "font-normal"} cursor-pointer text-xs text-gray-600`}>{contact.sentBy._id == sender._id ? "You: " : ""}</span>
-            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold" : "font-normal"} cursor-pointer text-xs text-gray-600`}>{contact.latestChat}</span>
+            {/* Name and time */}
+            <div className='flex flex-col w-full overflow-hidden  justify-center  space-y-1 md:pb-3'>
+            <div className='flex justify-between h-fit  w-full items-center'>
+            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold text-blue-600" : "font-normal"}  cursor-pointer text-xs md:text-md lg:text-lg block  `}>{contact.receiver[0].firstname + " " + contact.receiver[0].lastname}</span>
+            <span className='cursor-pointer text-semiXs md:text-xs font-medium text-gray-600'>{splitted}</span>
+            </div>
+            {/* Message content */}
+            <div className='flex'>
+            <div className='flex justify-start w-[200px] semiXs:w-full semiXs:max-w-[340px] md:w-[400px] overflow-clip items-center '>
+            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold " : "font-normal text-gray-600"} cursor-pointer text-semiXs md:text-xs `}>{contact.sentBy._id == sender._id ? "You: " : ""}</span>
+            <span className={` text-ellipsis ${!contact.readBy.includes(sender._id) ? "font-semibold " : "font-normal text-gray-600"} cursor-pointer overflow-hidden ml-1 text-semiXs md:text-xs whitespace-nowrap `}>{contact.latestChat}</span>
             </div>
             </div>
-            )
-                    
-})
+            </div>
+            </div>
+            </div>
+            )               
+            })
             }
-            </div>
-                
+            </div>    
             </section>
         
             {/* Chats and message contents */}
-            <section className='w-full flex flex-col pt-20 h-screen p-2'>
-        
+            <section id='messageContentBox' className='w-full  -translate-x-[100%] sm:translate-x-[0%] absolute sm:relative sm:flex flex-col pt-20 h-screen p-2'>
             <div className='w-full h-full bg-white justify-start flex flex-col shadow-md rounded-lg px-2'>
-            <div className='w-full p-3  bg-white border-b-2 shadow-sm flex space-x-2 items-center object-contain'>
+            <div className='w-full py-3  bg-white border-b-2 shadow-sm flex space-x-2 items-center object-contain'>
+              <button className='sm:hidden' onClick={()=>{document.getElementById('messageContentBox').className = "w-full  -translate-x-[100%] absolute sm:relative sm:flex flex-col pt-20 h-screen p-2 transition duration-500 ease-out"}}><ArrowBackOutlinedIcon /></button>
                 <img className='w-10 h-10 object-cover origin-center rounded-full' src={recipient.profileImage} />
                 <p className='text-themeBlue text-xl font-semibold'>{recipient.fullname}</p>
                 <span className='w-1 h-1 rounded-full bg-themeBlue'></span>
@@ -455,7 +470,7 @@ const Chat = () => {
                 {/* <p className='text-themeBlue font-semibold'>{recipient.serviceInquired.basicInformation.ServiceTitle}</p> */}
             </div>
             {/* Messages Content */}
-            <ScrollToBottom  className='w-full flex h-full flex-col  overflow-auto '>
+            <ScrollToBottom  className='w-full flex h-full flex-col bg-[#f9f9f9] overflow-auto '>
 
             {/* Recipient Message */}
               {
@@ -476,52 +491,49 @@ const Chat = () => {
               return acc;
               }, {});
              
-                  return (
-                      <div key={chats[0].conversationId}>
-                        {/* <h2>Chat with {serviceProviderName}</h2> */}
-                        {/* Display messages grouped by date */}
-                        {Object.keys(groupedMessages).map((dateKey) => (
-                          <div key={dateKey}>
-                            <div className="flex items-center">
-                              <div className="flex-1 border-t border-gray-400"></div>
-                              <div className="mx-4 text-sm text-center my-2 text-gray-400">{formatDate(dateKey)}</div>
-                              <div className="flex-1 border-t border-gray-400"></div>
-                              </div>
-                            {groupedMessages[dateKey].map((message, index) => {
-                              const ampm = message.message.timestamp.split(' ')
-                              const splitted = message.message.timestamp.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
-                            return (
-                      <div className={`${message.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={index}>
-                      <div className={` flex items-center ${message.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
-                      <p className='text-semiXs mx-2'>{splitted}</p>
-                      <div className='flex items-end'>
-                      {/* <p className={`${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 rounded-md px-3 py-3"} shadow-md`}>{sendingMessage && message._id == undefined ? (<div className="Sendingloader bg-black"></div>) : ""}{message.message.content}</p> */}
-                      <div className={`${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md px-3 py-3" : "bg-gray-100 text-gray-700 relative rounded-md px-3 py-3"} shadow-md`}>
-                      {message.message.content}
-                      </div>
-                      {sendingMessage && message._id == undefined ? (<div className="Sendingloader ml-1"></div>) : ""}
-                      </div>
-                      {/* <p>{sendingMessage ? "Sending" : ""}</p> */}
-                      
-                      <img className='w-7 h-7 rounded-full object-cover' src={message.message.sender._id == sender._id ? message.message.sender.profileImage : message.message.sender.profileImage} />
-                      </div>
-                  </div>
-                            )
-              })}
-                          </div>
-                        ))}
-                      </div>
-                    );
+              return (
+              <div key={chats[0].conversationId}>
+              {/* <h2>Chat with {serviceProviderName}</h2> */}
+              {/* Display messages grouped by date */}
+              {Object.keys(groupedMessages).map((dateKey) => (
+              <div key={dateKey}>
+              <div className="flex items-center">
+              <div className="flex-1 border-t border-gray-400"></div>
+              <div className="mx-4 text-sm text-center my-2 text-gray-400">{formatDate(dateKey)}</div>
+              <div className="flex-1 border-t border-gray-400"></div>
+              </div>
 
+              {groupedMessages[dateKey].map((message, index) => {
+              const ampm = message.message.timestamp.split(' ')
+              const splitted = message.message.timestamp.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
+              return (
+              <div className={`${message.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={index}>
+              <div className={` flex items-end ${message.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
+              <p className='text-semiXs mx-2 self-center'>{splitted}</p>
+              <div className='flex items-end'>
+              <div className={`max-w-[130px] lg:max-w-[200px] text-xs lg:text-sm break-words ${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md rounded-ee-sm px-3 py-3" : "bg-gray-100 text-gray-700 relative rounded-md rounded-se-sm px-3 py-3"} shadow-md`}>
+              {message.message.content}
+              </div>
+              {sendingMessage && message._id == undefined ? (<div className="Sendingloader ml-1"></div>) : ""}
+              </div>
+              {/* Profile Image */}
+              <img className='w-7 h-7 rounded-full object-cover' src={message.message.sender._id == sender._id ? message.message.sender.profileImage : message.message.sender.profileImage} />
+              </div>
+              </div>
+              )
+              })}
+              </div>
+              ))}
+              </div>
+              );
               })
               }     
             {/* Sender Message */}
             <p>{message}</p>
-            {/* </div> */}
             </ScrollToBottom>
             {/* Message input */}
             <div className='w-full p-2 flex items-center'>
-            <input className='p-2 w-full outline-none border rounded-lg bg-slate-100 justify-self-end' value={typingMessage} onChange={(e)=>{setTypingMessage(e.target.value)}} onKeyDown={(e)=>{if(e.key === "Enter"){handleMessage(e.target.value)}}} type='text' placeholder='Enter message'  />
+            <input id='textField' className='p-2 w-full outline-none border rounded-lg bg-slate-100 justify-self-end' value={typingMessage} onChange={(e)=>{setTypingMessage(e.target.value)}} onKeyDown={(e)=>{if(e.key === "Enter"){handleMessage(e.target.value)}}} type='text' placeholder='Enter message'  />
             <button className='p-2 px-4'>
             <SendOutlinedIcon onClick={()=>{handleMessage(typingMessage)}} />
             </button>   
