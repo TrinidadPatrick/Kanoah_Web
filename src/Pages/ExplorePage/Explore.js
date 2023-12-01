@@ -302,6 +302,12 @@ const Explore = () => {
        
       }
 
+      // handle the location filter
+      const handleLocationFilter = (place) => {
+        setDonotApplyFilter(true)
+        setLocationFilterValue(place.place_name);setFilterLocationLongLat({longitude : place.geometry.coordinates[0], latitude : place.geometry.coordinates[1]})
+      }
+
       // Set the selected checkbox***************************************************************************************
       const handleSelectCheckBox = (selected) => {
           setDonotApplyFilter(true)
@@ -351,14 +357,29 @@ const Explore = () => {
       setServiceList(result)
     }
 
+    // calculate the distance
+    const calculateDistance = (serviceLat, serviceLong,FilterLat, Filterlong) => {
+      return getDistance({latitude : serviceLat, longitude : serviceLong}, {latitude : FilterLat, longitude : Filterlong})
+    }
+
       // Handle all the selected rating filter****************************************************************************
       useEffect(() => {
-        
         const serviceListInstance = [...mainServiceList];
 
+        const filteredByLocation = serviceListInstance.filter(service => {
+          const distance = calculateDistance(service.address.latitude, service.address.longitude, filterLocationLongLat.latitude, filterLocationLongLat.longitude)
+          const distanceInKm = distance / 1000;
+
+          return distanceInKm < 5
+        })
+
+        const initialServiceList = filterLocationLongLat.latitude && filterLocationLongLat.longitude != 0 ? filteredByLocation
+        :
+        serviceListInstance
+
         const filteredServices = selectedRatingCheckbox.length > 0
-          ? serviceListInstance.filter(service => selectedRatingCheckbox.includes(service.ratingRounded))
-          : mainServiceList;
+          ? initialServiceList.filter(service => selectedRatingCheckbox.includes(service.ratingRounded))
+          : initialServiceList;
       
         const filteredServiceByCategory = selectedCategory === "Select Category"
           ? filteredServices
@@ -390,7 +411,7 @@ const Explore = () => {
           
         }
         
-      }, [selectedRatingCheckbox, selectedCategory, mainServiceList, sortFilter, searchInput]);
+      }, [selectedRatingCheckbox, selectedCategory, mainServiceList, sortFilter, searchInput, locationFilterValue]);
 
 
     //  Apply the filter onload only
@@ -518,7 +539,7 @@ const Explore = () => {
           {
             places.map((place, index)=>{
              return (
-              <div key={index} onClick={()=>{setLocationFilterValue(place.place_name);setFilterLocationLongLat({longitude : place.geometry.coordinates[0], latitude : place.geometry.coordinates[1]})}} className='m-3 flex flex-col items-start cursor-pointer '>
+              <div key={index} onClick={()=>{handleLocationFilter(place)}} className='m-3 flex flex-col items-start cursor-pointer '>
                 <h1 className=' text-sm font-semibold'>{place.text}</h1>
                 <p className=' text-[0.72rem]'>{place.place_name}</p>
               </div>

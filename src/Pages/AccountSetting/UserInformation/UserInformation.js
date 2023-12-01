@@ -75,7 +75,6 @@ const UserInformation = () => {
     })
     // validate access token
     const getUserProfile = async (token) => {
-      
       try {
         const response = await http.get('profile', {
           headers : {Authorization: `Bearer ${token}`},

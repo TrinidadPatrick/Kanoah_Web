@@ -80,6 +80,10 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.23.5",
+    "@babel/plugin-transform-runtime": "^7.23.4",
+    "@babel/preset-env": "^7.23.5",
+    "@babel/preset-react": "^7.23.3",
     "@types/events": "^3.0.2",
     "@types/node": "^20.8.7",
     "daisyui": "^3.9.2",
