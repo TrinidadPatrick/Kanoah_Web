@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import ScrollToBottom from 'react-scroll-to-bottom';
@@ -15,6 +15,7 @@ const Chat = () => {
   const navigate = useNavigate()
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId);
+    const [windowWidth, setWindowWdith] = useState(null)
     const [sendingMessage, setSendingMessage] = useState(false) 
     const [allUsers, setAllUsers] = useState([])
     const [activeConversation, setActiveConversation] = useState('')
@@ -376,6 +377,23 @@ const Chat = () => {
       return () => clearInterval(intervalId);
     }, []);
 
+        // Function to handle window resize
+    const handleResize = () => {
+          const windowWidth = window.innerWidth;
+        
+          // Update your code or perform actions based on the new size
+          setWindowWdith(windowWidth)
+    }
+        
+    // Attach the event listener to the window resize event
+    window.addEventListener('resize', handleResize);
+        
+    // Call the function once to get the initial size
+    useEffect(()=>{
+          handleResize();
+    },[])
+
+
   return (
     <div className='w-full h-screen grid place-items-center'>
     {
@@ -406,7 +424,7 @@ const Chat = () => {
             <div className='w-full h-screen flex gap-4 bg-[#f9f9f9]'>
     
              {/* Contacts and Messages */}
-            <section className='w-full h-screen sm:w-[400px] sm:max-w-[400px] overflow-hidden md:w-[350px] relative lg:w-[400px] lg:max-w-[400px] flex flex-col sm:p-2  '>
+            <section className='w-full h-screen sm:w-[400px] sm:max-w-[400px] overflow-hidden md:w-[350px] relative lg:w-[500px] lg:max-w-[400px] flex flex-col sm:p-2  '>
             
             <div className='w-full mt-[73px] bg-white sm:rounded-lg shadow-md h-full'>
             {/* Search Input */}
@@ -426,17 +444,18 @@ const Chat = () => {
             <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 w-full overflow-hidden flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId)
             setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired, fullname : contact.receiver[0].firstname + " " + contact.receiver[0].lastname})
             setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username, service : contact.serviceInquired._id})
-            handleReadMessage(contact.conversationId);document.getElementById('messageContentBox').className = "-translate-x-[50%] left-[50%] absolute sm:relative sm:flex flex-col pt-20 h-screen w-full transition duration-500 ease-out"}}  key={index} >
+            handleReadMessage(contact.conversationId)
+            if(windowWidth <= 639){document.getElementById('messageContentBox').className = "-translate-x-[50%] left-[50%] -full overflow-hidden w-full absolute sm:relative sm:flex flex-col h-screen  sm:px-2 pt-20 pb-2 transition duration-500 ease-out"}}}  key={index} >
             
             <div className='w-full max-w-full flex items-center p-1 h-fit  overflow-hidden'>
             {/* Profile Image */}
-            <div className='w[40px] min-w-[40px]  lg:w-[60px] lg:min-w-[60px] h-full flex justify-center items-center'>
+            <div className='w[40px] min-w-[40px] mr-1 lg:w-[60px] lg:min-w-[60px] h-full flex justify-center items-center'>
             <img className='w-8 h-8 md:w-9 md:h-9 lg:w-11 lg:h-11 min-w-11 rounded-full object-cover' src={contact.receiver[0].profileImage} alt="Profile" />
             </div>
             {/* Name and time */}
-            <div className='flex flex-col w-full overflow-hidden  justify-center  space-y-1 md:pb-3'>
+            <div className='flex flex-col w-full overflow-hidden  justify-center  space-y-1 md:pb-0'>
             <div className='flex justify-between h-fit  w-full items-center'>
-            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold text-blue-600" : "font-normal"}  cursor-pointer text-xs md:text-md whitespace-nowrap lg:text-lg block  `}>{contact.receiver[0].firstname + " " + contact.receiver[0].lastname}</span>
+            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold text-blue-600" : "font-normal"}  cursor-pointer text-xs md:text-md whitespace-nowrap lg:text-[0.97rem] block  `}>{contact.receiver[0].firstname + " " + contact.receiver[0].lastname}</span>
             <span className='cursor-pointer text-semiXs md:text-xs font-medium text-gray-600'>{splitted}</span>
             </div>
             {/* Message content */}
@@ -456,22 +475,24 @@ const Chat = () => {
             </section>
         
             {/* Chats and message contents */}
-            <section id='messageContentBox' className='w-full overflow-hidden -translate-x-[100%] sm:translate-x-[0%] absolute sm:relative sm:flex flex-col pt-20 h-screen sm:p-2'>
+            <section id='messageContentBox' className='w-full overflow-hidden hidden absolute sm:relative sm:flex flex-col h-screen  sm:px-2 pt-20 pb-2'>
+            {/* <section id='messageContentBox' className='w-full  -translate-x-[100%] sm:translate-x-[0%] absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 pb-2'> */}
             <div className='w-full h-full bg-white justify-start flex flex-col shadow-md sm:rounded-lg px-2'>
-            <div className='w-full py-3  bg-white border-b-2 shadow-sm flex space-x-2 items-center object-contain'>
+            <div className='w-full py-3  bg-white relative border-b-2 shadow-sm flex space-x-2 items-center object-contain'>
               <button className='sm:hidden' onClick={()=>{document.getElementById('messageContentBox').className = "w-full  -translate-x-[100%] absolute sm:relative sm:flex flex-col pt-20 h-screen p-2 transition duration-500 ease-out"}}><ArrowBackOutlinedIcon /></button>
                 <img className='w-10 h-10 object-cover origin-center rounded-full' src={recipient.profileImage} />
                 
                 <div className='flex flex-col lg:flex-row lg:space-x-3 items-start '>
-                <p className='text-themeBlue text-ellipsis whitespace-nowrap max-w-[220px] md:max-w-[300px] lg:max-w-[230px] xl:max-w-[400px] overflow-hidden text-sm md:text-lg font-semibold'>{recipient.fullname}</p>
+                {/* Name */}
+                <p className='text-themeBlue text-ellipsis whitespace-nowrap max-w-[200px] md:max-w-[300px] lg:max-w-[230px] xl:max-w-[400px] overflow-hidden text-sm md:text-[0.975rem] font-semibold'>{recipient.fullname}</p>
                 <span className='w-1 h-1 hidden lg:block rounded-full bg-themeBlue self-center'></span>
                 {
                     recipient.serviceInquired == undefined ? (<p className='text-themeBlue font-semibold'>{serviceFromParam}</p>)
                     :
-                    <p className='text-gray-500 text-sm md:text-lg text-ellipsis font-semibold max-w-[220px] md:max-w-[300px] lg:max-w-[350px] xl:max-w-[400px] overflow-hidden whitespace-nowrap '>{recipient.serviceInquired.basicInformation.ServiceTitle}</p>
+                    <p className='text-gray-500 text-sm md:text-[0.975rem] text-ellipsis font-semibold max-w-[200px] md:max-w-[300px] lg:max-w-[350px] xl:max-w-[400px] overflow-hidden whitespace-nowrap '>{recipient.serviceInquired.basicInformation.ServiceTitle}</p>
                 }
                 </div>
-                {/* <p className='text-themeBlue font-semibold'>{recipient.serviceInquired.basicInformation.ServiceTitle}</p> */}
+                {/* <Link to={`/explore/viewService/${service}`} className=' absolute right-0 text-semiXs md:text-sm bg-themeBlue text-gray-50 px-3 py-1 rounded-sm'>View Service</Link> */}
             </div>
             {/* Messages Content */}
             <ScrollToBottom  className='w-full flex h-full flex-col bg-[#f9f9f9] overflow-auto '>
@@ -515,7 +536,7 @@ const Chat = () => {
               <div className={` flex items-end ${message.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
               <p className='text-semiXs mx-2 self-center'>{splitted}</p>
               <div className='flex items-end'>
-              <div className={`max-w-[130px] lg:max-w-[200px] text-xs lg:text-sm break-words ${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md rounded-ee-sm px-3 py-3" : "bg-gray-100 text-gray-700 relative rounded-md rounded-se-sm px-3 py-3"} shadow-md`}>
+              <div className={`max-w-[150px] md:max-w-[200px] lg:max-w-[300px] text-xs lg:text-sm break-words ${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md rounded-ee-sm px-3 py-3" : "bg-gray-100 text-gray-700 relative rounded-md rounded-se-sm px-3 py-3"} shadow-md`}>
               {message.message.content}
               </div>
               {sendingMessage && message._id == undefined ? (<div className="Sendingloader ml-1"></div>) : ""}
@@ -532,8 +553,7 @@ const Chat = () => {
               );
               })
               }     
-            {/* Sender Message */}
-            <p>{message}</p>
+
             </ScrollToBottom>
             {/* Message input */}
             <div className='w-full p-2 flex items-center justify-between'>

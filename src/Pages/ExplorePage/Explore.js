@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
+import getDistance from 'geolib/es/getPreciseDistance';
 
 
 const Explore = () => {
@@ -65,6 +66,7 @@ const Explore = () => {
   const [location, setLocation] = useState(null);
   const ratingValues = [5,4,3,2,1]
   const [locationFilterValue, setLocationFilterValue] = useState('')
+  const [filterLocationLongLat, setFilterLocationLongLat] = useState({longitude : 0, latitude : 0})
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
@@ -351,8 +353,9 @@ const Explore = () => {
 
       // Handle all the selected rating filter****************************************************************************
       useEffect(() => {
+        
         const serviceListInstance = [...mainServiceList];
-      
+
         const filteredServices = selectedRatingCheckbox.length > 0
           ? serviceListInstance.filter(service => selectedRatingCheckbox.includes(service.ratingRounded))
           : mainServiceList;
@@ -368,7 +371,11 @@ const Explore = () => {
           ?
           filteredServiceByCategory.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
           :
+          sortFilter === "Most Rated"
+          ?
           filteredServiceByCategory.sort((a, b) => Number(b.ratings) - Number(a.ratings))
+          :
+          filteredServiceByCategory.sort((a, b) => Number(a.ratings) - Number(b.ratings))
 
         if(search == null || search == "")
         {
@@ -403,6 +410,7 @@ const Explore = () => {
       }
     },[serviceList])
 
+
     return (
         <div className=' w-full flex h-full relative'>
         {
@@ -432,6 +440,7 @@ const Explore = () => {
             <a onClick={()=>{handleSort("Recent Services");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Recent Services</a>
             <a onClick={()=>{handleSort("Oldest Services");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Oldest Services</a>
             <a onClick={()=>{handleSort("Most Rated");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Most Rated</a>
+            <a onClick={()=>{handleSort("Least Rated");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Least Rated</a>
         </div>
         </div>
        
@@ -509,7 +518,7 @@ const Explore = () => {
           {
             places.map((place, index)=>{
              return (
-              <div key={index} onClick={()=>{setLocationFilterValue(place.place_name)}} className='m-3 flex flex-col items-start cursor-pointer '>
+              <div key={index} onClick={()=>{setLocationFilterValue(place.place_name);setFilterLocationLongLat({longitude : place.geometry.coordinates[0], latitude : place.geometry.coordinates[1]})}} className='m-3 flex flex-col items-start cursor-pointer '>
                 <h1 className=' text-sm font-semibold'>{place.text}</h1>
                 <p className=' text-[0.72rem]'>{place.place_name}</p>
               </div>

@@ -123,20 +123,20 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
     }
 
     // Function to handle window resize
-function handleResize() {
+    function handleResize() {
   const windowWidth = window.innerWidth;
 
   // Update your code or perform actions based on the new size
   setWindowWdith(windowWidth)
-}
+    }
 
-// Attach the event listener to the window resize event
-window.addEventListener('resize', handleResize);
+    // Attach the event listener to the window resize event
+    window.addEventListener('resize', handleResize);
 
-// Call the function once to get the initial size
-useEffect(()=>{
+    // Call the function once to get the initial size
+    useEffect(()=>{
   handleResize();
-},[])
+    },[])
 
 useEffect(()=>{
 
