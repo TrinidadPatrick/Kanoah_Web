@@ -43,6 +43,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
   } 
     const [userInfo, setUserInfo] = useState(null)
     const [showMenu, setShowMenu] = useState(false)
+    const [showDropdownProfile, setShowDropDownProfile] = useState(false)
     const [showLogin, setShowLogin] = useState(false)
     const [showFP, setShowFP] = useState(false)
     const [showSignup, setShowSignup] = useState(false)
@@ -138,23 +139,6 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
   handleResize();
     },[])
 
-useEffect(()=>{
-
-  const getAllUsers = async () =>{
-    const token = localStorage.getItem('accessToken')
-    try {
-      const result = await http.get('getUsers',{
-        headers : {Authorization: `Bearer ${token}`},
-      })
-
-      // console.log(result.data)
-    } catch (error) {
-      console.log(error)
-    }
-
-  }
-  getAllUsers() 
-},[])
 
     
   return (
@@ -163,120 +147,101 @@ useEffect(()=>{
 <div className='fixed h-fit p-0 top-0 left-0 bg-transparent w-full z-50'>
         {/* NAV BAR */}
 <nav className=" bg-themeBlue relative w-full z-20 top-0 left-0  dark:border-gray-600">
-
 <div className="px-3 md:px-10 flex  items-center justify-between mx-auto py-5">
-
 <div className='flex items-center justify-evenly'>
 {/* Dropdown button for mobile view  */}
 <img onClick={()=>{navigate("/")}} src={Logo} className="h-9 md:h-6 lg:h-8 mr-11 hidden md:block cursor-pointer" alt="Logo"/>
 <button className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden ">
 <input onChange={()=>{handleMenu()}} hidden className="check-icon" id="check-icon" name="check-icon" type="checkbox"/>
-            <label className="icon-menu" htmlFor="check-icon">
-                <div className="bar bar--1"></div>
-                <div className="bar bar--2"></div>
-                <div className="bar bar--3"></div>
-            </label>
+      <label className="icon-menu" htmlFor="check-icon">
+      <div className="bar bar--1"></div>
+      <div className="bar bar--2"></div>
+      <div className="bar bar--3"></div>
+      </label>
 </button>
 
 
 
- {/* Components Button */}
-  <div className={`items-center justify-between  w-screen transition ease-in-out hidden top-14 md:relative md:top-0  md:flex md:w-auto md:order-1" id="navbar-sticky`}>
-    <ul className="navbarLink flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-themeBlue md:dark:bg-themeBlue dark:border-gray-700">
-      <li>
-        <Link to="explore"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
-      </li>
-      <li>
-        {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}
+ {/* Components like home, category Button */}
+ <div className="items-center justify-between w-screen transition ease-in-out hidden top-14 md:relative md:top-0 md:flex md:w-auto md:order-1" id="navbar-sticky">
+  <ul className="navbarLink flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-themeBlue md:dark:bg-themeBlue dark:border-gray-700">
+    <li>
+      <Link to="explore" className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
+    </li>
+    <li>
+      {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}
       <div className="flex items-center mt-[0.17rem]">
-      <div className="group inline-block relative">
-        <button className=" text-white text-sm font-normal  px-2 rounded inline-flex items-center">Categories
-        <ExpandMoreIcon />
-        </button>
-        <ul className="categoryDropdown absolute hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
-          {
-            categories.map((category, index)=>{
-              return (
-            <li key={index} className="">
-            <button onClick={()=>{navigate(`explore?${"category="+category.category_name}`);window.location.reload()}} className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
-          </li>
-              )
-            })
-          }
-          
-          
-        </ul>
-      </div>
+        <div className="group inline-block relative">
+          <button className="text-white text-sm font-normal px-2 rounded inline-flex items-center">
+            Categories
+            <ExpandMoreIcon />
+          </button>
+          <ul className="categoryDropdown absolute hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
+            {categories.map((category, index) => (
+              <li key={index} className="">
+                <button onClick={() => { navigate(`explore?${"category=" + category.category_name}`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+              </li>
+            ))}
+          </ul>
         </div>
-      </li>
-      <li>
-        <a href="#" className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md">About Us</a>
-      </li>
-      <li>
-        <a href="#" className="contact block py-2 pl-3 pr-4 md:text-sm lg:text-md">Contact</a>
-      </li>
-    </ul>
-  </div>
-  </div>
+      </div>
+    </li>
+    <li>
+      <a href="#" className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md">About Us</a>
+    </li>
+    <li>
+      <a href="#" className="contact block py-2 pl-3 pr-4 md:text-sm lg:text-md">Contact</a>
+    </li>
+  </ul>
+</div>
+
+
+</div>
   
   {/* Logo */}
   <img src={Logo} className="h-5 sm:h-9 md:h-12 block md:hidden  " alt="Logo"/>
-  
-  <div className="flex md:order-2 ">
-    {/* Condition to show login and join button if logged out and show profile if Logged in */}
-    {
-      userInfo != null && isLoggedIn ?
-      (
-        <div className='flex items-center justify-evenly space-x-2 sm:space-x-5 mr-4'>
-          {/* chat */}
-          <Link to="chat">
-          <ForumRoundedIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white'/>
-          </Link>
-          <NotificationsIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
-          <div >
-            {/* PROFILE IMAGE */}
-          <img className='peer w-7 h-7 sm:w-8 sm:h-8 object-cover border-1 border-white  rounded-full' src={userInfo.profileImage} />
-          {/* Dropdown Profile */}
-          <div className="hidden absolute p-2 right-14 peer-hover:flex hover:flex w-fit rounded-md top-[3.3rem] delay-150 flex-col bg-white drop-shadow-lg overflow-hidden">
+  {/* Profile dropdown Menu**************************************************************************************************** */}
+  <div className="flex md:order-2">
+  {/* Condition to show login and join button if logged out and show profile if Logged in */}
+  {userInfo != null && isLoggedIn ? (
+    <div className='flex items-center justify-evenly space-x-2 sm:space-x-5 mr-4'>
+      {/* Chat */}
+      <Link to="chat">
+        <ForumRoundedIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
+      </Link>
+      <NotificationsIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
+      <div className=''>
+        {/* PROFILE IMAGE */}
+        <img onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} className=' w-7 h-7 sm:w-8 sm:h-8 object-cover border-1 border-white rounded-full' src={userInfo.profileImage} alt="User Profile" />
+        {/* Dropdown Profile */}
+        <div className={`${showDropdownProfile ? "block" : "hidden"} absolute p-2 right-14 hover:flex w-fit rounded-md top-[3.3rem] delay-150 flex-col bg-white drop-shadow-lg overflow-hidden`}>
           <header className='flex border-b pb-2'>
-          {/* Image container */}
-          <div className=' flex items-center'>
-          <img className='peer w-9 h-9 max-h-9 object-cover border-1 border-white  rounded-full' src={userInfo.profileImage} />
-          </div>
-          <div className='ml-1'>
-          <h1 className='text-sm font-semibold'>{userInfo.username}</h1>
-          <p className='text-xs text-gray-500'>{userInfo.email}</p>
-          </div>
-          
+            {/* Image container */}
+            <div className='flex items-center'>
+              <img className='peer w-9 h-9 max-h-9 object-cover border-1 border-white rounded-full' src={userInfo.profileImage} alt="User Profile" />
+            </div>
+            <div className='ml-1'>
+              <h1 className='text-sm font-semibold'>{userInfo.username}</h1>
+              <p className='text-xs text-gray-500'>{userInfo.email}</p>
+            </div>
           </header>
-          <Link to={`/myAccount/${"Profile"}`} className="px-1 py-3 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon  />Profile Settings</Link>
-          <Link to='/serviceRegistration' className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
-          <Link to={`/serviceSettings/myService`} className="px-1 py-3 hover:bg-gray-200  text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
-
+          <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to={`/myAccount/${"Profile"}`} className="px-1 py-3 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon />Profile Settings</Link>
+          <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to='/serviceRegistration' className="px-1 py-3 hover:bg-gray-200 text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
+          <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to={`/serviceSettings/myService`} className="px-1 py-3 hover:bg-gray-200 text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
           <footer className='px-1 text-red-500 border-t-1 pt-3'>
-            <button onClick={()=>{signout()}} className='flex items-center gap-2'><ExitToAppOutlinedIcon />Sign out</button>
+            <button onClick={() => { signout() }} className='flex items-center gap-2'><ExitToAppOutlinedIcon />Sign out</button>
           </footer>
-          </div>
-          </div>
-          
         </div>
-      )
-      :
-      isLoggedIn == false ?
-      (
-      <div className='flex space-x-2'>
-      <button onClick={()=>{setShowLogin(true);handleOpen()}} className='text-white border-2 px-4 py-1 rounded-md border-white'>Login</button>
-      <button onClick={()=>{setShowSignup(true);handleOpen()}} className='text-white bg-themeOrange border-2 border-themeOrange px-6 py-1 rounded-md '>Join</button>
-      </div>    
-      ) 
+      </div>
+    </div>
+  ) : isLoggedIn === false ? (
+    <div className='flex space-x-2'>
+      <button onClick={() => { setShowLogin(true); handleOpen() }} className='text-white border-2 px-4 py-1 rounded-md border-white'>Login</button>
+      <button onClick={() => { setShowSignup(true); handleOpen() }} className='text-white bg-themeOrange border-2 border-themeOrange px-6 py-1 rounded-md'>Join</button>
+    </div>
+  ) : null}
+  </div>
 
-      :
-      (
-        ""
-      )
-    }
-
-</div>
 </div>
 </nav>
 {/* Mobile Components Options */}

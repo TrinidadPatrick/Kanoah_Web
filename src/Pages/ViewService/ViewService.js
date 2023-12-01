@@ -286,12 +286,12 @@ const ViewService = () => {
           <p className='text-start font-medium'>Location</p>
           <div className='flex items-center gap-2 text-gray-700 font-semibold'>
           <FaMapLocation className='text-black' />
-            <a className=' cursor-pointer' href={`https://www.google.com/maps/dir/?api=1&destination=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`}>
+            <p onClick={()=>{window.open(`https://www.google.com/maps/dir/?api=1&destination=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black')}} className=' cursor-pointer' >
             {serviceInfo.address.barangay + " " + serviceInfo.address.municipality + ", " + serviceInfo.address.province } 
-            </a>
+            </p>
           </div>
           <ReactMapGL
-          onClick={()=>{window.open(`https://www.google.com/maps?q=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black')}}
+          onClick={()=>{window.open(`https://www.google.com/maps/dir/?api=1&destination=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black')}}
             draggable={false}
             onMove={evt => setViewPort(evt.viewport)}
             mapboxAccessToken="pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ybWJhb2MwMmR4MnFyeWRjMWtuZDVwIn0.mJug0iHxD8aq8ZdT29B-fg"

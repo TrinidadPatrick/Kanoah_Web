@@ -33,10 +33,13 @@ const Explore = () => {
   const [loadingPage, setLoadingPage] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams();
+  const longitudeParam = parseFloat(searchParams.get('longitude')) || 0;
+  const latitudeParam = parseFloat(searchParams.get('latitude')) || 0;
   const rating = searchParams.get('rating')
   const category = searchParams.get('category')
   const sort = searchParams.get('sort')
   const search = searchParams.get('search')
+  const radiusParam = searchParams.get('rd')
   const [rerender, setRerender] = useState(0)
   const [serviceList, setServiceList] = useState([])
   const [mainServiceList, setMainServiceList] = useState([])
@@ -67,13 +70,25 @@ const Explore = () => {
   const ratingValues = [5,4,3,2,1]
   const [locationFilterValue, setLocationFilterValue] = useState('')
   const [filterLocationLongLat, setFilterLocationLongLat] = useState({longitude : 0, latitude : 0})
+
+  const [radius, setRadius] = useState(1)
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
   const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
   const currentDay = currentDate.getDate().toString().padStart(2, '0');
   const thisDate = currentYear + "-" + currentMonth + "-" + currentDay
 
-  
+  // For km radius
+  const radiusList = () => {
+    const radiusValues = []
+    
+    for(let i = 1;i<=100;i++)
+    {
+      radiusValues.push(i)
+    }
+
+    return radiusValues
+  }
   // Computes the rating Average
   const ratingAverage = (services) => {
     return services.map((service, index) => {
@@ -279,6 +294,14 @@ const Explore = () => {
               {
                 setSearchInput(search)
               }
+              if((longitudeParam == null || longitudeParam == "") && latitudeParam == null || latitudeParam == "")
+              {
+                
+              }
+              else
+              {
+                setFilterLocationLongLat({longitude : longitudeParam, latitude : latitudeParam})
+              }
 
      },[mainServiceList])
       // Apply the filter
@@ -290,12 +313,17 @@ const Explore = () => {
 
       // Clears the filter
       const clearFilter = () => {
+        setRadius(1)
+        setLoadingPage(true)
+        setLocationFilterValue('')
         setDonotApplyFilter(false)
         setSelectedRatingCheckbox([])
         setSelectedCategory('Select Category')
         setSortFilter("Recent Services")
         setServiceList(mainServiceList)
+        setFilterLocationLongLat({latitude : 0, longitude : 0})
         setTimeout(()=>{
+          setLoadingPage(false)
           setRerender(prevRerender => prevRerender + 1)
         },200)
         
@@ -344,6 +372,8 @@ const Explore = () => {
       setSearchInput(input)
     }
 
+    
+
     // Handle Submit search
     const handleSubmitSearch = () => {
       const result = serviceList.length === 0 ?
@@ -364,13 +394,13 @@ const Explore = () => {
 
       // Handle all the selected rating filter****************************************************************************
       useEffect(() => {
-        const serviceListInstance = [...mainServiceList];
 
+        const serviceListInstance = [...mainServiceList];
         const filteredByLocation = serviceListInstance.filter(service => {
           const distance = calculateDistance(service.address.latitude, service.address.longitude, filterLocationLongLat.latitude, filterLocationLongLat.longitude)
           const distanceInKm = distance / 1000;
 
-          return distanceInKm < 5
+          return distanceInKm < radius
         })
 
         const initialServiceList = filterLocationLongLat.latitude && filterLocationLongLat.longitude != 0 ? filteredByLocation
@@ -411,7 +441,7 @@ const Explore = () => {
           
         }
         
-      }, [selectedRatingCheckbox, selectedCategory, mainServiceList, sortFilter, searchInput, locationFilterValue]);
+      }, [selectedRatingCheckbox, selectedCategory, mainServiceList, sortFilter, searchInput, locationFilterValue, radius]);
 
 
     //  Apply the filter onload only
@@ -431,6 +461,38 @@ const Explore = () => {
       }
     },[serviceList])
 
+    const getPlaceName = async () => {
+      try {
+        const response = await axios.get(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitudeParam},${latitudeParam}.json`,
+          {
+            params: {
+              access_token: "pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ybWJhb2MwMmR4MnFyeWRjMWtuZDVwIn0.mJug0iHxD8aq8ZdT29B-fg",
+            },
+          }
+        );
+    
+        // Extract the place name from the response
+        const placeName = response.data.features[3].place_name;
+        setLocationFilterValue(placeName)
+      } catch (error) {
+        console.error('Error fetching place name:', error);
+        return null;
+      }
+    };
+
+    useEffect(()=>{
+      if(longitudeParam != 0)
+      {
+        getPlaceName()
+      }
+      if(radiusParam != null || radiusParam != "")
+      {
+
+        setRadius(Number(radiusParam))
+      }
+      
+    },[])
 
     return (
         <div className=' w-full flex h-full relative'>
@@ -523,23 +585,29 @@ const Explore = () => {
 
         {/* Location Filter */}
         <div className='flex flex-col space-y-1'>
-        <div className="w-full shadow-sm mx-auto rounded-lg overflow-hidden md:max-w-xl">
+        <div className="w-full mx-auto  overflow-hidden md:max-w-xl">
         <h1 className='font-medium text-lg mb-2'>Location</h1>
         <div className="md:flex">
         <div className="w-full">
-        <div className="relative">
-          <SearchOutlinedIcon className="absolute text-gray-400 top-[0.9rem] left-4"/>
-          <input value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} placeholder="Enter location" type="text" className="bg-white h-12 w-full ps-12 pe-2 text-sm border rounded-lg focus:outline-none hover:cursor-arrow" />
+        <div className="relative flex">
+        <select defaultValue={radius} className='outline-none ps-1 w-[60px] border border-e-0 rounded-s-lg' onChange={(e)=>{setDonotApplyFilter(true);setRadius(Number(e.target.value))}}>
+          {
+           radiusList().map((radius)=>(
+            <option value={radius} key={radius} >{radius} km</option>
+           ))
+          }
+        </select>
+          <input onFocus={(e)=>{if(e.target.value != ""){document.getElementById('placeDropdown').classList.remove('hidden')}}} value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} placeholder="Enter location" type="text" className="bg-white h-10 w-full ps-2 pe-2 text-sm border rounded-lg rounded-s-none focus:outline-none hover:cursor-arrow" />
         </div> 
         </div>
         </div>
         </div>
 
-        <div className={`${locationFilterValue != "" ? "relative" : "hidden"} bg-white h-44 overflow-auto flex flex-col shadow-sm border rounded-sm`}>
+        <div id='placeDropdown' className={`${locationFilterValue != "" ? "relative" : "hidden"} bg-white h-44 overflow-auto flex flex-col shadow-sm border rounded-sm`}>
           {
             places.map((place, index)=>{
              return (
-              <div key={index} onClick={()=>{handleLocationFilter(place)}} className='m-3 flex flex-col items-start cursor-pointer '>
+              <div key={index} onClick={()=>{handleLocationFilter(place);document.getElementById('placeDropdown').classList.add('hidden')}} className='m-3 flex flex-col items-start cursor-pointer '>
                 <h1 className=' text-sm font-semibold'>{place.text}</h1>
                 <p className=' text-[0.72rem]'>{place.place_name}</p>
               </div>
@@ -551,7 +619,7 @@ const Explore = () => {
         </div>
 
         {/* Buttons */}
-        <button onClick={()=>{applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
+        <button onClick={()=>{applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput, longitude : filterLocationLongLat.longitude, latitude : filterLocationLongLat.latitude, rd : radius})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
         <button onClick={()=>{setSearchParams({rating :"", category:"", sort : "Recent Services", search});clearFilter()}} className='font-medium'>Clear Filters</button>
         </div>
         </section>

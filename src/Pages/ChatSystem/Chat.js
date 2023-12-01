@@ -492,7 +492,7 @@ const Chat = () => {
                     <p className='text-gray-500 text-sm md:text-[0.975rem] text-ellipsis font-semibold max-w-[200px] md:max-w-[300px] lg:max-w-[350px] xl:max-w-[400px] overflow-hidden whitespace-nowrap '>{recipient.serviceInquired.basicInformation.ServiceTitle}</p>
                 }
                 </div>
-                {/* <Link to={`/explore/viewService/${service}`} className=' absolute right-0 text-semiXs md:text-sm bg-themeBlue text-gray-50 px-3 py-1 rounded-sm'>View Service</Link> */}
+                <Link to={`/explore/viewService/${service}`} className=' absolute right-0 text-semiXs md:text-sm bg-themeBlue text-gray-50 px-3 py-1 rounded-sm'>View Service</Link>
             </div>
             {/* Messages Content */}
             <ScrollToBottom  className='w-full flex h-full flex-col bg-[#f9f9f9] overflow-auto '>
