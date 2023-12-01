@@ -53,6 +53,7 @@
     "rsuite": "^5.40.0",
     "swiper": "^10.3.1",
     "web-vitals": "^2.1.4",
+    "worker-loader": "^3.0.8",
     "yet-another-react-lightbox": "^3.14.0"
   },
   "scripts": {
@@ -71,7 +72,10 @@
     "production": [
       ">0.2%",
       "not dead",
-      "not op_mini all"
+      "not op_mini all",
+      "not chrome < 51",
+        "not safari < 10",
+        "not android < 51"
     ],
     "development": [
       "last 1 chrome version",

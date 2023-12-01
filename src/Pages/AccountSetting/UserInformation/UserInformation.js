@@ -17,10 +17,13 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import cloudinaryCore from '../../../CloudinaryConfig'
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../../ReduxTK/userSlice';
+import mapboxgl from 'mapbox-gl';
 import { useNavigate } from 'react-router-dom'
 
 
+
 const UserInformation = () => {
+  
     const navigate = useNavigate()
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId); 
