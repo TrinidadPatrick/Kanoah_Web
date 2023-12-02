@@ -23,6 +23,7 @@ const Chat = () => {
     const convoId = searchParams.get('convoId')
     const to = searchParams.get('to')
     const service = searchParams.get('service')
+    const openChat = searchParams.get('t')
     const [serviceFromParam, setServiceFromParam] = useState('')
 
     const [loading, setLoading] = useState(true)
@@ -52,6 +53,7 @@ const Chat = () => {
     // All contacts that the user have communicated with
     const [allContacts, setAllContacts] = useState([])
     const [conversationId, setConversationId] = useState('')
+    const [messageContentBoxClass, setMessageContentBoxClass] = useState('w-full overflow-hidden hidden absolute sm:relative sm:flex flex-col h-screen  sm:px-2 pt-20 pb-2');
 
    // Get the userId asynchronously
    const setUserId = ()=>{
@@ -371,7 +373,7 @@ const Chat = () => {
       };
   
       // Set up the interval
-      const intervalId = setInterval(myFunction, 5000);
+      const intervalId = setInterval(myFunction, 3000);
   
       // Clean up the interval when the component is unmounted
       return () => clearInterval(intervalId);
@@ -393,7 +395,22 @@ const Chat = () => {
           handleResize();
     },[])
 
+    // For mobile view, if the converstaion is new, automatically open that conversation
+    useEffect(()=>{
+      if (allContacts.length !== 0) {
+        const checkChat = allContacts.find(contact => contact.conversationId === convoId);
+        if (checkChat) {
+        } else {
+          if (windowWidth <= 639) {
+            setMessageContentBoxClass('-translate-x-[50%] left-[50%] -full overflow-hidden w-full absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 pb-2 transition duration-500 ease-out');
+            console.log('Not found');
+          }
+        }
+      }
+      
+    },[allContacts])
 
+    
   return (
     <div className='w-full h-screen grid place-items-center'>
     {
@@ -475,7 +492,7 @@ const Chat = () => {
             </section>
         
             {/* Chats and message contents */}
-            <section id='messageContentBox' className='w-full overflow-hidden hidden absolute sm:relative sm:flex flex-col h-screen  sm:px-2 pt-20 pb-2'>
+            <section id='messageContentBox' className={messageContentBoxClass}>
             {/* <section id='messageContentBox' className='w-full  -translate-x-[100%] sm:translate-x-[0%] absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 pb-2'> */}
             <div className='w-full h-full bg-white justify-start flex flex-col shadow-md sm:rounded-lg px-2'>
             <div className='w-full py-3  bg-white relative border-b-2 shadow-sm flex space-x-2 items-center object-contain'>

@@ -188,12 +188,10 @@ const ViewService = () => {
   const handleChatNow = () => {
     if(isLoggedIn)
     {
-      navigate(`/chat?to=${serviceInfo.owner.username}&service=${serviceInfo._id}`)
+      navigate(`/chat?to=${serviceInfo.owner.username}&service=${serviceInfo._id}&t=open`)
     }
     else{
-      console.log("Not logged In")
       dispatch(setShowLoginModal(true))
-      setOpenModal(true)
     }
   }
 
@@ -454,17 +452,6 @@ const ViewService = () => {
         </footer>
       )
     }
-     {/* Modal */}
-    {/* <Modal open={openModal} onClose={handleClose} className='mt-20'> 
-    <Box sx={style} style={{height: "fitContent", width: "fitContent"}}> 
-    {
-
-      showLogin ? (<Login />) : ""
-    }  
-    </Box>
-    </Modal>   */}
-
-
     
     </div>
     

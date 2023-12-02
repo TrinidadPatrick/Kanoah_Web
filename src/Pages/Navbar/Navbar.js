@@ -21,7 +21,7 @@ import http from '../../http'
 import logo from "../../Utilities/Logo/Logo1.png"
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserId, selectUserId, selectLoggedIn, setLoggedIn, selectShowLoginModal } from '../../ReduxTK/userSlice';
+import { setUserId, selectUserId, selectLoggedIn, setLoggedIn, selectShowLoginModal, setShowLoginModal } from '../../ReduxTK/userSlice';
 import ViewService from '../ViewService/ViewService'
 export const Context = React.createContext()
 
@@ -42,6 +42,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
   const handleClose = (event, reason) => {
     if (reason !== 'backdropClick') {
       setOpen(false)
+      dispatch(setShowLoginModal(false))
     }
   } 
     const [userInfo, setUserInfo] = useState(null)
