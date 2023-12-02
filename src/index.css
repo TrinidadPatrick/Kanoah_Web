@@ -223,7 +223,7 @@
 .image-gallery-original img {
   height: 450px ;
   width: 100%;
-  object-fit: cover !important;
+  object-fit: contain !important;
   border-radius: 6px;
   
 }

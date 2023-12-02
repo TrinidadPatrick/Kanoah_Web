@@ -1,11 +1,5 @@
 import React from 'react'
 import Rating from '@mui/material/Rating';
-import pic1 from './img/pic1.jpg'
-import pic2 from './img/pic2.jpg'
-import pic3 from './img/pic3.avif'
-import pic4 from './img/pic4.jpg'
-import pic5 from './img/pic5.jpg'
-import pic6 from './img/pic6.jpg'
 import profile from './img/Profile3.jpg'
 import { styled } from '@mui/material/styles';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
@@ -32,19 +26,35 @@ import Download from "yet-another-react-lightbox/plugins/download";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserId, selectUserId, setLoggedIn,setShowLoginModal, selectLoggedIn, selectShowLoginModal } from '../../ReduxTK/userSlice';
 import http from '../../http';
 import Footer from '../MainPage/Footer';
+import { useContext } from 'react';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Navbar, { Context } from '../Navbar/Navbar';
+import Register from '../RegisterPage/Register';
+import Login from '../LoginPage/Login';
+import ForgotPassword from '../ForgotPasswordPage/ForgotPassword';
 
 
 
 
 const ViewService = () => {
+  
   const navigate = useNavigate()
+  const dispatch = useDispatch();
+
+  const isLoggedIn = useSelector(selectLoggedIn); 
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [serviceInfo, setServiceInfo] = useState(null)
   const { serviceId } = useParams();
   const [open, setOpen] = React.useState(false);
+  const [openModal, setOpenModal] = React.useState(false);
   const [selectedOptions, setSelectedOptions] = useState('Description')
   const [currentDay, setCurrentDay] = useState('')
+  
   const schedule = [{day: "Monday", "startTime" : "9:00 AM", endTime : "8:00 PM"},
   {day: "Tuesday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
   {day: "Wednesday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
@@ -72,7 +82,11 @@ const ViewService = () => {
     ))
   }
 
-  
+  const handleImageClick = (imageSrc) => {
+    const index = serviceInfo.galleryImages.findIndex(image => image.src == imageSrc)
+    setSelectedImageIndex(index);
+    setOpen(true);
+  };
 
   // Rating stars
   const StyledRating = styled(Rating)({
@@ -170,9 +184,25 @@ const ViewService = () => {
     })
   }
 
+  // Make logic for chatnow
+  const handleChatNow = () => {
+    if(isLoggedIn)
+    {
+      navigate(`/chat?to=${serviceInfo.owner.username}&service=${serviceInfo._id}`)
+    }
+    else{
+      console.log("Not logged In")
+      dispatch(setShowLoginModal(true))
+      setOpenModal(true)
+    }
+  }
+
+
+
   useEffect(()=>{
     getService()
   },[])
+
   return (
     
    <div className='grid place-items-center h-screen  w-full'>
@@ -180,7 +210,7 @@ const ViewService = () => {
     {
       serviceInfo == null ? (
         <div className='w-full h-screen grid place-items-center'>
-            <div class="spinner"></div>
+            <div className="spinner"></div>
             </div>
       ) :
       (
@@ -209,7 +239,7 @@ const ViewService = () => {
         </div>
         {/* Buttons */}
         <div className='flex flex-col space-y-2 '>
-        <button onClick={()=>{navigate(`/chat?to=${serviceInfo.owner.username}&service=${serviceInfo._id}`)}} className='text-lg font-semibold bg-green-500 h-full text-white w-36 rounded-[0.150rem]'>Chat now</button>
+        <button onClick={()=>{handleChatNow()}} className='text-lg font-semibold bg-green-500 h-full text-white w-36 rounded-[0.150rem]'>Chat now</button>
         <button className='text-lg font-semibold bg-themeOrange h-full text-white w-36 rounded-[0.150rem]'>Book Service</button>
         </div>
         </div>
@@ -228,7 +258,7 @@ const ViewService = () => {
           />
           </div>
         
-        {/* <Carousel hasThumbnails={false} shouldLazyLoad={true} hasTransition={true} hasIndexBoard={false } playIcon={false} thumbnailHeight="80px" thumbnailClass="tmb" thumbnailWidth='150px'  images={images} style={{ height: "", width: "80%", display: "flex" }} /> */}
+        {/* <Carousel hasThumbnails={false} shouldLazyLoad={true} hasTransition={true} hasIndexBoard={false } playIcon={false} thumbnailHeight="80px" thumbnailclassName="tmb" thumbnailWidth='150px'  images={images} style={{ height: "", width: "80%", display: "flex" }} /> */}
         </div>
         </div>
 
@@ -399,9 +429,10 @@ const ViewService = () => {
         <div className=' w-full max-h-[550px] bg-white rounded-lg h-[550px] border-2 px-6 relative'>
         <h1 className='text-4xl text-center font-semibold mt-0 bg-white p-4 sticky top-0 z-10'>Gallery</h1>
         <div className='galleryContainer bg-white mb-2 max-h-[460px] overflow-auto'>
-        <ResponsiveGallery mediaClassName="hello" mediaStyle={{borderRadius : "5px"}} key={serviceInfo.galleryImages} onClick={()=>{setOpen(true)}} mediaMaxWidth={{xxl: 100}} colsPadding={{xs:1,s:2,m:2,l:2, xl:2,xxl:2}} useLightBox={false} numOfMediaPerRow={{xs:1,s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={serviceInfo.galleryImages} />
+        <ResponsiveGallery mediaClassName="hello" mediaStyle={{borderRadius : "5px"}} key={serviceInfo.galleryImages} onClick={(image)=>{handleImageClick(image)}}  mediaMaxWidth={{xxl: 100}} colsPadding={{xs:1,s:2,m:2,l:2, xl:2,xxl:2}} useLightBox={false} numOfMediaPerRow={{xs:1,s: 2,m:3, l: 3, xl:4 ,xxl : 4}} media={serviceInfo.galleryImages} />
         </div>
         <Lightbox
+        index={selectedImageIndex}
         plugins={[Download,Fullscreen]}
         open={open}
         close={() => setOpen(false)}
@@ -409,6 +440,7 @@ const ViewService = () => {
       />
       </div>
       </section>
+      
      
      </div>
       )
@@ -422,7 +454,17 @@ const ViewService = () => {
         </footer>
       )
     }
-     
+     {/* Modal */}
+    {/* <Modal open={openModal} onClose={handleClose} className='mt-20'> 
+    <Box sx={style} style={{height: "fitContent", width: "fitContent"}}> 
+    {
+
+      showLogin ? (<Login />) : ""
+    }  
+    </Box>
+    </Modal>   */}
+
+
     
     </div>
     

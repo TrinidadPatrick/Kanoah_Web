@@ -306,9 +306,7 @@ const Explore = () => {
      },[mainServiceList])
       // Apply the filter
       const applyFilter = () => {    
-          setServiceList(filteredService)
-          
-          
+          setServiceList(filteredService) 
       }
 
       // Clears the filter
@@ -457,7 +455,10 @@ const Explore = () => {
     
     useEffect(()=>{
       if(serviceList.length!== 0){
+        setTimeout(()=>{
           setLoadingPage(false)
+        }, 200)
+          
       }
     },[serviceList])
 
@@ -694,7 +695,7 @@ const Explore = () => {
                   {/* More Options Button */}
                   <OutsideClickHandler onOutsideClick={()=>{setActiveId(null)}}>
                   <MoreVertIcon onClick={()=>{openMoreOptions(service._id)}} className={` ${service._id == activeId ? "text-gray-300" : "text-gray-600"}  absolute right-1 bottom-3 cursor-pointer hover:text-gray-300`} />
-                  <div id={service.id} className={`${service._id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200 z-20  bg-white shadow-lg rounded-md right-[1.5rem] xl:right-[2rem] bottom-[1rem] xl:top-[12rem]`}>
+                  <div id={service.id} className={`${service._id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200 z-20  bg-white h-fit shadow-lg rounded-md right-[1.5rem] xl:right-[2rem] bottom-[1rem] xl:top-[12rem]`}>
                   <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
                   <LibraryAddIcon />
                   <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Add to Library</p>

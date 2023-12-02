@@ -154,7 +154,6 @@ useEffect(()=>{
   getFeaturedImages()
 }, [])
 
-console.log(userId)
   return (
     <div className='w-full bg-white h-full  flex flex-col mt-5'>
     

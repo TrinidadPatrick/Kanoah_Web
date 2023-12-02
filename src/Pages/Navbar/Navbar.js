@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, createContext, useContext, useEffect} from 'react'
+import { useState, createContext, useContext, useEffect,} from 'react'
 import ForgotPassword from '../ForgotPasswordPage/ForgotPassword'
 import Login from '../LoginPage/Login'
 import Register from '../RegisterPage/Register'
@@ -21,7 +21,8 @@ import http from '../../http'
 import logo from "../../Utilities/Logo/Logo1.png"
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
+import { setUserId, selectUserId, selectLoggedIn, setLoggedIn, selectShowLoginModal } from '../../ReduxTK/userSlice';
+import ViewService from '../ViewService/ViewService'
 export const Context = React.createContext()
 
 
@@ -30,6 +31,8 @@ const Navbar = () => {
 const [windowWidth, setWindowWdith] = useState(null)
 const dispatch = useDispatch();
 const userId = useSelector(selectUserId);
+const loggedIn = useSelector(selectLoggedIn);
+const showLoginModal = useSelector(selectShowLoginModal);
 const [isLoggedIn, setIsLoggedIn] = useState(undefined)
  const navigate = useNavigate()
  const [accessToken, setAccessToken] = useState(null);
@@ -79,6 +82,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         })
         if(response.status == 200)
         {
+          dispatch(setLoggedIn(true))
           setIsLoggedIn(true)
           getUser(response.data.user._id)
         }
@@ -89,6 +93,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         if(error.response.status == 403 || error.response.status == 401)
         console.error('Profile Error:', error.response.status);
         setIsLoggedIn(false)
+        dispatch(setLoggedIn(false))
         // navigate("/")
       }
     }
@@ -99,7 +104,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         headers : {Authorization: `Bearer ${token}`},
       }).then((res)=>{
         setUserInfo(res.data)
-        
+        dispatch(setLoggedIn(true))
         dispatch(setUserId(res.data._id));
       }).catch((err)=>{
         console.log(err)
@@ -113,6 +118,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         getUserProfile(accessToken);
         // getUser()
       }else{
+        dispatch(setLoggedIn(false))
         dispatch(setUserId("NoId"));
         setIsLoggedIn(false)
       }
@@ -139,64 +145,69 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
   handleResize();
     },[])
 
-
-    
+    useEffect(()=>{
+      if(showLoginModal)
+      {
+        setShowLogin(true)
+        setOpen(true)
+      }
+    },[showLoginModal])
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
     <>
-<div className='fixed h-fit p-0 top-0 left-0 bg-transparent w-full z-50'>
-        {/* NAV BAR */}
-<nav className=" bg-themeBlue relative w-full z-20 top-0 left-0  dark:border-gray-600">
-<div className="px-3 md:px-10 flex  items-center justify-between mx-auto py-5">
-<div className='flex items-center justify-evenly'>
-{/* Dropdown button for mobile view  */}
-<img onClick={()=>{navigate("/")}} src={Logo} className="h-9 md:h-6 lg:h-8 mr-11 hidden md:block cursor-pointer" alt="Logo"/>
-<button className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden ">
-<input onChange={()=>{handleMenu()}} hidden className="check-icon" id="check-icon" name="check-icon" type="checkbox"/>
-      <label className="icon-menu" htmlFor="check-icon">
-      <div className="bar bar--1"></div>
-      <div className="bar bar--2"></div>
-      <div className="bar bar--3"></div>
-      </label>
-</button>
+  <div className='fixed h-fit p-0 top-0 left-0 bg-transparent w-full z-50'>
+          {/* NAV BAR */}
+  <nav className=" bg-themeBlue relative w-full z-20 top-0 left-0  dark:border-gray-600">
+  <div className="px-3 md:px-10 flex  items-center justify-between mx-auto py-5">
+  <div className='flex items-center justify-evenly'>
+  {/* Dropdown button for mobile view  */}
+  <img onClick={()=>{navigate("/")}} src={Logo} className="h-9 md:h-6 lg:h-8 mr-11 hidden md:block cursor-pointer" alt="Logo"/>
+  <button className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden ">
+  <input onChange={()=>{handleMenu()}} hidden className="check-icon" id="check-icon" name="check-icon" type="checkbox"/>
+        <label className="icon-menu" htmlFor="check-icon">
+        <div className="bar bar--1"></div>
+        <div className="bar bar--2"></div>
+        <div className="bar bar--3"></div>
+        </label>
+  </button>
 
 
 
- {/* Components like home, category Button */}
- <div className="items-center justify-between w-screen transition ease-in-out hidden top-14 md:relative md:top-0 md:flex md:w-auto md:order-1" id="navbar-sticky">
-  <ul className="navbarLink flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-themeBlue md:dark:bg-themeBlue dark:border-gray-700">
-    <li>
-      <Link to="explore" className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
-    </li>
-    <li>
-      {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}
-      <div className="flex items-center mt-[0.17rem]">
-        <div className="group inline-block relative">
-          <button className="text-white text-sm font-normal px-2 rounded inline-flex items-center">
-            Categories
-            <ExpandMoreIcon />
-          </button>
-          <ul className="categoryDropdown absolute hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
-            {categories.map((category, index) => (
-              <li key={index} className="">
-                <button onClick={() => { navigate(`explore?${"category=" + category.category_name}`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
-              </li>
-            ))}
-          </ul>
+  {/* Components like home, category Button */}
+  <div className="items-center justify-between w-screen transition ease-in-out hidden top-14 md:relative md:top-0 md:flex md:w-auto md:order-1" id="navbar-sticky">
+    <ul className="navbarLink flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-themeBlue md:dark:bg-themeBlue dark:border-gray-700">
+      <li>
+        <Link to="explore" className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
+      </li>
+      <li>
+        {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}
+        <div className="flex items-center mt-[0.17rem]">
+          <div className="group inline-block relative">
+            <button className="text-white text-sm font-normal px-2 rounded inline-flex items-center">
+              Categories
+              <ExpandMoreIcon />
+            </button>
+            <ul className="categoryDropdown absolute hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
+              {categories.map((category, index) => (
+                <li key={index} className="">
+                  <button onClick={() => { navigate(`explore?${"category=" + category.category_name}`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
-    </li>
-    <li>
-      <a href="#" className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md">About Us</a>
-    </li>
-    <li>
-      <a href="#" className="contact block py-2 pl-3 pr-4 md:text-sm lg:text-md">Contact</a>
-    </li>
-  </ul>
-</div>
+      </li>
+      <li>
+        <a href="#" className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md">About Us</a>
+      </li>
+      <li>
+        <a href="#" className="contact block py-2 pl-3 pr-4 md:text-sm lg:text-md">Contact</a>
+      </li>
+    </ul>
+  </div>
 
 
-</div>
+  </div>
   
   {/* Logo */}
   <img src={Logo} className="h-5 sm:h-9 md:h-12 block md:hidden  " alt="Logo"/>
@@ -214,11 +225,11 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         {/* PROFILE IMAGE */}
         <img onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} className=' w-7 h-7 sm:w-8 sm:h-8 object-cover border-1 border-white rounded-full' src={userInfo.profileImage} alt="User Profile" />
         {/* Dropdown Profile */}
-        <div className={`${showDropdownProfile ? "block" : "hidden"} absolute p-2 right-14 hover:flex w-fit rounded-md top-[3.3rem] delay-150 flex-col bg-white drop-shadow-lg overflow-hidden`}>
+        <div className={`${showDropdownProfile ? "block" : "hidden"} bg-white absolute p-2 right-14 delay-100 w-fit rounded-md top-[3.3rem] flex-col drop-shadow-lg overflow-hidden`}>
           <header className='flex border-b pb-2'>
             {/* Image container */}
             <div className='flex items-center'>
-              <img className='peer w-9 h-9 max-h-9 object-cover border-1 border-white rounded-full' src={userInfo.profileImage} alt="User Profile" />
+              <img className=' w-9 h-9 max-h-9 object-cover border-1 border-white rounded-full' src={userInfo.profileImage} alt="User Profile" />
             </div>
             <div className='ml-1'>
               <h1 className='text-sm font-semibold'>{userInfo.username}</h1>
@@ -242,53 +253,53 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
   ) : null}
   </div>
 
-</div>
-</nav>
-{/* Mobile Components Options */}
-<div className={`${showMenu ? "relative" : "hidden"} h-[200px] relative md:hidden w-full pb-3 bg-transparent bg-black`}>
-<ul className="navbarLink flex flex-col p-4 md:p-0 font-medium space-y-5  md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-themeBlue">
-      <li>
-        <Link to="/"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Home</Link>
-      </li>
-      
-      <li>
-        <Link to="explore"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
-      </li>
-      <li>
-        {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}
-      <div className="flex items-center mt-[0.17rem]">
-      <div className="group inline-block relative">
-        <button className=" text-white text-md font-normal  rounded inline-flex items-center">Categories
-        <ExpandMoreIcon />
-        </button>
-        <ul className="categoryDropdown absolute left-[6.2rem] top-1 hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
-          {
-            categories.map((category, index)=>{
-              return (
-            <li key={index} className="">
-            <button onClick={()=>{navigate(`explore?${"category="+category.category_name}`);window.location.reload()}} className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
-          </li>
-              )
-            })
-          }
-          
-          
-        </ul>
-      </div>
+  </div>
+  </nav>
+  {/* Mobile Components Options */}
+  <div className={`${showMenu ? "relative" : "hidden"} h-[200px] relative md:hidden w-full pb-3 bg-transparent bg-black`}>
+  <ul className="navbarLink flex flex-col p-4 md:p-0 font-medium space-y-5  md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-themeBlue">
+        <li>
+          <Link onClick={()=>{handleMenu();document.getElementById('check-icon').checked = false}} to="/"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Home</Link>
+        </li>
+        
+        <li>
+          <Link onClick={()=>{handleMenu();document.getElementById('check-icon').checked = false}} to="explore"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
+        </li>
+        <li>
+          {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}
+        <div className="flex items-center mt-[0.17rem]">
+        <div className="group inline-block relative">
+          <button className=" text-white text-md font-normal  rounded inline-flex items-center">Categories
+          <ExpandMoreIcon />
+          </button>
+          <ul className="categoryDropdown absolute left-[6.2rem] top-1 hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
+            {
+              categories.map((category, index)=>{
+                return (
+              <li key={index} className="">
+              <button onClick={()=>{navigate(`explore?${"category="+category.category_name}`);window.location.reload()}} className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+            </li>
+                )
+              })
+            }
+            
+            
+          </ul>
         </div>
-      </li>
-      <li>
-        <a href="#" className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md">About Us</a>
-      </li>
-      <li>
-        <a href="#" className="contact block py-2 pl-3 pr-4 md:text-sm lg:text-md">Contact</a>
-      </li>
-</ul>
-</div>
+          </div>
+        </li>
+        <li>
+          <a onClick={()=>{handleMenu();document.getElementById('check-icon').checked = false}} href="#" className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md">About Us</a>
+        </li>
+        <li>
+          <a onClick={()=>{handleMenu();document.getElementById('check-icon').checked = false}} href="#" className="contact block py-2 pl-3 pr-4 md:text-sm lg:text-md">Contact</a>
+        </li>
+  </ul>
+  </div>
 
-<div>
+  <div>
     
-    </div>
+  </div>
   
 {/* Modal */}
 <Modal open={open} onClose={handleClose} className='mt-20'> 
@@ -297,7 +308,9 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
   showLogin ? <Login /> : showSignup ? <Register /> : showFP ? <ForgotPassword /> :""
 }  
 </Box>
-</Modal>  
+</Modal>
+
+{/* <ViewService /> */}
 </div>
 </>
 

@@ -40,8 +40,9 @@ function App() {
         <Route path='/serviceSettings/:option' element={<ServiceSettings />} />
         <Route path="*" element={<PageNotFound />} />
         <Route path='/' element={<MainPage />} />
-        </Route>
         <Route path='/login' element={<Login />} />
+        </Route>
+       
       </Routes>
       </BrowserRouter>
     </div>
