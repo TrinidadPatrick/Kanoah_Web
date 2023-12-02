@@ -188,7 +188,7 @@ const ViewService = () => {
   const handleChatNow = () => {
     if(isLoggedIn)
     {
-      navigate(`/chat?to=${serviceInfo.owner.username}&service=${serviceInfo._id}&t=open`)
+      navigate(`/chat?to=${serviceInfo.owner.username}&service=${serviceInfo._id}&t=new`)
     }
     else{
       dispatch(setShowLoginModal(true))

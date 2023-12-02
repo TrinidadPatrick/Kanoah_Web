@@ -356,6 +356,20 @@
   animation: rot1 1.2s linear infinite;
 }
 
+/* CHat style  */
+.messageBox::-webkit-scrollbar{
+  width: 4px !important;
+  height: 1px !important;
+  
+}
+
+.messageBox::-webkit-scrollbar-thumb{
+ background-color: black !important;
+ border-radius: 0.2rem !important;
+}
+
+
+
 @keyframes rot1 {
   to {
     transform: rotate(360deg);

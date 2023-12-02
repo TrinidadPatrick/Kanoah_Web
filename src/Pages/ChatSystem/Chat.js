@@ -16,6 +16,7 @@ const Chat = () => {
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId);
     const [windowWidth, setWindowWdith] = useState(null)
+    const [windowHeight, setWindowHeight] = useState(null)
     const [sendingMessage, setSendingMessage] = useState(false) 
     const [allUsers, setAllUsers] = useState([])
     const [activeConversation, setActiveConversation] = useState('')
@@ -23,7 +24,7 @@ const Chat = () => {
     const convoId = searchParams.get('convoId')
     const to = searchParams.get('to')
     const service = searchParams.get('service')
-    const openChat = searchParams.get('t')
+    const t = searchParams.get('t')
     const [serviceFromParam, setServiceFromParam] = useState('')
 
     const [loading, setLoading] = useState(true)
@@ -53,7 +54,8 @@ const Chat = () => {
     // All contacts that the user have communicated with
     const [allContacts, setAllContacts] = useState([])
     const [conversationId, setConversationId] = useState('')
-    const [messageContentBoxClass, setMessageContentBoxClass] = useState('w-full overflow-hidden hidden absolute sm:relative sm:flex flex-col h-screen  sm:px-2 pt-20 pb-2');
+    const [isFetching, setIsFetching] = useState(false);
+    const [messageContentBoxClass, setMessageContentBoxClass] = useState('w-full overflow-hidden hidden absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 md:pb-2');
 
    // Get the userId asynchronously
    const setUserId = ()=>{
@@ -74,80 +76,79 @@ const Chat = () => {
 
     // Get user Chats
     async function getUserChats(){
-
-        const myId = await setUserId()
-        const result = await http.get(`getUserChats/${myId}`)
-        
-        const groupedData = () =>{
-            return new Promise((resolve, reject)=>{
-                const groupedData = result.data.reduce((result, obj) => {
-                    const existingGroup = result.find(group => group[0]?.conversationId === obj.conversationId);            
-                    if (existingGroup) {
-                      existingGroup.push(obj);
-                    } else {
-                      result.push([obj]);
-                    }            
-                    return result;
-                  }, []);
-               resolve(groupedData)           
-            })
-            
-        }
-        
-        const allChat = await groupedData()
-        //Set all contacts by setting the receiver and setting conversation id
-        const allContacts = allChat.map((chats) => {
-          if (!chats || !chats[0] || !chats[0].participants || !chats[chats.length - 1]) {
-            // Handle cases where essential properties are undefined
-            return null;
+        try {
+          setIsFetching(true)
+          const myId = await setUserId()
+          const result = await http.get(`getUserChats/${myId}`)
+          const groupedData = () =>{
+              return new Promise((resolve, reject)=>{
+                  const groupedData = result.data.reduce((result, obj) => {
+                      const existingGroup = result.find(group => group[0]?.conversationId === obj.conversationId);            
+                      if (existingGroup) {
+                        existingGroup.push(obj);
+                      } else {
+                        result.push([obj]);
+                      }            
+                      return result;
+                    }, []);
+                 resolve(groupedData)           
+              })
+              
           }
-        
-          const receiver = chats[0].participants.filter((chat) => chat._id != myId);
-          const sentBy = chats[chats.length - 1].message.sender;
-          const conversationId = chats[0].conversationId;
-          const serviceInquired = chats[0].serviceInquired;
-          const latestChat = chats[chats.length - 1].message.content;
-          const latestChatTime = chats[chats.length - 1].message.timestamp;
-          const dateSent = chats[chats.length - 1].message.date;
-          const readBy = chats[chats.length - 1].readBy;
-        
-          // Ensure that essential properties are not undefined before returning the object
-          if (receiver && sentBy && conversationId && serviceInquired && latestChat && latestChatTime && dateSent && readBy) {
-            return {
-              receiver,
-              sentBy,
-              conversationId,
-              serviceInquired,
-              latestChat,
-              latestChatTime,
-              dateSent,
-              readBy,
-            };
-          }
-        
-          return null; // Handle cases where essential properties are undefined
-        });
-        
-        // Filter out null values from the array (resulting from cases where essential properties are undefined)
-        const filteredContacts = allContacts.filter((contact) => contact !== null);
-        
-        // Now, 'filteredContacts' contains only valid contact objects without undefined properties
-        
-           
-          setAllContacts(allContacts)
-          setAllChats(allChat)
-          //So if the conversation is a first chat, automatically retreive that message
-          if(conversationId === "")
-          {
-            const find = allContacts.find(contact => contact.receiver[0]._id == recipient._id)
-            if(find != undefined || find != null)
-            {
-            setConversationId(find.conversationId)
+          
+          const allChat = await groupedData()
+          //Set all contacts by setting the receiver and setting conversation id
+          const allContacts = allChat.map((chats) => {
+            if (!chats || !chats[0] || !chats[0].participants || !chats[chats.length - 1]) {
+              // Handle cases where essential properties are undefined
+              return null;
             }
-            
-          }
-
-          return {allChats, allContacts}
+          
+            const receiver = chats[0].participants.filter((chat) => chat._id != myId);
+            const sentBy = chats[chats.length - 1].message.sender;
+            const conversationId = chats[0].conversationId;
+            const serviceInquired = chats[0].serviceInquired;
+            const latestChat = chats[chats.length - 1].message.content;
+            const latestChatTime = chats[chats.length - 1].message.timestamp;
+            const dateSent = chats[chats.length - 1].message.date;
+            const readBy = chats[chats.length - 1].readBy;
+          
+            // Ensure that essential properties are not undefined before returning the object
+            if (receiver && sentBy && conversationId && serviceInquired && latestChat && latestChatTime && dateSent && readBy) {
+              return {
+                receiver,
+                sentBy,
+                conversationId,
+                serviceInquired,
+                latestChat,
+                latestChatTime,
+                dateSent,
+                readBy,
+              };
+            }
+          
+            return null; // Handle cases where essential properties are undefined
+          });
+            setAllContacts(allContacts)
+            setAllChats(allChat)
+            //So if the conversation is a first chat, automatically retreive that message
+            if(conversationId === "")
+            {
+              const find = allContacts.find(contact => contact.receiver[0]._id == recipient._id)
+              if(find != undefined || find != null)
+              {
+              setConversationId(find.conversationId)
+              }
+              
+            }
+  
+            return {allChats, allContacts}
+        } catch (error) {
+            console.error(error)
+        } finally{
+          setIsFetching(false)
+        }
+       
     }
     
   //Sets the users except the active user, set my username
@@ -202,9 +203,18 @@ const Chat = () => {
       const updatedChats = [...allChats];
       updatedChats[test].push(messageData);
       setAllChats(updatedChats);
-      }
       await http.post('sendChat', messageData).then((res)=>{
       }).catch((err)=>console.log(err)).finally(()=>{setSendingMessage(false)})
+      }
+      else
+      {
+        const updatedChats = [...allChats];
+        updatedChats.push([messageData]);
+        setAllChats(updatedChats);
+        await http.post('sendChat', messageData).then((res)=>{
+        }).catch((err)=>console.log(err)).finally(()=>{setSendingMessage(false);getUserChats()})
+      }
+     
       
     }
 
@@ -355,36 +365,34 @@ const Chat = () => {
         }
     }, [recipient])
 
-    const fetchUserChats = () => {
-      if(sendingMessage)
-        {
-        }else{
-          getUserChats()
-         
-        }
-    };
 
-    // Run the getuser every 6 seconds
-    useEffect(() => {
       // Function to be executed every 4 seconds
       const myFunction = () => {
-        
-        fetchUserChats()
+        if(isFetching)
+        {
+
+          return ;
+        }
+        getUserChats()
       };
-  
-      // Set up the interval
-      const intervalId = setInterval(myFunction, 3000);
-  
-      // Clean up the interval when the component is unmounted
-      return () => clearInterval(intervalId);
-    }, []);
+      
+    // Retrieves message
+      useEffect(()=>{
+        
+        const interval = setInterval(myFunction, 2500);
+
+        return () => clearInterval(interval);
+      },[isFetching])
+      
 
         // Function to handle window resize
     const handleResize = () => {
           const windowWidth = window.innerWidth;
+          const windowHeight = window.innerHeight;
         
           // Update your code or perform actions based on the new size
           setWindowWdith(windowWidth)
+          setWindowHeight(windowHeight)
     }
         
     // Attach the event listener to the window resize event
@@ -400,17 +408,17 @@ const Chat = () => {
       if (allContacts.length !== 0) {
         const checkChat = allContacts.find(contact => contact.conversationId === convoId);
         if (checkChat) {
-        } else {
+        } else if(checkChat == null && (t == 'new')) {
           if (windowWidth <= 639) {
-            setMessageContentBoxClass('-translate-x-[50%] left-[50%] -full overflow-hidden w-full absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 pb-2 transition duration-500 ease-out');
-            console.log('Not found');
+            setMessageContentBoxClass('-translate-x-[50%] left-[50%] -full overflow-hidden w-full absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 transition duration-500 ease-out');
           }
         }
       }
       
     },[allContacts])
 
-    
+
+
   return (
     <div className='w-full h-screen grid place-items-center'>
     {
@@ -462,7 +470,7 @@ const Chat = () => {
             setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired, fullname : contact.receiver[0].firstname + " " + contact.receiver[0].lastname})
             setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username, service : contact.serviceInquired._id})
             handleReadMessage(contact.conversationId)
-            if(windowWidth <= 639){document.getElementById('messageContentBox').className = "-translate-x-[50%] left-[50%] -full overflow-hidden w-full absolute sm:relative sm:flex flex-col h-screen  sm:px-2 pt-20 pb-2 transition duration-500 ease-out"}}}  key={index} >
+            if(windowWidth <= 639){document.getElementById('messageContentBox').className = "-translate-x-[50%] left-[50%] -full overflow-hidden w-full absolute sm:relative sm:flex flex-col h-screen  sm:px-2 pt-20 transition duration-500 ease-out"}}}  key={index} >
             
             <div className='w-full max-w-full flex items-center p-1 h-fit  overflow-hidden'>
             {/* Profile Image */}
@@ -493,7 +501,6 @@ const Chat = () => {
         
             {/* Chats and message contents */}
             <section id='messageContentBox' className={messageContentBoxClass}>
-            {/* <section id='messageContentBox' className='w-full  -translate-x-[100%] sm:translate-x-[0%] absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 pb-2'> */}
             <div className='w-full h-full bg-white justify-start flex flex-col shadow-md sm:rounded-lg px-2'>
             <div className='w-full py-3  bg-white relative border-b-2 shadow-sm flex space-x-2 items-center object-contain'>
               <button className='sm:hidden' onClick={()=>{document.getElementById('messageContentBox').className = "w-full  -translate-x-[100%] absolute sm:relative sm:flex flex-col pt-20 h-screen p-2 transition duration-500 ease-out"}}><ArrowBackOutlinedIcon /></button>
@@ -512,7 +519,7 @@ const Chat = () => {
                 <Link to={`/explore/viewService/${service}`} className=' absolute right-0 text-semiXs md:text-sm bg-themeBlue text-gray-50 px-3 py-1 rounded-sm'>View Service</Link>
             </div>
             {/* Messages Content */}
-            <ScrollToBottom  className='w-full flex h-full flex-col bg-[#f9f9f9] overflow-auto '>
+            <ScrollToBottom style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }} scrollViewClassName='messageBox'  className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '>
 
             {/* Recipient Message */}
               {
@@ -534,14 +541,14 @@ const Chat = () => {
               }, {});
              
               return (
-              <div key={chats[0].conversationId}>
+              <div className='' key={chats[0].conversationId}>
               {/* <h2>Chat with {serviceProviderName}</h2> */}
               {/* Display messages grouped by date */}
               {Object.keys(groupedMessages).map((dateKey) => (
               <div key={dateKey}>
               <div className="flex items-center">
               <div className="flex-1 border-t border-gray-400"></div>
-              <div className="mx-4 text-sm text-center my-2 text-gray-400">{formatDate(dateKey)}</div>
+              <div className=" mx-4 text-sm text-center my-2 text-gray-400">{formatDate(dateKey)}</div>
               <div className="flex-1 border-t border-gray-400"></div>
               </div>
 
@@ -573,7 +580,7 @@ const Chat = () => {
 
             </ScrollToBottom>
             {/* Message input */}
-            <div className='w-full p-2 flex items-center justify-between'>
+            <div className='w-full p-2 flex items-center justify-between sticky bottom-0'>
             <input id='textField' className='p-2 w-full outline-none border rounded-lg bg-slate-100 ' value={typingMessage} onChange={(e)=>{setTypingMessage(e.target.value)}} onKeyDown={(e)=>{if(e.key === "Enter"){handleMessage(e.target.value)}}} type='text' placeholder='Enter message'  />
             <button className='p-2 px-4'>
             <SendOutlinedIcon onClick={()=>{handleMessage(typingMessage)}} />
