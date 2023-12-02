@@ -20,9 +20,9 @@ const Description = (description) => {
   },[])
   return (
     <div>
-    <h1 className='text-3xl font-semibold mt-4'>Description</h1>
+    <h1 className='text-lg md:text-3xl font-semibold mt-4'>Description</h1>
           {/* Description box */}
-          <div className=' overflow-auto max-h-[300px] mt-2'>
+          <div className='overflow-auto text-sm md:text-lg max-h-[300px] mt-2'>
           {formattedDescription}
           </div>
     </div>
