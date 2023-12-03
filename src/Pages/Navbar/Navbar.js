@@ -36,7 +36,6 @@ const showLoginModal = useSelector(selectShowLoginModal);
 const [isLoggedIn, setIsLoggedIn] = useState(undefined)
  const navigate = useNavigate()
  const [accessToken, setAccessToken] = useState(null);
- const [refreshToken, setRefreshToken] = useState(null);
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = (event, reason) => {
@@ -74,56 +73,30 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
       
     };
 
-    // check if Logged In
-    const getUserProfile = async (token) => {
-      
-      try {
-        const response = await http.get('profile', {
-          headers : {Authorization: `Bearer ${token}`},
-        })
-        if(response.status == 200)
-        {
-          dispatch(setLoggedIn(true))
-          setIsLoggedIn(true)
-          getUser(response.data.user._id)
-        }
-        
-        
-        
-      } catch (error) {
-        if(error.response.status == 403 || error.response.status == 401)
-        console.error('Profile Error:', error.response.status);
-        setIsLoggedIn(false)
-        dispatch(setLoggedIn(false))
-        // navigate("/")
-      }
-    }
-    // Get userInformation
-    const getUser = async (id) => {
+    // Get userInformation and check if loggedin
+    const getUser = async () => {
       const token = localStorage.getItem('accessToken')
-      http.get(`getUser/${id}`,{
+      http.get(`getUser`,{
         headers : {Authorization: `Bearer ${token}`},
       }).then((res)=>{
         setUserInfo(res.data)
-        dispatch(setLoggedIn(true))
         dispatch(setUserId(res.data._id));
       }).catch((err)=>{
-        console.log(err)
+        dispatch(setUserId('loggedOut'))
+        dispatch(setLoggedIn(false))
       })
     }
     useEffect(() => {
       const accessToken = localStorage.getItem('accessToken');
       if (accessToken) {
         setAccessToken(accessToken);
-        setRefreshToken(refreshToken);
-        getUserProfile(accessToken);
-        // getUser()
+        getUser(accessToken)
       }else{
         dispatch(setLoggedIn(false))
-        dispatch(setUserId("NoId"));
-        setIsLoggedIn(false)
+        dispatch(setUserId("loggedOut"));
       }
     }, [])
+
 
     const signout = () => {
       localStorage.removeItem("accessToken")
@@ -153,6 +126,13 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         setOpen(true)
       }
     },[showLoginModal])
+
+    useEffect(()=>{
+      if(userId != "loggedOut" && userInfo != null)
+      {
+        dispatch(setLoggedIn(true))
+      }
+    },[userId, userInfo])
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
     <>
@@ -215,7 +195,8 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
   {/* Profile dropdown Menu**************************************************************************************************** */}
   <div className="flex md:order-2">
   {/* Condition to show login and join button if logged out and show profile if Logged in */}
-  {userInfo != null && isLoggedIn ? (
+  {
+  loggedIn ? (
     <div className='flex items-center justify-evenly space-x-2 sm:space-x-5 mr-4'>
       {/* Chat */}
       <Link to="chat">
@@ -246,12 +227,15 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         </div>
       </div>
     </div>
-  ) : isLoggedIn === false ? (
+    ) 
+    : 
+    loggedIn === false ? 
+    (
     <div className='flex space-x-2'>
       <button onClick={() => { setShowLogin(true); handleOpen() }} className='text-white border-2 px-4 py-1 rounded-md border-white'>Login</button>
       <button onClick={() => { setShowSignup(true); handleOpen() }} className='text-white bg-themeOrange border-2 border-themeOrange px-6 py-1 rounded-md'>Join</button>
     </div>
-  ) : null}
+    ) : ("")}
   </div>
 
   </div>

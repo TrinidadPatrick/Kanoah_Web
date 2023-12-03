@@ -23,13 +23,14 @@ import ReactPaginate from 'react-paginate';
 import { useNavigate } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
+import { setUserId, selectUserId, selectLoggedIn } from '../../ReduxTK/userSlice';
 import getDistance from 'geolib/es/getPreciseDistance';
 
 
 const Explore = () => {
   const navigate = useNavigate()
   const userId = useSelector(selectUserId);
+  const loginStatus = useSelector(selectLoggedIn);
   const [loadingPage, setLoadingPage] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams();
@@ -209,18 +210,34 @@ const Explore = () => {
           });
       }, [locationFilterValue]);
 
+
+      
       const getUserId = () =>{
         return new Promise((resolve,reject)=>{
           if(userId == null)
         {
+          console.log("userId")
         }
-        else if(userId == "NoId")
+        else if(userId == "loggedOut")
         {
-          resolve("LoggedOut")
+          resolve("loggedOut")
         }
         else{
           resolve(userId)
         }
+        })
+      }
+
+      const getLoginStatus = () => {
+        return new Promise((resolve, reject)=>{
+          if(loginStatus === true)
+          {
+            resolve('loggedIn')
+          }
+          else if(loginStatus === false)
+          {
+            resolve('loggedOut')
+          }
         })
       }
 
@@ -233,14 +250,18 @@ const Explore = () => {
           const res = await http.get("getServices");
           
           const services = res.data.service;
+          
           const result = ratingAverage(services)
+          const loginStatus = await getLoginStatus()
           const myId = await getUserId()
-          if(myId == "LoggedOut")
+          
+          console.log(loginStatus)
+          if(loginStatus == "loggedOut")
           {
             setServiceList(result);
             setMainServiceList(result);
           }
-          else if(myId != "LoggedOut" && myId != null)
+          else if(loginStatus === "loggedIn" && myId != null)
           {
           const filteredService = result.filter(service => service.owner._id !== myId)
           setServiceList(filteredService);
@@ -256,7 +277,7 @@ const Explore = () => {
       // get all services
       useEffect(()=>{
         getServices()
-      },[userId])
+      },[userId, loginStatus])
 
       // Apply the filteres in the searchParams
      useEffect(()=>{
@@ -494,6 +515,7 @@ const Explore = () => {
       }
       
     },[])
+    
 
     return (
         <div className=' w-full flex h-full relative'>

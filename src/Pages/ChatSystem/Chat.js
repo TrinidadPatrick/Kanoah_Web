@@ -12,7 +12,7 @@ import http from '../../http'
 
 
 const Chat = () => {
-  const navigate = useNavigate()
+    const navigate = useNavigate()
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId);
     const [windowWidth, setWindowWdith] = useState(null)
@@ -39,9 +39,9 @@ const Chat = () => {
     const minutes = currentDate.getMinutes();
     const seconds = currentDate.getSeconds();
     const ampm = hours >= 12 ? 'PM' : 'AM';
-    // Convert hours to 12-hour format
     hours = hours % 12 || 12;
     const timeSent = `${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds} ${ampm}`;
+
     const [recipient, setRecipient] = useState({
         _id : "",
         username : "",
@@ -56,6 +56,8 @@ const Chat = () => {
     const [conversationId, setConversationId] = useState('')
     const [isFetching, setIsFetching] = useState(false);
     const [messageContentBoxClass, setMessageContentBoxClass] = useState('w-full overflow-hidden hidden absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 md:pb-2');
+
+    const [displayedMessages, setDisplayedMessages] = useState(10);
 
    // Get the userId asynchronously
    const setUserId = ()=>{
@@ -160,7 +162,7 @@ const Chat = () => {
     }
     else{
       try {
-        const myInfo = await http.get(`getUser/${myId}`,{
+        const myInfo = await http.get(`getUser`,{
           headers : {Authorization: `Bearer ${token}`},
         })
       const me = myInfo.data
@@ -377,12 +379,12 @@ const Chat = () => {
       };
       
     // Retrieves message
-      useEffect(()=>{
+      // useEffect(()=>{
         
-        const interval = setInterval(myFunction, 2500);
+      //   const interval = setInterval(myFunction, 2500);
 
-        return () => clearInterval(interval);
-      },[isFetching])
+      //   return () => clearInterval(interval);
+      // },[isFetching])
       
 
         // Function to handle window resize
@@ -417,7 +419,9 @@ const Chat = () => {
       
     },[allContacts])
 
-
+    const loadMore = () => {
+      setDisplayedMessages(displayedMessages + 10)
+    }
 
   return (
     <div className='w-full h-screen grid place-items-center'>
@@ -520,12 +524,14 @@ const Chat = () => {
             </div>
             {/* Messages Content */}
             <ScrollToBottom style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }} scrollViewClassName='messageBox'  className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '>
-
+            <div className='sticky top-0 w-full text-center'><button onClick={()=>{loadMore()}}>Load More</button></div>
             {/* Recipient Message */}
               {
               allChats
               .filter((chat) => chat[0].conversationId === conversationId)
+              .slice(0,displayedMessages)
               .map((chats, index) => {
+              console.log(chats)
               const formatDate = (dateString) => {
               const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
               const date = new Date(dateString);
