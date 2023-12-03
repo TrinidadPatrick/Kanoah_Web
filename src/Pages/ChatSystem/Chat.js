@@ -15,6 +15,7 @@ const Chat = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId);
+    const [removeLoadMore, setRemoveLoadMore] = useState(false)
     const [windowWidth, setWindowWdith] = useState(null)
     const [windowHeight, setWindowHeight] = useState(null)
     const [sendingMessage, setSendingMessage] = useState(false) 
@@ -57,7 +58,7 @@ const Chat = () => {
     const [isFetching, setIsFetching] = useState(false);
     const [messageContentBoxClass, setMessageContentBoxClass] = useState('w-full overflow-hidden hidden absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 md:pb-2');
 
-    const [displayedMessages, setDisplayedMessages] = useState(10);
+    const [displayedMessages, setDisplayedMessages] = useState(-10);
 
    // Get the userId asynchronously
    const setUserId = ()=>{
@@ -420,8 +421,10 @@ const Chat = () => {
     },[allContacts])
 
     const loadMore = () => {
-      setDisplayedMessages(displayedMessages + 10)
+      setDisplayedMessages(displayedMessages - 10)
     }
+
+    console.log(displayedMessages)
 
   return (
     <div className='w-full h-screen grid place-items-center'>
@@ -470,7 +473,8 @@ const Chat = () => {
             const ampm = contact.latestChatTime.split(' ')
             const splitted = contact.latestChatTime.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
             return (
-            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 w-full overflow-hidden flex items-center space-x-2 cursor-pointer`} onClick={()=>{setActiveConversation(contact.conversationId)
+            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 w-full overflow-hidden flex items-center space-x-2 cursor-pointer`} 
+            onClick={()=>{setActiveConversation(contact.conversationId)
             setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired, fullname : contact.receiver[0].firstname + " " + contact.receiver[0].lastname})
             setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username, service : contact.serviceInquired._id})
             handleReadMessage(contact.conversationId)
@@ -524,14 +528,18 @@ const Chat = () => {
             </div>
             {/* Messages Content */}
             <ScrollToBottom style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }} scrollViewClassName='messageBox'  className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '>
-            <div className='sticky top-0 w-full text-center'><button onClick={()=>{loadMore()}}>Load More</button></div>
+            <div className={`${removeLoadMore ? "hidden" : "block"} top-0 w-full text-center`}><button onClick={()=>{loadMore()}}>Load More</button></div>
             {/* Recipient Message */}
               {
+                // console.log(allChats)
               allChats
-              .filter((chat) => chat[0].conversationId === conversationId)
-              .slice(0,displayedMessages)
+              .filter((chat) =>  chat[0].conversationId === conversationId )
               .map((chats, index) => {
-              console.log(chats)
+                // if (chats.length >= displayedMessages) {
+                //   setRemoveLoadMore(true);
+                // } else {
+                //   setRemoveLoadMore(false);
+                // }
               const formatDate = (dateString) => {
               const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
               const date = new Date(dateString);
@@ -551,6 +559,7 @@ const Chat = () => {
               {/* <h2>Chat with {serviceProviderName}</h2> */}
               {/* Display messages grouped by date */}
               {Object.keys(groupedMessages).map((dateKey) => (
+                
               <div key={dateKey}>
               <div className="flex items-center">
               <div className="flex-1 border-t border-gray-400"></div>
@@ -558,7 +567,8 @@ const Chat = () => {
               <div className="flex-1 border-t border-gray-400"></div>
               </div>
 
-              {groupedMessages[dateKey].map((message, index) => {
+              {groupedMessages[dateKey].slice(displayedMessages).map((message, index) => {
+              
               const ampm = message.message.timestamp.split(' ')
               const splitted = message.message.timestamp.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
               return (
