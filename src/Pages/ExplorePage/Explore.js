@@ -254,8 +254,7 @@ const Explore = () => {
           const result = ratingAverage(services)
           const loginStatus = await getLoginStatus()
           const myId = await getUserId()
-          
-          console.log(loginStatus)
+
           if(loginStatus == "loggedOut")
           {
             setServiceList(result);
@@ -513,10 +512,10 @@ const Explore = () => {
 
         setRadius(Number(radiusParam))
       }
-      
-    },[])
-    
 
+    },[])
+
+    
     return (
         <div className=' w-full flex h-full relative'>
         {

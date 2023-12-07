@@ -204,7 +204,7 @@ const TopRatedServices = () => {
       
     
       {
-      trendingServices.map((service)=>{
+      trendingServices.slice(0,10).map((service)=>{
         return (
           <div key={service._id} className='w-full h-fit sm:h-[400px] flex items-center justify-center  py-4'>
                 {/* Cards */}

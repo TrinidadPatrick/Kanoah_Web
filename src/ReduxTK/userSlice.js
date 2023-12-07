@@ -7,6 +7,7 @@ const userSlice = createSlice({
       loggedIn : null,
       showLoginModal : false
     },
+
     reducers: {
       setUserId: (state, action) => {
         state.userId = action.payload;
@@ -20,11 +21,18 @@ const userSlice = createSlice({
     },
   });
 
+
+// For User
 export const { setUserId } = userSlice.actions;
 export const { setLoggedIn } = userSlice.actions;
 export const { setShowLoginModal } = userSlice.actions;
+
+
+
+
 export const selectUserId = (state) => state.user.userId;
 export const selectLoggedIn = (state) => state.user.loggedIn;
 export const selectShowLoginModal = (state) => state.user.showLoginModal;
+
 
 export default userSlice.reducer;

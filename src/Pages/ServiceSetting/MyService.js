@@ -6,7 +6,7 @@ import Gallery from './Gallery';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
 import CameraAltOutlinedIcon from '@mui/icons-material/CameraAltOutlined';
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import cloudinaryCore from '../../CloudinaryConfig';
 import axios from 'axios';
 import http from '../../http';
@@ -95,7 +95,7 @@ const MyService = () => {
     </div>
     {/* Buttons */}
     <div className='space-x-3 relative justify-self-end'>
-    <button className='px-4 w-fit py-2 rounded-3xl bg-gray-300 text-gray-600 text-sm'>Edit Service</button>
+    <Link to={`/myService/editService/basicInformation`} className='px-4 w-fit py-2 rounded-3xl bg-gray-300 text-gray-600 text-sm'>Edit Service</Link>
     <button className='px-4 w-fit py-2 rounded-3xl bg-gray-300 text-gray-600 text-sm'>View Service</button>
     </div>
     </div>

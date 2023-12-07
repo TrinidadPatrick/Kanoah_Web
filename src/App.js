@@ -15,6 +15,7 @@ import ServiceSettings from './Pages/ServiceSetting/ServiceSettings';
 import Explore from './Pages/ExplorePage/Explore';
 import Chat from './Pages/ChatSystem/Chat';
 import PageNotFound from './Pages/NotFoundPage/PageNotFound';
+import EditService from './Pages/EditService/EditService';
 
 function App() {
   const NavbarLayout = () => (
@@ -38,6 +39,7 @@ function App() {
         <Route path='/myAccount/:optn' element={<CustomerAccount />} />
         <Route path='/serviceRegistration' element={<ServiceRegistrationPage />} />
         <Route path='/serviceSettings/:option' element={<ServiceSettings />} />
+        <Route path='myService/editService/:option' element={<EditService />} />
         <Route path="*" element={<PageNotFound />} />
         <Route path='/' element={<MainPage />} />
         <Route path='/login' element={<Login />} />

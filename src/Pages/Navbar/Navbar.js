@@ -22,7 +22,7 @@ import logo from "../../Utilities/Logo/Logo1.png"
 import { useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId, selectLoggedIn, setLoggedIn, selectShowLoginModal, setShowLoginModal } from '../../ReduxTK/userSlice';
-import ViewService from '../ViewService/ViewService'
+import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
 export const Context = React.createContext()
 
 
@@ -33,10 +33,10 @@ const dispatch = useDispatch();
 const userId = useSelector(selectUserId);
 const loggedIn = useSelector(selectLoggedIn);
 const showLoginModal = useSelector(selectShowLoginModal);
-const [isLoggedIn, setIsLoggedIn] = useState(undefined)
  const navigate = useNavigate()
  const [accessToken, setAccessToken] = useState(null);
   const [open, setOpen] = React.useState(false);
+  const [hasRegisteredService, setHasRegisteredService] = useState(null);
   const handleOpen = () => setOpen(true);
   const handleClose = (event, reason) => {
     if (reason !== 'backdropClick') {
@@ -111,6 +111,23 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
   setWindowWdith(windowWidth)
     }
 
+    // Check if the user has a service registered
+    const checkUserService = async () => {
+      try {
+        const result = await http.get(`getService/${userId}`)
+        if(result.data.result === null)
+        {
+          setHasRegisteredService(false)
+        }
+        else
+        {
+          setHasRegisteredService(true)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     // Attach the event listener to the window resize event
     window.addEventListener('resize', handleResize);
 
@@ -130,9 +147,12 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
     useEffect(()=>{
       if(userId != "loggedOut" && userInfo != null)
       {
+        checkUserService()
         dispatch(setLoggedIn(true))
       }
     },[userId, userInfo])
+
+
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
     <>
@@ -171,7 +191,7 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
             <ul className="categoryDropdown absolute hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
               {categories.map((category, index) => (
                 <li key={index} className="">
-                  <button onClick={() => { navigate(`explore?${"category=" + category.category_name}`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+                  <button onClick={() => {navigate(`explore?${"category=" + category.category_name}`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
                 </li>
               ))}
             </ul>
@@ -203,24 +223,34 @@ const [isLoggedIn, setIsLoggedIn] = useState(undefined)
         <ForumRoundedIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
       </Link>
       <NotificationsIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
-      <div className=''>
+      <div className='relative'>
         {/* PROFILE IMAGE */}
-        <img onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} className=' w-7 h-7 sm:w-8 sm:h-8 object-cover border-1 border-white rounded-full' src={userInfo.profileImage} alt="User Profile" />
+        <div onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} className='flex items-center cursor-pointer'>
+        <img  className=' w-7 h-7 sm:w-8 sm:h-8 object-cover border-1 border-white rounded-full' src={userInfo.profileImage} alt="User Profile" />
+        <ArrowDropDownOutlinedIcon fontSize='small' className='text-white bottom-0 right-0' />
+        </div>
         {/* Dropdown Profile */}
-        <div className={`${showDropdownProfile ? "block" : "hidden"} bg-white absolute p-2 right-14 delay-100 w-fit rounded-md top-[3.3rem] flex-col drop-shadow-lg overflow-hidden`}>
-          <header className='flex border-b pb-2'>
-            {/* Image container */}
-            <div className='flex items-center'>
-              <img className=' w-9 h-9 max-h-9 object-cover border-1 border-white rounded-full' src={userInfo.profileImage} alt="User Profile" />
-            </div>
+        <div className={`${showDropdownProfile ? "block" : "hidden"} bg-white absolute p-2 right-4 delay-100 w-fit rounded-md top-[2.2rem] flex-col drop-shadow-lg overflow-hidden`}>
+          <header className='flex border-b space-x-2 pb-2'>
+
             <div className='ml-1'>
               <h1 className='text-sm font-semibold'>{userInfo.username}</h1>
               <p className='text-xs text-gray-500'>{userInfo.email}</p>
             </div>
           </header>
-          <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to={`/myAccount/${"Profile"}`} className="px-1 py-3 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon />Profile Settings</Link>
-          <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to='/serviceRegistration' className="px-1 py-3 hover:bg-gray-200 text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
-          <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to={`/serviceSettings/myService`} className="px-1 py-3 hover:bg-gray-200 text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
+          <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to={`/myAccount/${"Profile"}`} className="px-1 py-3 whitespace-nowrap hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon />Profile Settings</Link>
+          {
+            hasRegisteredService ?
+            (
+              <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to={`/serviceSettings/myService`} className="px-1 py-3  whitespace-nowrap hover:bg-gray-200 text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
+            )
+            :
+            (
+              <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to='/serviceRegistration' className="px-1 py-3  whitespace-nowrap hover:bg-gray-200 text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
+            )
+          }
+          
+          
           <footer className='px-1 text-red-500 border-t-1 pt-3'>
             <button onClick={() => { signout() }} className='flex items-center gap-2'><ExitToAppOutlinedIcon />Sign out</button>
           </footer>

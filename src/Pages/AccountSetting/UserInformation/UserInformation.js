@@ -35,6 +35,7 @@ const UserInformation = () => {
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
     const [loading, setLoading] = useState(true)
+    const [loadingBtn, setLoadingBtn] = useState(false)
     const [isDragging, setIsDragging] = useState(false);
     const [closeAutofill, setCloseAutofill] = useState(false)
     const [places, setPlaces] = useState([])
@@ -76,36 +77,18 @@ const UserInformation = () => {
         day : "1",
         year : DateData.year[0]
     })
-    // validate access token
-    const getUserProfile = async (token) => {
-      try {
-        const response = await http.get('profile', {
-          headers : {Authorization: `Bearer ${token}`},
-        })
-        
-        if(response.status == 200)
-        {
-          const userId = response.data.user._id
-          getUser(userId)
-        }
-        
-      } catch (error) {
-        console.error('Profile Error:', error.response);
- 
-      }
-    }
+      
 
     // Get userInformation
-    const getUser = async (accId) => {
-      const token = localStorage.getItem('accessToken')
+    const getUser = async (accessToken) => {
 
-          await http.get(`getUser/${accId}`,{
-            headers : {Authorization: `Bearer ${token}`},
+          await http.get(`getUser`,{
+            headers : {Authorization: `Bearer ${accessToken}`},
           }).then((res)=>{
             setUserInformation(res.data)
             setLoading(false)
           }).catch((err)=>{
-            console.log(err)
+            navigate('/')
           })
     }
 
@@ -113,7 +96,7 @@ const UserInformation = () => {
     useEffect(() => {
       const accessToken = localStorage.getItem('accessToken');
       if (accessToken) {
-        getUserProfile(accessToken);
+        getUser(accessToken);
       }else{
         navigate("/")
       }
@@ -200,6 +183,7 @@ const UserInformation = () => {
         // Set errors if there are any
         
         const status = res.data.status
+        setLoadingBtn(false)
         switch (status)
         {
         case "usernameDuplicate" : setErrors({usernameError : 1}); break; 
@@ -215,6 +199,7 @@ const UserInformation = () => {
         else
         {
             setErrors({passwordError : 0})
+            setLoadingBtn(false)
         }
         
         
@@ -296,15 +281,20 @@ const UserInformation = () => {
           password: password,
         };
       
-        // Return the Promise here
+        if(password !== "")
+        {
+          setLoadingBtn(true)
+          // Return the Promise here
         return http.post('verifyPassword', data)
-          .then((res) => {
-            console.log(res.data);
-            return res.data;
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        .then((res) => {
+          console.log(res.data);
+          return res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+        }
+        
       };
 
     // For profile picture
@@ -466,7 +456,7 @@ const UserInformation = () => {
                     {/* Change Password */}
                     <div className='w-1/2 flex flex-col'>
                     <label htmlFor="changePassword" className="text-sm text-gray-600">Password Settings</label>
-                    <button onClick={(e)=>{handleOpenNPModal(e)}} className='bg-gray-100 py-2 px-5 w-fit rounded-sm shadow-sm text-gray-700 border flex  items-center gap-1 '><LockOutlinedIcon /> Change Password</button>
+                    <button onClick={(e)=>{handleOpenNPModal(e)}} className='bg-gray-100 py-2 px-5 w-fit text-xs md:text-sm  rounded-sm shadow-sm text-gray-700 border flex  items-center gap-1 '> Change Password</button>
                     </div>
                     
                     
@@ -518,10 +508,10 @@ const UserInformation = () => {
                     )
                     :
                     (
-                        <p onClick={()=>{handleOpen();setDisableSaveChange(false)}} className=' cursor-pointer font-medium border-1 underline w-fit px-2 py-1 rounded-md'>{
+                        <p onClick={()=>{handleOpen();setDisableSaveChange(false)}} className=' cursor-pointer text-sm font-medium border-1 underline w-fit px-2 py-1 rounded-md'>{
                             `Brgy. ${userInformation.Address.barangay}, ${userInformation.Address.municipality}, ${userInformation.Address.province}`
                                 
-                            }<EditLocationOutlinedIcon className='ml-1 text-gray-500' /></p>
+                            }</p>
                     )
                 }
                 
@@ -757,7 +747,7 @@ const UserInformation = () => {
                     className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 />
                 <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
-                <button onClick={()=>{updateUser()}} className='bg-themeOrange text-sm text-white px-2 py-1 rounded-sm mt-4'>Update</button>
+                <button onClick={()=>{updateUser()}} className={`${loadingBtn ? "bg-orange-300" : "bg-themeOrange"}  text-sm w-full text-white px-2 py-1 rounded-sm mt-4`}>Update</button>
                 </div>
                 </Box>
                 </Modal>

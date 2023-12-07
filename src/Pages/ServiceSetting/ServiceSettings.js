@@ -40,7 +40,7 @@ const ServiceSettings = () => {
         })
   }
 
-  //Get Tokens fro Local Storage
+  //Get Tokens from Local Storage
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken) {
@@ -74,7 +74,7 @@ const ServiceSettings = () => {
     {/* Left section */}
     <section className='w-[370px] h-screen bg-white hidden md:flex flex-col'>
     <div className='border-l-4 ps-2 ml-5 border-l-themeBlue mt-24'>
-    <h1 className='text-3xl font-bold text-themeBlue '>Service Setting</h1>
+    <h1 className='text-xl lg:text-3xl font-bold text-themeBlue '>Service Setting</h1>
     <p className='text-[0.79rem]'>Manage or edit your service here</p>
     </div>
 
