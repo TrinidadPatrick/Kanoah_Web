@@ -37,7 +37,10 @@ const [advanceInformation, setAdvanceInformation] = useState({
   ServiceOptions : [],
   AcceptBooking : false,
   SocialLink : [{media : "Youtube",link : ""}, {media : "Facebook",link : ""}, {media : "Instagram",link : ""}],
-  PaymentMethod : [{method : "Gcash", enabled: false, gcashInfo : {}}, {method : "Cash", enabled : false}],
+  PaymentMethod : [{method : "Gcash", enabled: false, gcashInfo : {QRCode : "https://via.placeholder.com/150",
+  ServiceTitle : "",
+  EmailForGcash : "",
+  GcashNote : "",}}, {method : "Cash", enabled : false}],
 })
 const [isPhotoLoading, setIsPhotoLoading] = useState(false)
 
@@ -52,7 +55,7 @@ const [gcashInformation, setGcashInformation] = useState({
 // Modal Style
 const socialLinkModalStyle = {
     content: {
-      top: '50%',
+      top: '55%',
       left: '50%',
       right: 'auto',
       bottom: 'auto',
@@ -148,13 +151,18 @@ const addQrImage = async (files) => {
 //submits the gcash setup information
 const submitGcashPayment = () => {
   const checkErrors = (input, errorKey) => (
-    setErrors((prevErrors)=>({...prevErrors, [errorKey] : gcashInformation[input] == "" ? true : false}))
+    setErrors((prevErrors)=>({...prevErrors, [errorKey] : gcashInformation[input] == "" || gcashInformation[input] == undefined ? true : false}))
   )
 
   checkErrors("ServiceTitle", "GcashServiceTitleError")
   checkErrors("EmailForGcash", "GcashEmailError")
+  checkErrors("QRCode", "GcashQRError")
+  // if(gcashInformation.ServiceTitle == "" || gcashInformation.ServiceTitle == undefined)
+  // {
+  //   console.log("ss")
+  // }
   if(gcashInformation.QRCode == "https://via.placeholder.com/150"){setErrors({...errors, GcashQRError : true})}
-  if(gcashInformation.ServiceTitle != "" && gcashInformation.EmailForGcash !="" && gcashInformation.QRCode != "https://via.placeholder.com/150")
+  if((gcashInformation.ServiceTitle != undefined) && (gcashInformation.EmailForGcash != undefined) && (gcashInformation.QRCode != undefined))
   {
     setAdvanceInformation({
       ...advanceInformation,
@@ -169,8 +177,13 @@ const submitGcashPayment = () => {
   // console.log(advanceInformation.PaymentMethod[0].gcashInfo)
   setIsGcashModalOpen(false)
   }
+  else
+  {
+    
+  }
   
 }
+console.log(gcashInformation.QRCode)
 
 const submitAdvanceInformation = () => {
   const checkErrors = (input, errorKey) => (
@@ -200,7 +213,6 @@ useEffect(()=>{
   }
 },[step])
 
-
   return (
     <div className='w-full h-full flex flex-col  p-1'>
     
@@ -223,7 +235,7 @@ useEffect(()=>{
 {/* Email and Category */}
     <div className='grid grid-cols-2 m-0 items-center gap-4'>
   <div className="w-full">
-    <label className="block text-gray-500 text-sm lg:text-md font-semibold mb-2" htmlFor="email">Email</label>
+    <label className="block text-gray-500 text-sm lg:text-md font-semibold mb-2" htmlFor="email">Service Email</label>
     <input value={advanceInformation["ServiceEmail"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} type="email" id="email" className={`${errors.ServiceEmailError ? "border-red-500 border-2" : ""} w-full text-sm lg:text-md p-2 border rounded`} placeholder="example@email.com" />
   </div>
 
@@ -410,7 +422,7 @@ useEffect(()=>{
 
     {/* Gcash setup modal*/}
     <Modal isOpen={isGcashModalOpen} style={socialLinkModalStyle} contentLabel="Example Modal">
-  <div className='flex flex-col relative w-[300px] h-[540px]'>
+  <div className='flex flex-col relative w-[300px] h-[500px]'>
   <ArrowBackIosNewIcon className='absolute top-2 text-gray-700 cursor-pointer' onClick={()=>{closeGcashMethodModal();setIsGcashChecked(!isGcashChecked)}} />
   <h1 className='text-center my-2 font-semibold text-gray-500'>Payment Information</h1>
   
@@ -429,7 +441,9 @@ useEffect(()=>{
         alt="Empty Photo"
         className="w-full h-full object-contain"
       />
+      
   </div>
+  <p className={`${errors.GcashQRError ? "block" : "hidden"} text-semiXs text-center text-red-500`}>Please upload QR Code</p>
   <label htmlFor="fileInput" className={`bg-blue-500 cursor-pointer mt-1 mx-auto relative inline-block px-2 py-1 text-white text-[0.6rem] text-center rounded`}>
   {isPhotoLoading ? "Uploading..." : "Upload Qr Code"}
   <input type="file" value="" onChange={(e)=>{addQrImage(e.target.files)}}  id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>

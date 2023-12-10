@@ -18,7 +18,7 @@ const ServiceRegistrationPage = () => {
   const userId = useSelector(selectUserId)
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Holidays'] 
   
-    const [step, setStep] = useState(1)
+    const [step, setStep] = useState(3)
     // const [userId, setUserId] = useState(null)
     const [serviceInformation, setServiceInformation] = useState(
       {
@@ -36,7 +36,10 @@ const ServiceRegistrationPage = () => {
         ServiceOptions : [],
         AcceptBooking : false,
         SocialLink : [{media : "Youtube",link : ""}, {media : "Facebook",link : ""}, {media : "Instagram",link : ""}],
-        PaymentMethod : [{method : "Gcash", enabled: false, gcashInfo : {}}, {method : "Cash", enabled : false}],
+        PaymentMethod : [{method : "Gcash", enabled: false, gcashInfo : {QRCode : "https://via.placeholder.com/150",
+        ServiceTitle : "",
+        EmailForGcash : "",
+        GcashNote : "",}}, {method : "Cash", enabled : false}],
       },
       address : {
              region : "",
