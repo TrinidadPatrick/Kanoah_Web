@@ -154,7 +154,7 @@ useEffect(()=>{
   
 },[serviceData])
 
-
+console.log(locCodesSelected)
 
   return (
     <div className='w-full h-screen sm:h-full flex flex-col px-5 mt-0 pt-2'>
@@ -175,7 +175,7 @@ useEffect(()=>{
                   onChange={(e) => { handleLocationSelect(e.target.value.split(','), 0) }}
                   id="region"
                   name="region"
-                  value={address.region.name + ',' + address.region.reg_code}
+                  value={locCodesSelected[0][0] + ',' + locCodesSelected[0][1]}
                   className={`${errors.RegionError ? "border-red-500" : ""} block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}>
                   {/* <option className='w-fit' value=""  >Select Region</option> */}
                   {phil.regions.map((regions, index) => (
@@ -194,7 +194,7 @@ useEffect(()=>{
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1)}}
                 id="province"
                 name="province"
-                value={address.province.name + ',' + address.province.prov_code}
+                value={locCodesSelected[1][0] + ',' + locCodesSelected[1][1]}
                 className={`${errors.ProvinceError ? "border-red-500" : ""} block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 {
@@ -215,7 +215,7 @@ useEffect(()=>{
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','),2)}}
                 id="city"
                 name="city"
-                value={address.municipality.name + ',' + address.municipality.mun_code}
+                value={locCodesSelected[2][0] + ',' + locCodesSelected[2][1]}
                 className={`${errors.CityError ? "border-red-500" : ""} block text-xs xl:text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 {
@@ -238,7 +238,7 @@ useEffect(()=>{
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','),3)}}
                 id="barangay"
                 name="barangay"
-                value={address.barangay.name + ',' + address.barangay.brgy_code}
+                value={locCodesSelected[3][0] + ',' + locCodesSelected[3][1]}
                 className={`${errors.BarangayError ? "border-red-500" : ""} block text-xs xl:text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 {
