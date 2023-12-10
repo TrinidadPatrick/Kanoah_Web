@@ -282,7 +282,7 @@ const AdvanceInformation = () => {
     <div className='flex items-center justify-between space-x-3 rounded-sm border-1 shadow-sm p-3'>
     <img  src={Gcash} alt="paypal image" className=' w-20 h-5 cursor-pointer' />
     <div className='flex space-x-5 md:space-x-20'>
-    <p className='text-gray-500 text-xs'>{advanceInformation.PaymentMethod[1].enabled ? "Enabled" : "Not set"}</p>
+    <p className='text-gray-500 text-xs'>{advanceInformation.PaymentMethod[0].enabled ? "Enabled" : "Not set"}</p>
     <label className="relative inline-flex items-center cursor-pointer">
     <input checked={advanceInformation.PaymentMethod[0].enabled} onChange={()=>handleGcashCheckbox()} type="checkbox" value="" className="sr-only peer outline-none"/>
     <div className="w-[29px] h-4 lg:w-[1.85rem] lg:h-4 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[0.8rem] after:h-[0.8rem] after:lg:w-[0.8rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
