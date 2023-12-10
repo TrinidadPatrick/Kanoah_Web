@@ -400,99 +400,108 @@ const AdvanceInformation = () => {
 
     {/* Gcash setup modal*/}
     <Modal isOpen={isGcashModalOpen} style={socialLinkModalStyle} contentLabel="Example Modal">
-    <div className='flex flex-col relative w-[300px] h-[540px]'>
-    <ArrowBackIosNewIcon className='absolute top-2 text-gray-700 cursor-pointer' onClick={()=>{closeGcashMethodModal();setIsGcashChecked(!isGcashChecked)}} />
-    <h1 className='text-center my-2 font-semibold text-gray-500'>Payment Information</h1>
-    
-    {/* Blue container */}
-    <div className='w-full bg-[#007DFE] h-[200px] flex justify-center'>
-    <img src={Gcash} alt="paypal image" className='w-24 h-6 filter brightness-0 invert mt-5' />
-    </div>
-
-    {/* Body */}
-    <div className='w-[80%] flex flex-col absolute top-28 left-1/2 transform -translate-x-1/2 h-fit bg-white pb-2 shadow-md rounded-lg'>
-    <h1 className='text-center my-2 font-semibold text-[#007DFE]'>Setup Gcash</h1>
-    {/* Image Container */}
-    <div className={`${errors.GcashQRError ? "border-red-500" : ""} flex items-center justify-center w-[100px] h-[100px] mx-auto bg-gray-200 border border-gray-300 rounded-lg overflow-hidden`}>
-        <img
-            src={advanceInformation.PaymentMethod[0].gcashInfo.QRCode}
-            alt="Empty Photo"
-            className="w-full h-full object-contain"
-        />
-    </div>
-    <label htmlFor="fileInput" className={`bg-blue-500 cursor-pointer mt-1 mx-auto relative inline-block px-2 py-1 text-white text-[0.6rem] text-center rounded`}>
-    {isPhotoLoading ? "Uploading..." : "Upload Qr Code"}
-    <input type="file" value="" onChange={(e)=>{addQrImage(e.target.files)}}  id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
-    </label>
-    {/* Service Title */}
-    <div className="relative mb-1 mt-3 w-[90%] mx-auto flex flex-col">
-    <label htmlFor='ServiceTitle' className='text-semiXs text-gray-400'>Service Title</label>
-    <input value={advanceInformation.PaymentMethod[0].gcashInfo.ServiceTitle} onChange={(e) => {
-    setAdvanceInformation((prevAdvanceInformation) => ({
-        ...prevAdvanceInformation,
-        PaymentMethod: prevAdvanceInformation.PaymentMethod.map((method, index) =>
-        index === 0
-            ? {
-                ...method,
-                gcashInfo: {
-                ...method.gcashInfo,
-                ServiceTitle: e.target.value,
-                },
-            }
-            : method
-        ),
-    }));
-    }}
-    type="text" name='ServiceTitle' className={`${errors.GcashServiceTitleError ? "border-red-500" : ""} text-sm outline-none border border-blue-400 rounded-sm p-0.5`} placeholder='' />
-    </div>
-    {/* Email */}
-    <div className="relative mb-1 mt-3 w-[90%] mx-auto flex flex-col">
-    <label htmlFor='Email' className='text-semiXs text-gray-400'>Email</label>
-    <input value={advanceInformation.PaymentMethod[0].gcashInfo.EmailForGcash} onChange={(e) => {
-    setAdvanceInformation((prevAdvanceInformation) => ({
-        ...prevAdvanceInformation,
-        PaymentMethod: prevAdvanceInformation.PaymentMethod.map((method, index) =>
-        index === 0
-            ? {
-                ...method,
-                gcashInfo: {
-                ...method.gcashInfo,
-                EmailForGcash: e.target.value,
-                },
-            }
-            : method
-        ),
-    }));
-    }} 
-    type="text" name='Email' className={`${errors.GcashEmailError ? "border-red-500" : ""} text-sm outline-none border border-blue-400 rounded-sm p-0.5`} placeholder='' />
-    </div>
-    
-
-    {/* Note */}
-    <label htmlFor='fullname' className='text-semiXs w-[90%] mx-auto text-gray-400'>Note (Optional)</label>
-    <div className='w-[90%] mx-auto h-[70px] border overflow-hidden mt-1'>
-    <textarea value={advanceInformation.PaymentMethod[0].gcashInfo.GcashNote} 
-    onChange={(e) => {
-        setAdvanceInformation((prevAdvanceInformation) => ({
-          ...prevAdvanceInformation,
-          PaymentMethod: prevAdvanceInformation.PaymentMethod.map((method, index) =>
-            index === 0
-              ? {
-                  ...method,
-                  gcashInfo: {
-                    ...method.gcashInfo,
-                    GcashNote: e.target.value,
-                  },
-                }
-              : method
-          ),
-        }));
-      }}
-    rows={2} className='gcashNote p-1 w-full text-sm h-full outline-none resize-none scrol '/>
-    </div>
-    <button onClick={()=>{submitGcashPayment()}} className='w-[95%] mt-2 mx-auto py-0.5 bg-[#007DFE] rounded-sm text-gray-100'>Submit</button>
-    </div>
-    </div>
+      {
+        advanceInformation.PaymentMethod[0].enabled == true
+        ?
+        (
+          <div className='flex flex-col relative w-[300px] h-[540px]'>
+          <ArrowBackIosNewIcon className='absolute top-2 text-gray-700 cursor-pointer' onClick={()=>{closeGcashMethodModal();setIsGcashChecked(!isGcashChecked)}} />
+          <h1 className='text-center my-2 font-semibold text-gray-500'>Payment Information</h1>
+          
+          {/* Blue container */}
+          <div className='w-full bg-[#007DFE] h-[200px] flex justify-center'>
+          <img src={Gcash} alt="paypal image" className='w-24 h-6 filter brightness-0 invert mt-5' />
+          </div>
+      
+          {/* Body */}
+          <div className='w-[80%] flex flex-col absolute top-28 left-1/2 transform -translate-x-1/2 h-fit bg-white pb-2 shadow-md rounded-lg'>
+          <h1 className='text-center my-2 font-semibold text-[#007DFE]'>Setup Gcash</h1>
+          {/* Image Container */}
+          <div className={`${errors.GcashQRError ? "border-red-500" : ""} flex items-center justify-center w-[100px] h-[100px] mx-auto bg-gray-200 border border-gray-300 rounded-lg overflow-hidden`}>
+              <img
+                  src={advanceInformation.PaymentMethod[0].gcashInfo.QRCode}
+                  alt="Empty Photo"
+                  className="w-full h-full object-contain"
+              />
+          </div>
+          <label htmlFor="fileInput" className={`bg-blue-500 cursor-pointer mt-1 mx-auto relative inline-block px-2 py-1 text-white text-[0.6rem] text-center rounded`}>
+          {isPhotoLoading ? "Uploading..." : "Upload Qr Code"}
+          <input type="file" value="" onChange={(e)=>{addQrImage(e.target.files)}}  id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
+          </label>
+          {/* Service Title */}
+          <div className="relative mb-1 mt-3 w-[90%] mx-auto flex flex-col">
+          <label htmlFor='ServiceTitle' className='text-semiXs text-gray-400'>Service Title</label>
+          <input value={advanceInformation.PaymentMethod[0].gcashInfo.ServiceTitle} onChange={(e) => {
+          setAdvanceInformation((prevAdvanceInformation) => ({
+              ...prevAdvanceInformation,
+              PaymentMethod: prevAdvanceInformation.PaymentMethod.map((method, index) =>
+              index === 0
+                  ? {
+                      ...method,
+                      gcashInfo: {
+                      ...method.gcashInfo,
+                      ServiceTitle: e.target.value,
+                      },
+                  }
+                  : method
+              ),
+          }));
+          }}
+          type="text" name='ServiceTitle' className={`${errors.GcashServiceTitleError ? "border-red-500" : ""} text-sm outline-none border border-blue-400 rounded-sm p-0.5`} placeholder='' />
+          </div>
+          {/* Email */}
+          <div className="relative mb-1 mt-3 w-[90%] mx-auto flex flex-col">
+          <label htmlFor='Email' className='text-semiXs text-gray-400'>Email</label>
+          <input value={advanceInformation.PaymentMethod[0].gcashInfo.EmailForGcash} onChange={(e) => {
+          setAdvanceInformation((prevAdvanceInformation) => ({
+              ...prevAdvanceInformation,
+              PaymentMethod: prevAdvanceInformation.PaymentMethod.map((method, index) =>
+              index === 0
+                  ? {
+                      ...method,
+                      gcashInfo: {
+                      ...method.gcashInfo,
+                      EmailForGcash: e.target.value,
+                      },
+                  }
+                  : method
+              ),
+          }));
+          }} 
+          type="text" name='Email' className={`${errors.GcashEmailError ? "border-red-500" : ""} text-sm outline-none border border-blue-400 rounded-sm p-0.5`} placeholder='' />
+          </div>
+          
+      
+          {/* Note */}
+          <label htmlFor='fullname' className='text-semiXs w-[90%] mx-auto text-gray-400'>Note (Optional)</label>
+          <div className='w-[90%] mx-auto h-[70px] border overflow-hidden mt-1'>
+          <textarea value={advanceInformation.PaymentMethod[0].gcashInfo.GcashNote} 
+          onChange={(e) => {
+              setAdvanceInformation((prevAdvanceInformation) => ({
+                ...prevAdvanceInformation,
+                PaymentMethod: prevAdvanceInformation.PaymentMethod.map((method, index) =>
+                  index === 0
+                    ? {
+                        ...method,
+                        gcashInfo: {
+                          ...method.gcashInfo,
+                          GcashNote: e.target.value,
+                        },
+                      }
+                    : method
+                ),
+              }));
+            }}
+          rows={2} className='gcashNote p-1 w-full text-sm h-full outline-none resize-none scrol '/>
+          </div>
+          <button onClick={()=>{submitGcashPayment()}} className='w-[95%] mt-2 mx-auto py-0.5 bg-[#007DFE] rounded-sm text-gray-100'>Submit</button>
+          </div>
+          </div>
+        )
+        :
+        ("")
+      }
+   
     
     </Modal>
     <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 py-1 w-fit text-gray-100 font-medium shadow-md rounded-sm `}>Update</button>
