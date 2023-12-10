@@ -66,11 +66,11 @@ const ServiceHours = () => {
 
 
   return (
-    <div className='w-full h-full flex flex-col p-2 '>
+    <div className='w-full h-full  flex flex-col p-2 '>
     <h1 className='font-semibold text-md text-gray-700'>Set Standard Hours</h1>
 
     {/* Schedule Container */}
-    <div className='w-full flex flex-col relative justify-evenly space-y-5 md:space-y-0  h-full'>
+    <div className='w-full flex flex-col relative justify-between  space-y-5 md:space-y-0  h-full'>
     {schedule.map((entry) => (
         // Rows
         <div key={entry.day} className='flex items-center justify-between md:justify-evenly'>

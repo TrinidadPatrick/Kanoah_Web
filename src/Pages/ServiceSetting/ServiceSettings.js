@@ -14,8 +14,10 @@ import { useParams } from 'react-router-dom';
 import Gallery from './Gallery';
 import MyService from './MyService';
 import PageNotFound from '../NotFoundPage/PageNotFound';
+import EditService from '../EditService/EditService';
 
 const ServiceSettings = () => {
+  const [isEditService, setIsEditService] = useState(false)
   const [notFound, setNotFound] = useState(false)
     const {option} = useParams()
     const dispatch = useDispatch();
@@ -91,7 +93,7 @@ const ServiceSettings = () => {
 
     {/* Right section */}
     <section className='w-full h-screen'>
-    {selectedSettings == "Gallery" ? <Gallery /> : selectedSettings == "myService" ? <MyService /> : ""}
+    {selectedSettings == "Gallery" ? <Gallery /> : selectedSettings == "myService" ? <MyService /> : selectedSettings == "myService" ?  <EditService /> : "" }
     </section>
     </div>
         )

@@ -68,7 +68,7 @@ useEffect(()=>{
 },[])
     
   return (
-    <main  className='w-full bg-black h-screen flex justify-evenly'>
+    <main  className='w-full h-screen  flex justify-evenly'>
     {/* Left Section */}
 
 
@@ -79,11 +79,11 @@ useEffect(()=>{
     <h1 className='text-2xl font-semibold text-gray-700'>
         Service Customization
         {/* Sidebar Toggler */}
-        <button onClick={()=>{document.getElementById('settingSidebarOpen').className = 'w-[260px] transition duration-500 translate-x-0 exploreSidebarOpen ease-out h-screen mt-20 bg-white z-10 absolute'}} className='absolute  right-2 lg:hidden'><FilterListOutlinedIcon fontSize='large' /></button>
+        {/* <button onClick={()=>{document.getElementById('settingSidebarOpen').className = 'w-[260px] transition duration-500 translate-x-0 exploreSidebarOpen ease-out h-screen mt-20 bg-white z-10 absolute'}} className='absolute  right-2 lg:hidden'><FilterListOutlinedIcon fontSize='large' /></button> */}
     </h1>
 
     {/* Navigation buttons */}
-    <div className={`serviceSettingNavBtn w-screen sm:w-full md:w-full h-fit  overflow-auto flex justify-start space-x-5 mt-5 relative border-b `}>
+    <div className={`serviceSettingNavBtn w-screen md:w-full h-fit  overflow-auto flex justify-start space-x-5 mt-5 relative border-b `} >
        
        <Link className={`text-sm lg:text-[1rem] ${option === 'basicInformation' ? 'border-b-4 rounded-sm border-themeOrange text-themeOrange ' : ''} pb-3 whitespace-nowrap`} to={`/myService/editService/basicInformation`}>Basic Information</Link>
        <Link className={`text-sm lg:text-[1rem] ${option === 'advanceInformation' ? 'border-b-4 rounded-sm border-themeOrange text-themeOrange ' : ''} pb-3 whitespace-nowrap`}  to='/myService/editService/advanceInformation' >Advance Information</Link>
@@ -106,7 +106,7 @@ useEffect(()=>{
     </section>
 
     {/* Mobile sidebar */}
-    {/* <section id='settingSidebarOpen' className={`w-[260px] transition duration-500 -right-14 exploreSidebarOpen ease-out h-screen mt-[4.6rem] bg-black z-10 absolute`}>
+    {/* <section id='settingSidebarOpen' className={`w-[260px] transition duration-500 -right-14 exploreSidebarOpen ease-out h-full mt-[4.6rem] bg-black z-10 absolute`}>
 
     </section> */}
     </main>
