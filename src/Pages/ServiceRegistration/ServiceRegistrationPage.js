@@ -16,8 +16,9 @@ export const pageContext = React.createContext()
 const ServiceRegistrationPage = () => {
   const navigate = useNavigate()
   const userId = useSelector(selectUserId)
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] 
-    const [step, setStep] = useState(1)
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Holidays'] 
+  
+    const [step, setStep] = useState(4)
     // const [userId, setUserId] = useState(null)
     const [serviceInformation, setServiceInformation] = useState(
       {
@@ -50,8 +51,8 @@ const ServiceRegistrationPage = () => {
         days.map((day) => ({
           day,
           isOpen: false,
-          fromTime: '',
-          toTime: '',
+          fromTime: '06:00',
+          toTime: '18:00',
         }))
       ,
       tags : []

@@ -4,6 +4,7 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Outfit', sans-serif;
+    /* border: 2px solid black !important */
 
     
  }
@@ -368,6 +369,15 @@
  background-color: black !important;
  border-radius: 0.2rem !important;
 }
+
+.mainSearchButton{
+  box-shadow: 2px 2px 5px black, inset 2px 2px 5px rgb(53, 51, 51),
+    -1px -1px 20px rgba(59, 56, 56, 0.781);
+    background-color: #0E2F41;
+    border: 1px solid transparent;
+}
+
+
 
 
 

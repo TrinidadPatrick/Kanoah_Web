@@ -39,7 +39,7 @@ function App() {
         <Route path='/myAccount/:optn' element={<CustomerAccount />} />
         <Route path='/serviceRegistration' element={<ServiceRegistrationPage />} />
         <Route path='/serviceSettings/:option' element={<ServiceSettings />} />
-        <Route path='myService/editService/:option' element={<EditService />} />
+        <Route path=':setting/editService/:option' element={<EditService />} />
         <Route path="*" element={<PageNotFound />} />
         <Route path='/' element={<MainPage />} />
         <Route path='/login' element={<Login />} />

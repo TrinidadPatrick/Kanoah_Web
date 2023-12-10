@@ -1,16 +1,25 @@
 import React from 'react'
 import { useState, useContext, useEffect } from 'react'
 import { pageContext } from './ServiceRegistrationPage'
+import holidays from 'date-holidays'
 
 const ServiceHours = () => {
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] 
+  const hd = new holidays('PH')
+  const holiday = hd.getHolidays()
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Holidays'] 
+  const [holidayHours, setHolidayHours] = useState({
+    day : 'Holidays',
+    isOpen: false,
+    fromTime: '',
+    toTime: '',
+  })
   const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
   const [schedule, setSchedule] = useState(
     days.map((day) => ({
       day,
       isOpen: false,
-      fromTime: '',
-      toTime: '',
+      fromTime: '06:00',
+      toTime: '18:00',
     }))
   );
 
@@ -40,7 +49,7 @@ const ServiceHours = () => {
     setSchedule(serviceInformation.serviceHour)
   },[step])
 
-  console.log(serviceInformation.serviceHour)
+
  
   return (
     <div className=' h-full w-full flex flex-col'>
@@ -48,11 +57,11 @@ const ServiceHours = () => {
     {/* <p className='text-gray-600 text-sm mt-2'>Configure the standard hours of service</p> */}
 
     {/* Schedule Container */}
-    <div className='w-full flex flex-col justify-evenly space-y-5 md:space-y-0  mt-5 h-full'>
+    <div className='w-full flex flex-col justify-between space-y-5 md:space-y-0  mt-5 h-full'>
     {schedule.map((entry) => (
         // Rows
-        <div key={entry.day} className='flex items-center justify-evenly'>
-          <p className='font-semibold w-[70px] lg:w-[100px] text-xs lg:text-[1rem]'>{entry.day}</p>
+        <div key={entry.day} className='flex items-center justify-between'>
+          <p className={`${entry.day === "Holidays" ? "text-green-500" : ""} font-semibold w-[70px] lg:w-[100px] text-xs lg:text-[1rem]`}>{entry.day}</p>
 
           {/* Toggle Button */}
           <div className='flex items-center'>
@@ -74,19 +83,19 @@ const ServiceHours = () => {
             <div className="">
               <input
                 type="time"
-                className="p-0 text-sm lg:text-[1rem] block w-full border rounded-sm focus:outline-none focus:border-blue-500"
-                value={entry.fromTime}
+                className="p-1 text-sm lg:text-[1rem] w-[115px] ps-3 border rounded-xl focus:outline-none focus:border-blue-500"
+                value={entry.isOpen ? entry.fromTime : ""}
                 onChange={(e) => handleTimeChange(entry.day, 'fromTime', e.target.value)}
                 disabled={!entry.isOpen}
               />
             </div>
-            <span className='text-gray-600 mx-4 text-xs lg:text-[1rem]'>TO</span>
+            <span className='text-gray-600 mx-4 text-xs lg:text-[1rem]'>To</span>
             {/* To */}
             <div className="">
               <input
                 type="time"
-                className="p-0 text-sm lg:text-[1rem] block w-full border rounded-sm focus:outline-none focus:border-blue-500"
-                value={entry.toTime}
+                className="p-1 text-sm lg:text-[1rem] w-[115px] ps-3 border rounded-xl focus:outline-none focus:border-blue-50"
+                value={entry.isOpen ? entry.toTime : ""}
                 onChange={(e) => handleTimeChange(entry.day, 'toTime', e.target.value)}
                 disabled={!entry.isOpen}
               />
@@ -94,7 +103,12 @@ const ServiceHours = () => {
           </div>
         </div>
       ))}
+
+      {/* Holiday Schedule */}
+
     </div>
+
+    {/* Button */}
     <div className='w-full flex justify-end space-x-2 mt-4'>
             <button onClick={()=>{setStep(3)}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-gray-200 text-gray-500'>Back</button>
             <button onClick={()=>{setStep(5);submitSchedule()}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-themeBlue text-white'>Next</button>

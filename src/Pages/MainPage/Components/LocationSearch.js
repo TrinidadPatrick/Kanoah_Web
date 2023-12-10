@@ -28,13 +28,13 @@ const LocationSearch = () => {
 
 
   return (
-  <div className='p-1 relative flex '>
+  <div className='mainSearchButton relative flex  rounded-4xl'>
     {/* Search Field */}
-  <input onChange={(e)=>{setSearchInput(e.target.value)}} className='text-black font-light w-[65%] text-md md:text-md py-5 px-6 bg-[#f0f0f0] rounded-s-4xl outline-none ' onKeyDown={(e)=>{if(e.key === "Enter"){navigate(`explore?search=${e.target.value}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5`)}}} type="text" placeholder='Search for service' />
+  <input onChange={(e)=>{setSearchInput(e.target.value)}} className='text-black font-light w-[65%] text-md md:text-md py-5 px-6 bg-themeBlue rounded-s-4xl outline-none ' onKeyDown={(e)=>{if(e.key === "Enter"){navigate(`explore?search=${e.target.value}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5`)}}} type="text" placeholder='Search for service' />
   <div className='w-1/2 '>
-  <input onKeyDown={(e)=>{if(e.key === "Enter"){navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5`)}}} value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} type='text' className='text-gray-700 w-full font-light text-md md:text-md py-5 px-6 bg-[#f0f0f0] border-s-1 rounded-e-4xl outline-none' placeholder='Your Location' />
+  <input onKeyDown={(e)=>{if(e.key === "Enter"){navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5`)}}} value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} type='text' className='text-gray-700 w-full font-light text-md md:text-md py-5 px-6 bg-themeBlue border-s-2 border-slate-800 rounded-e-4xl outline-none' placeholder='Your Location' />
   {/* Places dropdown */}
-  <div id='placeDropdown' className={`${locationFilterValue != "" ? "absolute" : "hidden"} w-[300px] overflow-auto pt-3 flex flex-col space-y-4 justify-start h-[200px] bg-[#f0f0f0] absolute`}>
+  <div id='placeDropdown' className={`${locationFilterValue != "" ? "absolute" : "hidden"} w-[300px] overflow-auto pt-3 flex flex-col space-y-4 justify-start h-[200px] bg-themeBlue absolute`}>
   {
     places.map((place)=>(
       <div key={place.id} className='flex items-center px-2 hover:bg-gray-200'>
@@ -45,7 +45,7 @@ const LocationSearch = () => {
   }
   </div>
   </div>
-  <button onClick={()=>{navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5`)}} className='absolute bg-themeBlue text-white px-2.5 md:px-6 py-2.5 rounded-3xl top-[12px] md:top-[14.3px] flex space-x-2 right-3 md:right-3'><SearchIcon /> <span className='hidden md:block'>Search</span></button>
+  <button onClick={()=>{navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5`)}} className='absolute bg-white text-themeBlue px-2.5 md:px-6 py-2.5 rounded-3xl top-[12px] md:top-[9.6px] flex space-x-2 right-3 md:right-3'><SearchIcon /> <span className='hidden md:block'>Search</span></button>
   </div>
   )
 }

@@ -9,20 +9,17 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
-import jwtDecode from 'jwt-decode'
 import { useNavigate } from 'react-router-dom'
 import { categories } from '../MainPage/Components/Categories'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import PersonIcon from '@mui/icons-material/Person';
 import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
-import axios from 'axios'
 import http from '../../http'
-import logo from "../../Utilities/Logo/Logo1.png"
-import { useParams } from 'react-router-dom'
+import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId, selectLoggedIn, setLoggedIn, selectShowLoginModal, setShowLoginModal } from '../../ReduxTK/userSlice';
 import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
+import profileLogo from './Utlis/profileLogo.svg'
 export const Context = React.createContext()
 
 
@@ -33,23 +30,23 @@ const dispatch = useDispatch();
 const userId = useSelector(selectUserId);
 const loggedIn = useSelector(selectLoggedIn);
 const showLoginModal = useSelector(selectShowLoginModal);
- const navigate = useNavigate()
- const [accessToken, setAccessToken] = useState(null);
-  const [open, setOpen] = React.useState(false);
-  const [hasRegisteredService, setHasRegisteredService] = useState(null);
-  const handleOpen = () => setOpen(true);
-  const handleClose = (event, reason) => {
-    if (reason !== 'backdropClick') {
-      setOpen(false)
+const navigate = useNavigate()
+const [accessToken, setAccessToken] = useState(null);
+const [open, setOpen] = React.useState(false);
+const [hasRegisteredService, setHasRegisteredService] = useState(null);
+const handleOpen = () => setOpen(true);
+const handleClose = (event, reason) => {
+if (reason !== 'backdropClick') {
+  setOpen(false)
       dispatch(setShowLoginModal(false))
     }
   } 
-    const [userInfo, setUserInfo] = useState(null)
-    const [showMenu, setShowMenu] = useState(false)
-    const [showDropdownProfile, setShowDropDownProfile] = useState(false)
-    const [showLogin, setShowLogin] = useState(false)
-    const [showFP, setShowFP] = useState(false)
-    const [showSignup, setShowSignup] = useState(false)
+  const [userInfo, setUserInfo] = useState(null)
+  const [showMenu, setShowMenu] = useState(false)
+  const [showDropdownProfile, setShowDropDownProfile] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+  const [showFP, setShowFP] = useState(false)
+  const [showSignup, setShowSignup] = useState(false)
     // Handles the showing oh menu on small screens
     const handleMenu = () => {
         if(showMenu){
@@ -234,25 +231,42 @@ const showLoginModal = useSelector(selectShowLoginModal);
           <header className='flex border-b space-x-2 pb-2'>
 
             <div className='ml-1'>
-              <h1 className='text-sm font-semibold'>{userInfo.username}</h1>
+              <h1 className='text-sm text-gray-700 font-medium'>{userInfo.username}</h1>
               <p className='text-xs text-gray-500'>{userInfo.email}</p>
             </div>
           </header>
-          <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to={`/myAccount/${"Profile"}`} className="px-1 py-3 whitespace-nowrap hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-2"><PersonIcon />Profile Settings</Link>
+          
+          <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to={`/myAccount/${"Profile"}`} className="px-1 py-3 whitespace-nowrap hover:bg-gray-200 text-gray-700 text-sm font-medium flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+          <path d="M247.846-260.615q51-36.693 108.231-58.039Q413.308-340 480-340q66.692 0 123.923 21.346 57.231 21.346 108.231 58.039 39.615-41 63.731-96.847Q800-413.308 800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 66.692 24.115 122.538 24.116 55.847 63.731 96.847ZM480.023-460q-50.562 0-85.292-34.707Q360-529.415 360-579.977t34.707-85.292Q429.415-700 479.977-700t85.292 34.708Q600-630.585 600-580.023q0 50.562-34.708 85.292Q530.585-460 480.023-460ZM480-120q-75.308 0-141-28.038-65.692-28.039-114.308-76.654Q176.077-273.308 148.038-339 120-404.692 120-480t28.038-141q28.039-65.692 76.654-114.308Q273.308-783.923 339-811.962 404.692-840 480-840t141 28.038q65.692 28.039 114.308 76.654Q783.923-686.692 811.962-621 840-555.308 840-480t-28.038 141q-28.039 65.692-76.654 114.308Q686.692-176.077 621-148.038 555.308-120 480-120Zm0-40q55.308 0 108.846-19.346 53.539-19.346 92.539-52.962-39-31.307-90.231-49.5Q539.923-300 480-300q-59.923 0-111.538 17.808-51.616 17.807-89.847 49.884 39 33.616 92.539 52.962Q424.692-160 480-160Zm0-340q33.692 0 56.846-23.154Q560-546.308 560-580q0-33.692-23.154-56.846Q513.692-660 480-660q-33.692 0-56.846 23.154Q400-613.692 400-580q0 33.692 23.154 56.846Q446.308-500 480-500Zm0-80Zm0 350Z"/>
+          </svg>
+          My Profile
+          </Link>
           {
             hasRegisteredService ?
             (
-              <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to={`/serviceSettings/myService`} className="px-1 py-3  whitespace-nowrap hover:bg-gray-200 text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Service Settings</Link>
+              <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to={`/serviceSettings/myService`} className="px-1 py-3  whitespace-nowrap hover:bg-gray-200 text-gray-700 font-medium flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+              <path d="M176.923-740v-40h606.154v40H176.923ZM180-180v-240h-49.231v-40l46.154-200h606.154l46.154 200v40H780v240h-40v-240H540v240H180Zm40-40h280v-200H220v200Zm-48.769-240h617.538-617.538Zm0 0h617.538l-37.077-160H208.308l-37.077 160Z" />
+              </svg>
+              Service Settings
+              </Link>
             )
             :
             (
-              <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to='/serviceRegistration' className="px-1 py-3  whitespace-nowrap hover:bg-gray-200 text-gray-700 flex items-center gap-2 text-sm"><BusinessCenterOutlinedIcon /> Post a Service</Link>
+              <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to='/serviceRegistration' className="px-1 py-3  whitespace-nowrap hover:bg-gray-200 font-medium text-gray-700 flex items-center gap-2 text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+              <path d="M720-80v-120H600v-40h120v-120h40v120h120v40H760v120h-40ZM129.23-180v-240H80v-40l46.154-200h547.692L720-460v40h-49.231v130.769h-40V-420H449.231v240H129.23Zm40.001-40H409.23v-200H169.231v200Zm-48.769-240h559.076-559.076Zm5.692-280v-40h547.692v40H126.154Zm-5.692 280h559.076l-37.077-160H157.538l-37.076 160Z"/>
+              </svg>
+              Post a Service
+              </Link>
             )
           }
           
           
           <footer className='px-1 text-red-500 border-t-1 pt-3'>
-            <button onClick={() => { signout() }} className='flex items-center gap-2'><ExitToAppOutlinedIcon />Sign out</button>
+          {/* <FontAwesomeIcon icon="fa-light fa-user" /> */}
+            <button onClick={() => { signout() }} className='flex items-center gap-2 text-sm'><ExitToAppOutlinedIcon fontSize='small' />Sign out</button>
           </footer>
         </div>
       </div>

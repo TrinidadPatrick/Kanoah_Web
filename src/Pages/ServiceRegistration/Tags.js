@@ -77,8 +77,8 @@ const submitTag = () => {
   },[step])
 
   return (
-    <div className='h-full border flex flex-col justify-stretch items-stretch w-full'>
-      <div className='w-3/4 mx-auto border'>
+    <div className='h-full  flex flex-col justify-stretch items-stretch w-full'>
+      <div className='w-3/4 mx-auto '>
       <h1 className='text-center mt-2 text-3xl font-semibold '>Add Tags</h1>
       <p className='text-center text-sm text-gray-500'>Adding tags can help your service reach more users, insert tags that best describes your service</p>
       </div>
@@ -93,7 +93,7 @@ const submitTag = () => {
     </div>
 
     {/* Tags Container */}
-    <div className='w-3/4 border h-full max-h-full overflow-auto flex flex-wrap justify-start items-start mx-auto my-3'>
+    <div className='w-3/4 border h-full max-h-full overflow-auto rounded-md flex flex-wrap justify-start items-start mx-auto my-3'>
       <div className='h-fit  w-full flex flex-wrap'>
   {
     tags.map((tag, index) => (

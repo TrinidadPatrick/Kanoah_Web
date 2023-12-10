@@ -14,7 +14,7 @@ import ImageGallery from "react-image-gallery";
 import 'react-image-gallery/styles/css/image-gallery.css'
 import { useState, useEffect, useCallback, useRef } from 'react';
 import 'react-gallery-carousel/dist/index.css';
-import { FaInstagram, FaMapLocation, FaPhone, FaRegEnvelope, FaSquareFacebook } from 'react-icons/fa6';
+import { FaFacebook, FaInstagram, FaMapLocation, FaPhone, FaRegEnvelope, FaSquareFacebook, FaYoutube } from 'react-icons/fa6';
 import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Description from './Components/Description';
@@ -29,6 +29,7 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId, setLoggedIn,setShowLoginModal, selectLoggedIn, selectShowLoginModal } from '../../ReduxTK/userSlice';
 import http from '../../http';
+import instagram from './img/instagram.png'
 import Footer from '../MainPage/Footer';
 
 
@@ -212,6 +213,7 @@ useEffect(()=>{
     handleResize();
 },[])
 
+
   return (
     
    <div className='grid place-items-center h-screen  w-[100vw] min-w-[100vw]'>
@@ -295,8 +297,11 @@ useEffect(()=>{
           <div className='flex flex-col space-y-3'>
           <p className=' tracking-wide text-sm flex items-center gap-2'><FaPhone className='text-gray-500' fontSize={15} /> {serviceInfo.advanceInformation.ServiceFax == "" ? "N/A" : serviceInfo.advanceInformation.ServiceFax} | {serviceInfo.advanceInformation.ServiceContact}</p>
           <p className=' tracking-wide text-sm flex items-center gap-2'><FaRegEnvelope className='text-gray-500' fontSize={20} />{serviceInfo.advanceInformation.ServiceEmail}</p>
-          <p className=' tracking-wide text-sm flex items-center gap-2 text-blue-500 underline'><FaSquareFacebook className='text-gray-500' fontSize={20}  /> www.facebook.com/34124/asq3e</p>
-          <p className=' tracking-wide text-sm flex items-center gap-2 text-blue-500 underline'><FaInstagram className='text-gray-500' fontSize={20}   /> www.instagram.com/341/asghtrq3e</p>
+          <div className='flex space-x-3 items-center'>
+          <FaYoutube onClick={() => { window.open(serviceInfo.advanceInformation.SocialLink[0].link, '_blank'); }}  className={`text-red-500 cursor-pointer ${serviceInfo.advanceInformation.SocialLink[0].link !== "" ? "block" : "hidden"}`} fontSize={30}  />
+          <FaFacebook onClick={() => { window.open(serviceInfo.advanceInformation.SocialLink[1].link, '_blank'); }} className={`${serviceInfo.advanceInformation.SocialLink[1].link !== "" ? "block" : "hidden"} text-blue-500 cursor-pointer`} fontSize={30}   />
+          <img onClick={() => { window.open(serviceInfo.advanceInformation.SocialLink[2].link, '_blank'); }} className={`${serviceInfo.advanceInformation.SocialLink[2].link !== "" ? "block" : "hidden"} w-7 h-7 cursor-pointer`} src={instagram} />
+          </div>
           </div>
           {/* Information */}
           <h1 className='text-xl font-semibold mb-3 mt-3'>Service Information</h1>
@@ -324,9 +329,10 @@ useEffect(()=>{
           <div className='flex flex-col  h-fit' style={{ position: 'relative' }}>
           <p className='text-start font-medium'>Location</p>
           <div className='flex items-center gap-2 text-gray-700 font-semibold'>
+          {/* Address */}
           <FaMapLocation className='text-black' />
             <p onClick={()=>{window.open(`https://www.google.com/maps/dir/?api=1&destination=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black')}} className=' cursor-pointer' >
-            {serviceInfo.address.barangay + " " + serviceInfo.address.municipality + ", " + serviceInfo.address.province } 
+            {serviceInfo.address.barangay.name + " " + serviceInfo.address.municipality.name + ", " + serviceInfo.address.province.name } 
             </p>
           </div>
           <ReactMapGL

@@ -4,16 +4,24 @@ import phil from 'phil-reg-prov-mun-brgy';
 import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import axios from 'axios';
-import { pageContext } from './ServiceRegistrationPage'
+import { selectUserId } from '../../../ReduxTK/userSlice';
+import { selectServiceData } from '../../../ReduxTK/serviceSlice';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { useSelector } from 'react-redux';
+import http from '../../../http';
 
-const AddressRegistration = () => {
+const Address = () => {
+const serviceData = useSelector(selectServiceData)
+const [updating, setUpdating] = useState(false)
+const [loading, setLoading] = useState(true)
+const userId = useSelector(selectUserId)
 const [street, setStreet] = useState('')
 const [fullAddress, setFullAddress] = useState({})
-const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
+const [address, setAddress] = useState({})
 const [isDragging, setIsDragging] = useState(false);
 const [closeAutofill, setCloseAutofill] = useState(false)
 const [places, setPlaces] = useState([])
+const accessToken = localStorage.getItem('accessToken')
 const [locationFilterValue, setLocationFilterValue] = useState({
         location : '',
         longitude : '',
@@ -48,7 +56,7 @@ const handleLocationSelect = (value, index) => {
 }
 
 // Submits the selected address
-const submitAddress = () => {
+const handleUpdate = async () => {
         
     const address = {
             region : {name : locCodesSelected[0][0], reg_code : locCodesSelected[0][1]},
@@ -61,7 +69,7 @@ const submitAddress = () => {
     }
 
     const checkError = (input, errorKey) => (
-      setErrors((prevErrors)=>({...prevErrors, [errorKey] : address[input].name == "" ? true : false}))
+      setErrors((prevErrors)=>({...prevErrors, [errorKey] : address[input] == "" ? true : false}))
     )
 
     checkError("region", "RegionError")
@@ -70,39 +78,41 @@ const submitAddress = () => {
     checkError("barangay", "BarangayError")
 
     // setFullAddress(address)
-    if(address.region.name != "" && address.province.name != "" && address.municipality.name != "" && address.barangay.name != "")
+    if(address.region != "" && address.province != "" && address.municipality != "" && address.barangay != "")
     {
-      setServiceInformation({...serviceInformation, address : address})
-      setStep(4)
+      setUpdating(true)
+      try {
+        const result = await http.patch(`updateService/${userId}`, {address : address},  {
+          headers : {Authorization: `Bearer ${accessToken}`},
+        })
+        if(result.data.status == "Success")
+        {
+          window.location.reload()
+          return ;
+        }
+        else{setUpdating(false)}
+      } catch (error) {
+        console.error(error)
+        setUpdating(false)
+      }
     }
     
 }
-// console.log(address)
 
 // Get my location
 useEffect(() => {
         // Use the Geolocation API to get the user's location
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const { latitude, longitude } = position.coords;
-              setLocation({ latitude, longitude });
-              
-            },
-            (error) => {
-              // Handle any errors here
-              console.error('Geolocation error:', error);
-            }
-          );
-        } else {
-          // Geolocation is not available in this browser
-          console.error('Geolocation is not available.');
+        if(serviceData.address !== undefined)
+        {
+          setLocation({longitude : serviceData.address.longitude, latitude : serviceData.address.latitude})
+          setStreet(serviceData.address.street)
         }
-}, []);
+        
+}, [serviceData]);
 
 // Map Viewport
 const [viewport, setViewPort] = useState({    
-        width: "100%",
+        width: "90%",
         height: "100%",
         zoom : 16,
         latitude : location.latitude,
@@ -125,36 +135,57 @@ useEffect(() => {
           });
 }, [locationFilterValue]);
 
+// Set the address from db
 useEffect(()=>{
-  setFullAddress(serviceInformation.address)
-},[step])
+  if(serviceData.address !== undefined)
+  {
+    setAddress(serviceData.address)
+    setLocCodesSelected(
+      [
+        [serviceData.address.region.name, serviceData.address.region.reg_code],
+        [serviceData.address.province.name, serviceData.address.province.prov_code],
+        [serviceData.address.municipality.name, serviceData.address.municipality.mun_code],
+        [serviceData.address.barangay.name, serviceData.address.barangay.brgy_code]
+      ]
+    )
 
-console.log(fullAddress)
+    setLoading(false)
+  }
+  
+},[serviceData])
+
+
+
   return (
-    <div className='w-full flex flex-col h-fit md:h-full p-1'>
-    {/* <div className='p-4 bg-black h-full'> */}
-            <div className='flex flex-col justify-center items-center'>
-                <div className='w-full grid grid-cols-2 gap-2'>
+    <div className='w-full h-screen sm:h-full flex flex-col px-5 mt-0 pt-2'>
+    <div className='w-full flex flex-col sm:flex-row h-screen sm:h-full sm:space-x-4 p-0'>
+      {
+        loading ? ("")
+        :
+        (      
+        <>
+        <div className='flex flex-col w-full justify-start'>
+                <div className='w-full grid xl:grid-cols-2 xl:gap-2'>
                 {/* Regions ***************************************/}
                 <div className="mb-4">
-                <label htmlFor="region" className="text-xs xl:text-sm text-gray-600">Region</label>
+                <label htmlFor="region" className="text-xs xl:text-sm text-gray-600">
+                  Region
+                </label>
                 <select
-                onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 0)}}
-                id="region"
-                name="region"
-                defaultValue=""
-                className={`${errors.RegionError ? "border-red-500" : ""} block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
-                >
-                <option className='w-fit' value=""  >Select Region</option>
-                {
-                phil.regions.map((regions, index)=>(
-                <option key={index} selected={fullAddress.region == regions.name ? true : false} value={[regions.name , regions.reg_code]}>{regions.name}</option>
-                ))
-                }
+                  onChange={(e) => { handleLocationSelect(e.target.value.split(','), 0) }}
+                  id="region"
+                  name="region"
+                  value={address.region.name + ',' + address.region.reg_code}
+                  className={`${errors.RegionError ? "border-red-500" : ""} block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}>
+                  {/* <option className='w-fit' value=""  >Select Region</option> */}
+                  {phil.regions.map((regions, index) => (
+                    <option key={index} value={[regions.name, regions.reg_code]}>
+                      {regions.name}
+                    </option>
+                  ))}
                 </select>
-                </div>
+              </div>
 
-                
                 {/* Provinces***************************************************************** */}
                 <div className="mb-4 w-full">
                 <label htmlFor="province" className="text-xs xl:text-sm text-gray-600">Province</label>
@@ -163,20 +194,19 @@ console.log(fullAddress)
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1)}}
                 id="province"
                 name="province"
-                defaultValue=""
+                value={address.province.name + ',' + address.province.prov_code}
                 className={`${errors.ProvinceError ? "border-red-500" : ""} block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
                 >
-                <option value="" disabled >Select Province</option>
                 {
                 phil.getProvincesByRegion(locCodesSelected[0][1]).sort((a, b) => a.name.localeCompare(b.name)).map((province, index)=>(
-                <option key={index} selected={fullAddress.province == province.name ? true : false} value={[province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase() , province.prov_code]}>{province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase()}</option>
+                <option key={index} value={[province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase() , province.prov_code]}>{province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase()}</option>
                 ))
                 }
                 </select>
                 </div>
                 </div>
 
-                <div className='w-full grid grid-cols-2 gap-2'>
+                <div className='w-full grid xl:grid-cols-2 xl:gap-2'>
                 {/* Cities ***********************************************************/}
                 <div className="mb-4 w-full">
                 <label htmlFor="city" className="text-xs xl:text-sm text-gray-600">City</label>
@@ -185,13 +215,12 @@ console.log(fullAddress)
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','),2)}}
                 id="city"
                 name="city"
-                defaultValue=""
+                value={address.municipality.name + ',' + address.municipality.mun_code}
                 className={`${errors.CityError ? "border-red-500" : ""} block text-xs xl:text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
                 >
-                <option value="" disabled >Select City</option>
                 {
                 phil.getCityMunByProvince(locCodesSelected[1][1]).sort((a, b) => a.name.localeCompare(b.name)).map((city, index) => (
-                <option key={index} selected={fullAddress.municipality == city.name ? true : false} onClick={()=>{console.log("Hello")}}  value={[city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase(), city.mun_code]}>
+                <option key={index} value={[city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase(), city.mun_code]}>
                 {city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase()}
                 </option>
                 ))
@@ -209,13 +238,12 @@ console.log(fullAddress)
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','),3)}}
                 id="barangay"
                 name="barangay"
+                value={address.barangay.name + ',' + address.barangay.brgy_code}
                 className={`${errors.BarangayError ? "border-red-500" : ""} block text-xs xl:text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
-                defaultValue=""
                 >
-                <option value="" disabled  >Select Barangay</option>
                 {
                 phil.getBarangayByMun(locCodesSelected[2][1]).sort((a, b) => a.name.localeCompare(b.name)).map((barangay, index)=>(
-                <option selected={fullAddress.barangay == barangay.name ? true : false} key={index} value={[barangay.name , barangay.mun_code]}>{barangay.name}</option>
+                <option key={index} value={[barangay.name , barangay.mun_code]}>{barangay.name}</option>
                 ))
                 }
                 </select>
@@ -223,23 +251,23 @@ console.log(fullAddress)
                 </div>
 
                 {/* Street */}
-                <div className="h-fit w-full  flex flex-col"> 
+                <div className="h-full w-full  flex flex-col"> 
                 <label className="block text-xs xl:text-sm text-gray-500 font-semibold mb-2" htmlFor="description">Street</label>
-                <div className='border rounded-sm  md:h-[90%]'>
+                <div className='border rounded-md overflow-hidden md:h-[90%]'>
                 <textarea
                 value={street}
                 onChange={(e)=>{setStreet(e.target.value)}}
                 id="description"
-                className="w-full p-2 text-xs xl:text-sm resize-none outline-none min-h-[20px] max-h-[190px] "
+                className="w-full p-2 text-xs xl:text-sm resize-none outline-none h-full "
                 rows={1} 
                 placeholder="Enter street no., building, exact location..."
                 ></textarea>
                 </div>
                 </div>
-                </div>   
+        </div>   
 
-                {/* MAP******************************************************************* */}
-            <div className='relative mt-1 h-[200px]  md:h-full mb-1 py-2 w-[100%] md:w-full'>
+        {/* MAP******************************************************************* */}
+        <div className='relative mt-1 h-[400px]  w-full  md:h-full mb-1 py-2 sm:w-[100%] md:w-[100%] lg:w-[100%]'>
             <ReactMapGL
             {...viewport}
             onViewportChange={(newViewport) => setViewPort(newViewport)}
@@ -271,7 +299,6 @@ console.log(fullAddress)
             latitude={location.latitude}
             longitude={location.longitude}
             draggable={true}
-            onDragStart={()=>{setIsDragging(true)}}
             // onDrag={(evt) => {setLocation({longitude : evt.lngLat.lng, latitude : evt.lngLat.lat});setViewPort({longitude : evt.lngLat.lng, latitude : evt.lngLat.lng})}}
             onDrag={(evt) => {
                 const sensitivityFactor = 1;
@@ -286,7 +313,6 @@ console.log(fullAddress)
                   longitude: newLocation.longitude ,
                 }));
               }}
-            onDragEnd={()=>{setIsDragging(false)}}
             >
         
             </Marker>
@@ -342,15 +368,20 @@ console.log(fullAddress)
                 }
             </div>
             </div>
-            </div>
-            
-            {/* </div> */}
-            <div className='w-full flex justify-end space-x-2'>
-            <button onClick={()=>{setStep(2)}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-gray-200 text-gray-500'>Back</button>
-            <button onClick={()=>{submitAddress()}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-themeBlue text-white'>Next</button>
-            </div>
+        </div>
+
+            </>
+        )
+        
+      }
+          <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 sm:mt-2 py-1 w-fit sm:hidden text-gray-100 text-sm xl:text-[1rem] mb-2 font-normal shadow-md rounded-sm `}>Update</button>
+
+
+    </div>
+    <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 mt-2 mb-3 py-1 w-fit hidden sm:block text-gray-100 text-sm xl:text-[1rem] font-normal shadow-md rounded-sm `}>Update</button>
+
     </div>
   )
 }
 
-export default AddressRegistration
+export default Address

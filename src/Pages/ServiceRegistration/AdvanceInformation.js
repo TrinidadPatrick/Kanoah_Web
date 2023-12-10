@@ -200,7 +200,7 @@ useEffect(()=>{
   }
 },[step])
 
-console.log(advanceInformation)
+
   return (
     <div className='w-full h-full flex flex-col  p-1'>
     
@@ -409,7 +409,7 @@ console.log(advanceInformation)
 
 
     {/* Gcash setup modal*/}
-  <Modal isOpen={isGcashModalOpen} style={socialLinkModalStyle} contentLabel="Example Modal">
+    <Modal isOpen={isGcashModalOpen} style={socialLinkModalStyle} contentLabel="Example Modal">
   <div className='flex flex-col relative w-[300px] h-[540px]'>
   <ArrowBackIosNewIcon className='absolute top-2 text-gray-700 cursor-pointer' onClick={()=>{closeGcashMethodModal();setIsGcashChecked(!isGcashChecked)}} />
   <h1 className='text-center my-2 font-semibold text-gray-500'>Payment Information</h1>

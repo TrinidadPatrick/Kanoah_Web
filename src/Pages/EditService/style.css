@@ -1,3 +1,6 @@
 .serviceSettingNavBtn::-webkit-scrollbar {
-    width: 0px !important;
+    /* width: 12px !important; */
+    height: 0px;
 }
+
+/* For toggle button */
