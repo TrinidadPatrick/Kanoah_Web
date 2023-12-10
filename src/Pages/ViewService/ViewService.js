@@ -30,6 +30,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId, setLoggedIn,setShowLoginModal, selectLoggedIn, selectShowLoginModal } from '../../ReduxTK/userSlice';
 import http from '../../http';
 import instagram from './img/instagram.png'
+import holidays from 'date-holidays'
 import Footer from '../MainPage/Footer';
 
 
@@ -37,7 +38,7 @@ import Footer from '../MainPage/Footer';
 
 
 const ViewService = () => {
-  
+  const [dateToday, setDateToday] = useState("")
   const navigate = useNavigate()
   const dispatch = useDispatch();
   const [windowWidth, setWindowWdith] = useState(null)
@@ -51,6 +52,8 @@ const ViewService = () => {
   const [openModal, setOpenModal] = React.useState(false);
   const [selectedOptions, setSelectedOptions] = useState('Description')
   const [currentDay, setCurrentDay] = useState('')
+  const hd = new holidays('PH')
+  const holiday = hd.getHolidays()
   
   const schedule = [{day: "Monday", "startTime" : "9:00 AM", endTime : "8:00 PM"},
   {day: "Tuesday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
@@ -241,7 +244,14 @@ useEffect(()=>{
     handleResize();
 },[])
 
-console.log(serviceInfo)
+useEffect(()=>{
+  const year = new Date().getFullYear()
+  const month = new Date().getMonth()
+  const date = new Date().getDate()+1
+  setDateToday(year+"-"+month+"-"+date)
+},[])
+
+// console.table(holiday)
   return (
 
     
@@ -441,8 +451,17 @@ console.log(serviceInfo)
           <div className='grid semiXs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 py-1 w-full'>
           {
             serviceInfo.serviceHour.map((sched, index)=>{
+              const [hours, minutes] = sched.toTime.split(':');
+              const [fromHours, fromMinutes] = sched.fromTime.split(':');
+              const toDateTime = new Date(0, 0, 0, hours, minutes);
+              const fromDateTime = new Date(0, 0, 0, fromHours, fromMinutes);
+              const toTime = toDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              const fromTime = fromDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              // console.table(holiday)
               return(
-                <div key={index} className={`sched_container ${sched.day == currentDay ? "border-2 border-blue-500" : ""} w-full flex flex-col justify-center items-center py-9 rounded-md`}>
+
+                <div key={index} className={`sched_container ${sched.day == currentDay ? "border-2 border-blue-500" : holiday.some((holidayDate) => holidayDate.date === dateToday+"00:00:00")
+                ? "border-2 border-red-500" :  ""} w-full flex flex-col justify-center items-center py-9 rounded-md`}>
                 <CalendarMonthOutlinedIcon />
                 <h1 className='text-xl font-semibold'>{sched.day}</h1>
                 {
@@ -450,9 +469,9 @@ console.log(serviceInfo)
                   (
                     <div className='flex mt-2'>
                   
-                    <div className='flex items-center space-x-1  px-2'><p className='text-lg font-normal text-gray-700'>{sched.fromTime}</p></div>
+                    <div className='flex items-center space-x-1  px-2'><p className='text-[1rem] font-normal text-gray-700'>{fromTime}</p></div>
                     -
-                    <div className='flex items-center space-x-1  px-2'><p className='text-lg font-normal text-gray-700'>{sched.toTime}</p></div>
+                    <div className='flex items-center space-x-1  px-2'><p className='text-[1rem] font-normal text-gray-700'>{toTime}</p></div>
                     </div>
                   )
                   :

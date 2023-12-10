@@ -74,7 +74,7 @@ const MyService = () => {
     <>
     <section className='flex space-x-5 '>
     {/* Profile Picture */}
-    <div className='w-[250px] h-[170px] relative group hover:brightness-50 cursor-pointer rounded-lg border-2 overflow-hidden object-cover'>
+    <div className='w-[200px] md:w-[250px] md:h-[170px] relative group hover:brightness-50 cursor-pointer rounded-lg border-2 overflow-hidden object-cover'>
     <div className='absolute hidden group-hover:block cursor-pointer text-white top-[40%] left-[43%]'>
     <CameraAltOutlinedIcon fontSize='large' className='' />
     </div>
@@ -89,14 +89,14 @@ const MyService = () => {
     {/* Service Title and buttons */}
     <div className='h-full flex flex-col'>
     <div className='flex flex-col justify-start space-y-3 h-full'>
-    <h1 className='text-4xl font-semibold text-themeBlue'>{serviceInformation.basicInformation.ServiceTitle}</h1>
+    <h1 className='text-xl sm:text-2xl lg:text-4xl font-semibold text-themeBlue'>{serviceInformation.basicInformation.ServiceTitle}</h1>
     <h2 className='text-gray-600 text-sm font-semibold'>{serviceInformation.basicInformation.OwnerEmail}</h2>
     <h2 className='text-gray-600 text-sm font-semibold'>+63{serviceInformation.basicInformation.OwnerContact}</h2>
     </div>
     {/* Buttons */}
-    <div className='space-x-3 relative justify-self-end'>
-    <Link to={`/myService/editService/basicInformation`} className='px-4 w-fit py-2 rounded-3xl bg-gray-300 text-gray-600 text-sm'>Edit Service</Link>
-    <button className='px-4 w-fit py-2 rounded-3xl bg-gray-300 text-gray-600 text-sm'>View Service</button>
+    <div className='space-x-3 flex relative justify-self-end'>
+    <Link to={`/myService/editService/basicInformation`} className='px-4 w-fit py-2 rounded-3xl whitespace-nowrap bg-gray-300 text-gray-600 text-semiXs md:text-sm'>Edit Service</Link>
+    <button className='px-4 w-fit py-2 rounded-3xl bg-gray-300 text-gray-600 text-semiXs whitespace-nowrap md:text-sm'>View Service</button>
     </div>
     </div>
     {/* End of Information */}

@@ -871,8 +871,8 @@ const Explore = () => {
         </div>
 
         {/* Buttons */}
-        <button onClick={()=>{applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
-        <button onClick={()=>{setSearchParams({rating :"", category:"", sort : "Recent Services", search});clearFilter()}} className='font-medium'>Clear Filters</button>
+        <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
+        <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";setSearchParams({rating :"", category:"", sort : "Recent Services", search});clearFilter()}} className='font-medium'>Clear Filters</button>
         </div>
         </section>
       </div>

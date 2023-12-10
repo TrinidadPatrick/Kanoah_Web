@@ -163,7 +163,7 @@ useEffect(()=>{
 
         {/* Upload Button */}
         <li className='ml-3 cursor-all-scroll flex items-center space-x-2'>
-        <label htmlFor="fileInput" className={` bg-blue-500 h-full text-[0.95rem] shadow-md py-2 flex items-center relative px-4 text-white font-medium text-center rounded cursor-pointer`}>
+        <label htmlFor="fileInput" className={` bg-blue-500 h-full text-[0.85rem] shadow-md py-2 flex items-center relative px-4 text-white font-medium text-center rounded cursor-pointer`}>
         {uploadingImage ? "Uploading" : "Upload Image"}
         <input onChange={(e)=>{handleAddImage(e.target.files)}} disabled={uploadingImage} type="file" multiple accept="image/*" id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
         </label>
