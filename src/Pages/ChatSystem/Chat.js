@@ -16,6 +16,7 @@ const Chat = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId);
+    const [noChats, setNoChats] = useState(false)
     const [moreOptionClass, setMoreOptionClass] = useState(false)
     const [removeLoadMore, setRemoveLoadMore] = useState(false)
     const [windowWidth, setWindowWdith] = useState(null)
@@ -272,6 +273,12 @@ const Chat = () => {
         {
             const setInitialConversationId = async () => {
                 const contacts =  await (await getUserChats()).allContacts
+                if(contacts.length == 0)
+                {
+                  setNoChats(true)
+                  setLoading(false)
+                  return;
+                }
                 setConversationId(contacts[0].conversationId)
                 setSearchParams({convoId : contacts[0].conversationId, to : contacts[0].receiver[0].username, service : contacts[0].serviceInquired._id})
                 if(contacts[0].receiver[0]._id != sender._id)
@@ -437,7 +444,6 @@ const Chat = () => {
       setDisplayedMessages(displayedMessages - 10)
     }
 
-    // console.log(recipient)
 
   return (
     <div className='w-full h-screen grid place-items-center'>
@@ -463,6 +469,19 @@ const Chat = () => {
               </div>
             </div>
           </div>
+        )
+        
+        :
+
+        noChats
+        ?
+        (
+          <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <p className="text-2xl font-bold mb-4">No Chats</p>
+            <p className="text-gray-500">Start a new conversation to see chats here.</p>
+          </div>
+        </div>
         )
         :
         (
