@@ -62,7 +62,14 @@ const Explore = () => {
     setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search :searchInput, page : data.selected + 1})
     
   };
-console.log(page)
+
+  useEffect(()=>{
+    if(page == "" || page == undefined)
+    {
+      setCurrentPage(0)
+      setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search :searchInput, page :  1})
+    }
+  },[])
 
 
   const [filteredService, setFilteredService] = useState([])
