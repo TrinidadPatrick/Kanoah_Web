@@ -670,7 +670,7 @@ const Explore = () => {
         <div className="w-full">
         <div className="relative">
           <SearchOutlinedIcon className="absolute text-gray-500 top-[0.9rem] left-4"/>
-          <input className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" value={searchInput} onChange={(e)=>{handleSearchInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSubmitSearch();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search :searchInput, page : Number(page) + 1})}}} type="text"  placeholder='Search'/>
+          <input className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" value={searchInput} onChange={(e)=>{handleSearchInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSubmitSearch();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search :searchInput, page : 1})}}} type="text"  placeholder='Search'/>
         </div> 
         
         </div>
