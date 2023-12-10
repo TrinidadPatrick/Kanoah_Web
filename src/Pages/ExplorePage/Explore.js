@@ -654,8 +654,8 @@ const Explore = () => {
         </div>
 
         {/* Buttons */}
-        <button onClick={()=>{applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput, longitude : filterLocationLongLat.longitude, latitude : filterLocationLongLat.latitude, rd : radius, page : page + 1})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
-        <button onClick={()=>{setSearchParams({rating :"", category:"", sort : "Recent Services", search, page:page + 1});clearFilter()}} className='font-medium'>Clear Filters</button>
+        <button onClick={()=>{setCurrentPage(0);applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput, longitude : filterLocationLongLat.longitude, latitude : filterLocationLongLat.latitude, rd : radius, page : 1})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
+        <button onClick={()=>{setCurrentPage(0);setSearchParams({rating :"", category:"", sort : "Recent Services", search, page: 1});clearFilter()}} className='font-medium'>Clear Filters</button>
         </div>
         </section>
         
@@ -670,7 +670,7 @@ const Explore = () => {
         <div className="w-full">
         <div className="relative">
           <SearchOutlinedIcon className="absolute text-gray-500 top-[0.9rem] left-4"/>
-          <input className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" value={searchInput} onChange={(e)=>{handleSearchInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSubmitSearch();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search :searchInput, page : page + 1})}}} type="text"  placeholder='Search'/>
+          <input className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" value={searchInput} onChange={(e)=>{handleSearchInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSubmitSearch();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search :searchInput, page : Number(page) + 1})}}} type="text"  placeholder='Search'/>
         </div> 
         
         </div>
@@ -885,8 +885,8 @@ const Explore = () => {
         </div>
 
         {/* Buttons */}
-        <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput, page : page + 1})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
-        <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";setSearchParams({rating :"", category:"", sort : "Recent Services", search, page:page + 1});clearFilter()}} className='font-medium'>Clear Filters</button>
+        <button onClick={()=>{setCurrentPage(0);document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput, page : 1})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
+        <button onClick={()=>{setCurrentPage(0);document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";setSearchParams({rating :"", category:"", sort : "Recent Services", search, page : 1});clearFilter()}} className='font-medium'>Clear Filters</button>
         </div>
         </section>
         {/* <ScrollToTop smooth /> */}
