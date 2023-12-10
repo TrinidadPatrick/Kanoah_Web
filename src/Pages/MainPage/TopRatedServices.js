@@ -210,7 +210,7 @@ const TopRatedServices = () => {
                 {/* Cards */}
                 <div className='TRS semiXs:w-[400px]  sm:w-[300px] md:w-[350px] semiMd:w-[400px] lg:w-[330px] xl:w-[330px] service_card relative h-fit sm:h-fit pb-2 rounded-lg bg-white overflow-hidden'>
                 <Link to={`/explore/viewService/${service._id}`}>
-                <img className='h-[200px] w-full semiXs:h-[250px] semiXs:w-[400px] sm:h-[200px] sm:w-[300px] md:h-[200px] md:w-[350px] semiMd:h-[220px] semiMd:w-[400px]  lg:h-[200px] lg:w-[330px] xl:h-[200px] xl:w-[330px] ' src={service.serviceProfileImage} />
+                <img className='h-[200px] w-full semiXs:h-[250px] object-cover semiXs:w-[400px] sm:h-[200px] sm:w-[300px] md:h-[200px] md:w-[350px] semiMd:h-[220px] semiMd:w-[400px]  lg:h-[200px] lg:w-[330px] xl:h-[200px] xl:w-[330px] ' src={service.serviceProfileImage} />
                 </Link>
                 {/* Profile */}
                 <div className='w-16 h-16 absolute left-5 top-[10.5rem] semiXs:top-[13.5rem] sm:top-[10.5rem] semiMd:top-[11.6rem] lg:top-[10.5rem] xl:top-[10.5rem] sm:left-5 rounded-full border-4 border-gray-700 bg-cover' style={{backgroundImage : `url(${service.owner.profileImage})`}}></div>
@@ -255,7 +255,7 @@ const TopRatedServices = () => {
                   {/* Address */}
                   <div className='flex items-center ml-2'>
                   <PlaceOutlinedIcon className='text-gray-400' />
-                  <p className='mt-0 font-normal text-gray-400 text-sm ml-1 me-4 whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay + " " + service.address.municipality +", " + service.address.province}</p>
+                  <p className='mt-0 font-normal text-gray-400 text-sm ml-1 me-4 whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay.name + " " + service.address.municipality.name +", " + service.address.province.name}</p>
                   </div>
                 </div>
                 </div>

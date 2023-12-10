@@ -711,7 +711,7 @@ const Explore = () => {
                 <div className='flex space-x-1 w-[300px] xl:w-full justify-between  ml-1 xl:ml-2 '>
                   <div className='flex space-x-1'>
                   <ShareLocationOutlinedIcon className='text-themeGray' />
-                  <p className='text-themeGray whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay + ", " + service.address.municipality + ", " + service.address.province}</p>
+                  <p className='text-themeGray whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay.name + ", " + service.address.municipality.name + ", " + service.address.province.name}</p>
                   </div>
                   {/* More Options Button */}
                   <OutsideClickHandler onOutsideClick={()=>{setActiveId(null)}}>

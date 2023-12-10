@@ -44,6 +44,7 @@ const ViewService = () => {
   const [windowHeight, setWindowHeight] = useState(null)
   const isLoggedIn = useSelector(selectLoggedIn); 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [loading, setLoading] = useState(true)
   const [serviceInfo, setServiceInfo] = useState(null)
   const { serviceId } = useParams();
   const [open, setOpen] = React.useState(false);
@@ -171,10 +172,37 @@ const ViewService = () => {
     setCurrentDay(daysOfWeek[currentDay])
   },[])
 
+    // Computes the rating Average
+    const ratingAverage = (service) => {
+        const ratings = service.ratings
+        const totalRatings = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
+        const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / totalRatings;
+        const rounded = Math.round(ratingAverage * 100) / 100;
+        const average = rounded.toFixed(1)
+        return ({
+          _id : service._id,
+          key : service._id,
+          basicInformation: service.basicInformation,
+          advanceInformation: service.advanceInformation,
+          address: service.address,
+          serviceHour: service.serviceHour,
+          tags: service.tags,
+          owner : service.owner,
+          galleryImages: service.galleryImages,
+          featuredImages: service.featuredImages,
+          serviceProfileImage: service.serviceProfileImage,
+          ratings : average,
+          ratingRounded : Math.floor(average),
+          totalReviews : totalRatings,
+          createdAt : service.createdAt
+        });
+ 
+    };
+
   // Get the service information
   const getService = async () => {
     await http.get(`getServiceInfo/${serviceId}`).then((res)=>{
-      setServiceInfo(res.data.service)
+      setServiceInfo(ratingAverage(res.data.service))
     }).catch((err)=>{
       console.log(err)
     })
@@ -213,8 +241,10 @@ useEffect(()=>{
     handleResize();
 },[])
 
-
+console.log(serviceInfo)
   return (
+
+    
     
    <div className='grid place-items-center h-screen  w-[100vw] min-w-[100vw]'>
     
@@ -237,13 +267,14 @@ useEffect(()=>{
           {/* Title */}
         <div className='flex justify-between'><span className='text-lg md:text-3xl font-semibold'>{serviceInfo.basicInformation.ServiceTitle}</span></div>
         {/* Ratings ********************************************************************/}
+
         <div className='flex  relative ml-0 space-x-1 justify-between items-center mt-5 w-full'>
         <div className='flex space-x-2'>
-        <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={4.1} precision={0.1} icon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} />  } emptyIcon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} className='text-gray-300' />} />
+        <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={serviceInfo.ratings} precision={0.1} icon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} />  } emptyIcon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} className='text-gray-300' />} />
         <div className='flex items-center space-x-2 '>
-        <p className='text-gray-400 text-xs md:text-sm font-medium'>(4)</p> 
+        <p className='text-gray-400 text-xs md:text-sm font-medium'>({serviceInfo.ratings})</p> 
         <p className='text-gray-300'>|</p>
-        <p className='text-gray-700 text-xs md:text-sm md:pt-[2.5px] font-medium'>{"77 Reviews"}</p> 
+        <p className='text-gray-700 text-xs md:text-sm md:pt-[2.5px] font-medium'>{serviceInfo.totalReviews} Reviews</p> 
         </div>
         </div>
         </div>
