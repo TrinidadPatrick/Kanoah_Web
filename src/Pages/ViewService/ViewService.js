@@ -292,13 +292,19 @@ useEffect(()=>{
         {/* Buttons */}
         <div className='flex flex-col space-y-2 '>
         <button onClick={()=>{handleChatNow()}} className="cursor-pointer transition-all bg-green-500 text-white px-6 py-1.5 rounded-lg
-border-green-600
-border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px]
-active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
-  Chat now
-</button>
+        border-green-600
+        border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px]
+        active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
+          Chat now
+        </button>
+        <button onClick={()=>{handleChatNow()}} className="cursor-pointer transition-all bg-blue-500 text-white px-6 py-1.5 rounded-lg
+        border-blue-600
+        border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px]
+        active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
+          Book Service
+        </button>
         {/* <button onClick={()=>{handleChatNow()}} className='text-xs md:text-lg font-semibold bg-green-500 h-full text-white w-24 md:w-36 rounded-[0.150rem]'>Chat now</button> */}
-        <button className='text-xs md:text-lg font-semibold bg-themeOrange h-full text-white w-24 md:w-36 rounded-[0.150rem]'>Book Service</button>
+        {/* <button className='text-xs md:text-lg font-semibold bg-themeOrange h-full text-white w-24 md:w-36 rounded-[0.150rem]'>Book Service</button> */}
         </div>
         </div>
 

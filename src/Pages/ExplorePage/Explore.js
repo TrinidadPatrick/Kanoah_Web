@@ -213,7 +213,7 @@ const Explore = () => {
         const accessToken = 'pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ydzQ2YzYwNWhvMmtyeTNwNDl3ejNvIn0.9n7wjqLZye4DtZcFneM3vw'; // Replace with your actual Mapbox access token
         const location = locationFilterValue; // Replace with your desired location
       
-        axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${location}.json?access_token=pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ydzQ2YzYwNWhvMmtyeTNwNDl3ejNvIn0.9n7wjqLZye4DtZcFneM3vw`)
+        axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${location}.json?access_token=${accessToken}`)
           .then((res) => {
            setPlaces(res.data.features) // Logging the response data
 
@@ -403,8 +403,6 @@ const Explore = () => {
       setSearchInput(input)
     }
 
-    
-
     // Handle Submit search
     const handleSubmitSearch = () => {
       const result = serviceList.length === 0 ?
@@ -424,7 +422,7 @@ const Explore = () => {
     }
 
       // Handle all the selected rating filter****************************************************************************
-      useEffect(() => {
+    useEffect(() => {
 
         const serviceListInstance = [...mainServiceList];
         const filteredByLocation = serviceListInstance.filter(service => {
@@ -472,7 +470,7 @@ const Explore = () => {
           
         }
         
-      }, [selectedRatingCheckbox, selectedCategory, mainServiceList, sortFilter, searchInput, locationFilterValue, radius]);
+    }, [selectedRatingCheckbox, selectedCategory, mainServiceList, sortFilter, searchInput, locationFilterValue, radius]);
 
 
     //  Apply the filter onload only

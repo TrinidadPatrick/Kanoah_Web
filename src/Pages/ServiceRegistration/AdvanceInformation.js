@@ -223,12 +223,12 @@ useEffect(()=>{
   <div className="w-full relative">
     <label className="block text-sm text-gray-500 font-semibold mb-2" htmlFor="contact">Service Contact</label>
     <span className='absolute top-[2.303rem] text-sm lg:text-md text-gray-400 left-2'>+63</span>
-    <input max={10} value={advanceInformation["ServiceContact"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} type="tel" id="contact" className={`${errors.ServiceContactError ? "border-red-500 border-2" : ""} w-full ps-9 p-2 text-sm lg:text-md border rounded outline-none shadow-sm" placeholder="1234567890`} />
+    <input maxLength={10} value={advanceInformation["ServiceContact"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} type="tel" id="contact" className={`${errors.ServiceContactError ? "border-red-500 border-2" : ""} w-full ps-9 p-2 text-sm lg:text-md border rounded outline-none shadow-sm" placeholder="1234567890`} />
   </div>
 {/* Fax */}
   <div className="w-full">
     <label className="block text-gray-500 text-sm lg:text-md font-semibold mb-2" htmlFor="fax">Fax Number</label>
-    <input value={advanceInformation["ServiceFax"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceFax : e.target.value})}} type="tel" id="fax" className={`w-full p-2 text-sm lg:text-md border rounded`} placeholder="Enter fax number" />
+    <input max={10} value={advanceInformation["ServiceFax"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceFax : e.target.value})}} type="tel" id="fax" className={`w-full p-2 text-sm lg:text-md border rounded`} placeholder="Enter fax number" />
   </div>
   </div>
 
@@ -314,7 +314,7 @@ useEffect(()=>{
   <p className='font-semibold text-gray-600'>Cash</p>
   </div>
   <div className='flex space-x-5 md:space-x-20'>
-  <p className='text-gray-500 text-xs'>{advanceInformation.PaymentMethod[1].Cash ? "Enabled" : "Not set"}</p>
+  <p className='text-gray-500 text-xs'>{advanceInformation.PaymentMethod[1].enabled ? "Enabled" : "Not set"}</p>
   <label className="relative inline-flex items-center cursor-pointer">
   <input  onClick={() => {
     setAdvanceInformation((prevAdvanceInformation) => ({

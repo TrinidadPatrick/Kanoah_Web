@@ -15,6 +15,7 @@ import http from '../../http';
 const MyService = () => {
   const [serviceInformation, setServiceInformation] = useState(null)
   const [selectedFolder, setSelectedFolder] = useState("Gallery")
+  const [uploading, setUploading] = useState(false)
   const navigate = useNavigate()
   const dispatch = useDispatch();
   const userId = useSelector(selectUserId);
@@ -32,6 +33,7 @@ const MyService = () => {
     const file = files[0]
 
     if(file){
+      setUploading(true)
       const formData = new FormData()
       formData.append('file', file)
       formData.append('upload_preset', 'KanoahProfileUpload');
@@ -45,6 +47,8 @@ const MyService = () => {
         })
       }).catch((err)=>{
           console.log(err)
+      }).finally(()=>{
+        setUploading(false)
       })
   }
   }
@@ -76,7 +80,8 @@ const MyService = () => {
     {/* Profile Picture */}
     <div className='w-[200px] md:w-[250px] md:h-[170px] relative group hover:brightness-50 cursor-pointer rounded-lg border-2 overflow-hidden object-cover'>
     <div className='absolute hidden group-hover:block cursor-pointer text-white top-[40%] left-[43%]'>
-    <CameraAltOutlinedIcon fontSize='large' className='' />
+    <div className={`loaderImage ${uploading ? "block" : "hidden"} `}></div>
+    {/* <CameraAltOutlinedIcon fontSize='large' className={`${uploading ? "hidden" : 'hidden'}`} /> */}
     </div>
     <label htmlFor="fileInput" className='cursor-pointer'>
         <img id='profile' className='w-full h-full object-cover ' src={serviceInformation.serviceProfileImage == null ? "" : serviceInformation.serviceProfileImage} alt="service profile" />

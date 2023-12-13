@@ -57,11 +57,12 @@ const Footer = () => {
             {/* Section 4 */}
             <section className=' p-1 text-left flex flex-col space-y-5'>
             <h1 className='text-2xl text-white font-semibold'>Categories</h1> 
-            <Link className='text-white text-[0.8rem] hover:underline' to="#" >Carwash</Link>
-            <Link className='text-white text-[0.8rem] hover:underline' to="#" >Cleaning</Link>
-            <Link className='text-white text-[0.8rem] hover:underline' to="#" >Plumbing</Link>
-            <Link className='text-white text-[0.8rem] hover:underline' to="#" >Appliance</Link>
-            <Link className='text-white text-[0.8rem] hover:underline' to="#" >Transportation</Link>
+            {/* explore?${"category="+category.category_name}&page=1 */}
+            <Link className='text-white text-[0.8rem] hover:underline' to="explore?category=Automotive Services&page=1" >Automotive Services</Link>
+            <Link className='text-white text-[0.8rem] hover:underline' to="explore?category=Cleaning&page=1" >Cleaning</Link>
+            <Link className='text-white text-[0.8rem] hover:underline' to="explore?category=Plumbing&page=1" >Plumbing</Link>
+            <Link className='text-white text-[0.8rem] hover:underline' to="explore?category=Appliance&page=1" >Appliance</Link>
+            <Link className='text-white text-[0.8rem] hover:underline' to="explore?category=Transportation&page=1" >Transportation</Link>
             </section>
         </div>
 

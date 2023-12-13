@@ -379,7 +379,6 @@ const UserInformation = () => {
         }
     }
 
-    
 
       return (
     

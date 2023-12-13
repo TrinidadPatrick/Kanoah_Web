@@ -142,7 +142,7 @@ const AdvanceInformation = () => {
           PaymentMethod: [
             {
               ...advanceInformation.PaymentMethod[0],
-              enabled: true
+              enabled: !advanceInformation.PaymentMethod[0].enabled
             },
             ...advanceInformation.PaymentMethod.slice(1),
           ],
@@ -151,7 +151,7 @@ const AdvanceInformation = () => {
         
       
         // Check the updated state value
-        if (!isGcashChecked) {
+        if (!advanceInformation.PaymentMethod[0].enabled) {
           openGcashSetupModal();
         }
     };

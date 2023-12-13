@@ -83,7 +83,7 @@ const ServiceHours = () => {
             <div className="">
               <input
                 type="time"
-                className="p-1 text-sm lg:text-[1rem] w-[115px] ps-3 border rounded-xl focus:outline-none focus:border-blue-500"
+                className="p-1 text-sm lg:text-[0.9rem] w-[115px] ps-3 border rounded-xl focus:outline-none focus:border-blue-500"
                 value={entry.isOpen ? entry.fromTime : ""}
                 onChange={(e) => handleTimeChange(entry.day, 'fromTime', e.target.value)}
                 disabled={!entry.isOpen}
@@ -94,7 +94,7 @@ const ServiceHours = () => {
             <div className="">
               <input
                 type="time"
-                className="p-1 text-sm lg:text-[1rem] w-[115px] ps-3 border rounded-xl focus:outline-none focus:border-blue-50"
+                className="p-1 text-sm lg:text-[0.9rem] w-[115px] ps-3 border rounded-xl focus:outline-none focus:border-blue-50"
                 value={entry.isOpen ? entry.toTime : ""}
                 onChange={(e) => handleTimeChange(entry.day, 'toTime', e.target.value)}
                 disabled={!entry.isOpen}
