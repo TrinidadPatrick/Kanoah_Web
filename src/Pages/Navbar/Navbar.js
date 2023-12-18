@@ -155,7 +155,7 @@ if (reason !== 'backdropClick') {
 
     // initiate socket
     useEffect(()=>{
-      setSocket(io("http://localhost:5001"))
+      setSocket(io("https://kanoah.onrender.com"))
     },[])
 
     //emit the userId to socket

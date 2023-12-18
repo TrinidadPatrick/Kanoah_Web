@@ -51,7 +51,9 @@ import {io} from 'socket.io-client'
     const onlineUsers = useSelector(selectOnlineUsers)
 
   useEffect(()=>{
-    setSocket(io("http://localhost:5001"))
+    setSocket(io("https://kanoah.onrender.com"))
+
+    // setSocket(io("http://localhost:10000"))
   },[])
 
   useEffect(()=>{
@@ -64,7 +66,7 @@ import {io} from 'socket.io-client'
             const messages = await http.get(`getMessages/${convoId}/${returnLimit}`);
             // console.log(messages.data)
             if (currentChats && currentChats.length > 0 && currentChats[0]?.conversationId === convoId) {
-              setCurrentChats(messages.data);
+              setCurrentChats(messages.data.result);
             }          
             const contact = await getContacts()
             // Corrected the function call below
@@ -296,7 +298,6 @@ import {io} from 'socket.io-client'
       setWindowWdith(windowWidth)
       setWindowHeight(windowHeight)
 }
-    
     // Attach the event listener to the window resize event
     window.addEventListener('resize', handleResize);
     
