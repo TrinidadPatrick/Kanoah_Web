@@ -1,7 +1,7 @@
 import React from 'react'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
@@ -19,6 +19,7 @@ import ReportIcon from '@mui/icons-material/Report';
 import FilterListOutlinedIcon from '@mui/icons-material/FilterListOutlined';
 import {Link} from "react-router-dom"
 import http from "../../http"
+import { createContext } from 'react';
 import ReactPaginate from 'react-paginate';
 import { useNavigate } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
@@ -26,6 +27,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId, selectLoggedIn } from '../../ReduxTK/userSlice';
 import getDistance from 'geolib/es/getPreciseDistance';
 import ScrollToTop from "react-scroll-to-top";
+import Filters from './Filters';
+import MobileFilter from './MobileFilter';
+import Searchbar from './Searchbar';
+export const FilterContext = createContext()
 
 
 const Explore = () => {
@@ -33,7 +38,6 @@ const Explore = () => {
   const userId = useSelector(selectUserId);
   const loginStatus = useSelector(selectLoggedIn);
   const [loadingPage, setLoadingPage] = useState(true)
-  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchParams, setSearchParams] = useSearchParams();
   const longitudeParam = parseFloat(searchParams.get('longitude')) || 0;
   const latitudeParam = parseFloat(searchParams.get('latitude')) || 0;
@@ -81,7 +85,6 @@ const Explore = () => {
   
   const [places, setPlaces] = useState([])
   const [location, setLocation] = useState(null);
-  const ratingValues = [5,4,3,2,1]
   const [locationFilterValue, setLocationFilterValue] = useState('')
   const [filterLocationLongLat, setFilterLocationLongLat] = useState({longitude : 0, latitude : 0})
 
@@ -91,6 +94,7 @@ const Explore = () => {
   const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
   const currentDay = currentDate.getDate().toString().padStart(2, '0');
   const thisDate = currentYear + "-" + currentMonth + "-" + currentDay
+
 
   // For km radius
   const radiusList = () => {
@@ -153,7 +157,7 @@ const Explore = () => {
           
         },
     
-      });
+  });
 
     const openMoreOptions = (id) => {
     
@@ -165,29 +169,6 @@ const Explore = () => {
     
     }
 
-    const showDropdownOptions = () => {
-        document.getElementById("options").classList.toggle("hidden");
-        document.getElementById("arrow-up").classList.toggle("hidden");
-        document.getElementById("arrow-down").classList.toggle("hidden");
-    }
-
-    const showMobileDropdownOptions = () => {
-      document.getElementById("Mobileoptions").classList.toggle("hidden");
-      document.getElementById("Mobilearrow-up").classList.toggle("hidden");
-      document.getElementById("Mobilearrow-down").classList.toggle("hidden");
-  }
-
-    const showFilterOption = () => {
-      document.getElementById("sort_options").classList.toggle("hidden");
-      document.getElementById("sort_arrow-up").classList.toggle("hidden");
-      document.getElementById("sort_arrow-down").classList.toggle("hidden");
-  }
-    
-  const showMobileFilterOption = () => {
-    document.getElementById("Mobilesort_options").classList.toggle("hidden");
-    document.getElementById("Mobilesort_arrow-up").classList.toggle("hidden");
-    document.getElementById("Mobilesort_arrow-down").classList.toggle("hidden");
-}
       // Get my current location
       useEffect(() => {
         // Use the Geolocation API to get the user's location
@@ -338,82 +319,8 @@ const Explore = () => {
 
      },[mainServiceList])
       // Apply the filter
-      const applyFilter = () => {    
+    const applyFilter = () => {    
           setServiceList(filteredService) 
-      }
-
-      // Clears the filter
-      const clearFilter = () => {
-        setRadius(1)
-        setLoadingPage(true)
-        setLocationFilterValue('')
-        setDonotApplyFilter(false)
-        setSelectedRatingCheckbox([])
-        setSelectedCategory('Select Category')
-        setSortFilter("Recent Services")
-        setServiceList(mainServiceList)
-        setFilterLocationLongLat({latitude : 0, longitude : 0})
-        setTimeout(()=>{
-          setLoadingPage(false)
-          setRerender(prevRerender => prevRerender + 1)
-        },200)
-        
-       
-      }
-
-      // handle the location filter
-      const handleLocationFilter = (place) => {
-        setDonotApplyFilter(true)
-        setLocationFilterValue(place.place_name);setFilterLocationLongLat({longitude : place.geometry.coordinates[0], latitude : place.geometry.coordinates[1]})
-      }
-
-      // Set the selected checkbox***************************************************************************************
-      const handleSelectCheckBox = (selected) => {
-          setDonotApplyFilter(true)
-          const checkDuplicate = selectedRatingCheckbox.includes(selected)
-          if(checkDuplicate)
-          {
-            // Removes the duplicate and save the new data
-            const filtered = selectedRatingCheckbox.filter(selectedCHK => selectedCHK != selected)
-            setSelectedRatingCheckbox(filtered)
-          }
-          // If there is not duplicate
-          else
-          {
-            setSelectedRatingCheckbox((prevSelectedRatingCheckbox) => [...prevSelectedRatingCheckbox, selected]);
-          }
-      
-      }
-
-      //  Sets the selected Category
-     const handleSelectCategory = (value) => {
-      setDonotApplyFilter(true)
-      setSelectedCategory(value)
-     }
-
-    //  Set Selected Sort Filter
-    const handleSort = (value) => {
-      setDonotApplyFilter(true)
-      setSortFilter(value)
-    }
-
-    // Handle the search Input
-    const handleSearchInput = (input) => {
-      setDonotApplyFilter(true)
-      setSearchInput(input)
-    }
-
-    // Handle Submit search
-    const handleSubmitSearch = () => {
-      const result = serviceList.length === 0 ?
-      filteredService.filter((item) =>
-      item.basicInformation.ServiceTitle.toLowerCase().includes(searchInput.toLowerCase()) ||
-      item.tags.some((tag) => tag.toLowerCase().includes(searchInput.toLowerCase())))
-      :
-      serviceList.filter((item) =>
-      item.basicInformation.ServiceTitle.toLowerCase().includes(searchInput.toLowerCase()) ||
-      item.tags.some((tag) => tag.toLowerCase().includes(searchInput.toLowerCase())))
-      setServiceList(result)
     }
 
     // calculate the distance
@@ -526,9 +433,13 @@ const Explore = () => {
 
     },[])
 
-    
     return (
-        <div className=' w-full flex h-full relative'>
+      <FilterContext.Provider value={[sortFilter, setSortFilter, donotApplyFilter, setDonotApplyFilter, selectedCategory, setSelectedCategory,
+      selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,places, setPlaces,
+      filterLocationLongLat, setFilterLocationLongLat, currentPage, setCurrentPage, serviceList, setServiceList, filteredService, setFilteredService,
+      searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList, rerender, setRerender
+      ]} >
+        <div className=' w-full flex h-screen overflow-hidden relative'>
         {
           // Loading page
           loadingPage ? (
@@ -538,146 +449,21 @@ const Explore = () => {
           ) :
           (
             <>
-            {/* Left Section */}
-            <section className='w-[500px] hidden lg:flex h-full relative flex-col space-y-5 pb-5 pt-20 lg:ps-20 pe-5 bg-[#F9F9F9]'>
-        
-        <div className='flex flex-col space-y-5 px-7 mt-10'>
-        <h1 className='font-bold text-2xl'>Find your Service</h1>
-        {/* Sort box */}
-        <div className='flex-none w-full relative'>
-        <h1 className='font-medium text-lg mb-2'>Sort By</h1>
-        <button onClick={()=>{showFilterOption()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
-            <span className="select-none font-medium">{sortFilter}</span>
-
-            <svg id="sort_arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-            <svg id="sort_arrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
-        </button>
-        <div id="sort_options" className="hidden ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl">
-            <a onClick={()=>{handleSort("Recent Services");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Recent Services</a>
-            <a onClick={()=>{handleSort("Oldest Services");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Oldest Services</a>
-            <a onClick={()=>{handleSort("Most Rated");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Most Rated</a>
-            <a onClick={()=>{handleSort("Least Rated");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Least Rated</a>
-        </div>
-        </div>
-       
-        
-
-        {/* Category Filter */}
-
-        <div className="flex-none w-full relative">
-        <h1 className='font-medium text-lg mb-2'>Categories</h1>
-        <button onClick={()=>{showDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
-            <span className="select-none font-medium">{selectedCategory}</span>
-
-            <svg id="arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-            <svg id="arrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
-        </button>
-        <div id="options" className=" hidden ease-in duration-100 origin-top w-full h-[300px] overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl">
-          {
-            categories
-            .slice() // Create a copy of the array to avoid modifying the original array
-            .sort((a, b) => a.category_name.localeCompare(b.category_name))
-            .map((category) => {
-              return (
-                <p
-                  key={category.id}
-                  onClick={() => {
-                  handleSelectCategory(category.category_name)
-                  showDropdownOptions();
-                  }}
-                  className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
-                >
-                  {category.category_name}
-                </p>
-              );
-            })
-          }
-            
-        </div>
-        </div>
-
-        {/* Rating Filter */}
-        <div className=' flex flex-col justify-start items-start'>
-        <h1 className='font-medium text-lg mb-2'>Rating</h1>
-        <div className='flex flex-col space-y-3 items-center'>
-        {
-        ratingValues.map((rating)=>{
-            return (
-              
-                <div key={rating} className='flex items-center justify-center space-x-2'>
-                <input value={rating} checked={selectedRatingCheckbox.includes(Number(rating))} onChange={(e)=>{handleSelectCheckBox(Number(e.target.value))}}  className='chkbox w-5 h-5' type='checkbox'/><StyledRating className='relative'  readOnly defaultValue={rating} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
-                <p className='w-3'>{rating}.0</p>
-                </div>
-            )
-        })
-        }
-        
-        
-        </div>
-        </div>
-
-        {/* Location Filter */}
-        <div className='flex flex-col space-y-1'>
-        <div className="w-full mx-auto  overflow-hidden md:max-w-xl">
-        <h1 className='font-medium text-lg mb-2'>Location</h1>
-        <div className="md:flex">
-        <div className="w-full">
-        <div className="relative flex">
-        <select defaultValue={radius} className='outline-none ps-1 w-[60px] border border-e-0 rounded-s-lg' onChange={(e)=>{setDonotApplyFilter(true);setRadius(Number(e.target.value))}}>
-          {
-           radiusList().map((radius)=>(
-            <option value={radius} key={radius} >{radius} km</option>
-           ))
-          }
-        </select>
-          <input onFocus={(e)=>{if(e.target.value != ""){document.getElementById('placeDropdown').classList.remove('hidden')}}} value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} placeholder="Enter location" type="text" className="bg-white h-10 w-full ps-2 pe-2 text-sm border rounded-lg rounded-s-none focus:outline-none hover:cursor-arrow" />
-        </div> 
-        </div>
-        </div>
-        </div>
-
-        <div id='placeDropdown' className={`${locationFilterValue != "" ? "relative" : "hidden"} bg-white h-44 overflow-auto flex flex-col shadow-sm border rounded-sm`}>
-          {
-            places.map((place, index)=>{
-             return (
-              <div key={index} onClick={()=>{handleLocationFilter(place);document.getElementById('placeDropdown').classList.add('hidden')}} className='m-3 flex flex-col items-start cursor-pointer '>
-                <h1 className=' text-sm font-semibold'>{place.text}</h1>
-                <p className=' text-[0.72rem]'>{place.place_name}</p>
-              </div>
-              
-             )
-            })
-          }
-          </div>
-        </div>
-
-        {/* Buttons */}
-        <button onClick={()=>{setCurrentPage(0);applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput, longitude : filterLocationLongLat.longitude, latitude : filterLocationLongLat.latitude, rd : radius, page : 1})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
-        <button onClick={()=>{setCurrentPage(0);setSearchParams({rating :"", category:"", sort : "Recent Services", search, page: 1});clearFilter()}} className='font-medium'>Clear Filters</button>
-        </div>
+        {/* Left Section */}
+        <section className='filterSideBar w-[500px] hidden lg:flex h-screen overflow-y-scroll relative flex-col space-y-5 pb-5 pt-20 lg:ps-20 pe-5 bg-[#F9F9F9]'>
+        <Filters />
         </section>
         
         {/* Right Section */}
-        <section onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute"}} className='w-[100%] grid place-items-center h-full pt-[100px] ps-2 xl:pe-20 pb-5 bg-[#F9F9F9]'>
+        <section className='w-[100%] h-screen overflow-auto pt-[100px] ps-2 xl:pe-20 pb-5 bg-[#f9f9f9]' onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute"}} >
         <div>
-          {/* Search Box */}
+        {/* Search Box */}
         <div className='flex flex-col ml-2.5 items-end relative w-full '>
-        <h1 className={`${serviceList.length === 0 ? "block" : "hidden"} w-full tra text-center text-2xl`}>No Result</h1>
-        <div className="w-[50%] sm:w-fit mr-5 flex space-x-2 shadow-sm self-end lg:self-start rounded-lg overflow-hidden md:max-w-xl">
-        <div className="md:flex w-full">
-        <div className="w-full">
-        <div className="relative">
-          <SearchOutlinedIcon className="absolute text-gray-500 top-[0.9rem] left-4"/>
-          <input className="bg-white h-12 w-full px-12 border rounded-lg focus:outline-none hover:cursor-arrow" value={searchInput} onChange={(e)=>{handleSearchInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSubmitSearch();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search :searchInput, page : 1})}}} type="text"  placeholder='Search'/>
-        </div> 
-        
-        </div>
-        </div>
-        </div>
+        <Searchbar />
         </div>
         <hr className='mt-5 mx-3'></hr>
         {/* Cards Container */}
-        <article className='w-full relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-1 h-fit  px-3 mt-0 mb-5'>
+        <article className='w-full relative z-10 bg-[#f9f9f9] grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-1 h-fit  px-3 mt-0 mb-5'>
           {/* Card */}
           {
             currentServices.map((service, index)=>(
@@ -777,119 +563,13 @@ const Explore = () => {
         }
         
         {/* Mobile Sidebar */}
-        <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = 'w-[260px] transition duration-500 translate-x-[0%] exploreSidebarOpen ease-out h-full bg-white z-10 absolute'}} className='absolute top-[6.6rem] left-5 lg:hidden'><FilterListOutlinedIcon fontSize='large' /></button>
+        <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = 'w-[260px] transition duration-500 translate-x-[0%] exploreSidebarOpen ease-out h-screen overflow-y-scroll bg-white z-10 absolute'}} className='absolute top-[6.6rem] left-5 lg:hidden'><FilterListOutlinedIcon fontSize='large' /></button>
         <section id='exploreSidebarOpen' className={`hidden`}>
-        <div className='flex flex-col space-y-5 px-7 mt-10'>
-        <h1 className='font-bold text-2xl'>Find your Service</h1>
-        {/* Sort box */}
-        <div className='flex-none w-full relative'>
-        <h1 className='font-medium text-lg mb-2'>Sort By</h1>
-        <button onClick={()=>{showMobileFilterOption()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
-            <span className="select-none font-medium">{sortFilter}</span>
-
-            <svg id="Mobilesort_arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-            <svg id="Mobilesort_arrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
-        </button>
-        <div id="Mobilesort_options" className="hidden ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl">
-            <a onClick={()=>{handleSort("Recent Services");showMobileFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Recent Services</a>
-            <a onClick={()=>{handleSort("Oldest Services");showMobileFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Oldest Services</a>
-            <a onClick={()=>{handleSort("Most Rated");showMobileFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Most Rated</a>
-        </div>
-        </div>
-       
-        
-
-        {/* Category Filter */}
-
-        <div className="flex-none w-full relative">
-        <h1 className='font-medium text-lg mb-2'>Categories</h1>
-        <button onClick={()=>{showMobileDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
-            <span className="select-none font-medium">{selectedCategory}</span>
-
-            <svg id="Mobilearrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-            <svg id="Mobilearrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
-        </button>
-        <div id="Mobileoptions" className=" hidden ease-in duration-100 origin-top w-full h-[300px] overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl">
-          {
-            categories
-            .slice() // Create a copy of the array to avoid modifying the original array
-            .sort((a, b) => a.category_name.localeCompare(b.category_name))
-            .map((category) => {
-              return (
-                <p
-                  key={category.id}
-                  onClick={() => {
-                  handleSelectCategory(category.category_name)
-                  showMobileDropdownOptions();
-                  }}
-                  className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
-                >
-                  {category.category_name}
-                </p>
-              );
-            })
-          }
-            
-        </div>
-        </div>
-
-        {/* Rating Filter */}
-        <div className=' flex flex-col justify-start items-start'>
-        <h1 className='font-medium text-lg mb-2'>Rating</h1>
-        <div className='flex flex-col space-y-3 items-center'>
-        {
-        ratingValues.map((rating)=>{
-            return (
-              
-                <div key={rating} className='flex items-center justify-center space-x-2'>
-                <input value={rating} checked={selectedRatingCheckbox.includes(Number(rating))} onChange={(e)=>{handleSelectCheckBox(Number(e.target.value))}}  className='chkbox w-5 h-5' type='checkbox'/><StyledRating className='relative'  readOnly defaultValue={rating} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
-                <p className='w-3'>{rating}.0</p>
-                </div>
-            )
-        })
-        }
-        
-        
-        </div>
-        </div>
-
-        {/* Location Filter */}
-        <div className='flex flex-col space-y-1'>
-        <div className="w-full shadow-sm mx-auto rounded-lg overflow-hidden md:max-w-xl">
-        <h1 className='font-medium text-lg mb-2'>Location</h1>
-        <div className="md:flex">
-        <div className="w-full">
-        <div className="relative">
-          <SearchOutlinedIcon className="absolute text-gray-400 top-[0.9rem] left-4"/>
-          <input value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} placeholder="Enter location" type="text" className="bg-white h-12 w-full ps-12 pe-2 text-sm border rounded-lg focus:outline-none hover:cursor-arrow" />
-        </div> 
-        </div>
-        </div>
-        </div>
-
-        <div className={`${locationFilterValue != "" ? "relative" : "hidden"} bg-white h-44 overflow-auto flex flex-col shadow-sm border rounded-sm`}>
-          {
-            places.map((place, index)=>{
-             return (
-              <div key={index} onClick={()=>{setLocationFilterValue(place.place_name)}} className='m-3 flex flex-col items-start cursor-pointer '>
-                <h1 className=' text-sm font-semibold'>{place.text}</h1>
-                <p className=' text-[0.72rem]'>{place.place_name}</p>
-              </div>
-              
-             )
-            })
-          }
-          </div>
-        </div>
-
-        {/* Buttons */}
-        <button onClick={()=>{setCurrentPage(0);document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput, page : 1})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
-        <button onClick={()=>{setCurrentPage(0);document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";setSearchParams({rating :"", category:"", sort : "Recent Services", search, page : 1});clearFilter()}} className='font-medium'>Clear Filters</button>
-        </div>
+        <MobileFilter />
         </section>
         {/* <ScrollToTop smooth /> */}
       </div>
-      
+      </FilterContext.Provider>
   )
 }
 

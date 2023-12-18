@@ -18,11 +18,10 @@ const Chat = () => {
     const userId = useSelector(selectUserId);
     const [noChats, setNoChats] = useState(false)
     const [moreOptionClass, setMoreOptionClass] = useState(false)
-    const [removeLoadMore, setRemoveLoadMore] = useState(false)
+    const [showLoadMore, setShowLoadMore] = useState(false)
     const [windowWidth, setWindowWdith] = useState(null)
     const [windowHeight, setWindowHeight] = useState(null)
     const [sendingMessage, setSendingMessage] = useState(false) 
-    const [allUsers, setAllUsers] = useState([])
     const [activeConversation, setActiveConversation] = useState('')
     const [searchParams, setSearchParams] = useSearchParams();
     const convoId = searchParams.get('convoId')
@@ -53,7 +52,6 @@ const Chat = () => {
     })
     const [sender, setSender] = useState('')
     const [typingMessage, setTypingMessage] = useState('')
-    const [message, setMessage] = useState('')
     const [allChats, setAllChats] = useState([])
     // All contacts that the user have communicated with
     const [allContacts, setAllContacts] = useState([])
@@ -444,6 +442,12 @@ const Chat = () => {
       setDisplayedMessages(displayedMessages - 10)
     }
 
+    useEffect(()=>{
+      if(t == 'new'){
+       setShowLoadMore(false)
+      }
+    },[allContacts])
+
 
   return (
     <div className='w-full h-screen grid place-items-center'>
@@ -572,8 +576,8 @@ const Chat = () => {
             scrollViewClassName='messageBox'
             className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '
 >
-            <div  className={`top-0 w-full text-center`}>
-              <button id='loadMore'  onClick={() => {loadMore() }}>Load More</button>
+            <div  className={`top-0 w-full text-center `}>
+              <button id='loadMore' className={`${showLoadMore ? 'block' : 'hidden'}  `} onClick={() => {loadMore() }}>Load More</button>
             </div>
 
   {/* Recipient Message */}
@@ -606,16 +610,17 @@ const Chat = () => {
                   {formatDate(dateKey)}
                 </div>
                 <div className="flex-1 border-t border-gray-400"></div>
+                
               </div>
             {
             document.getElementById('loadMore') !== null ?
-            Number(displayedMessages.toString().split('').slice(1).join('')) >= groupedMessages[dateKey].length ? document.getElementById('loadMore').innerHTML = "" : document.getElementById('loadMore').innerHTML = "Loadmore"
+            Number(displayedMessages.toString().split('').slice(1).join('')) >= groupedMessages[dateKey].length ? document.getElementById('loadMore').innerHTML = "" : document.getElementById('loadMore').innerText = "Loadmore"
             :
+            
             ""
             }
               {/* {document.getElementById('loadMore').className = Number(displayedMessages.toString().split('').slice(1).join('')) >= groupedMessages[dateKey].length ? "hidden" : "block"} */}
               {groupedMessages[dateKey].slice(displayedMessages).map((message, index) => {
-                
                 const ampm = message.message.timestamp.split(' ')
                 const splitted = message.message.timestamp.split(':').slice(0, -1).join(':') + " " + ampm[ampm.length - 1]
 

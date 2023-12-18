@@ -300,6 +300,10 @@
 }
 
 
+.filterSideBar::-webkit-scrollbar{
+  width: 0 !important;
+}
+
 /* service registration */
 .gcashNote::-webkit-scrollbar{
   height: 0px;
@@ -397,6 +401,9 @@
   height: 36px;
   animation: spin89345 1s linear infinite;
 }
+
+
+
 
 @keyframes spin89345 {
   0% {

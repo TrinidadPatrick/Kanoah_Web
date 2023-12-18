@@ -16,6 +16,7 @@ import Explore from './Pages/ExplorePage/Explore';
 import Chat from './Pages/ChatSystem/Chat';
 import PageNotFound from './Pages/NotFoundPage/PageNotFound';
 import EditService from './Pages/EditService/EditService';
+import ChatPractice from './Pages/Chat(Development)/ChatPractice';
 
 function App() {
   const NavbarLayout = () => (
@@ -43,6 +44,8 @@ function App() {
         <Route path="*" element={<PageNotFound />} />
         <Route path='/' element={<MainPage />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/chatP' element={<ChatPractice />} />
+        
         </Route>
        
       </Routes>

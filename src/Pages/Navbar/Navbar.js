@@ -19,7 +19,9 @@ import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId, selectLoggedIn, setLoggedIn, selectShowLoginModal, setShowLoginModal } from '../../ReduxTK/userSlice';
 import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
-import profileLogo from './Utlis/profileLogo.svg'
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import {io} from 'socket.io-client'
+import { selectNewMessage, setNewMessage, selectOnlineUsers, setOnlineUsers } from '../../ReduxTK/chatSlice'
 export const Context = React.createContext()
 
 
@@ -28,6 +30,7 @@ const Navbar = () => {
 const [windowWidth, setWindowWdith] = useState(null)
 const dispatch = useDispatch();
 const userId = useSelector(selectUserId);
+const newMessage = useSelector(selectNewMessage);
 const loggedIn = useSelector(selectLoggedIn);
 const showLoginModal = useSelector(selectShowLoginModal);
 const navigate = useNavigate()
@@ -47,6 +50,7 @@ if (reason !== 'backdropClick') {
   const [showLogin, setShowLogin] = useState(false)
   const [showFP, setShowFP] = useState(false)
   const [showSignup, setShowSignup] = useState(false)
+  const [socket, setSocket] = useState(null)
     // Handles the showing oh menu on small screens
     const handleMenu = () => {
         if(showMenu){
@@ -149,6 +153,44 @@ if (reason !== 'backdropClick') {
       }
     },[userId, userInfo])
 
+    // initiate socket
+    useEffect(()=>{
+      setSocket(io("http://localhost:5001"))
+    },[])
+
+    //emit the userId to socket
+    useEffect(()=>{
+      if(userId !== null)
+      {
+        console.log("")
+        socket.emit('loggedUser', userId)
+      }
+    }, [userId])
+
+    //notify if there is a new message
+    useEffect(()=>{
+      socket?.on('message', (message)=>{
+        console.log(message)
+        if(message == 'newMessage')
+        {
+          dispatch(setNewMessage(true))
+        }
+      })
+
+      return () => {
+        // Clean up the socket event listeners when the component unmounts
+        socket?.off('message');
+      };
+    },[socket])
+
+    useEffect(()=>{
+      socket?.on('onlineUsers', (onlineUsers)=>{
+      dispatch(setOnlineUsers(onlineUsers))
+        // setOnlineUsers(onlineUsers)
+      })
+    },[userId])
+
+
 
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
@@ -216,8 +258,12 @@ if (reason !== 'backdropClick') {
   loggedIn ? (
     <div className='flex items-center justify-evenly space-x-2 sm:space-x-5 mr-4'>
       {/* Chat */}
-      <Link to="chat">
-        <ForumRoundedIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
+      <Link to="chatP">
+        <div className='relative'>
+          <div className={`w-3 h-3 ${newMessage ? 'block' : 'hidden'} rounded-full bg-red-500 top-0 absolute right-0`}></div>
+          <ForumRoundedIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
+        </div>
+        
       </Link>
       <NotificationsIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
       <div className='relative'>

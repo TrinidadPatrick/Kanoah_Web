@@ -63,6 +63,7 @@ const Login = () => {
       if(res.data.status == "authenticated"){
         setLoading(false)
         localStorage.setItem("accessToken", res.data.accessToken)
+        localStorage.setItem("chatToken", res.data.chatToken)
         window.location.reload(false)
       }
 
