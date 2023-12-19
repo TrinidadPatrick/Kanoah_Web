@@ -11,6 +11,8 @@ import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import ScrollToBottom from 'react-scroll-to-bottom';
 import axios from 'axios';
 import cloudinaryCore from '../../CloudinaryConfig';
+import EmojiPicker from 'emoji-picker-react';
+import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
 import {io} from 'socket.io-client'
 
   const ChatPractice = () => {
@@ -44,8 +46,8 @@ import {io} from 'socket.io-client'
     const [currentChatsCount, setCurrentChatsCount] = useState(0)
     const [currentChats, setCurrentChats] = useState([])
     const [messageInput, setMessageInput] = useState('')
-    const [returnLimit, setReturnLimit] = useState(4)
-    const [imageToSend, setImageToSend] = useState('')
+    const [returnLimit, setReturnLimit] = useState(10)
+    const [openEmojiPicker, setOpenEmojiPicker] = useState(false)
 
     const [socket, setSocket] = useState(null)
     const onlineUsers = useSelector(selectOnlineUsers)
@@ -261,7 +263,7 @@ import {io} from 'socket.io-client'
     }
 
     const handlePagination = () => {
-      setReturnLimit(returnLimit + 4)
+      setReturnLimit(returnLimit + 10)
     }
 
     //Get chats from selected conversation
@@ -326,6 +328,11 @@ import {io} from 'socket.io-client'
       const imageUrl = response.data.secure_url;
       (()=>{handleSendMessage(imageUrl, 'image')})()
     };
+
+    // opens and close the emoji picker
+    const handleEmojiPicker = () => {
+      setOpenEmojiPicker(!openEmojiPicker)
+    } 
     
 
   return (
@@ -367,7 +374,7 @@ import {io} from 'socket.io-client'
                 <input type='text' readOnly value='Photo' className='font-light pointer-events-none text-ellipsis bg-transparent text-sm text-gray-700' />
                 :
                 <input type='text' readOnly value={contact.messageContent.content} className='font-light pointer-events-none text-ellipsis bg-transparent text-sm text-gray-700' />
-
+                
               }
               <p className=' whitespace-nowrap text-semiXs'>{contact.messageContent.timestamp}</p>
               </div>
@@ -383,7 +390,7 @@ import {io} from 'socket.io-client'
         {/* Messages Windowwss_________________________________________________________________________________________________________ */}
         <section className='w-full h-full flex flex-col bg-white shadow-md rounded-md p-5 space-y-3'>
         {/* Headers */}
-        <div className='w-full flex space-x-2 p-1 border-b-1 pb-2'>
+        <div className='w-full flex space-x-2 p-1 border-b-[2px] pb-2'>
         {
           loadingHeader ? 
           (
@@ -399,11 +406,11 @@ import {io} from 'socket.io-client'
           :
           (
         <>        
-        <div className='h-16 w-16 flex'>
+        <div className='h-12 w-12 flex'>
         <img className='rounded-full w-full h-full object-cover max-h-16 max-w-16' src={serviceInquired.serviceProfileImage} alt='profile' />
         </div>
         <div className=' flex flex-col justify-around'>     
-          <input className={`text-ellipsis text-lg font-medium text-gray-800 bg-transparent tracking-wider`} value={serviceInquired.basicInformation !== undefined ? serviceInquired.basicInformation.ServiceTitle : ''} type='text' disabled />
+          <input className={`text-ellipsis text-lg font-medium text-gray-800 bg-transparent`} value={serviceInquired.basicInformation !== undefined ? serviceInquired.basicInformation.ServiceTitle : ''} type='text' disabled />
           {
             currentChats[0] == undefined ? ("") :    
             (     
@@ -429,10 +436,7 @@ import {io} from 'socket.io-client'
         {/* Message Content_________________________________________________________________________________________________________ */}
         
         <div id='MessageContainer' className='h-full overflow-auto w-full max-w-full rounded-md p-2 flex flex-col bg-[#f9f9f9]'>
-        <ScrollToBottom
-            style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }}
-            scrollViewClassName='messageBox'
-            className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '>
+        <ScrollToBottom style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }} scrollViewClassName='messageBox' className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '>
           <div className='w-full text-centerflex justify-center'>
             <button className={`${currentChatsCount < 5 ? 'hidden' : 'flex'} w-fit  mx-auto`} onClick={()=>{handlePagination()}}>Load more</button>
           </div>
@@ -469,14 +473,14 @@ import {io} from 'socket.io-client'
           return (
             <div key={chat._id} className={`w-full p-1 flex flex-col ${chat.messageContent.sender === userInformation._id ? 'items-end' : 'items-start'}`}>
             {
-              chat.messageType === "image"
-              ?
+              chat.messageType === "image" ?
               <div className=' w-56 max-w-[14rem] rounded-lg'>
               <img className='rounded-lg' src={chat.messageContent.content} />
               </div>
               :
-              <p className={`py-2 px-4 w-fit whitespace-pre-wrap max-w-[300px] break-words rounded-sm ${chat.messageContent.sender !== userInformation ._id ? 'bg-white text-black shadow-md' : 'bg-blue-500 text-white shadow-md'}`}>{chat.messageContent.content}</p>
-
+              <p className={`py-2 px-4 w-fit whitespace-pre-wrap max-w-[300px] break-words rounded-md ${chat.messageContent.sender !== userInformation ._id ? 'bg-white text-black shadow-md' : 'bg-blue-500 text-white shadow-md'}`}>
+                {chat.messageContent.content}
+              </p>
             }
             <p className='text-[0.55rem] text-gray-500 mt-1'>{chat.messageContent.timestamp}</p>
           </div>
@@ -489,8 +493,21 @@ import {io} from 'socket.io-client'
         
 
         {/* Message Input Box */}
-        <div className='w-full flex items-center space-x-3 border p-1 rounded-3xl'>
+        <div className='w-full flex items-center space-x-3 border p-1 rounded-3xl '>
         <input value={messageInput} onChange={(e)=>{setMessageInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSendMessage(e.target.value, 'text')}}} className='w-full py-2 px-1 rounded-lg outline-none' type='text' placeholder='Enter message' />
+        
+        {/* Emoji picker */}
+        <div className={`${openEmojiPicker ? 'block' : 'hidden'} absolute bottom-[5.3rem] right-[10rem] shadow-md`}>
+        <EmojiPicker onEmojiClick={(emoji)=>{setMessageInput((prevMessageInput) => prevMessageInput + emoji.emoji)}} autoFocusSearch={false} searchDisabled={true} height={400} width={300} />
+        </div>
+
+        {/* Emoji Picker button */}
+        <button onClick={()=>{handleEmojiPicker()}} className='text-gray-600'>
+          <EmojiEmotionsOutlinedIcon />
+        </button>
+
+
+        {/* Image send Input */}
         <label htmlFor="fileInput" className={`  h-full text-[0.85rem]  py-2 flex items-center relative px-2 text-white font-medium text-center rounded cursor-pointer`}>
         <button>
           <ImageOutlinedIcon className='text-gray-600' />
@@ -498,6 +515,7 @@ import {io} from 'socket.io-client'
         <input type="file" onChange={handleFileInputChange} accept="image/*" id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
         </label>
         
+        {/* Send Button */}
         <button onClick={()=>{handleSendMessage(messageInput, 'text')}} className='bg-blue-500 p-2 rounded-full text-white flex items-center justify-center'>
           <SendOutlinedIcon  />
         </button>
