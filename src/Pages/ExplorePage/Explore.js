@@ -1,7 +1,7 @@
 import React from 'react'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
@@ -59,7 +59,9 @@ const Explore = () => {
   const servicesPerPage = 4; // Number of services to display per page
   const indexOfLastService = (currentPage + 1) * servicesPerPage;
   const indexOfFirstService = indexOfLastService - servicesPerPage;
-  const currentServices = serviceList.slice(indexOfFirstService, indexOfLastService);
+  const currentServices = serviceList.length >= 5 ? serviceList.slice(indexOfFirstService, indexOfLastService) : serviceList
+
+  const scrollableDivRef = useRef(null);
   // Handle the pages for pagination
   const handlePageClick = (data) => {
     setCurrentPage(data.selected);
@@ -433,6 +435,18 @@ const Explore = () => {
 
     },[])
 
+    useEffect(() => {
+      // Scroll to the top of the scrollable div with smooth animation when the component mounts
+      if (scrollableDivRef.current) {
+        scrollableDivRef.current.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+    }, [currentPage]);
+
+
+
     return (
       <FilterContext.Provider value={[sortFilter, setSortFilter, donotApplyFilter, setDonotApplyFilter, selectedCategory, setSelectedCategory,
       selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,places, setPlaces,
@@ -455,7 +469,7 @@ const Explore = () => {
         </section>
         
         {/* Right Section */}
-        <section className='w-[100%] h-screen overflow-auto pt-[100px] ps-2 xl:pe-20 pb-5 bg-[#f9f9f9]' onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute"}} >
+        <section ref={scrollableDivRef} className='w-[100%] h-screen overflow-auto pt-[100px] ps-2 xl:pe-20 pb-5 bg-[#f9f9f9]' onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute"}} >
         <div>
         {/* Search Box */}
         <div className='flex flex-col ml-2.5 items-end relative w-full '>

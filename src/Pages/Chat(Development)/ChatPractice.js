@@ -51,6 +51,13 @@ import {io} from 'socket.io-client'
     const onlineUsers = useSelector(selectOnlineUsers)
 
   useEffect(()=>{
+    if(userId === 'loggedOut')
+    {
+      navigate('/')
+    }
+  },[userId])
+
+  useEffect(()=>{
     setSocket(io("https://kanoah.onrender.com"))
 
     // setSocket(io("http://localhost:10000"))
@@ -355,7 +362,13 @@ import {io} from 'socket.io-client'
               <input readOnly className=' font-medium text-gray-700 text-ellipsis pointer-events-none bg-transparent' type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} />
               {/* Service Message popup */}
               <div className='flex'>
-              <input type='text' readOnly value={contact.messageContent.content} className='font-light pointer-events-none text-ellipsis bg-transparent text-sm text-gray-700' />
+              {
+                contact.messageType === 'image' ?
+                <input type='text' readOnly value='Photo' className='font-light pointer-events-none text-ellipsis bg-transparent text-sm text-gray-700' />
+                :
+                <input type='text' readOnly value={contact.messageContent.content} className='font-light pointer-events-none text-ellipsis bg-transparent text-sm text-gray-700' />
+
+              }
               <p className=' whitespace-nowrap text-semiXs'>{contact.messageContent.timestamp}</p>
               </div>
               

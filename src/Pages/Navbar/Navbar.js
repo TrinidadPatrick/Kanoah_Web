@@ -160,12 +160,13 @@ if (reason !== 'backdropClick') {
 
     //emit the userId to socket
     useEffect(()=>{
-      if(userId !== null)
+      if(userId !== null && userId !== 'loggedOut')
       {
         console.log("")
         socket.emit('loggedUser', userId)
       }
     }, [userId])
+
 
     //notify if there is a new message
     useEffect(()=>{
