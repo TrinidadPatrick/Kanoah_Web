@@ -50,7 +50,27 @@ import {io} from 'socket.io-client'
     const [openEmojiPicker, setOpenEmojiPicker] = useState(false)
 
     const [socket, setSocket] = useState(null)
+    const [fetching, setFetching] = useState(false)
+    const [allChats, setAllChats] = useState([])
+    const [sendingMessages, setSendingMessages] = useState([])
+    const [tempImage, setTempImage] = useState('')
     const onlineUsers = useSelector(selectOnlineUsers)
+
+    const handleResize = () => {
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
+    
+      // Update your code or perform actions based on the new size
+      setWindowWdith(windowWidth)
+      setWindowHeight(windowHeight)
+}
+    // Attach the event listener to the window resize event
+    window.addEventListener('resize', handleResize);
+    
+    // Call the function once to get the initial size
+    useEffect(()=>{
+      handleResize();
+    },[])
 
   useEffect(()=>{
     if(userId === 'loggedOut')
@@ -68,7 +88,6 @@ import {io} from 'socket.io-client'
   useEffect(()=>{
     if(newMessage === true)
       {
-        
         (async () => {
           try {
 
@@ -82,7 +101,8 @@ import {io} from 'socket.io-client'
             dispatch(setNewMessage(false))
           } catch (error) {
             console.error(error);
-          }       
+          }  
+          getAllChats()   
         })();
 
       }
@@ -127,7 +147,7 @@ import {io} from 'socket.io-client'
 
     // load first chat upon load when there is no service or convoId
     useEffect(()=>{
-      if(userId !== null && service == null )
+      if(userId !== null && service == null)
       {
         (async()=>{
           try {
@@ -144,16 +164,18 @@ import {io} from 'socket.io-client'
             setServiceInquired(firstContact.virtualServiceInquired)
             getChats(firstContact.conversationId)
             setLoadingHeader(false)
+            
            } catch (error) {
             console.error(error)
            }
         })()
       
       }
-      else if(service != null && convoId !== null)
+      else if(service != null && convoId !== null && currentChats.length == 0)
       {
         getChats(convoId)
       }
+      
     },[userId, allContacts])
 
 
@@ -165,7 +187,7 @@ import {io} from 'socket.io-client'
           await getReceiver()
           
         })()
-        getContacts()
+        // getContacts()
       }
     },[userInformation, allContacts])
 
@@ -228,9 +250,8 @@ import {io} from 'socket.io-client'
 
     //Handle the sending of message
     const handleSendMessage = async (message, type) => {
-      // const Iparticipants = currentChats[0] == undefined ? [receiver._id, userInformation._id] : currentChats[0].participants
-      // const Ireceiver = currentChats[0] == undefined ? receiver._id : currentChats[0].participants.find(user => user._id !== userInformation._id)
       const data = {
+        sendingId : Math.floor(Math.random() * 1000),
         conversationId : convoId,
         participants : [userInformation._id, receiver._id],
         readBy : [userInformation._id],
@@ -247,30 +268,73 @@ import {io} from 'socket.io-client'
         }
       }
 
+      if(message !== '')
+      {
+      setSendingMessages((prevSendingMessages)=> [...prevSendingMessages, data])
+      if(type !== 'image'){setCurrentChats((prevChats) => [...prevChats, data]);}
+      
+      setMessageInput('')
       const notificationMessage = 'newMessage'
       try {
         const sendMessage = await http.post('sendMessage', data)
-        setCurrentChats([...currentChats, data])
-        // getChats(sendMessage.data.result.conversationId)
+        getAllChats()
+        setSendingMessages([...sendingMessages.filter(message => message.sendingId !== data.sendingId)])
         getContacts()
-        setSearchParams({service : service, convoId : sendMessage.data.result.conversationId})
-        setMessageInput('')
+        
+
+        setSearchParams({service : service, convoId : sendMessage.data.result.conversationId})   
         socket.emit('message', {notificationMessage, receiverName : receiver._id});
       } catch (error) {
         console.error(error)
       }
+      }
+      
+      
       
     }
 
+    //Handle the sending of message
+    const handleImageSend = async (message, type) => {
+          const data = {
+            sendingId : Math.floor(Math.random() * 1000),
+            conversationId : convoId,
+            participants : [userInformation._id, receiver._id],
+            readBy : [userInformation._id],
+            serviceInquired : service,
+            createdAt : currentDate,
+            messageType : type,
+            messageContent : 
+            {
+              sender : userInformation._id,
+              receiver: receiver._id,
+              content: message,
+              date : thisDate,
+              timestamp : timeSent
+            }
+          }
+          if(message !== '')
+          {
+          setSendingMessages((prevSendingMessages)=> [...prevSendingMessages, data])
+          setCurrentChats((prevChats) => [...prevChats, data]);
+          setMessageInput('')
+          
+          }
+          
+          
+          
+    }
+
+    // Handle the pagination of chats
     const handlePagination = () => {
-      setReturnLimit(returnLimit + 10)
+      setReturnLimit((...prevReturnLimit)=> Number(prevReturnLimit) + 10)
     }
 
     //Get chats from selected conversation
     const getChats = async (conversationId) => {
-    
-    if(conversationId !== "" && userInformation._id !== undefined)
+      
+    if(conversationId !== "" && userInformation._id !== undefined && fetching == false && allChats.length == 0)
     {
+      setFetching(true)
       try {
         const messages = await http.get(`getMessages/${conversationId}/${returnLimit}`)
         const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation._id)
@@ -282,61 +346,190 @@ import {io} from 'socket.io-client'
      } catch (error) {
       console.error(error)
      }finally {
-      setTimeout(()=>{
+        setFetching(false)
         setLoadingHeader(false)
         setLoadingChats(false)
-      }, 300)
+        setTimeout(()=>{
+          getChatsAync()
+        }, 2000)
+       
+
      
      }
+    }
+
+    else if(conversationId !== "" && userInformation._id !== undefined && fetching == false && allChats.length !== 0)
+    {
+      
+      const selectedChats = allChats.find(chats => chats.result[0].conversationId === conversationId)
+      setCurrentChatsCount(selectedChats.documentCount)
+      setCurrentChats(selectedChats.result)
     }
     }
 
     useEffect(()=>{
-      if(returnLimit > 4)
+      if(returnLimit > 10)
       {
         getChats(convoId)
       }
       
     },[returnLimit])
 
-    const handleResize = () => {
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-    
-      // Update your code or perform actions based on the new size
-      setWindowWdith(windowWidth)
-      setWindowHeight(windowHeight)
-}
-    // Attach the event listener to the window resize event
-    window.addEventListener('resize', handleResize);
-    
-    // Call the function once to get the initial size
-    useEffect(()=>{
-      handleResize();
-    },[])
-
     //Handle the sending of Image
     const handleFileInputChange = async (event) => {
       const file = event.target.files[0];
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', "KanoahGalleryUpload");
-      const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`,
-        formData,
-      );
-      const imageUrl = response.data.secure_url;
-      (()=>{handleSendMessage(imageUrl, 'image')})()
+
+      const getImageDataUrl = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const dataURL = reader.result;
+            // Now 'dataURL' contains the base64-encoded image data
+            resolve(dataURL);
+            // You can use 'dataURL' to upload to Cloudinary or store in your database
+          };
+          reader.onerror = (error) => {
+            reject(error);
+          };
+          reader.readAsDataURL(file);
+        });
+      };
+
+      // Function to resize an image using a canvas
+      const resizeImage = (dataUrl, maxWidth, maxHeight) => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.src = dataUrl;
+
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = img.width;
+            let height = img.height;
+
+            // Calculate new dimensions while maintaining the aspect ratio
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const resizedDataUrl = canvas.toDataURL('image/jpeg'); // Change the format if needed (e.g., 'image/png')
+
+            resolve(resizedDataUrl);
+          };
+        });
+      };
+
+      // Function to convert data URL to Blob
+      const dataURLtoBlob = (dataUrl) => {
+        const arr = dataUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+
+        return new Blob([u8arr], { type: mime });
+      };
+
+      if (file) {
+        try {
+          const test = await getImageDataUrl(file);
+          const resizedImageDataUrl = await resizeImage(test, 800, 600);
+          handleImageSend(resizedImageDataUrl, 'image' )
+
+          const formData = new FormData();
+          formData.append('file', dataURLtoBlob(resizedImageDataUrl));
+          formData.append('upload_preset', "kanoah_chat_image");
+          const response = await axios.post(
+            `https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`,
+            formData,
+          );
+          const imageUrl = response.data.secure_url;
+          if(response.status === 200)
+          {
+            (()=>{handleSendMessage(imageUrl, 'image' )})()
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      
+      
     };
 
     // opens and close the emoji picker
     const handleEmojiPicker = () => {
       setOpenEmojiPicker(!openEmojiPicker)
     } 
+
+    const handleReadMessage = async (conversationId) => {
+      // const selectedChat = allChats.filter(chats => chats.result[0].conversationId === conversationId)
+      // const unreadChats = currentChats.filter(chats => !chats.readBy.includes(userId))
+      
+      // console.log(currentChats)
+      const readMessage = await http.put('handleReadMessage', {conversationId, myId : userId})
+      await getContacts()
+      // getChatsAync()
+      
+    }
+
+    async function getChatsAync() {
+      if (allContacts.length !== 0) {
+        try {
+          const messagesPromises = allContacts.map(async (contact) => {
+            const messages = await http.get(`getMessages/${contact.conversationId}/${returnLimit}`);
+            return messages.data;
+          });
     
+          const allMessages = await Promise.all(messagesPromises);
+    
+          // Now allMessages is an array containing the results of all the http.get calls
+          setAllChats(allMessages)
+          // Do something with the updated 'chats' array
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
+
+    async function getAllChats() {
+
+        try {
+          const messagesPromises = allContacts.map(async (contact) => {
+            const messages = await http.get(`getMessages/${contact.conversationId}/${returnLimit}`);
+            return messages.data;
+          });
+    
+          const allMessages = await Promise.all(messagesPromises);
+    
+          // Now allMessages is an array containing the results of all the http.get calls
+          setAllChats(allMessages)
+          // Do something with the updated 'chats' array
+        } catch (error) {
+          console.error(error);
+        }
+      
+    }
+
 
   return (
-        <main className=' w-full bg-[#f9f9f9] h-screen flex justify-evenly space-x-5 pb-3 px-3 pt-[5.2rem]'>
+        <main className=' w-full bg-[#f9f9f9] h-screen flex justify-evenly space-x-5 sm:pb-3 sm:px-3 pt-[5.2rem]'>
         
         {
           noChats ? 
@@ -352,35 +545,39 @@ import {io} from 'socket.io-client'
           (
             <>
         {/* Contacts Windowwss_________________________________________________________________________________________________________ */}
-        <section className='w-[400px] h-full bg-white rounded-md shadow-md'>
-        <div className='flex flex-col space-y-3 p-3'>
+        <section className='w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md'>
+        <div className='flex w-full flex-col space-y-3 py-3'>
         {
           allContacts.map((contact)=>{
             const receiver = contact.participants.find(user => user._id !== userInformation._id)
             return (
-              <div  className='flex items-center space-x-2 cursor-pointer ' key={contact._id} onClick={()=>{setReturnLimit(4);selectReceiver(contact.conversationId, receiver, contact.serviceInquired, contact.virtualServiceInquired);getChats(contact.conversationId)}}>
-              {/* Service Image */}
-              <div className='max-w-10 w-[40px] h-[40px] min-w-[40px] min-h-[40px] max-h-10 flex'>
-                <img className='w-10 h-10 rounded-full object-cover' src={contact.virtualServiceInquired.serviceProfileImage} alt={`profile of ${contact.virtualServiceInquired.basicInformation.ServiceTitle}`} />
-              </div>
-              
-              <div className=' cursor-pointer'  onClick={()=>{setReturnLimit(4);selectReceiver(contact.conversationId, receiver, contact.serviceInquired, contact.virtualServiceInquired);getChats(contact.conversationId)}}>
-              {/* Service Title */}
-              <input readOnly className=' font-medium text-gray-700 text-ellipsis pointer-events-none bg-transparent' type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} />
-              {/* Service Message popup */}
-              <div className='flex'>
-              {
-                contact.messageType === 'image' ?
-                <input type='text' readOnly value='Photo' className='font-light pointer-events-none text-ellipsis bg-transparent text-sm text-gray-700' />
-                :
-                <input type='text' readOnly value={contact.messageContent.content} className='font-light pointer-events-none text-ellipsis bg-transparent text-sm text-gray-700' />
-                
-              }
-              <p className=' whitespace-nowrap text-semiXs'>{contact.messageContent.timestamp}</p>
-              </div>
-              
-              </div>
+
+            <div className={`${contact.conversationId === convoId ? 'bg-gray-100' : 'bg-transparent'} w-full p-2 cursor-pointer flex`} key={contact._id} onClick={()=>{handleReadMessage(contact.conversationId);setReturnLimit(10);selectReceiver(contact.conversationId, receiver, contact.serviceInquired, contact.virtualServiceInquired);getChats(contact.conversationId)}}>
+            
+            {/* Service Image */}
+            <div className=' p-1 flex justify-center items-center'>
+            <div style={{backgroundImage : `url(${contact.virtualServiceInquired.serviceProfileImage})`}} className='w-[40px] h-[40px]  rounded-full bg-cover bg-center bg-black'></div>
             </div>
+
+            {/* Title and message and time */}
+            <div className=' w-full flex flex-col ps-1'>
+              {/* Title */}
+              <div className=''>
+              <input readOnly className={`${contact.readBy.includes((userId)) ? 'text-gray-500' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium text-ellipsis pointer-events-none bg-transparent`} type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} />
+              </div>
+                <div className=' flex justify-start items-center'>
+                  {
+                  contact.messageType === 'image' ?
+                  <input type='text' readOnly value='Photo' className='font-light w-full pointer-events-none text-ellipsis bg-transparent text-xs text-gray-700' />
+                  :
+                  <input type='text' readOnly value={contact.messageContent.sender === userId ? 'You: ' + contact.messageContent.content : contact.messageContent.content} className='font-light w-[100%]  bg-transparent pointer-events-none text-ellipsis  text-semiXs text-gray-700' />
+                  }
+                  <div className=' whitespace-nowrap text-[0.5rem]'>{contact.messageContent.timestamp}</div>
+                </div>
+            </div>
+              
+            </div>
+            
             )
           })
         }
@@ -388,12 +585,11 @@ import {io} from 'socket.io-client'
         </section>
 
         {/* Messages Windowwss_________________________________________________________________________________________________________ */}
-        <section className='w-full h-full flex flex-col bg-white shadow-md rounded-md p-5 space-y-3'>
+        <section className='w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3'>
         {/* Headers */}
         <div className='w-full flex space-x-2 p-1 border-b-[2px] pb-2'>
         {
-          loadingHeader ? 
-          (
+          loadingHeader ? (
           <div className="relative flex w-64 animate-pulse gap-2 p-4">
               <div className="h-12 w-12 rounded-full bg-slate-400"></div>
                 <div className="flex-1">
@@ -436,9 +632,9 @@ import {io} from 'socket.io-client'
         {/* Message Content_________________________________________________________________________________________________________ */}
         
         <div id='MessageContainer' className='h-full overflow-auto w-full max-w-full rounded-md p-2 flex flex-col bg-[#f9f9f9]'>
-        <ScrollToBottom style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }} scrollViewClassName='messageBox' className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '>
+        <ScrollToBottom  style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }} scrollViewClassName='messageBox' className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '>
           <div className='w-full text-centerflex justify-center'>
-            <button className={`${currentChatsCount < 5 ? 'hidden' : 'flex'} w-fit  mx-auto`} onClick={()=>{handlePagination()}}>Load more</button>
+            <button className={`${currentChatsCount < 10 ? 'hidden' : 'flex'} w-fit  mx-auto`} onClick={()=>{handlePagination()}}>Load more</button>
           </div>
         {
         loadingChats ? 
@@ -467,26 +663,45 @@ import {io} from 'socket.io-client'
           </>
         )
         :
-        currentChats.map((chat)=>
-        {
-
-          return (
-            <div key={chat._id} className={`w-full p-1 flex flex-col ${chat.messageContent.sender === userInformation._id ? 'items-end' : 'items-start'}`}>
-            {
-              chat.messageType === "image" ?
-              <div className=' w-56 max-w-[14rem] rounded-lg'>
-              <img className='rounded-lg' src={chat.messageContent.content} />
+        currentChats.reduce((result, chats) => {
+          const date = new Date(chats.createdAt).toDateString();
+          const existingGroup = result.find((group) => group.date === date);
+          if (existingGroup) {
+            existingGroup.chats.push(chats);
+          } else {
+            result.push({ date, chats: [chats] });
+          }     
+          return result;
+        }, []).map((chatGroup, index)=>(
+          <div key={index}>
+            <div className="flex items-center">
+                <div className="flex-1 border-t border-gray-400"></div>
+                <div className="mx-4 text-sm text-center my-2 text-gray-400">
+                  {chatGroup.date}
+                </div>
+                <div className="flex-1 border-t border-gray-400"></div>
+                
               </div>
-              :
-              <p className={`py-2 px-4 w-fit whitespace-pre-wrap max-w-[300px] break-words rounded-md ${chat.messageContent.sender !== userInformation ._id ? 'bg-white text-black shadow-md' : 'bg-blue-500 text-white shadow-md'}`}>
-                {chat.messageContent.content}
-              </p>
+            {
+              chatGroup.chats.map((chat, index)=>(
+                <div key={chat._id} className={`w-full p-1 flex flex-col ${chat.messageContent.sender === userInformation._id ? 'items-end' : 'items-start'}`}>
+                {
+                  chat.messageType === "image" ?
+                  <div className=' w-56 max-w-[14rem] rounded-lg'>
+                  <img className='rounded-lg' src={chat.messageContent.content} />
+                  </div>
+                  :
+                  <p className={`py-2 px-4 w-fit whitespace-pre-wrap max-w-[300px] break-words rounded-md ${chat.messageContent.sender !== userInformation ._id ? 'bg-white text-black shadow-md' : 'bg-blue-500 text-white shadow-md'}`}>
+                    {chat.messageContent.content}
+                  </p>
+                }
+                <p className='text-[0.55rem] text-gray-500 mt-1'>{chat.messageContent.timestamp}</p>
+                <p className={`${sendingMessages.some(message => message.messageContent.content === chat?.messageContent.content) ? 'block' : 'hidden'} text-semiXs`}>Sending</p>
+              </div>
+              ))
             }
-            <p className='text-[0.55rem] text-gray-500 mt-1'>{chat.messageContent.timestamp}</p>
           </div>
-          )
-          
-        })
+        ))
         }
         </ScrollToBottom>
         </div>
@@ -498,11 +713,11 @@ import {io} from 'socket.io-client'
         
         {/* Emoji picker */}
         <div className={`${openEmojiPicker ? 'block' : 'hidden'} absolute bottom-[5.3rem] right-[10rem] shadow-md`}>
-        <EmojiPicker onEmojiClick={(emoji)=>{setMessageInput((prevMessageInput) => prevMessageInput + emoji.emoji)}} autoFocusSearch={false} searchDisabled={true} height={400} width={300} />
+        <EmojiPicker emojiStyle='facebook' onEmojiClick={(emoji)=>{setMessageInput((prevMessageInput) => prevMessageInput + emoji.emoji)}} autoFocusSearch={false} searchDisabled={true} height={400} width={300} />
         </div>
 
         {/* Emoji Picker button */}
-        <button onClick={()=>{handleEmojiPicker()}} className='text-gray-600'>
+        <button onClick={()=>{handleEmojiPicker()}} className={`${openEmojiPicker ? 'text-blue-500' : 'text-gray-600'}`}>
           <EmojiEmotionsOutlinedIcon />
         </button>
 

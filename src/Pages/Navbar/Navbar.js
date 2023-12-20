@@ -167,11 +167,10 @@ if (reason !== 'backdropClick') {
       }
     }, [userId])
 
-
     //notify if there is a new message
     useEffect(()=>{
       socket?.on('message', (message)=>{
-        console.log(message)
+        console.log('')
         if(message == 'newMessage')
         {
           dispatch(setNewMessage(true))

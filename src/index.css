@@ -370,7 +370,7 @@
 }
 
 .messageBox::-webkit-scrollbar-thumb{
- background-color: black !important;
+ background-color: rgba(95, 116, 236, 0.544) !important;
  border-radius: 0.2rem !important;
 }
 
