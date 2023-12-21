@@ -596,7 +596,7 @@ import {io} from 'socket.io-client'
         {/* Messages Windowwss_________________________________________________________________________________________________________ */}
         <section className={chatClass}>
         {/* Headers */}
-        <div className='w-full flex space-x-2 p-1 sticky border-b-[2px] pb-2'>
+        <div className='w-full flex space-x-2 p-1 sticky top-[5rem] z-50 bg-white border-b-[2px] pb-2'>
         {
           loadingHeader ? (
           <div className="relative flex w-64 animate-pulse gap-2 p-4">
