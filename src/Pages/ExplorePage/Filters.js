@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState, useContext } from 'react'
 import { categories } from '../MainPage/Components/Categories';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
@@ -20,6 +20,7 @@ const Filters = () => {
 
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get('search')
+    const radiusParam = searchParams.get('rd')
 
     const StyledRating = styled(Rating)({
         '& .MuiRating-iconFilled': {
@@ -38,8 +39,9 @@ const Filters = () => {
     
     });
 
+    
   // For km radius
-    const radiusList = () => {
+  const radiusList = () => {
     const radiusValues = []
     
     for(let i = 1;i<=100;i++)
@@ -49,6 +51,7 @@ const Filters = () => {
 
     return radiusValues
     }
+
 
     const showFilterOption = () => {
         document.getElementById("sort_options").classList.toggle("hidden");
@@ -121,6 +124,12 @@ const Filters = () => {
        
     }
 
+    useEffect(()=>{
+      if(radiusParam !== null || radiusParam !== '')
+      {
+        setRadius(Number(radiusParam))
+      }
+    },[])
   return (
     <div>
         <div className='flex flex-col space-y-5 px-7 mt-10'>
@@ -204,7 +213,8 @@ const Filters = () => {
         <div className="md:flex">
         <div className="w-full">
         <div className="relative flex">
-        <select defaultValue={radius} className='outline-none ps-1 w-[60px] border border-e-0 rounded-s-lg' onChange={(e)=>{setDonotApplyFilter(true);setRadius(Number(e.target.value))}}>
+       
+        <select value={radius} className='outline-none ps-1 w-[60px] border border-e-0 rounded-s-lg' onChange={(e)=>{setDonotApplyFilter(true);setRadius(Number(e.target.value))}}>
           {
            radiusList().map((radius)=>(
             <option value={radius} key={radius} >{radius} km</option>

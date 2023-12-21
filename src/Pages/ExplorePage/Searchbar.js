@@ -50,9 +50,9 @@ const Searchbar = () => {
 
   
   return (
-    <div className='w-full'>
+    <div className='w-full flex justify-end lg:justify-start'>
         <h1 className={`${serviceList.length === 0 ? "block" : "hidden"} w-full text-center text-2xl`}>No Result</h1>
-        <div className="w-[50%] sm:w-fit mr-5 flex space-x-2 shadow-sm self-end lg:self-start rounded-lg overflow-hidden md:max-w-xl">
+        <div className="w-[50%]  sm:w-fit mr-5 flex space-x-2 shadow-sm self-end lg:self-start rounded-lg overflow-hidden md:max-w-xl">
         <div className="md:flex w-full">
         <div className="w-full">
         <div className="relative ">

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState, useContext } from 'react'
 import { categories } from '../MainPage/Components/Categories';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
@@ -19,6 +19,7 @@ const MobileFilter = () => {
 
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get('search')
+    const radiusParam = searchParams.get('rd')
 
     const StyledRating = styled(Rating)({
         '& .MuiRating-iconFilled': {
@@ -124,6 +125,13 @@ const MobileFilter = () => {
        
     }
 
+    useEffect(()=>{
+      if(radiusParam !== null || radiusParam !== '')
+      {
+        setRadius(Number(radiusParam))
+      }
+    },[])
+
   return (
     <div>
      <div className='flex flex-col space-y-5 px-7 mt-10'>
@@ -207,10 +215,11 @@ const MobileFilter = () => {
         <div className="md:flex">
         <div className="w-full">
         <div className="relative flex">
-        <select defaultValue={radius} className='outline-none ps-1 w-[60px] border border-e-0 rounded-s-lg' onChange={(e)=>{setDonotApplyFilter(true);setRadius(Number(e.target.value))}}>
+        {/* <input type='number' /> */}
+        <select value={parseInt(radius)} className='outline-none ps-1 w-[60px] border border-e-0 rounded-s-lg' onChange={(e)=>{setDonotApplyFilter(true);setRadius(Number(e.target.value))}}>
           {
-           radiusList().map((radius)=>(
-            <option value={radius} key={radius} >{radius} km</option>
+           radiusList().map((radiuss)=>(
+            <option value={radiuss} key={radiuss} >{radiuss} km</option>
            ))
           }
         </select>

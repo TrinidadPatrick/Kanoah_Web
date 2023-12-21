@@ -281,7 +281,7 @@ useEffect(()=>{
 
         <div className='flex  relative ml-0 space-x-1 justify-between items-center mt-5 w-full'>
         <div className='flex space-x-2'>
-        <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={serviceInfo.ratings} precision={0.1} icon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} />  } emptyIcon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} className='text-gray-300' />} />
+        <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={Number(serviceInfo.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} />  } emptyIcon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} className='text-gray-300' />} />
         <div className='flex items-center space-x-2 '>
         <p className='text-gray-400 text-xs md:text-sm font-medium'>({serviceInfo.ratings})</p> 
         <p className='text-gray-300'>|</p>

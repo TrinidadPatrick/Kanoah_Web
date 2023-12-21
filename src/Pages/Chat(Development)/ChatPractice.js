@@ -14,6 +14,11 @@ import cloudinaryCore from '../../CloudinaryConfig';
 import EmojiPicker from 'emoji-picker-react';
 import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
+import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
+import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import ContactPhoneRoundedIcon from '@mui/icons-material/ContactPhoneRounded';
+import './chat.css'
 import {io} from 'socket.io-client'
 
   const ChatPractice = () => {
@@ -42,6 +47,8 @@ import {io} from 'socket.io-client'
 
     // For messages
     const [receiver, setReceiver] = useState({})
+    const [receiverInformation, setReceiverInformation] = useState({})
+    const [showProfileInformation, setShowProfileInformation] = useState(false)
     const [serviceInquired, setServiceInquired] = useState({})
     const [allContacts, setAllContacts] = useState([])
     const [currentChatsCount, setCurrentChatsCount] = useState(0)
@@ -54,7 +61,8 @@ import {io} from 'socket.io-client'
     const [fetching, setFetching] = useState(false)
     const [allChats, setAllChats] = useState([])
     const [sendingMessages, setSendingMessages] = useState([])
-    const [tempImage, setTempImage] = useState('')
+    const [loadingMore, setLoadingMore] = useState(false)
+    const [openMoreOptions, setOpenMoreOptions] = useState(false)
     const onlineUsers = useSelector(selectOnlineUsers)
     const [chatClass, setChatClass] = useState('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
     const [contactClass, setContactClass] = useState('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md')
@@ -94,7 +102,11 @@ import {io} from 'socket.io-client'
         (async () => {
           try {
 
-            const messages = await http.get(`getMessages/${convoId}/${returnLimit}`);
+            const messages = await http.get(`getMessages/${convoId}/${returnLimit}`, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`, // Include authentication token
+              },
+            });
             // console.log(messages.data)
             if (currentChats && currentChats.length > 0 && currentChats[0]?.conversationId === convoId) {
               setCurrentChats(messages.data.result);
@@ -147,15 +159,21 @@ import {io} from 'socket.io-client'
       })();
 
     }, []);
-
+    
     // load first chat upon load when there is no service or convoId
     useEffect(()=>{
       if(userId !== null && service == null)
       {
         (async()=>{
           try {
-            const contacts = await http.get(`retrieveContacts/${userId}`)
+            
+            const contacts = await http.get(`retrieveContacts/${userId}`, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`, // Include authentication token
+              },
+            })
             const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            
             if(contacts.data.length == 0)
             {
               setNoChats(true)
@@ -199,7 +217,11 @@ import {io} from 'socket.io-client'
       if(userInformation._id !== undefined && convoId !== undefined)
       {
         try {
-          const contacts = await http.get(`retrieveContacts/${userInformation._id}`)
+          const contacts = await http.get(`retrieveContacts/${userInformation._id}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`, // Include authentication token
+            },
+          })
           const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           setAllContacts(sortedContacts)
           return sortedContacts;
@@ -329,6 +351,7 @@ import {io} from 'socket.io-client'
 
     // Handle the pagination of chats
     const handlePagination = () => {
+      setLoadingMore(true)
       setReturnLimit((...prevReturnLimit)=> Number(prevReturnLimit) + 10)
     }
 
@@ -339,7 +362,11 @@ import {io} from 'socket.io-client'
     {
       setFetching(true)
       try {
-        const messages = await http.get(`getMessages/${conversationId}/${returnLimit}`)
+        const messages = await http.get(`getMessages/${conversationId}/${returnLimit}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // Include authentication token
+          },
+        })
         const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation._id)
         setReceiver(receiver)
         setServiceInquired(messages.data.result[0].virtualServiceInquired)
@@ -369,11 +396,24 @@ import {io} from 'socket.io-client'
       setCurrentChats(selectedChats.result)
     }
     }
-
+    // When clicked loadmore
     useEffect(()=>{
       if(returnLimit > 10)
       {
-        getChats(convoId)
+        
+        (async () => {
+          try {
+            const messages = await http.get(`getMessages/${convoId}/${returnLimit}`);
+            const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation._id);
+            setReceiver(receiver);
+            setServiceInquired(messages.data.result[0].virtualServiceInquired);
+            setCurrentChats(messages.data.result);
+            setCurrentChatsCount(messages.data.documentCount);
+            setLoadingMore(false)
+          } catch (error) {
+            console.error(error);
+          }
+        })();
       }
       
     },[returnLimit])
@@ -496,7 +536,11 @@ import {io} from 'socket.io-client'
       if (allContacts.length !== 0) {
         try {
           const messagesPromises = allContacts.map(async (contact) => {
-            const messages = await http.get(`getMessages/${contact.conversationId}/${returnLimit}`);
+            const messages = await http.get(`getMessages/${contact.conversationId}/${returnLimit}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`, // Include authentication token
+            },
+          });
             return messages.data;
           });
     
@@ -515,7 +559,11 @@ import {io} from 'socket.io-client'
 
         try {
           const messagesPromises = allContacts.map(async (contact) => {
-            const messages = await http.get(`getMessages/${contact.conversationId}/${returnLimit}`);
+            const messages = await http.get(`getMessages/${contact.conversationId}/${returnLimit}`, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`, // Include authentication token
+              },
+            });
             return messages.data;
           });
     
@@ -530,6 +578,28 @@ import {io} from 'socket.io-client'
       
     }
 
+    async function handleViewInformation(participants)
+    {
+      const profileToView = participants.find(user => user._id !== userId)
+      const profile = await http.get(`viewChatMemberProfile/${profileToView._id}`)
+      setReceiverInformation(profile.data)
+    }
+
+    async function handleDeleteConversation(conversationId)
+    {
+      try {
+        const result = await http.delete(`handleDeleteConversation/${conversationId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`, // Include authentication token
+          },
+        })
+
+        setSearchParams({})
+        window.location.reload()
+      } catch (error) {
+        console.error(error)
+      }
+    }
 
   return (
         <main className=' w-full bg-[#f9f9f9] h-screen flex justify-evenly sm:space-x-5 sm:pb-3 sm:px-3 pt-[5.2rem]'>
@@ -557,8 +627,8 @@ import {io} from 'socket.io-client'
 
             <div className={`${contact.conversationId === convoId ? 'bg-gray-100' : 'bg-transparent'} w-full p-2 cursor-pointer flex`} key={contact._id} 
             onClick={()=>{handleReadMessage(contact.conversationId);
-            setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
-            setContactClass('hidden')
+            if(windowWidth < 640){setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')}
+            if(windowWidth < 640){setContactClass('hidden')}
             setReturnLimit(10);
             selectReceiver(contact.conversationId, receiver, contact.serviceInquired, contact.virtualServiceInquired);
             getChats(contact.conversationId)}}>
@@ -583,10 +653,8 @@ import {io} from 'socket.io-client'
                   }
                   <div className=' whitespace-nowrap text-[0.5rem]'>{contact.messageContent.timestamp}</div>
                 </div>
-            </div>
-              
-            </div>
-            
+            </div>     
+            </div>     
             )
           })
         }
@@ -596,7 +664,7 @@ import {io} from 'socket.io-client'
         {/* Messages Windowwss_________________________________________________________________________________________________________ */}
         <section className={chatClass}>
         {/* Headers */}
-        <div className='w-full flex space-x-2 p-1 sticky top-[5rem] z-50 bg-white border-b-[2px] pb-2'>
+        <div className='w-full flex space-x-2 p-1 sticky top-[5rem] z-30 bg-white border-b-[2px] pb-2'>
         {
           loadingHeader ? (
           <div className="relative flex w-64 animate-pulse gap-2 p-4">
@@ -611,10 +679,11 @@ import {io} from 'socket.io-client'
           :
           (
         <div className='flex space-x-2 items-center'>  
-        <button onClick={()=>{setChatClass('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
+        {/* Back Icon */}
+        <button className='sm:hidden' onClick={()=>{setChatClass('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
         setContactClass('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md')
-      }}>
-          <ArrowBackOutlinedIcon />
+        }}>
+        <ArrowBackOutlinedIcon />
         </button>     
         <div className='h-12 w-12 flex'>
         
@@ -639,6 +708,19 @@ import {io} from 'socket.io-client'
             )
           }
         </div>
+        {/* More Options button */}
+        <button onClick={()=>{setOpenMoreOptions(!openMoreOptions);handleViewInformation(currentChats[0].participants)}} className='absolute right-0'>
+          <MoreHorizOutlinedIcon />
+        </button>
+        {/* More option */}
+        <div className={`w-[150px] ${openMoreOptions ? 'block' : 'hidden'} h-fit border absolute right-6 top-6 bg-white shadow-md rounded-md`}>
+          <ul className='flex flex-col space-y-3'>
+            <li onClick={()=>{navigate(`/explore/viewService/${currentChats[0].virtualServiceInquired._id}`)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View Service</li>
+            <li onClick={()=>{setShowProfileInformation(true);setOpenMoreOptions(false)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View Client</li>
+            <li className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>Report</li>
+            <li onClick={()=>{handleDeleteConversation(currentChats[0].conversationId)}} className='text-sm cursor-pointer p-2 text-red-500 hover:bg-gray-200'>Delete conversation</li>
+          </ul>
+        </div>
         </div> 
         )
         }
@@ -646,10 +728,13 @@ import {io} from 'socket.io-client'
 
         {/* Message Content_________________________________________________________________________________________________________ */}
         
-        <div id='MessageContainer' className='h-full overflow-auto w-full max-w-full rounded-md p-2 flex flex-col bg-[#f9f9f9]'>
+        <div onClick={()=>{setOpenMoreOptions(false);setOpenEmojiPicker(false)}} id='MessageContainer' className='h-full overflow-auto w-full max-w-full rounded-md p-2 flex flex-col bg-[#f9f9f9]'>
         <ScrollToBottom  style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }} scrollViewClassName='messageBox' className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '>
           <div className='w-full text-centerflex justify-center'>
-            <button className={`${currentChatsCount < 10 ? 'hidden' : 'flex'} w-fit  mx-auto`} onClick={()=>{handlePagination()}}>Load more</button>
+            <button className={`${currentChatsCount < 10 ? 'hidden' : 'flex'} ${loadingMore ? 'hidden' : 'flex'} w-fit  mx-auto`} onClick={()=>{handlePagination()}}>Load more</button>
+            <div className={`w-full justify-center ${loadingMore ? 'flex' : 'hidden'}`}>
+            <div className="loadMoreLoder"></div>
+            </div>  
           </div>
         {
         loadingChats ? 
@@ -746,7 +831,7 @@ import {io} from 'socket.io-client'
         </label>
         
         {/* Send Button */}
-        <button onClick={()=>{handleSendMessage(messageInput, 'text')}} className='bg-blue-500 p-2 rounded-full text-white flex items-center justify-center'>
+        <button onClick={()=>{handleSendMessage(messageInput, 'text');setOpenEmojiPicker(false)}} className='bg-blue-500 p-2 rounded-full text-white flex items-center justify-center'>
           <SendOutlinedIcon  />
         </button>
         
@@ -755,7 +840,45 @@ import {io} from 'socket.io-client'
             </>
           )
         }
+        {/* PROFILE INFORMATION CARD */}
+        <div className={`w-[300px] ${showProfileInformation ? 'block' : 'hidden'} h-[406px] bg-white shadow-xl rounded-md absolute top-[30%]`} style={{boxShadow: 'rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset'}}>
+        <button onClick={()=>{setShowProfileInformation(false)}} className='absolute p-0 hover:bg-blue-100 rounded-full m-1'> <CloseRoundedIcon /></button>
+       
+        <h1 className='text-lg font-bold text-gray-800 text-center mt-4'>Client Information</h1>
+        <div>
+          {/* Profile Image */}
+          <div className='w-full flex justify-center mt-3'>
+            <img className='w-16 h-16 border-[3px] border-themeBlue rounded-full shadow-md relative z-10 object-cover' src={receiverInformation.profileImage} />
+          </div>
+          {/* Additional Information */}
+          <div className='flex flex-col rounded-xl pb-3 pt-8 top-20 w-[90%] absolute bg-themeBlue space-y-3 mt-3 font-medium text-gray-700 left-1/2 transform -translate-x-1/2'>
+            {/* Full Name */}
+            <p className='text-center text-white'>{receiverInformation.firstname + receiverInformation.lastname}</p>
+            {/* Email */}
+            <div className='w-[200px] border mx-auto p-2 rounded-md flex flex-col items-center'>
+            <MailOutlineRoundedIcon fontSize='small' className='text-white' />
+            <p className='text-white font-light text-sm'>{receiverInformation.email}</p>
+            </div>
+           
+            {/* contact */}
+            <div className='w-[200px] border mx-auto p-2 rounded-md flex flex-col items-center'>
+            <ContactPhoneRoundedIcon fontSize='small' className='text-white' />
+            <p className='text-white font-light text-sm'>+63{receiverInformation.contact}</p>
+            </div>
 
+            {/* Address */}
+            <div className='w-[200px] border mx-auto p-2 rounded-md flex flex-col items-center'>
+            <ContactPhoneRoundedIcon fontSize='small' className='text-white' />
+            <p className='text-white text-center font-light text-sm'>
+            {receiverInformation?.Address?.barangay ?? ''}{' '}
+            {receiverInformation?.Address?.municipality ?? ''}{' '}
+            {receiverInformation?.Address?.province ?? ''}
+            </p>
+            </div>
+            
+          </div>
+        </div>
+        </div>
           
         </main>
     
