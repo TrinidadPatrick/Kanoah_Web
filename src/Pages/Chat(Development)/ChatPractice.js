@@ -13,6 +13,7 @@ import axios from 'axios';
 import cloudinaryCore from '../../CloudinaryConfig';
 import EmojiPicker from 'emoji-picker-react';
 import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import {io} from 'socket.io-client'
 
   const ChatPractice = () => {
@@ -55,6 +56,8 @@ import {io} from 'socket.io-client'
     const [sendingMessages, setSendingMessages] = useState([])
     const [tempImage, setTempImage] = useState('')
     const onlineUsers = useSelector(selectOnlineUsers)
+    const [chatClass, setChatClass] = useState('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
+    const [contactClass, setContactClass] = useState('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md')
 
     const handleResize = () => {
       const windowWidth = window.innerWidth;
@@ -529,7 +532,7 @@ import {io} from 'socket.io-client'
 
 
   return (
-        <main className=' w-full bg-[#f9f9f9] h-screen flex justify-evenly space-x-5 sm:pb-3 sm:px-3 pt-[5.2rem]'>
+        <main className=' w-full bg-[#f9f9f9] h-screen flex justify-evenly sm:space-x-5 sm:pb-3 sm:px-3 pt-[5.2rem]'>
         
         {
           noChats ? 
@@ -545,14 +548,20 @@ import {io} from 'socket.io-client'
           (
             <>
         {/* Contacts Windowwss_________________________________________________________________________________________________________ */}
-        <section className='w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md'>
+        <section className={contactClass}>
         <div className='flex w-full flex-col space-y-3 py-3'>
         {
           allContacts.map((contact)=>{
             const receiver = contact.participants.find(user => user._id !== userInformation._id)
             return (
 
-            <div className={`${contact.conversationId === convoId ? 'bg-gray-100' : 'bg-transparent'} w-full p-2 cursor-pointer flex`} key={contact._id} onClick={()=>{handleReadMessage(contact.conversationId);setReturnLimit(10);selectReceiver(contact.conversationId, receiver, contact.serviceInquired, contact.virtualServiceInquired);getChats(contact.conversationId)}}>
+            <div className={`${contact.conversationId === convoId ? 'bg-gray-100' : 'bg-transparent'} w-full p-2 cursor-pointer flex`} key={contact._id} 
+            onClick={()=>{handleReadMessage(contact.conversationId);
+            setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
+            setContactClass('hidden')
+            setReturnLimit(10);
+            selectReceiver(contact.conversationId, receiver, contact.serviceInquired, contact.virtualServiceInquired);
+            getChats(contact.conversationId)}}>
             
             {/* Service Image */}
             <div className=' p-1 flex justify-center items-center'>
@@ -585,9 +594,9 @@ import {io} from 'socket.io-client'
         </section>
 
         {/* Messages Windowwss_________________________________________________________________________________________________________ */}
-        <section className='w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3'>
+        <section className={chatClass}>
         {/* Headers */}
-        <div className='w-full flex space-x-2 p-1 border-b-[2px] pb-2'>
+        <div className='w-full flex space-x-2 p-1 sticky border-b-[2px] pb-2'>
         {
           loadingHeader ? (
           <div className="relative flex w-64 animate-pulse gap-2 p-4">
@@ -601,8 +610,14 @@ import {io} from 'socket.io-client'
           )
           :
           (
-        <>        
+        <div className='flex space-x-2 items-center'>  
+        <button onClick={()=>{setChatClass('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
+        setContactClass('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md')
+      }}>
+          <ArrowBackOutlinedIcon />
+        </button>     
         <div className='h-12 w-12 flex'>
+        
         <img className='rounded-full w-full h-full object-cover max-h-16 max-w-16' src={serviceInquired.serviceProfileImage} alt='profile' />
         </div>
         <div className=' flex flex-col justify-around'>     
@@ -624,7 +639,7 @@ import {io} from 'socket.io-client'
             )
           }
         </div>
-        </> 
+        </div> 
         )
         }
         </div>
