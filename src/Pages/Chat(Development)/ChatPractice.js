@@ -19,6 +19,7 @@ import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 import MyLocationOutlinedIcon from '@mui/icons-material/MyLocationOutlined';
 import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import ContactPhoneRoundedIcon from '@mui/icons-material/ContactPhoneRounded';
 import './chat.css'
 import {io} from 'socket.io-client'
@@ -619,6 +620,7 @@ import {io} from 'socket.io-client'
     }
 
     useEffect(()=>{
+      
       if(convoId === null && service === null && windowWidth < 640)
       {
         setChatClass('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
@@ -626,12 +628,11 @@ import {io} from 'socket.io-client'
       }
       else
       {
-        if(windowWidth < 640){setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')}
-        if(windowWidth < 640){setContactClass('hidden')}
+        if(windowWidth < 640 && windowWidth !== null){setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')}
+        if(windowWidth < 640 && windowWidth !== null){setContactClass('hidden')}
       }
       
     },[])
-
 
   return (
         <main className=' w-full bg-[#f9f9f9] h-full flex justify-evenly'>
@@ -678,8 +679,10 @@ import {io} from 'socket.io-client'
             {/* Title and message and time */}
             <div className=' w-full flex flex-col ps-1'>
               {/* Title */}
-              <div className=''>
-              <input readOnly className={`${contact.readBy.includes((userId)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium text-ellipsis pointer-events-none bg-transparent`} type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} />
+              <div className='flex justify-start'>
+              <p className={`${contact.readBy.includes((userId)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium overflow-hidden max-w-[200px] sm:max-w-[130px] xl:max-w-[200px] text-ellipsis pe-2`}>{contact.virtualServiceInquired.basicInformation.ServiceTitle}</p>
+              {/* <input readOnly className={`${contact.readBy.includes((userId)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium text-ellipsis pointer-events-none bg-transparent`} type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} /> */}
+              <StorefrontOutlinedIcon className='p-1 text-blue-500' fontSize='small' />
               </div>
                 <div className=' flex justify-start items-center'>
                   {
