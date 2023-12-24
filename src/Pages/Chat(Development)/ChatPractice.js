@@ -311,7 +311,7 @@ import {io} from 'socket.io-client'
         getAllChats()
         setSendingMessages([...sendingMessages.filter(message => message.sendingId !== data.sendingId)])
         getContacts()
-        
+        console.log(sendMessage)
 
         setSearchParams({service : service, convoId : sendMessage.data.result.conversationId})   
         socket.emit('message', {notificationMessage, receiverName : receiver._id});
@@ -628,8 +628,8 @@ import {io} from 'socket.io-client'
       }
       else
       {
-        if(windowWidth < 640 && windowWidth !== null){setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')}
-        if(windowWidth < 640 && windowWidth !== null){setContactClass('hidden')}
+        // if(windowWidth < 640 && windowWidth !== null){setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')}
+        // if(windowWidth < 640 && windowWidth !== null){setContactClass('hidden')}
       }
       
     },[])

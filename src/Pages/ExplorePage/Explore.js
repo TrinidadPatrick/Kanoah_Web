@@ -469,7 +469,7 @@ const Explore = () => {
         </section>
         
         {/* Right Section */}
-        <section ref={scrollableDivRef} className='w-[100%] h-screen overflow-auto pt-5 ps-2 xl:pe-20 pb-5 bg-[#f9f9f9]' onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute"}} >
+        <section ref={scrollableDivRef} className='w-[100%] h-full overflow-auto pt-5 ps-2 xl:pe-20 pb-5 bg-[#f9f9f9]' onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute"}} >
         <div>
         {/* Search Box */}
         <div className='flex flex-col ml-2.5 items-end relative w-full '>
