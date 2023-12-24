@@ -129,6 +129,31 @@ if (reason !== 'backdropClick') {
       }
     }
 
+    // Check for unread Messages
+    const checkUnreadMessage = async () => {
+      
+        try {
+          const contacts = await http.get(`retrieveContacts/${userId}`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`, // Include authentication token
+            },
+          })
+          const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          const check = sortedContacts.some(messages => !messages.readBy.includes(userId))
+          if(check)
+          {
+            dispatch(setNewMessage(true))
+          }
+          else{
+            dispatch(setNewMessage(false))
+          }
+          return sortedContacts;
+        } catch (error) {
+          console.error(error)
+        }
+
+
+    }
     // Attach the event listener to the window resize event
     window.addEventListener('resize', handleResize);
 
@@ -188,6 +213,13 @@ if (reason !== 'backdropClick') {
       dispatch(setOnlineUsers(onlineUsers))
         // setOnlineUsers(onlineUsers)
       })
+    },[userId])
+
+    useEffect(()=>{
+      if(userId !== null && userId !== 'loggedOut')
+      {
+        checkUnreadMessage()
+      }
     },[userId])
 
 
