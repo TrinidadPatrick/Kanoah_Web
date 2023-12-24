@@ -396,7 +396,7 @@ const UserInformation = () => {
         <div className='flex flex-col lg:flex-row'>
         {/* Left side */}
         <section className='flex bg-white h-fit lg:h-screen w-full lg:w-[400px] flex-col px-10'>
-        <div className='mt-24'>
+        <div className='mt-5'>
         <h1 className='text-2xl font-semibold'>Profile</h1>
         </div>
         <div className='w-full flex flex-col justify-between h-full pb-10'>
@@ -421,7 +421,7 @@ const UserInformation = () => {
 
         {/* Right side */}
         <section className=' w-full h-fit '>
-        <div className=" w-full h-fit lg:h-screen  p-6 lg:pt-[6rem] ">
+        <div className=" w-full h-fit lg:h-screen  p-6 lg:pt-[1.3rem] ">
             <h1 className="text-xl lg:text-2xl font-semibold text-gray-800 mb-4">User Profile Settings</h1>
             <form onSubmit={(e)=>{handleOpenCPModal(e)}}>
                 {/* Username */}

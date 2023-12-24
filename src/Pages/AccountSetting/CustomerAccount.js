@@ -43,7 +43,7 @@ const CustomerAccount = () => {
     <div className='flex w-full'>
     {/* Left section */}
     <section className='w-[370px] h-screen bg-white hidden md:flex flex-col'>
-    <div className='border-l-4 ps-2 ml-5 border-l-themeBlue mt-24'>
+    <div className='border-l-4 ps-2 ml-5 border-l-themeBlue mt-5'>
     <h1 className='text-3xl font-bold text-themeBlue '>Account Setting</h1>
     <p className='text-[0.79rem]'>Manage or edit your account here</p>
     </div>

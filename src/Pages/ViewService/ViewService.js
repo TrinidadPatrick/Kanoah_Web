@@ -257,7 +257,7 @@ useEffect(()=>{
 
     
     
-   <div className='grid place-items-center h-screen  w-[100vw] min-w-[100vw]'>
+   <div className='grid place-items-center h-full  w-full '>
     
     {
       serviceInfo == null ? (
@@ -266,8 +266,8 @@ useEffect(()=>{
             </div>
       ) :
       (
-        <div className='w-full h-full bg-[#F9F9F9] md:px-12 lg:px-20 xl:px-32 pb-10 pt-20 flex flex-col'>
-        <section className='w-full  h-fit flex flex-col xl:flex-row justify-between p-2 gap-1 mt-5' >
+        <div className='w-full h-full bg-[#F9F9F9] md:px-12 lg:px-20 xl:px-32 pb-10 flex flex-col'>
+        <section className='w-full h-fit flex flex-col xl:flex-row justify-between p-2 gap-1 mt-5' >
 
         {/* Left Side ********************************************************************/}
         <div className='w-full shadow-sm bg-white xl:w-[60%] rounded-lg h-fit  flex flex-col p-2 space-y-3'>

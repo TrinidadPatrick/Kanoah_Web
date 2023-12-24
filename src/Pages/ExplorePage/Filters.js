@@ -132,7 +132,7 @@ const Filters = () => {
     },[])
   return (
     <div>
-        <div className='flex flex-col space-y-5 px-7 mt-10'>
+        <div className='flex flex-col space-y-5 px-7 mt-5'>
         <h1 className='font-bold text-2xl'>Find your Service</h1>
         {/* Sort box */}
         <div className='flex-none w-full relative'>

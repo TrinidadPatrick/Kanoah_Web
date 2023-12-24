@@ -59,7 +59,7 @@ const MainPage = () => {
       
 {/* ************************************************************************************************ */}
       {/* FEATURED CATEGORIES */}
-      <section className='w-full h-fit bg-[#f9f9f9] py-16 px-5 md:px-20 lg:px-16 xl:px-32'>
+      <section className='w-full h-fit bg-[#f8f8f8] py-16 px-5 md:px-20 lg:px-16 xl:px-32'>
       {/* Main Container */}
   <div className='w-full '>
       {/* Header Container */}
@@ -86,12 +86,12 @@ const MainPage = () => {
   </section>
     
     {/* TOP RATED SERVICES */}
-    <section className='top_rated_service w-full h-screen bg-[#F9F9F9] py-[1rem] sm:px-0 md:px-16 lg:px-16'>
+    <section className='top_rated_service w-full h-screen bg-[#f8f8f8] py-[1rem] sm:px-0 md:px-16 lg:px-16'>
     <TopRatedServices />
     </section>
 
     {/* RECENT SERVICES */}
-    <section className='top_rated_service w-full h-screen bg-[#F9F9F9] py-[1rem] sm:px-0 md:px-16 lg:px-16'>
+    <section className='top_rated_service w-full h-screen bg-[#f8f8f8] py-[1rem] sm:px-0 md:px-16 lg:px-16'>
     <RecentServices />
     </section>
 

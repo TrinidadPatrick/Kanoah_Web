@@ -7,6 +7,7 @@ import { selectUserId } from '../../ReduxTK/userSlice'
 import { useNavigate } from 'react-router-dom';
 import { selectNewMessage, setNewMessage, selectOnlineUsers } from '../../ReduxTK/chatSlice';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
+import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import ScrollToBottom from 'react-scroll-to-bottom';
 import axios from 'axios';
@@ -15,6 +16,7 @@ import EmojiPicker from 'emoji-picker-react';
 import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
+import MyLocationOutlinedIcon from '@mui/icons-material/MyLocationOutlined';
 import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ContactPhoneRoundedIcon from '@mui/icons-material/ContactPhoneRounded';
@@ -51,6 +53,7 @@ import {io} from 'socket.io-client'
     const [showProfileInformation, setShowProfileInformation] = useState(false)
     const [serviceInquired, setServiceInquired] = useState({})
     const [allContacts, setAllContacts] = useState([])
+    const [origAllContacts, setOrigAllContacts] = useState([])
     const [currentChatsCount, setCurrentChatsCount] = useState(0)
     const [currentChats, setCurrentChats] = useState([])
     const [messageInput, setMessageInput] = useState('')
@@ -64,8 +67,8 @@ import {io} from 'socket.io-client'
     const [loadingMore, setLoadingMore] = useState(false)
     const [openMoreOptions, setOpenMoreOptions] = useState(false)
     const onlineUsers = useSelector(selectOnlineUsers)
-    const [chatClass, setChatClass] = useState('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
-    const [contactClass, setContactClass] = useState('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md')
+    const [chatClass, setChatClass] = useState('w-full hidden sm:flex h-full flex-col bg-white shadow-sm py-2 px-5 space-y-3')
+    const [contactClass, setContactClass] = useState('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full border-r-1 bg-white shadow-sm')
 
     const handleResize = () => {
       const windowWidth = window.innerWidth;
@@ -181,6 +184,7 @@ import {io} from 'socket.io-client'
             const firstContact = sortedContacts[0]
             setSearchParams({service : firstContact.serviceInquired, convoId : firstContact.conversationId})
             setAllContacts(sortedContacts)
+            setOrigAllContacts(sortedContacts)
             setReceiver(firstContact.participants.filter(receiver => receiver._id !== userId)[0])
             setServiceInquired(firstContact.virtualServiceInquired)
             getChats(firstContact.conversationId)
@@ -224,6 +228,7 @@ import {io} from 'socket.io-client'
           })
           const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           setAllContacts(sortedContacts)
+          setOrigAllContacts(sortedContacts)
           return sortedContacts;
         } catch (error) {
           console.error(error)
@@ -580,8 +585,10 @@ import {io} from 'socket.io-client'
 
     async function handleViewInformation(participants)
     {
+     
       const profileToView = participants.find(user => user._id !== userId)
-      const profile = await http.get(`viewChatMemberProfile/${profileToView._id}`)
+      const profileToView2 = participants.find(user => user !== userId)
+      const profile = await http.get(`viewChatMemberProfile/${profileToView._id == undefined ? profileToView2 : profileToView._id}`)
       setReceiverInformation(profile.data)
     }
 
@@ -601,8 +608,33 @@ import {io} from 'socket.io-client'
       }
     }
 
+    function handleSearchMessage(searchInput){
+      const newContact = [...allContacts]
+      if (searchInput.trim() !== "") {
+        const search = allContacts.filter(contact => contact.virtualServiceInquired.basicInformation.ServiceTitle.toLowerCase().includes(searchInput.toLowerCase()))
+        setAllContacts(search);
+      } else {
+        setAllContacts(origAllContacts);
+      }
+    }
+
+    useEffect(()=>{
+      if(convoId === null && service === null && windowWidth < 640)
+      {
+        setChatClass('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
+        setContactClass('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md')
+      }
+      else
+      {
+        if(windowWidth < 640){setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')}
+        if(windowWidth < 640){setContactClass('hidden')}
+      }
+      
+    },[])
+
+
   return (
-        <main className=' w-full bg-[#f9f9f9] h-screen flex justify-evenly sm:space-x-5 sm:pb-3 sm:px-3 pt-[5.2rem]'>
+        <main className=' w-full bg-[#f9f9f9] h-full flex justify-evenly'>
         
         {
           noChats ? 
@@ -620,15 +652,20 @@ import {io} from 'socket.io-client'
         {/* Contacts Windowwss_________________________________________________________________________________________________________ */}
         <section className={contactClass}>
         <div className='flex w-full flex-col space-y-3 py-3'>
+          <div className='p-3  w-full relative'>
+            <SearchOutlinedIcon fontSize='small' className='absolute top-[1.2rem] text-gray-500 left-5' />
+            <input onChange={(e)=>{handleSearchMessage(e.target.value)}} id='searchField' className='rounded-full outline-none border-2 p-1 ps-9 text-sm text-gray-600 w-full' type="text" placeholder='Search..'/>
+          </div>
         {
           allContacts.map((contact)=>{
             const receiver = contact.participants.find(user => user._id !== userInformation._id)
             return (
 
-            <div className={`${contact.conversationId === convoId ? 'bg-gray-100' : 'bg-transparent'} w-full p-2 cursor-pointer flex`} key={contact._id} 
+            <div className={`${contact.conversationId === convoId ? 'bg-gray-100 border-l-4 border-l-blue-600' : 'bg-transparent'} w-full p-2 cursor-pointer flex`} key={contact._id} 
             onClick={()=>{handleReadMessage(contact.conversationId);
             if(windowWidth < 640){setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')}
             if(windowWidth < 640){setContactClass('hidden')}
+            setShowProfileInformation(false)
             setReturnLimit(10);
             selectReceiver(contact.conversationId, receiver, contact.serviceInquired, contact.virtualServiceInquired);
             getChats(contact.conversationId)}}>
@@ -642,7 +679,7 @@ import {io} from 'socket.io-client'
             <div className=' w-full flex flex-col ps-1'>
               {/* Title */}
               <div className=''>
-              <input readOnly className={`${contact.readBy.includes((userId)) ? 'text-gray-500' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium text-ellipsis pointer-events-none bg-transparent`} type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} />
+              <input readOnly className={`${contact.readBy.includes((userId)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium text-ellipsis pointer-events-none bg-transparent`} type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} />
               </div>
                 <div className=' flex justify-start items-center'>
                   {
@@ -664,7 +701,7 @@ import {io} from 'socket.io-client'
         {/* Messages Windowwss_________________________________________________________________________________________________________ */}
         <section className={chatClass}>
         {/* Headers */}
-        <div className='w-full flex space-x-2 p-1 sticky top-[5rem] z-30 bg-white border-b-[2px] pb-2'>
+        <div className='w-full flex space-x-2 p-1 sticky top-[5rem] z-30 bg-white border-b-[1.5px] shadow-sm pb-2'>
         {
           loadingHeader ? (
           <div className="relative flex w-64 animate-pulse gap-2 p-4">
@@ -680,8 +717,10 @@ import {io} from 'socket.io-client'
           (
         <div className='flex space-x-2 items-center'>  
         {/* Back Icon */}
-        <button className='sm:hidden' onClick={()=>{setChatClass('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
+        <button className='sm:hidden' onClick={()=>{
+        setChatClass('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
         setContactClass('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md')
+        setSearchParams({})
         }}>
         <ArrowBackOutlinedIcon />
         </button>     
@@ -716,7 +755,7 @@ import {io} from 'socket.io-client'
         <div className={`w-[150px] ${openMoreOptions ? 'block' : 'hidden'} h-fit border absolute right-6 top-6 bg-white shadow-md rounded-md`}>
           <ul className='flex flex-col space-y-3'>
             <li onClick={()=>{navigate(`/explore/viewService/${currentChats[0].virtualServiceInquired._id}`)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View Service</li>
-            <li onClick={()=>{setShowProfileInformation(true);setOpenMoreOptions(false)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View Client</li>
+            <li onClick={()=>{setShowProfileInformation(true);setOpenMoreOptions(false)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View User</li>
             <li className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>Report</li>
             <li onClick={()=>{handleDeleteConversation(currentChats[0].conversationId)}} className='text-sm cursor-pointer p-2 text-red-500 hover:bg-gray-200'>Delete conversation</li>
           </ul>
@@ -728,8 +767,8 @@ import {io} from 'socket.io-client'
 
         {/* Message Content_________________________________________________________________________________________________________ */}
         
-        <div onClick={()=>{setOpenMoreOptions(false);setOpenEmojiPicker(false)}} id='MessageContainer' className='h-full overflow-auto w-full max-w-full rounded-md p-2 flex flex-col bg-[#f9f9f9]'>
-        <ScrollToBottom  style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }} scrollViewClassName='messageBox' className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '>
+        <div onClick={()=>{setOpenMoreOptions(false);setOpenEmojiPicker(false)}} id='MessageContainer' className='h-full overflow-auto w-full max-w-full rounded-md p-2 flex flex-col bg-white'>
+        <ScrollToBottom  style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }} scrollViewClassName='messageBox' className='h-screen w-full flex flex-col bg-white overflow-auto '>
           <div className='w-full text-centerflex justify-center'>
             <button className={`${currentChatsCount < 10 ? 'hidden' : 'flex'} ${loadingMore ? 'hidden' : 'flex'} w-fit  mx-auto`} onClick={()=>{handlePagination()}}>Load more</button>
             <div className={`w-full justify-center ${loadingMore ? 'flex' : 'hidden'}`}>
@@ -776,14 +815,14 @@ import {io} from 'socket.io-client'
           <div key={index}>
             <div className="flex items-center">
                 <div className="flex-1 border-t border-gray-400"></div>
-                <div className="mx-4 text-sm text-center my-2 text-gray-400">
+                <div className="mx-4 text-sm text-center my-2 text-gray-500 font-medium">
                   {chatGroup.date}
                 </div>
                 <div className="flex-1 border-t border-gray-400"></div>
                 
               </div>
             {
-              chatGroup.chats.map((chat, index)=>(
+              chatGroup.chats.map((chat)=>(
                 <div key={chat._id} className={`w-full p-1 flex flex-col ${chat.messageContent.sender === userInformation._id ? 'items-end' : 'items-start'}`}>
                 {
                   chat.messageType === "image" ?
@@ -791,11 +830,17 @@ import {io} from 'socket.io-client'
                   <img className='rounded-lg' src={chat.messageContent.content} />
                   </div>
                   :
-                  <p className={`py-2 px-4 w-fit whitespace-pre-wrap max-w-[300px] break-words rounded-md ${chat.messageContent.sender !== userInformation ._id ? 'bg-white text-black shadow-md' : 'bg-blue-500 text-white shadow-md'}`}>
+                  <div className='flex items-end space-x-2'>
+                  <img className={`${chat.messageContent.sender === userId ? 'hidden' : 'block'} w-6 h-6 rounded-full mb-4`} src={chat.participants.filter(user => user._id !== userId)[0].profileImage} />
+                  <div>
+                  <p className={`py-2 px-4 w-fit whitespace-pre-wrap max-w-[300px] break-words rounded-md ${chat.messageContent.sender !== userInformation ._id ? 'bg-gray-100 text-gray-700 text-sm shadow-sm rounded-es-none' : 'bg-blue-500 text-white text-sm rounded-ee-none shadow-md'}`}>  
                     {chat.messageContent.content}
                   </p>
+                  <p className='text-[0.55rem] text-gray-500 mt-1 ml-0.5'>{chat.messageContent.timestamp}</p>
+                  </div>
+                  </div>
                 }
-                <p className='text-[0.55rem] text-gray-500 mt-1'>{chat.messageContent.timestamp}</p>
+
                 <p className={`${sendingMessages.some(message => message.messageContent.content === chat?.messageContent.content) ? 'block' : 'hidden'} text-semiXs`}>Sending</p>
               </div>
               ))
@@ -809,7 +854,8 @@ import {io} from 'socket.io-client'
 
         {/* Message Input Box */}
         <div className='w-full flex items-center space-x-3 border p-1 rounded-3xl '>
-        <input value={messageInput} onChange={(e)=>{setMessageInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSendMessage(e.target.value, 'text')}}} className='w-full py-2 px-1 rounded-lg outline-none' type='text' placeholder='Enter message' />
+          <textarea value={messageInput} onChange={(e)=>{setMessageInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter" && !e.shiftKey){handleSendMessage(e.target.value, 'text');e.preventDefault()}}} rows={1}  placeholder='Enter message' maxLength={1000} className='messageInput rounded-4xl w-full resize-none py-2 px-1 outline-none' />
+        {/* <input value={messageInput} onChange={(e)=>{setMessageInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSendMessage(e.target.value, 'text')}}} className='w-full py-2 px-1 rounded-lg outline-none' type='text' placeholder='Enter message' /> */}
         
         {/* Emoji picker */}
         <div className={`${openEmojiPicker ? 'block' : 'hidden'} absolute bottom-[5.3rem] right-[10rem] shadow-md`}>
@@ -823,15 +869,15 @@ import {io} from 'socket.io-client'
 
 
         {/* Image send Input */}
-        <label htmlFor="fileInput" className={`  h-full text-[0.85rem]  py-2 flex items-center relative px-2 text-white font-medium text-center rounded cursor-pointer`}>
-        <button>
-          <ImageOutlinedIcon className='text-gray-600' />
+        <div className={`  h-full text-[0.85rem]  py-2 flex items-center relative px-2 text-white font-medium text-center rounded cursor-pointer`}>
+        <button className='cursor-pointer'>
+          <ImageOutlinedIcon className='text-gray-600 cursor-pointer' />
         </button>
         <input type="file" onChange={handleFileInputChange} accept="image/*" id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
-        </label>
+        </div>
         
         {/* Send Button */}
-        <button onClick={()=>{handleSendMessage(messageInput, 'text');setOpenEmojiPicker(false)}} className='bg-blue-500 p-2 rounded-full text-white flex items-center justify-center'>
+        <button onClick={()=>{handleSendMessage(messageInput, 'text');setOpenEmojiPicker(false)}} className='bg-blue-500 p-2 rounded-full hover:bg-blue-700 text-white flex items-center justify-center'>
           <SendOutlinedIcon  />
         </button>
         
@@ -841,7 +887,7 @@ import {io} from 'socket.io-client'
           )
         }
         {/* PROFILE INFORMATION CARD */}
-        <div className={`w-[300px] ${showProfileInformation ? 'block' : 'hidden'} h-[406px] bg-white shadow-xl rounded-md absolute top-[30%]`} style={{boxShadow: 'rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset'}}>
+        <div className={`w-[300px] ${showProfileInformation ? 'block' : 'hidden'} h-[406px] bg-white shadow-xl rounded-md absolute top-[25%]`} >
         <button onClick={()=>{setShowProfileInformation(false)}} className='absolute p-0 hover:bg-blue-100 rounded-full m-1'> <CloseRoundedIcon /></button>
        
         <h1 className='text-lg font-bold text-gray-800 text-center mt-4'>Client Information</h1>
@@ -868,7 +914,7 @@ import {io} from 'socket.io-client'
 
             {/* Address */}
             <div className='w-[200px] border mx-auto p-2 rounded-md flex flex-col items-center'>
-            <ContactPhoneRoundedIcon fontSize='small' className='text-white' />
+            <MyLocationOutlinedIcon fontSize='small' className='text-white' />
             <p className='text-white text-center font-light text-sm'>
             {receiverInformation?.Address?.barangay ?? ''}{' '}
             {receiverInformation?.Address?.municipality ?? ''}{' '}

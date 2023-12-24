@@ -6,6 +6,10 @@
     background-size: calc(100% / 3) 50%;
     animation: l3 1s infinite linear;
   }
+
+  .messageInput::-webkit-scrollbar {
+    display: none;
+  }
   @keyframes l3 {
     20% {
       background-position: 0% 0%, 50% 50%, 100% 50%;

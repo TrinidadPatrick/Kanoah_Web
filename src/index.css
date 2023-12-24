@@ -365,7 +365,7 @@
 /* CHat style  */
 .messageBox::-webkit-scrollbar{
   width: 4px !important;
-  height: 1px !important;
+  height: 0px !important;
   
 }
 

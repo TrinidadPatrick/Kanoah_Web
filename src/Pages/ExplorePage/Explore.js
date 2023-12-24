@@ -453,7 +453,7 @@ const Explore = () => {
       filterLocationLongLat, setFilterLocationLongLat, currentPage, setCurrentPage, serviceList, setServiceList, filteredService, setFilteredService,
       searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList, rerender, setRerender
       ]} >
-        <div className=' w-full flex h-screen overflow-hidden relative'>
+        <div className=' w-full flex h-full overflow-hidden relative'>
         {
           // Loading page
           loadingPage ? (
@@ -464,12 +464,12 @@ const Explore = () => {
           (
             <>
         {/* Left Section */}
-        <section className='filterSideBar w-[500px] hidden lg:flex h-screen overflow-y-scroll relative flex-col space-y-5 pb-5 pt-20 lg:ps-20 pe-5 bg-[#F9F9F9]'>
+        <section className='filterSideBar w-[500px] hidden lg:flex h-full overflow-y-scroll relative flex-col space-y-3 pb-5 lg:ps-20 pe-5 bg-[#F9F9F9]'>
         <Filters />
         </section>
         
         {/* Right Section */}
-        <section ref={scrollableDivRef} className='w-[100%] h-screen overflow-auto pt-[100px] ps-2 xl:pe-20 pb-5 bg-[#f9f9f9]' onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute"}} >
+        <section ref={scrollableDivRef} className='w-[100%] h-screen overflow-auto pt-5 ps-2 xl:pe-20 pb-5 bg-[#f9f9f9]' onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute"}} >
         <div>
         {/* Search Box */}
         <div className='flex flex-col ml-2.5 items-end relative w-full '>
