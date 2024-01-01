@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { ToastContainer, toast } from 'react-toastify';
@@ -22,13 +23,16 @@ const BookingInformation = () => {
     const userId = useSelector(selectUserId)
     const accessToken = localStorage.getItem('accessToken')
     const [isEdit, setIsEdit] = useState(false)
-    const [enableMultipleSelect, setEnableMultipleSelect] = useState(false)
+    const [acceptBooking, setAcceptBooking] = useState(false)
+    const [noServices, setNoServices] = useState(false)
     const [isSelectAll, setIsSelectAll] = useState(false)
     const serviceData = useSelector(selectServiceData)
     const [serviceModalOpen, setServiceModalIsOpen] = useState(false);
+    const [openFilter, setOpenFilter] = useState(false);
+    const [selectedFilter, setSelectedFilter] = useState('All services');
     const [editServiceModalOpen, setEditServiceModalIsOpen] = useState(false);
     const [viewVariantModalOpen, setViewVariantModalOpen] = useState(false);
-    const [serviceOfferList, setServiceOfferList] = useState([])
+    const [serviceOfferList, setServiceOfferList] = useState(null)
     const [selectedServices, setSelectedServices] = useState([])
     const [selectedVariantList, setSelectedVariantList] = useState([])
     const [serviceOfferInfo, setServiceOfferInfo] = useState({
@@ -64,11 +68,24 @@ const BookingInformation = () => {
       };
 
     useEffect(()=>{
+       
         if(serviceData.serviceOffers !== undefined)
         {
             setServiceOfferList(serviceData.serviceOffers)
+            setAcceptBooking(serviceData.acceptBooking)
         }
     }, [serviceData])
+
+    useEffect(()=>{
+        if(serviceOfferList?.length === 0)
+        {
+            setNoServices(true)
+        }
+        else
+        {
+            setNoServices(false)
+        }
+    }, [serviceOfferList])
 
     const openServiceModal = () => {
         setServiceModalIsOpen(true)
@@ -381,6 +398,22 @@ const BookingInformation = () => {
 
     }
 
+    const handleAcceptBooking = async () => { 
+        const instance = acceptBooking  
+        setAcceptBooking(!instance) 
+        try {
+            const result = await http.patch(`updateService/${userId}`, {acceptBooking : !instance},  {
+              headers : {Authorization: `Bearer ${accessToken}`},
+            })
+    
+            if(result.data.status == "Success")
+            {
+                notify('Update successfull')
+            }
+          } catch (error) {
+            console.error(error)
+          }
+    }
 
     const enableSelected = async () => {
         const instance = [...serviceOfferList]
@@ -409,23 +442,51 @@ const BookingInformation = () => {
           }
 
     }
+
+    const handleSearch = (searchInput) => {
+        const services = serviceData.serviceOffers
+        const filtered = services.filter(service => service.name.toLowerCase().includes(searchInput.toLowerCase()))
+        setServiceOfferList(filtered)
+    }
+
+    const handleFilter = (filter) => {
+        setSelectedFilter(filter)
+        const instance = [...serviceData.serviceOffers]
+        if(filter === 'Allservices')
+        {
+            setServiceOfferList(instance)
+            return ;
+        }
+        const filtered = instance.filter(service => service.status === filter.toUpperCase())
+        setServiceOfferList(filtered)
+    }
+
+
   return (
     <main className='flex justify-center items-center bg-[#f9f9f9] flex-col h-full w-full bg-na max-h-full xl:p-3 '>
     <div className="w-[100%] sm:w-[90%] md:w-[80%] xl:w-[60%] shadow-md rounded-md h-full sm:h-[90%] xl:h-[70vh] p-5 flex flex-col bg-white space-y-5">
         <div className='w-full flex items-center justify-between'>
             <h1 className='text-gray-700 font-medium text-lg md:text-2xl'>Services from business</h1>
-            <button onClick={()=>{openServiceModal()}} className={`w-fit flex gap-0.5 items-center px-1 py-0.5 sm:px-2 sm:py-1 text-white bg-themeOrange hover:bg-orange-400 text-xs sm:text-sm font-medium rounded-sm`}><AddOutlinedIcon className='p-1 sm:p-0' /> Add Service</button>
+            <div className='flex space-x-2'>
+            <div className='flex space-x-2 bg-gray-50 shadow-sm p-1 rounded-[0.12rem] border'>
+            <p className='text-sm text-gray-500 font-semibold mb-1'>Accept Booking</p>
+            <div className='flex items-center space-x-2'>
+            <label className="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" checked={acceptBooking} onChange={()=>{handleAcceptBooking()}} className="sr-only peer outline-none"/>
+            <div className="w-7 h-4 lg:w-[2.45rem] lg:h-[1.3rem] bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[1.1rem] after:h-[0.8rem] after:lg:w-[1.1rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            </label>
+            </div>
+            </div>
+            {/* <button onClick={()=>{openServiceModal()}} className={`w-fit flex gap-0.5 items-center px-1 py-0.5 sm:px-2 sm:py-2 text-white bg-red-500 hover:bg-red-500 text-xs sm:text-sm font-medium rounded-sm`}>Disable Booking</button> */}
+            </div>
         </div>
 
         {/* Navigation */}
-        <div className='w-full flex items-center space-x-4 p-2 bg-gray-100 rounded-md'>
-            {/* Enable Multiple Select */}
-            <label className='flex flex-row-reverse text-gray-700 text-sm items-center gap-1 w-fit' htmlFor='selectMultiple'>Multiple select
-            <input onChange={()=>{setEnableMultipleSelect(!enableMultipleSelect);setIsSelectAll(false);setSelectedServices([])}} id='selectMultiple' type='checkbox' />
-            </label>
-
-            <div className='h-full w-[0.5px] bg-gray-300'></div>
-
+        <div className='w-full flex items-center justify-between space-x-4 p-2 bg-gray-100 relative rounded-md'>
+        <div className='flex  space-x-3'>
+            <button onClick={()=>{openServiceModal()}} className={`w-fit flex gap-0.5 items-center px-1 py-0.5 sm:px-2 sm:py-1 text-white bg-themeOrange hover:bg-orange-400 text-xs sm:text-[0.8rem] font-medium rounded-sm`}><AddOutlinedIcon fontSize='small' className='p-1 sm:p-0' /> Add Service</button>
+            <div className=' h-[30px] w-[0.5px] bg-gray-300'></div>
+            {/* Buttons */}
             <div className='flex items-center space-x-5'>
             {/* Delete */}
             <button disabled={selectedServices.length === 0 ? true : false} onClick={()=>{deleteMany()}} className='flex items-center border border-[#d1d1d1] justify-center bg-gray-200 p-1 rounded-sm'>
@@ -439,20 +500,48 @@ const BookingInformation = () => {
             {/* Enable */}
             <button disabled={selectedServices.length === 0 ? true : false} onClick={()=>{enableSelected()}} className='flex items-center relative justify-center bg-white border border-[#d7d7d7] p-1 rounded-sm'>
                 <CheckCircleOutlinedIcon className={`text-gray-500 peer ${selectedServices.length === 0 ? 'hover:text-gray-400' : 'hover:text-red-500'} cursor-pointer`} fontSize='small' />
-                <div className='absolute bg-gray-600 opacity-80 hidden transition-all delay-1000 peer-hover:block text-white top-9 text-[0.84rem] whitespace-nowrap p-1 rounded-sm'>Mark as Enabled</div>
+                <div className='absolute bg-gray-600 opacity-80 hidden transition-all delay-1000 peer-hover:block text-white top-9 text-[0.84rem] whitespace-nowrap p-1 rounded-sm'>Mark as Active</div>
             </button>
+            </div>
+            </div>
+
+            {/* Search and filter */}
+            <div className='h-full w-[250px] flex relative border rounded-md'>
+                <div id='searchWrapper' className='w-full flex'>
+                    <input onChange={(e)=>{handleSearch(e.target.value)}} className='w-full outline-none text-[0.8rem] rounded-s-md ps-2 p-1' type='search' placeholder='Search...' />
+                </div>
+
+                {/* Dropdown Button */}
+                {/* <div className='relative'> */}
+                <button onClick={()=>{setOpenFilter(!openFilter)}} className='whitespace-nowrap  h-full border-l-1 rounded-e-md text-[0.7rem] px-1 text-gray-700 bg-white'>{selectedFilter}<ExpandMoreIcon fontSize='small' className='p-0.5' /></button>
+
+                {/* dropwdown content */}
+                <div className={`w-[90px] ${openFilter ? '' : 'hidden'} h-fit right-0 top-9 z-10 flex flex-col items-start  bg-gray-50 shadow-md rounded-md absolute`}>
+                    <button onClick={()=>{handleFilter('Allservices');setOpenFilter(!openFilter)}} className='text-[0.7rem] text-gray-700  w-full text-start px-2 p-1 hover:bg-gray-200 '>All services</button>
+                    <button onClick={()=>{handleFilter('Disabled');setOpenFilter(!openFilter)}} className='text-[0.7rem] text-gray-700 w-full text-start px-2 p-1 hover:bg-gray-200 '>Disabled</button>
+                    <button onClick={()=>{handleFilter('active');setOpenFilter(!openFilter)}} className='text-[0.7rem] text-gray-700 w-full text-start px-2 p-1 hover:bg-gray-200 '>Enabled</button>
+                {/* </div> */}
+                </div>
             </div>
         </div>
 
         {/* Table */}
         <div className='w-full flex flex-col flex-1 h-full border rounded-md overflow-auto'>
-        <table className='table-auto w-full text-sm rounded-md '>
+        {
+            noServices ? 
+            (
+                <div className='w-full flex h-full justify-center items-center'>
+                    <p className='text-3xl text-gray-500 text-center'>No services found</p>
+                </div>
+            )
+            :
+            <table className='table-auto w-full text-sm rounded-md '>
           <thead >
             <tr >
-              <th  className={`${enableMultipleSelect ? '' : 'hidden'}  rounded-md font-semibold text-gray-700 text-center p-2 px-6 w-[5%]`}>
+              <th  className={` font-semibold bg-gray-100 text-gray-700 text-center p-2 px-3 w-[5%]`}>
                 <input checked={isSelectAll} onChange={()=>{handleSelectAll();setIsSelectAll(!isSelectAll)}} id='selectAll' type='checkbox' />
               </th>
-              <th  className=' font-semibold bg-gray-100 text-gray-700 text-center p-2 px-6 w-[5%]'>#</th>
+              {/* <th  className=' font-semibold bg-gray-100 text-gray-700 text-center p-2 px-6 w-[5%]'>#</th> */}
               <th  className=' font-semibold bg-gray-100 text-gray-700 text-start p-2 px-3 sm:w-1/4 md:w-1/3 lg:w-1/2 xl:w-1/3 2xl:w-1/5'>Name</th>
               <th  className=' font-semibold bg-gray-100 text-gray-700 text-center p-2 sm:w-1/4 md:w-1/3 lg:w-1/4 xl:w-1/6 2xl:w-1/5'>Price</th>
               <th  className=' font-semibold bg-gray-100 text-gray-700 text-center p-2 sm:w-1/2 md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-[13%]'>Status</th>      
@@ -461,21 +550,14 @@ const BookingInformation = () => {
           </thead>
           <tbody className=' w-full overflow-auto'>
             {
-            serviceOfferList.map((service, index)=>{
+            serviceOfferList?.map((service, index)=>{
             return (
                 <tr key={index} className='h-[60px] max-h-[50px]'>
                 
                 {/* Select */}
-                <td className={`${enableMultipleSelect ? '' : 'hidden'} border border-l-0  text-center w-[5%] overflow-hidden text-ellipsis`}>
+                <td className={` border border-l-0  text-center w-[5%] overflow-hidden text-ellipsis`}>
                 <div className=''>
                 <input id='selectChk' checked={selectedServices.some(selected => selected.uniqueId === service.uniqueId)} onChange={()=>{handleSelect(service)}} type='checkbox' />
-                </div>
-                </td>
-
-                {/* Number */}
-                <td className=' text-center border border-l-0  w-[5%] overflow-hidden text-ellipsis '>
-                <div className=''>
-                <p className=' break-words text-center'>{index + 1}</p>
                 </div>
                 </td>
 
@@ -500,7 +582,7 @@ const BookingInformation = () => {
 
                 {/* Status */}
                 <td className='text-center border border-l-0  sm:w-1/2 md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-[13%]'>
-                    <p className={` ${service.status === 'ACTIVE' ? 'text-green-500' : 'text-red-300'} font-medium`}>{service.status}</p>
+                    <p className={` ${service.status === 'ACTIVE' ? 'text-green-500' : 'text-red-300'} font-medium px-2`}>{service.status}</p>
                 </td>
 
                 {/* Options */}
@@ -514,13 +596,12 @@ const BookingInformation = () => {
                 </td>
                     </tr>
                   )
-                })
-              }
-              <tr>
-                
-              </tr>
+            })
+            }
           </tbody>
-        </table>
+            </table>
+        }
+        
         </div>
     </div>
 
