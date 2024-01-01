@@ -66,7 +66,7 @@ const MyService = () => {
   },[userId])
 
   return (
-    <div className='w-full h-screen bg-white pt-24 px-10'>
+    <div className='w-full h-full bg-white  px-10'>
     {/* Top Layer */}
     {
         serviceInformation == null ? (

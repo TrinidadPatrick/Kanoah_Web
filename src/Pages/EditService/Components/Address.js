@@ -154,11 +154,10 @@ useEffect(()=>{
   
 },[serviceData])
 
-console.log(locCodesSelected)
 
   return (
-    <div className='w-full h-screen sm:h-full flex flex-col px-5 mt-0 pt-2'>
-    <div className='w-full flex flex-col sm:flex-row h-screen sm:h-full sm:space-x-4 p-0'>
+    <div className='w-full h-full sm:h-full flex flex-col px-5 mt-0 pt-2'>
+    <div className='w-full flex flex-col sm:flex-row h-full sm:h-full sm:space-x-4 p-0'>
       {
         loading ? ("")
         :
@@ -264,10 +263,10 @@ console.log(locCodesSelected)
                 ></textarea>
                 </div>
                 </div>
-        </div>   
+                </div>   
 
         {/* MAP******************************************************************* */}
-        <div className='relative mt-1 h-[400px]  w-full  md:h-full mb-1 py-2 sm:w-[100%] md:w-[100%] lg:w-[100%]'>
+        <div className='relative mt-1 h-[250px]  w-full  md:h-full mb-1 py-2 sm:w-[100%] md:w-[100%] lg:w-[100%]'>
             <ReactMapGL
             {...viewport}
             onViewportChange={(newViewport) => setViewPort(newViewport)}

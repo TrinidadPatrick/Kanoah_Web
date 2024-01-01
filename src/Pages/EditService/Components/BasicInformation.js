@@ -41,10 +41,11 @@ const BasicInformation = () => {
 
 
   return (
-    <main className='w-full flex flex-col space-y-4 h-full sm:h-full p-5'>
+    <main className='w-full sm:w-[90%] md:w-[80%] xl:w-1/2 bg-white shadow-md rounded-md flex flex-col space-y-4 h-full sm:h-[90%] p-5'>
         
         {/* Service Title */}
         <div className='w-full flex flex-col justify-start'>
+        <h1 className='text-xl font-medium text-gray-700 mb-2'>Basic Information</h1>
         <label htmlFor='title' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Service Title</label>
         <input value={basicInformation.ServiceTitle} onChange={(e)=>{setBasicInformation({...basicInformation, ServiceTitle : e.target.value})}} id='title' className='text-sm xl:text-[1rem] border p-2 outline-none rounded-md' type='text' />
         </div>

@@ -69,8 +69,7 @@ useEffect(()=>{
 },[])
     
   return (
-    <main  className='w-full h-screen  flex justify-evenly'>
-    {/* Left Section */}
+    <main  className='w-full h-screen relative  flex'>
 
 
     {/* Right Section */}
@@ -98,7 +97,7 @@ useEffect(()=>{
     </header>
 
     {/* Body */}
-    <div className='w-full h-full relative'>
+    <div className='w-full h-full relative flex items-center justify-center bg-[#f9f9f9]'>
         {
            option == 'basicInformation' ? (<BasicInformation />) : option == 'advanceInformation' ? (<AdvanceInformation />) : option == 'address' ? (<Address />) : option == 'serviceHours' ? (<ServiceHours />) : option == 'tags' ? (<Tags />) : option == 'Booking' ? (<BookingInformation />) : (<PageNotFound />)
         }
@@ -108,7 +107,7 @@ useEffect(()=>{
     </section>
 
     {/* Mobile sidebar */}
-    {/* <section id='settingSidebarOpen' className={`w-[260px] transition duration-500 -right-14 exploreSidebarOpen ease-out h-full mt-[4.6rem] bg-black z-10 absolute`}>
+    {/* <section className='w-[200px] bg-black h-full absolute z-30'>
 
     </section> */}
     </main>

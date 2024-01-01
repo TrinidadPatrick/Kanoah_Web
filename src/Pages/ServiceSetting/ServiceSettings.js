@@ -65,22 +65,21 @@ const ServiceSettings = () => {
 // console.log(option)
   return (
 
-        <div className='w-full h-screen'>
+        <div className='w-full h-screen flex flex-col '>
       {
 
         notFound ? (<PageNotFound />)
         :
         (
           // Main Container
-    <div className='flex w-full'>
+    <div className='flex w-full h-full'>
     {/* Left section */}
-    <section className='w-[370px] h-screen bg-white hidden md:flex flex-col'>
-    <div className='border-l-4 ps-2 ml-5 border-l-themeBlue mt-24'>
+    <section className='w-[370px] h-full bg-white hidden md:flex flex-col'>
+    <div className='border-l-4 ps-2 ml-5 border-l-themeBlue mt-5'>
     <h1 className='text-xl lg:text-3xl font-bold text-themeBlue '>Service Setting</h1>
     <p className='text-[0.79rem]'>Manage or edit your service here</p>
     </div>
 
-    {/* Options */}
     <div className='flex flex-col items-start mt-10 space-y-6'>
     <div  onClick={()=>{handleSelectSettings("myService")}}  className={`${selectedSettings == "myService" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><PersonOutlinedIcon /><Link to="" className={`${selectedSettings == "myService" ? "text-blue-800" : "text-gray-800"}`}>My Service</Link></div>
     <div  onClick={()=>{handleSelectSettings("Bookings")}}  className={`${selectedSettings == "Bookings" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><BookOnlineOutlinedIcon /><Link to="" className={`${selectedSettings == "Bookings" ? "text-blue-800" : "text-gray-800"}`}>Bookings</Link></div>
@@ -92,7 +91,7 @@ const ServiceSettings = () => {
 
 
     {/* Right section */}
-    <section className='w-full h-screen'>
+    <section className='w-full h-full pt-5'>
     {selectedSettings == "Gallery" ? <Gallery /> : selectedSettings == "myService" ? <MyService /> : selectedSettings == "myService" ?  <EditService /> : "" }
     </section>
     </div>

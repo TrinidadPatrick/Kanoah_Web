@@ -214,13 +214,6 @@ const AdvanceInformation = () => {
       }
     }
 
-    const handleAcceptBooking = () => {
-      if(serviceData.serviceOffers.length !== 0)
-      {
-        setAdvanceInformation({...advanceInformation, AcceptBooking : !advanceInformation["AcceptBooking"]})
-      }
-      
-    }
 
 
     useEffect(()=>{
@@ -230,11 +223,10 @@ const AdvanceInformation = () => {
         }
     },[serviceData])
 
-    console.log(serviceData)
 
   return (
-    <main className='w-full flex flex-col space-y-4 h-full overflow-auto p-5'>
-    
+    <main className='sm:w-[90%] md:w-[80%] lg:w-1/2 bg-white rounded-md shadow-md flex flex-col space-y-4 h-full sm:h-fit overflow-auto p-5'>
+    <h1 className='text-xl font-medium text-gray-700'>Advance Information</h1>
     {/* fax and Contact email anf category */}
     <div className='w-full grid grid-cols-2 lg:grid-cols-4 gap-3'>
         <div className='flex flex-col relative'>
@@ -284,17 +276,6 @@ const AdvanceInformation = () => {
   </div>
     </div>
 
-    {/* Accepts booking */}
-    <div className=''>
-    <p className='text-sm text-gray-500 font-semibold mb-1'>Accept Booking</p>
-    <div className='flex items-center space-x-2'>
-    <label className="relative inline-flex items-center cursor-pointer">
-    <input type="checkbox" checked={advanceInformation["AcceptBooking"]} onChange={()=>{handleAcceptBooking()}} className="sr-only peer outline-none"/>
-    <div className="w-7 h-4 lg:w-[2.45rem] lg:h-[1.3rem] bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[1.1rem] after:h-[0.8rem] after:lg:w-[1.1rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-    </label>
-    </div>
-    
-    </div>
 
     {/* Social Links */}
     <div className='w-full'>

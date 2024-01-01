@@ -66,11 +66,12 @@ const ServiceHours = () => {
 
 
   return (
-    <div className='w-1/2 h-full mx-auto  flex flex-col p-2 '>
-    <h1 className='font-semibold text-md text-gray-700 text-center'>Set Standard Hours</h1>
+    <div className='w-full md:w-[80%] xl:w-1/2 h-full md:h-fit bg-white rounded-md px-4 mx-auto shadow-md flex flex-col p-2 '>
+    
 
     {/* Schedule Container */}
-    <div className='w-full flex flex-col relative justify-between  space-y-5 md:space-y-0  h-full'>
+    <div className='w-full flex flex-col relative justify-start  space-y-5 md:space-y-5  h-full'>
+    <h1 className='font-semibold text-lg text-gray-700 text-start '>Set Standard Hours</h1>
     {schedule.map((entry) => (
         // Rows
         <div key={entry.day} className='flex items-center justify-between md:justify-between'>
@@ -97,19 +98,19 @@ const ServiceHours = () => {
             <div className="">
               <input
                 type="time"
-                className="p-1 text-xs xl:text-[1rem] w-[90px] sm:w-[100px] md:w-[130px] sm:ps-3 border rounded-xl focus:outline-none focus:border-blue-50"
+                className="p-1 text-[0.65rem] md:text-xs xl:text-[1rem] w-[90px] sm:w-[100px] md:w-[130px] sm:ps-3 border rounded-xl focus:outline-none focus:border-blue-50"
                 value={entry.isOpen ? entry.fromTime == "" ? "06:00" : entry.toTime : ""}
                 onChange={(e) => handleTimeChange(entry.day, 'fromTime', e.target.value)}
                 disabled={!entry.isOpen}
               />
             </div>
-            <span className='text-gray-600 mx-4 text-xs lg:text-[1rem]'>To</span>
+            <span className='text-gray-600 mx-2 md:mx-4 text-[0.65rem] md:text-xs lg:text-[1rem]'>To</span>
             {/* To */}
             <div className="">
               <input
                 type="time"
                 
-                className="p-1 text-xs xl:text-[1rem] w-[90px] sm:w-[100px] md:w-[130px] sm:ps-3 border rounded-xl focus:outline-none focus:border-blue-50"
+                className="p-1 text-[0.65rem] md:text-xs xl:text-[1rem] w-[90px] sm:w-[100px] md:w-[130px] sm:ps-3 border rounded-xl focus:outline-none focus:border-blue-50"
                 value={entry.isOpen ? entry.toTime == "" ? "06:00" : entry.toTime : ""}
                 onChange={(e) => handleTimeChange(entry.day, 'toTime', e.target.value)}
                 disabled={!entry.isOpen}
@@ -118,8 +119,8 @@ const ServiceHours = () => {
           </div>
         </div>
       ))}
+          <button onClick={()=>{submitSchedule()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 text-sm py-1 relative w-fit text-gray-100 font-medium shadow-md rounded-sm `}>Update</button>
     </div>
-    <button onClick={()=>{submitSchedule()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 text-sm py-1 absolute sm:relative -bottom-7 sm:bottom-0 w-fit text-gray-100 font-medium shadow-md rounded-sm `}>Update</button>
 
     </div>
   )

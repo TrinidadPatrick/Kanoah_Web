@@ -13,7 +13,9 @@ import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
 import { selectServiceData } from '../../../ReduxTK/serviceSlice';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
 import { useSelector } from 'react-redux';
+import OutsideClickHandler from 'react-outside-click-handler';
 import http from '../../../http';
 import Modal from 'react-modal';
 
@@ -29,9 +31,10 @@ const BookingInformation = () => {
     const serviceData = useSelector(selectServiceData)
     const [serviceModalOpen, setServiceModalIsOpen] = useState(false);
     const [openFilter, setOpenFilter] = useState(false);
+    const [showMoreOption, setShowMoreOption] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState('All services');
     const [editServiceModalOpen, setEditServiceModalIsOpen] = useState(false);
-    const [viewVariantModalOpen, setViewVariantModalOpen] = useState(false);
+    const [acceptBookingErrorModalOpen, setAcceptBookingErrorModalOpen] = useState(false);
     const [serviceOfferList, setServiceOfferList] = useState(null)
     const [selectedServices, setSelectedServices] = useState([])
     const [selectedVariantList, setSelectedVariantList] = useState([])
@@ -67,6 +70,19 @@ const BookingInformation = () => {
         },
       };
 
+      const ErrorModal = {
+        content: {
+          top: '50%',
+          left: '50%',
+          right: 'auto',
+          bottom: 'auto',
+          marginRight: '-50%',
+          transform: 'translate(-50%, -50%)',
+          padding : '0px',
+          border : '0'
+        },
+      };
+
     useEffect(()=>{
        
         if(serviceData.serviceOffers !== undefined)
@@ -78,7 +94,20 @@ const BookingInformation = () => {
 
     useEffect(()=>{
         if(serviceOfferList?.length === 0)
-        {
+        {   
+            
+            (async()=>{
+                try {
+                    setAcceptBooking(false) 
+                    const result = await http.patch(`updateService/${userId}`, {acceptBooking : false},  {
+                      headers : {Authorization: `Bearer ${accessToken}`},
+                    })
+            
+                  } catch (error) {
+                    console.error(error)
+                  }
+            })()
+            
             setNoServices(true)
         }
         else
@@ -109,13 +138,12 @@ const BookingInformation = () => {
         setIsEdit(false)
     }
 
-    const openViewVariantModal = (variants) => {
-        setViewVariantModalOpen(true)
-        setSelectedVariantList(variants)
+    const openAcceptBookingErrorModal = (variants) => {
+        setAcceptBookingErrorModalOpen(true)
 
     }
-    const closeViewVariantModal = () => {
-        setViewVariantModalOpen(false)
+    const closeAcceptBookingErrorModal = () => {
+        setAcceptBookingErrorModalOpen(false)
         
     }
 
@@ -399,20 +427,28 @@ const BookingInformation = () => {
     }
 
     const handleAcceptBooking = async () => { 
-        const instance = acceptBooking  
-        setAcceptBooking(!instance) 
-        try {
-            const result = await http.patch(`updateService/${userId}`, {acceptBooking : !instance},  {
-              headers : {Authorization: `Bearer ${accessToken}`},
-            })
-    
-            if(result.data.status == "Success")
-            {
-                notify('Update successfull')
-            }
-          } catch (error) {
-            console.error(error)
-          }
+        if(serviceOfferList.length === 0)
+        {
+            openAcceptBookingErrorModal()
+        }
+        else
+        {
+            const instance = acceptBooking  
+            setAcceptBooking(!instance) 
+            try {
+                const result = await http.patch(`updateService/${userId}`, {acceptBooking : !instance},  {
+                  headers : {Authorization: `Bearer ${accessToken}`},
+                })
+        
+                if(result.data.status == "Success")
+                {
+                    notify('Update successfull')
+                }
+              } catch (error) {
+                console.error(error)
+              }
+        }
+        
     }
 
     const enableSelected = async () => {
@@ -452,7 +488,7 @@ const BookingInformation = () => {
     const handleFilter = (filter) => {
         setSelectedFilter(filter)
         const instance = [...serviceData.serviceOffers]
-        if(filter === 'Allservices')
+        if(filter === 'All services')
         {
             setServiceOfferList(instance)
             return ;
@@ -467,9 +503,9 @@ const BookingInformation = () => {
     <div className="w-[100%] sm:w-[90%] md:w-[80%] xl:w-[60%] shadow-md rounded-md h-full sm:h-[90%] xl:h-[70vh] p-5 flex flex-col bg-white space-y-5">
         <div className='w-full flex items-center justify-between'>
             <h1 className='text-gray-700 font-medium text-lg md:text-2xl'>Services from business</h1>
-            <div className='flex space-x-2'>
-            <div className='flex space-x-2 bg-gray-50 shadow-sm p-1 rounded-[0.12rem] border'>
-            <p className='text-sm text-gray-500 font-semibold mb-1'>Accept Booking</p>
+            <div className='flex items-center space-x-2'>
+            <div className='flex items-center space-x-2 bg-gray-50 shadow-sm p-1 rounded-[0.12rem] border'>
+            <p className='text-[0.7rem] md:text-sm text-gray-500 font-semibold sm:mb-1'>Accept Booking</p>
             <div className='flex items-center space-x-2'>
             <label className="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" checked={acceptBooking} onChange={()=>{handleAcceptBooking()}} className="sr-only peer outline-none"/>
@@ -483,11 +519,24 @@ const BookingInformation = () => {
 
         {/* Navigation */}
         <div className='w-full flex items-center justify-between space-x-4 p-2 bg-gray-100 relative rounded-md'>
-        <div className='flex  space-x-3'>
-            <button onClick={()=>{openServiceModal()}} className={`w-fit flex gap-0.5 items-center px-1 py-0.5 sm:px-2 sm:py-1 text-white bg-themeOrange hover:bg-orange-400 text-xs sm:text-[0.8rem] font-medium rounded-sm`}><AddOutlinedIcon fontSize='small' className='p-1 sm:p-0' /> Add Service</button>
+        <div className='flex  space-x-3 relative'>
+            <button onClick={()=>{openServiceModal()}} className={`w-fit flex gap-0.5 items-center px-1 py-0.5 sm:px-2 sm:py-1 text-white bg-themeOrange hover:bg-orange-400 text-xs sm:text-[0.8rem] font-medium rounded-sm`}><AddOutlinedIcon fontSize='small' className='sm:p-0' /> <p className='hidden sm:block'>Add Service</p></button>
             <div className=' h-[30px] w-[0.5px] bg-gray-300'></div>
             {/* Buttons */}
-            <div className='flex items-center space-x-5'>
+            <OutsideClickHandler onOutsideClick={() => {setShowMoreOption(false)}}>
+            <button onClick={()=>setShowMoreOption(!showMoreOption)} className='block semiSm:hidden'>
+            <MoreVertOutlinedIcon className='text-gray-600 ' />
+            </button>
+            </OutsideClickHandler>
+            {/* Dropdown Content */}
+            <div className={`${showMoreOption ? '' : 'hidden'} absolute shadow-md rounded-sm bg-white top-8 left-10 flex flex-col`}>
+              <button onClick={()=>{setShowMoreOption(false);enableSelected()}} className="whitespace-nowrap p-2 hover:bg-gray-200 text-start">Mark as active</button>
+              <button onClick={()=>{setShowMoreOption(false);disableSelected()}} className="whitespace-nowrap p-2 hover:bg-gray-200 text-start">Mark as disabled</button>
+              <button onClick={()=>{setShowMoreOption(false);deleteMany()}} className="whitespace-nowrap p-2 hover:bg-gray-200 text-start">Delete</button>
+            </div>
+
+            {/* Buttons and Icons */}
+            <div className=' hidden semiSm:flex items-center space-x-5'>
             {/* Delete */}
             <button disabled={selectedServices.length === 0 ? true : false} onClick={()=>{deleteMany()}} className='flex items-center border border-[#d1d1d1] justify-center bg-gray-200 p-1 rounded-sm'>
                 <DeleteIcon className={`text-gray-400 ${selectedServices.length === 0 ? 'hover:text-gray-400' : 'hover:text-red-500 cursor-pointer'}`} fontSize='small' />
@@ -506,22 +555,24 @@ const BookingInformation = () => {
             </div>
 
             {/* Search and filter */}
-            <div className='h-full w-[250px] flex relative border rounded-md'>
+            <div className='h-full w-[250px] flex relative  border rounded-md'>
                 <div id='searchWrapper' className='w-full flex'>
                     <input onChange={(e)=>{handleSearch(e.target.value)}} className='w-full outline-none text-[0.8rem] rounded-s-md ps-2 p-1' type='search' placeholder='Search...' />
                 </div>
 
                 {/* Dropdown Button */}
                 {/* <div className='relative'> */}
-                <button onClick={()=>{setOpenFilter(!openFilter)}} className='whitespace-nowrap  h-full border-l-1 rounded-e-md text-[0.7rem] px-1 text-gray-700 bg-white'>{selectedFilter}<ExpandMoreIcon fontSize='small' className='p-0.5' /></button>
-
+                
+                <button onClick={()=>{setOpenFilter(!openFilter)}} className='whitespace-nowrap border-l-1 h-full  rounded-e-md text-[0.7rem] px-1 text-gray-700 bg-white'>{selectedFilter}<ExpandMoreIcon fontSize='small' className='p-0.5' /></button>
                 {/* dropwdown content */}
+                <OutsideClickHandler  onOutsideClick={() => {setOpenFilter(false)}}>
                 <div className={`w-[90px] ${openFilter ? '' : 'hidden'} h-fit right-0 top-9 z-10 flex flex-col items-start  bg-gray-50 shadow-md rounded-md absolute`}>
-                    <button onClick={()=>{handleFilter('Allservices');setOpenFilter(!openFilter)}} className='text-[0.7rem] text-gray-700  w-full text-start px-2 p-1 hover:bg-gray-200 '>All services</button>
+                    <button onClick={()=>{handleFilter('All services');setOpenFilter(!openFilter)}} className='text-[0.7rem] text-gray-700  w-full text-start px-2 p-1 hover:bg-gray-200 '>All services</button>
                     <button onClick={()=>{handleFilter('Disabled');setOpenFilter(!openFilter)}} className='text-[0.7rem] text-gray-700 w-full text-start px-2 p-1 hover:bg-gray-200 '>Disabled</button>
-                    <button onClick={()=>{handleFilter('active');setOpenFilter(!openFilter)}} className='text-[0.7rem] text-gray-700 w-full text-start px-2 p-1 hover:bg-gray-200 '>Enabled</button>
+                    <button onClick={()=>{handleFilter('Active');setOpenFilter(!openFilter)}} className='text-[0.7rem] text-gray-700 w-full text-start px-2 p-1 hover:bg-gray-200 '>Active</button>
                 {/* </div> */}
                 </div>
+                </OutsideClickHandler>
             </div>
         </div>
 
@@ -557,7 +608,7 @@ const BookingInformation = () => {
                 {/* Select */}
                 <td className={` border border-l-0  text-center w-[5%] overflow-hidden text-ellipsis`}>
                 <div className=''>
-                <input id='selectChk' checked={selectedServices.some(selected => selected.uniqueId === service.uniqueId)} onChange={()=>{handleSelect(service)}} type='checkbox' />
+                <input checked={selectedServices.some(selected => selected.uniqueId === service.uniqueId)} onChange={()=>{handleSelect(service)}} type='checkbox' />
                 </div>
                 </td>
 
@@ -765,32 +816,21 @@ const BookingInformation = () => {
     </Modal>
 
 
-    <Modal isOpen={viewVariantModalOpen} onRequestClose={closeViewVariantModal} style={ModalStyle} contentLabel="View Variant">
-        <div className='rounded-xl h-[500px]'>
-        <div className='p-2 border-b-1'>
-        <h1 className='text-xl font-semibold'>Variants</h1>
-        </div>
-       
-            <div className='w-[300px] bg-white  rounded-xl mx-auto p-3'>
-            <div className={`${selectedVariantList.length !== 0 ? 'flex' : 'hidden'} border-b-2 w-full mb-3 pb-1 border-black space-x-10 justify-evenly`}>
-            <div className='w-[65%] text-lg font-medium text-start'>Type</div>
-            <div className='w-[25%] text-lg font-medium text-start'>Price</div>
-            </div>
-            <div className='flex flex-col items-start space-y-2'>
-            {
-            selectedVariantList.length !== 0 ?
-            selectedVariantList.map((variant, index)=>(        
-                <ul key={index} className="flex items-center space-x-10 w-full border-b-1 pb-2">
-                <li className='w-[65%] text-start text-[1rem] overflow-hidden text-ellipsis'>{variant?.type}</li>
-                <li className='w-[25%] text-start text-[1rem] whitespace-nowrap'>₱ {variant?.price}</li>
-                </ul>
-                ))
-                :
-                <p className='text-center  w-full'>No Variant</p>
-                }
-        </div>  
-        </div> 
-        </div>
+    <Modal isOpen={acceptBookingErrorModalOpen} onRequestClose={closeAcceptBookingErrorModal} style={ErrorModal} contentLabel="View Variant">
+    <div className="rounded-md border bg-white shadow-lg border-blue-500 p-4 max-w-md mx-auto mt-8">
+      <header className="text-center">
+        <p className="text-2xl font-medium text-gray-700">No Services Found</p>
+      </header>
+      <div className="mt-4 text-center">
+        <p>
+          Unable to enable booking as the service list is currently empty.
+        </p>
+        <p className="mt-2">
+          Please add services to the list before attempting to enable booking.
+        </p>
+      </div>
+      <button onClick={closeAcceptBookingErrorModal} className='px-2 py-1 bg-blue-500 hover:bg-blue-400 text-white rounded-sm'>Okay</button>
+    </div>
     </Modal>
     <ToastContainer />
     </main>
