@@ -4,3 +4,8 @@
 }
 
 /* For toggle button */
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }

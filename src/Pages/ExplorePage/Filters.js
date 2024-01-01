@@ -112,6 +112,7 @@ const Filters = () => {
         setLocationFilterValue('')
         setDonotApplyFilter(false)
         setSelectedRatingCheckbox([])
+        setSearchInput('')
         setSelectedCategory('Select Category')
         setSortFilter("Recent Services")
         setServiceList(mainServiceList)

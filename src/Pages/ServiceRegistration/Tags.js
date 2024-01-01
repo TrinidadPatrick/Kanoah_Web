@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState, useContext, useEffect } from 'react'
 import HighlightOffOutlinedIcon from '@mui/icons-material/HighlightOffOutlined';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { pageContext } from './ServiceRegistrationPage'
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
@@ -112,17 +113,19 @@ const submitTag = () => {
 
        {/*  submit Modal */}
        <Modal isOpen={submitModalOpen} style={submitModalDesign} >
-        <div className='w-fit p-5'>
-        <div className="mb-4">
-      <p className="text-lg font-semibold">Are you sure you want to Submit?</p>
-    </div>
-
-
-    <div className="flex justify-end">
-      <button className="px-4 py-1 mr-2 text-white bg-themeOrange rounded-sm hover:bg-orange-300 focus:outline-none focus:ring " onClick={()=>{submitService()}}>Submit</button>
-      <button className="px-4 py-1 text-gray-700 bg-gray-300 rounded-sm hover:bg-gray-400 focus:outline-none focus:ring " onClick={()=>{closeSubmitModal()}}>Cancel</button>
-    </div>
+      <div className='w-[300px] p-2'>
+        <div className='flex justify-between items-center'>
+        <h1 className='text-lg font-semibold'>Setup Booking</h1>
+        <CloseOutlinedIcon className='cursor-pointer' onClick={()=>{closeSubmitModal()}} fontSize='small' />
         </div>
+          <div className="mb-4 mt-3">
+            <p className="text-[0.9rem] font-normal text-start">Do you want to enable and setup Booking information?</p>
+          </div>
+        <div className="flex justify-start">
+          <button className="px-3 text-[0.8rem] py-1 mr-2 text-white bg-themeOrange rounded-sm hover:bg-orange-300 focus:outline-none focus:ring " >Yes</button>
+          <button className="px-3 text-[0.8rem] py-1 text-gray-700 bg-gray-300 rounded-sm hover:bg-gray-400 focus:outline-none focus:ring " onClick={()=>{submitService()}}>No, finish setup</button>
+        </div>
+      </div>
       </Modal>
 </div>
 

@@ -18,7 +18,7 @@ const ServiceRegistrationPage = () => {
   const userId = useSelector(selectUserId)
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Holidays'] 
   
-    const [step, setStep] = useState(1)
+    const [step, setStep] = useState(5)
     // const [userId, setUserId] = useState(null)
     const [serviceInformation, setServiceInformation] = useState(
       {
@@ -73,12 +73,9 @@ const ServiceRegistrationPage = () => {
           {
             // setLoading(false)
           }
-          else{
-            navigate("/")
-          }
         } catch (error) {
           console.error('Profile Error:', error.response.data.error);
-   
+          navigate("/")
         }
       }
   
@@ -93,14 +90,14 @@ const ServiceRegistrationPage = () => {
       },[])
 
 
-  
+      console.log(userId)
   return (
     <pageContext.Provider value={[step, setStep, userId, serviceInformation, setServiceInformation]} >
     {/* // Main Container */}
     <div className='w-full h-fit md:h-screen  bg-[#f9f9f9] flex items-center justify-center'>
     
     {/* Main Card */}
-    <section className='w-full bg-white h-full md:w-[90%] lg:w-[850px] xl:w-[60%] md:h-[80%] mt-20 md:mt-16 relative shadow-md md:rounded-md flex flex-col md:flex-row p-1'>
+    <section className='w-full bg-white h-full md:w-[90%] lg:w-[850px] xl:w-[60%] md:h-[90%]  relative shadow-md md:rounded-md flex flex-col md:flex-row p-1'>
     {/* Left Side */}
     <div className='h-fit md:h-full  md:w-[400px] p-3'>
 

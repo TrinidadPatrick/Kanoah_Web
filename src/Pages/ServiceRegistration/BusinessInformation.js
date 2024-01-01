@@ -36,7 +36,6 @@ const BusinessInformation = () => {
     },[page])
     // console.log()
 
-    console.log(basicInformation)
   return (
     
     <form onSubmit={(e)=>{submitBasicInfo(e)}} className='flex flex-col w-full bg-white h-full md:h-full  relative p-1'>

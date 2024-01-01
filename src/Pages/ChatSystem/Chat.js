@@ -12,7 +12,7 @@ import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 import http from '../../http'
 
 
-const Chat = () => {
+    const Chat = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId);

@@ -41,7 +41,7 @@ const BasicInformation = () => {
 
 
   return (
-    <main className='w-full flex flex-col space-y-4 h-screen sm:h-full p-5'>
+    <main className='w-full flex flex-col space-y-4 h-full sm:h-full p-5'>
         
         {/* Service Title */}
         <div className='w-full flex flex-col justify-start'>

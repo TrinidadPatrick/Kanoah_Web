@@ -79,6 +79,7 @@ if (reason !== 'backdropClick') {
       const token = localStorage.getItem('accessToken')
       http.get(`getUser`,{
         headers : {Authorization: `Bearer ${token}`},
+        withCredentials: true,
       }).then((res)=>{
         setUserInfo(res.data)
         dispatch(setUserId(res.data._id));
@@ -262,7 +263,7 @@ if (reason !== 'backdropClick') {
             <ul className="categoryDropdown absolute hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
               {categories.map((category, index) => (
                 <li key={index} className="">
-                  <button onClick={() => {navigate(`explore?${"category=" + category.category_name}`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+                  <button onClick={() => {navigate(`explore?${"category=" + category.category_name}&page=1`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
                 </li>
               ))}
             </ul>

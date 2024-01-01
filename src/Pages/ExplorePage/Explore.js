@@ -492,7 +492,7 @@ const Explore = () => {
                 {/* Title and Reviews*/}
                 <div className='Header_Container space-y-2 xl:space-y-0 w-full flex flex-col xl:flex-row justify-between'>
                 <div className='w-full overflow-hidden'>
-                  <h1 className='font-bold text-xl sm:text-md md:text-xl ps-1 w-full whitespace-nowrap text-ellipsis overflow-hidden'>{service.basicInformation.ServiceTitle}</h1>
+                  <h1 onClick={()=>{navigate(`/explore/viewService/${service._id}`)}} className='font-bold text-xl sm:text-md md:text-xl ps-1 w-full whitespace-nowrap text-ellipsis overflow-hidden'>{service.basicInformation.ServiceTitle}</h1>
                   <div className='flex items-center space-x-2'>
                   <p className='text-sm md:text-md text-gray-400  flex items-center gap-1'><Person2OutlinedIcon  />{service.owner.firstname + " " + service.owner.lastname}</p>
                   <span className='w-1 h-1 rounded-full bg-gray-500'></span>
@@ -577,7 +577,7 @@ const Explore = () => {
         }
         
         {/* Mobile Sidebar */}
-        <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = 'w-[260px] transition duration-500 translate-x-[0%] exploreSidebarOpen ease-out h-screen overflow-y-scroll bg-white z-10 absolute'}} className='absolute top-[6.6rem] left-5 lg:hidden'><FilterListOutlinedIcon fontSize='large' /></button>
+        <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = 'w-[260px] transition duration-500 translate-x-[0%] exploreSidebarOpen ease-out h-screen overflow-y-scroll bg-white z-10 absolute'}} className='absolute top-[1.6rem] left-5 lg:hidden'><FilterListOutlinedIcon fontSize='large' /></button>
         <section id='exploreSidebarOpen' className={`hidden`}>
         <MobileFilter />
         </section>

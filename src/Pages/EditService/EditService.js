@@ -15,6 +15,7 @@ import ServiceHours from './Components/ServiceHours'
 import Tags from './Components/Tags'
 import FilterListOutlinedIcon from '@mui/icons-material/FilterListOutlined';
 import PageNotFound from '../NotFoundPage/PageNotFound'
+import BookingInformation from './Components/BookingInformation'
 
 const EditService = () => {
 const dispatch = useDispatch()
@@ -73,7 +74,7 @@ useEffect(()=>{
 
 
     {/* Right Section */}
-    <section className='h-full flex flex-col w-full  bg-[#fcfcfc] pt-24'>
+    <section className='h-full flex flex-col w-full  bg-[#fcfcfc] pt-3'>
     {/* Header */}
     <header className='w-full px-5'>
     <h1 className='text-2xl font-semibold text-gray-700'>
@@ -83,13 +84,14 @@ useEffect(()=>{
     </h1>
 
     {/* Navigation buttons */}
-    <div className={`serviceSettingNavBtn w-screen md:w-full h-fit  overflow-auto flex justify-start space-x-5 mt-5 relative border-b `} >
+    <div className={`serviceSettingNavBtn w-full md:w-full h-fit  overflow-auto flex justify-start space-x-5 mt-5 relative border-b `} >
        
        <Link className={`text-sm lg:text-[1rem] ${option === 'basicInformation' ? 'border-b-4 rounded-sm border-themeOrange text-themeOrange ' : ''} pb-3 whitespace-nowrap`} to={`/myService/editService/basicInformation`}>Basic Information</Link>
        <Link className={`text-sm lg:text-[1rem] ${option === 'advanceInformation' ? 'border-b-4 rounded-sm border-themeOrange text-themeOrange ' : ''} pb-3 whitespace-nowrap`}  to='/myService/editService/advanceInformation' >Advance Information</Link>
        <Link className={`text-sm lg:text-[1rem] ${option === 'address' ? 'border-b-4 rounded-sm border-themeOrange text-themeOrange ' : ''} pb-3 whitespace-nowrap`}  to='/myService/editService/address'>Address</Link>
        <Link className={`text-sm lg:text-[1rem] ${option === 'serviceHours' ? 'border-b-4 rounded-sm border-themeOrange text-themeOrange ' : ''} pb-3 whitespace-nowrap`}  to='/myService/editService/serviceHours'>Service Hours</Link>
        <Link className={`text-sm lg:text-[1rem] ${option === 'tags' ? 'border-b-4 rounded-sm border-themeOrange text-themeOrange ' : ''} pb-3 whitespace-nowrap`}  to='/myService/editService/tags'>Tags</Link>
+       <Link className={`text-sm lg:text-[1rem] ${option === 'Booking' ? 'border-b-4 rounded-sm border-themeOrange text-themeOrange ' : ''} pb-3 whitespace-nowrap`}  to='/myService/editService/Booking'>Booking</Link>
 
        {/* <button className='bg-themeOrange px-3 text-white rounded-sm absolute py-1 right-0 -top-1'>Update</button> */}
    </div>
@@ -98,7 +100,7 @@ useEffect(()=>{
     {/* Body */}
     <div className='w-full h-full relative'>
         {
-           option == 'basicInformation' ? (<BasicInformation />) : option == 'advanceInformation' ? (<AdvanceInformation />) : option == 'address' ? (<Address />) : option == 'serviceHours' ? (<ServiceHours />) : option == 'tags' ? (<Tags />) : (<PageNotFound />)
+           option == 'basicInformation' ? (<BasicInformation />) : option == 'advanceInformation' ? (<AdvanceInformation />) : option == 'address' ? (<Address />) : option == 'serviceHours' ? (<ServiceHours />) : option == 'tags' ? (<Tags />) : option == 'Booking' ? (<BookingInformation />) : (<PageNotFound />)
         }
     
    
