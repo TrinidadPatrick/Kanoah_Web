@@ -25,6 +25,7 @@ const BookingInformation = () => {
     const userId = useSelector(selectUserId)
     const accessToken = localStorage.getItem('accessToken')
     const [isEdit, setIsEdit] = useState(false)
+    const [fieldError, setFieldError] = useState({name : false, origPrice : false, type : false, price : false})
     const [acceptBooking, setAcceptBooking] = useState(false)
     const [noServices, setNoServices] = useState(false)
     const [isSelectAll, setIsSelectAll] = useState(false)
@@ -37,12 +38,12 @@ const BookingInformation = () => {
     const [acceptBookingErrorModalOpen, setAcceptBookingErrorModalOpen] = useState(false);
     const [serviceOfferList, setServiceOfferList] = useState(null)
     const [selectedServices, setSelectedServices] = useState([])
-    const [selectedVariantList, setSelectedVariantList] = useState([])
+    // const [variantFieldEmpty, setVariantFieldError] = useState({})
     const [serviceOfferInfo, setServiceOfferInfo] = useState({
       uniqueId : '', 
       name : '',
       origPrice : '',
-      variant : {enabled : false, variantList : []}
+      variants : []
     })
 
     const notify = (message) => {
@@ -125,6 +126,7 @@ const BookingInformation = () => {
 
     const closeServiceModal = () => {
         setServiceModalIsOpen(false)
+        clearFieldError()
     }
     const closeEditServiceModal = () => {
         setEditServiceModalIsOpen(false)
@@ -132,10 +134,11 @@ const BookingInformation = () => {
             id : '',
           name : '',
           origPrice : '',
-          variant : {enabled : false, variantList : []}
+          variants : []
         
         })
         setIsEdit(false)
+        clearFieldError()
     }
 
     const openAcceptBookingErrorModal = (variants) => {
@@ -151,23 +154,28 @@ const BookingInformation = () => {
     const addVariation = () => {
         setServiceOfferInfo((prevServiceOfferInfo) => ({
           ...prevServiceOfferInfo,
-          variant: {
-            ...prevServiceOfferInfo.variant,
-            variantList: [
-              ...prevServiceOfferInfo.variant.variantList,
+          variants: [
+            ...prevServiceOfferInfo.variants,
               { type: '', price: '' }
-            ]
-          }
+          ]
         }));
     }
   
     const handleAddServcice = async () => {
+      if (serviceOfferInfo.name === '') {
+        setFieldError(prevState => ({ ...prevState, name: true }));
+      }
+      if (serviceOfferInfo.origPrice === '' && serviceOfferInfo.variants.length === 0) {
+        setFieldError(prevState => ({ ...prevState, origPrice: true }));
+      }
+      else 
+      {
         const Instance = [...serviceOfferList]
         const tempData = {
           uniqueId : Math.floor(Math.random() * 1000 + 1),
           name : serviceOfferInfo.name,
           origPrice : serviceOfferInfo.origPrice,
-          variant : serviceOfferInfo.variant,
+          variants : serviceOfferInfo.variants.filter(variant => variant.type !== '' && variant.price !== '') ,
           status : 'ACTIVE'
         }
         Instance.push(tempData)
@@ -176,7 +184,7 @@ const BookingInformation = () => {
           uniqueId : '',
           name : '',
           origPrice : '',
-          variant : {enabled : false, variantList : []}
+          variants : []
         })
         closeServiceModal()
         // Insert the data to database
@@ -186,7 +194,7 @@ const BookingInformation = () => {
             })
             if(result.data.status == "Success")
             {
-              console.log(result.data)
+              clearFieldError()
               return ;
             }
             else{
@@ -195,12 +203,14 @@ const BookingInformation = () => {
           } catch (error) {
             console.error(error)
           }
+      }
+       
     }
   
     const removeVariation = (index) => {
-        const variantInstance = [...serviceOfferInfo.variant.variantList]
+        const variantInstance = [...serviceOfferInfo.variants]
        variantInstance.splice(index, 1)
-        setServiceOfferInfo({...serviceOfferInfo, variant : {...serviceOfferInfo.variant, variantList : variantInstance}})
+        setServiceOfferInfo({...serviceOfferInfo, variants : variantInstance})
     }
   
     const handleEditServiceOffer = (index) => {
@@ -211,7 +221,7 @@ const BookingInformation = () => {
           uniqueId : dataToEdit.uniqueId,
           name : dataToEdit.name,
           origPrice : dataToEdit.origPrice,
-          variant : dataToEdit.variant,
+          variants : dataToEdit.variants,
           status : dataToEdit.status,
           isEdit : true
         }
@@ -226,7 +236,7 @@ const BookingInformation = () => {
             uniqueId : dataToReplace.uniqueId,
             name : dataToReplace.name,
             origPrice : dataToReplace.origPrice,
-            variant : dataToReplace.variant,
+            variants : dataToReplace.variants,
             isEdit : false,
             status : dataToReplace.status
           }
@@ -236,16 +246,31 @@ const BookingInformation = () => {
     }
   
     const updateServiceOffer = async () => {
+      if (serviceOfferInfo.name === '') {
+        setFieldError(prevState => ({ ...prevState, name: true }));
+      }
+      if (serviceOfferInfo.origPrice === '' && serviceOfferInfo.variants.length === 0) {
+        setFieldError(prevState => ({ ...prevState, origPrice: true }));
+      }
+      else
+      {
         const instance = [...serviceOfferList]
         const dataToUpdate = serviceOfferList.findIndex(service => service.isEdit === true)
-        instance.splice(dataToUpdate, 1, serviceOfferInfo)
+        const data = {
+          uniqueId : serviceOfferInfo.uniqueId,
+          name : serviceOfferInfo.name,
+          origPrice : serviceOfferInfo.origPrice,
+          variants : serviceOfferInfo.variants.filter(variant => variant.type !== '' && variant.price !== '') ,
+          status : serviceOfferInfo.status
+        }
+        instance.splice(dataToUpdate, 1, data)
         setServiceOfferList(instance)
         closeEditServiceModal()
         setServiceOfferInfo({
             uniqueId : '',
           name : '',
           origPrice : '',
-          variant : {enabled : false, variantList : []}
+          variants : []
         
         })
         try {
@@ -255,6 +280,8 @@ const BookingInformation = () => {
             if(result.data.status == "Success")
             {
               notify('Update successfull')
+              setIsEdit(false)
+              clearFieldError()
               return ;
             }
             else{
@@ -263,6 +290,8 @@ const BookingInformation = () => {
           } catch (error) {
             console.error(error)
           }
+      }
+        
     }
 
     const handleRemoveServiceOffer = async (index) => {
@@ -293,7 +322,7 @@ const BookingInformation = () => {
             uniqueId : instance[indexToUpdate].uniqueId, 
             name : instance[indexToUpdate].name,
             origPrice : instance[indexToUpdate].origPrice,
-            variant : instance[indexToUpdate].variant,
+            variant : instance[indexToUpdate].variants,
             status : "DISABLED"
         }
         instance.splice(indexToUpdate, 1, data)
@@ -323,7 +352,7 @@ const BookingInformation = () => {
             uniqueId : instance[indexToUpdate].uniqueId, 
             name : instance[indexToUpdate].name,
             origPrice : instance[indexToUpdate].origPrice,
-            variant : instance[indexToUpdate].variant,
+            variant : instance[indexToUpdate].variants,
             status : "ACTIVE"
         }
         instance.splice(indexToUpdate, 1, data)
@@ -497,6 +526,11 @@ const BookingInformation = () => {
         setServiceOfferList(filtered)
     }
 
+    const clearFieldError = () => {
+      setFieldError({
+        name : false, origPrice : false, type : false, price : false
+      })
+    }
 
   return (
     <main className='flex justify-center items-center bg-[#f9f9f9] flex-col h-full w-full bg-na max-h-full xl:p-3 '>
@@ -624,8 +658,9 @@ const BookingInformation = () => {
                 {/* Price */}
                 <td className=' text-center border border-l-0  p-1 sm:w-1/4 md:w-1/3 lg:w-1/4 xl:w-1/6 2xl:w-1/5'>
                 <div className=' m-5'>
-                <p className='text-xs'>
-                {service.variant.variantList.length !== 0 ? `₱${service.variant.variantList[0].price} - ₱${service.variant.variantList.slice(-1)[0].price}` : `₱${service.origPrice}`}
+                <p className='text-xs whitespace-nowrap'>
+                  {/* {console.log(service.variants)} */}
+                  {service.variants && service.variants.length !== 0 ? `₱${service.variants[0]?.price} - ₱${service.variants.slice(-1)[0]?.price}` : `₱${service.origPrice}`}
                 </p>
                 </div>
                 </td>
@@ -666,30 +701,29 @@ const BookingInformation = () => {
         {/* Name */}
         <div className='flex flex-col space-y-5'>
         <div className='flex flex-col relative'>
-        <input maxLength={30} required value={serviceOfferInfo.name} onChange={(e)=>setServiceOfferInfo({...serviceOfferInfo, name : e.target.value})} className='border-2 valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]' placeholder={`${document.getElementById('serviceName')?.focus ? 'ex. Premium' : ''}`} id='serviceName' type='text' />
+        <input maxLength={30} required value={serviceOfferInfo.name} onChange={(e)=>setServiceOfferInfo({...serviceOfferInfo, name : e.target.value})} className={`border-2 ${fieldError.name ? 'border-red-500' : ''} valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]`} placeholder={`${document.getElementById('serviceName')?.focus ? 'ex. Premium' : ''}`} id='serviceName' type='text' />
         <div className='text-[0.8rem] absolute top-2 left-1 peer-focus:-top-2 pointer-events-none peer-focus:font-bold peer-valid:font-bold peer-focus:left-2 peer-valid:left-2 peer-focus:text-xs peer-focus:text-gray-800  peer-valid:text-gray-800 peer-valid:-top-2 peer-valid:text-xs ease-in-out transition-all bg-white px-1 text-gray-500' htmlFor='serviceName'>Service name </div>
+        <p className={`${fieldError.name ? 'block' : 'hidden'} text-xs text-red-500`}>This field is required</p>
         </div>
         {/* Price */}
         <div className='flex flex-col relative'>
-          <input maxLength={9} pattern="[0-9]*" required disabled={serviceOfferInfo.variant.variantList.length === 0 ? false : true} value={serviceOfferInfo.origPrice} onChange={(e)=>{const numericValue = e.target.value.replace(/\D/g, '');setServiceOfferInfo({...serviceOfferInfo, origPrice : numericValue})}} className='border-2 valid:border-themeBlue peer outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]' placeholder={`${document.getElementById('servicePrice')?.focus ? 'ex. 200' : ''}`}  id='servicePrice' type='text' />
+          <input maxLength={9} pattern="[0-9]*" required disabled={serviceOfferInfo.variants?.length === 0 ? false : true} value={serviceOfferInfo.origPrice} onChange={(e)=>{const numericValue = e.target.value.replace(/\D/g, '');setServiceOfferInfo({...serviceOfferInfo, origPrice : numericValue})}} className={`border-2 ${fieldError.origPrice ? 'border-red-500' : ''} valid:border-themeBlue peer outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]`} placeholder={`${document.getElementById('servicePrice')?.focus ? 'ex. 200' : ''}`}  id='servicePrice' type='text' />
           <p style={{userSelect: 'none'}} className='text-[0.8rem] pointer-events-none absolute top-2 left-1 peer-focus:font-bold peer-valid:font-bold user-select-none peer-focus:-top-2 peer-focus:left-2 peer-valid:left-2 peer-focus:text-xs peer-focus:text-gray-800  peer-valid:text-gray-800 peer-valid:-top-2 peer-valid:text-xs ease-in-out transition-all bg-white px-1 text-gray-500' htmlFor='servicePrice'>Service price </p>
+          <p className={`${fieldError.origPrice ? 'block' : 'hidden'} text-xs text-red-500`}>This field is required</p>
         </div>
         </div>
         {/* Variations */}
         <div className='flex flex-col space-y-2'>
-        {serviceOfferInfo.variant.variantList.map((variation, index) => (
+        {serviceOfferInfo.variants?.map((variation, index) => (
         <div key={index} className='flex gap-2'>
-          <input maxLength={30} onChange={(e) => {
-            
+          <input
+            maxLength={30}
+            onChange={(e) => {
               setServiceOfferInfo((prevServiceOfferInfo) => ({
                 ...prevServiceOfferInfo,
-                variant: {
-                  ...prevServiceOfferInfo.variant,
-                  variantList: prevServiceOfferInfo.variant.variantList.map(
-                    (item, i) =>
-                      i === index ? { ...item, type: e.target.value } : item
-                  )
-                }
+                variants: prevServiceOfferInfo.variants.map((item, i) =>
+                  i === index ? { ...item, type: e.target.value } : item
+                ),
               }));
             }}
             value={variation.type}
@@ -698,17 +732,16 @@ const BookingInformation = () => {
             placeholder='Type'
           />
 
-          <input pattern="[0-9]*" maxLength={9} onChange={(e) => {
-            const numericValue = e.target.value.replace(/\D/g, '');
+          <input
+            pattern="[0-9]*"
+            maxLength={9}
+            onChange={(e) => {
+              const numericValue = e.target.value.replace(/\D/g, '');
               setServiceOfferInfo((prevServiceOfferInfo) => ({
                 ...prevServiceOfferInfo,
-                variant: {
-                  ...prevServiceOfferInfo.variant,
-                  variantList: prevServiceOfferInfo.variant.variantList.map(
-                    (item, i) =>
-                      i === index ? { ...item, price: numericValue } : item
-                  )
-                }
+                variants: prevServiceOfferInfo.variants.map((item, i) =>
+                  i === index ? { ...item, price: numericValue } : item
+                ),
               }));
             }}
             value={variation.price}
@@ -723,10 +756,10 @@ const BookingInformation = () => {
         ))
         }
         </div>
-        <div className={`${serviceOfferInfo.variant.variantList.length === 0 ? 'hidden' : 'block'} w-full flex justify-start`}>
+        <div className={`${serviceOfferInfo.variants?.length === 0 ? 'hidden' : 'block'} w-full flex justify-start`}>
         <button onClick={()=>{addVariation()}}><AddOutlinedIcon fontSize='small' className='text-white border rounded-full bg-blue-500' /></button>
         </div>
-        <button onClick={()=>{addVariation()}} className={`w-full ${serviceOfferInfo.variant.variantList.length === 0 ? 'block' : 'hidden'} bg-white border-dashed border-blue-500 border-2 p-2 text-blue-500 text-[0.8rem] font-medium rounded-sm`}>Add Variation</button>
+        <button onClick={()=>{addVariation()}} className={`w-full ${serviceOfferInfo.variants?.length === 0 ? 'block' : 'hidden'} bg-white border-dashed border-blue-500 border-2 p-2 text-blue-500 text-[0.8rem] font-medium rounded-sm`}>Add Variation</button>
         <button onClick={()=>{handleAddServcice()}} className={`w-full mt-3 ${isEdit ? 'hidden' : 'flex'} items-center justify-center p-2 text-white bg-themeOrange hover:bg-orange-400 text-sm font-medium rounded-sm`}>Submit</button>
         <button onClick={()=>{updateServiceOffer();setIsEdit(false)}} className={`w-full  ${isEdit ? 'block' : 'hidden'} p-2 text-white bg-themeOrange hover:bg-orange-400 text-sm font-medium rounded-sm`}>Update</button>
       </div>
@@ -738,53 +771,52 @@ const BookingInformation = () => {
     <CloseOutlinedIcon className='cursor-pointer' onClick={()=>{closeEditServiceModal()}} fontSize='small' />
     </div>
     
-      <div className='w-[500px] bg-white space-y-3 p-2'>
+      <div className='w-[90vw] sm:w-[400px] md:w-[500px] bg-white space-y-3 p-2'>
         {/* Name */}
         <div className='flex flex-col space-y-5'>
         <div className='flex flex-col relative'>
-        <input maxLength={30} required value={serviceOfferInfo.name} onChange={(e)=>setServiceOfferInfo({...serviceOfferInfo, name : e.target.value})} className='border-2 valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]' placeholder={`${document.getElementById('serviceName')?.focus ? 'ex. Premium' : ''}`} id='serviceName' type='text' />
+        <input maxLength={30} required value={serviceOfferInfo.name} onChange={(e)=>setServiceOfferInfo({...serviceOfferInfo, name : e.target.value})} className={`border-2 ${fieldError.name ? 'border-red-500' : ''} valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]`} placeholder={`${document.getElementById('serviceName')?.focus ? 'ex. Premium' : ''}`} id='serviceName' type='text' />
+        <p className={`${fieldError.name ? 'block' : 'hidden'} text-xs text-red-500`}>This field is required</p>
         <div className='text-[0.8rem] absolute top-2 left-1 peer-focus:-top-2 pointer-events-none peer-focus:font-bold peer-valid:font-bold peer-focus:left-2 peer-valid:left-2 peer-focus:text-xs peer-focus:text-gray-800  peer-valid:text-gray-800 peer-valid:-top-2 peer-valid:text-xs ease-in-out transition-all bg-white px-1 text-gray-500' htmlFor='serviceName'>Service name </div>
         </div>
         {/* Price */}
         <div className='flex flex-col relative'>
-          <input maxLength={9} pattern="[0-9]*" required disabled={serviceOfferInfo.variant.variantList.length === 0 ? false : true} value={serviceOfferInfo.origPrice} onChange={(e)=>{const numericValue = e.target.value.replace(/\D/g, '');setServiceOfferInfo({...serviceOfferInfo, origPrice : numericValue})}} className='border-2 valid:border-themeBlue peer outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]' placeholder={`${document.getElementById('servicePrice')?.focus ? 'ex. 200' : ''}`}  id='servicePrice' type='text' />
+          <input maxLength={9} pattern="[0-9]*" required disabled={serviceOfferInfo.variants?.length === 0 ? false : true} value={serviceOfferInfo.origPrice} onChange={(e)=>{const numericValue = e.target.value.replace(/\D/g, '');setServiceOfferInfo({...serviceOfferInfo, origPrice : numericValue})}} className={`border-2 ${fieldError.origPrice ? 'border-red-500' : ''} valid:border-themeBlue peer outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]`} placeholder={`${document.getElementById('servicePrice')?.focus ? 'ex. 200' : ''}`}  id='servicePrice' type='text' />
           <p style={{userSelect: 'none'}} className='text-[0.8rem] pointer-events-none absolute top-2 left-1 peer-focus:font-bold peer-valid:font-bold user-select-none peer-focus:-top-2 peer-focus:left-2 peer-valid:left-2 peer-focus:text-xs peer-focus:text-gray-800  peer-valid:text-gray-800 peer-valid:-top-2 peer-valid:text-xs ease-in-out transition-all bg-white px-1 text-gray-500' htmlFor='servicePrice'>Service price </p>
+          <p className={`${fieldError.origPrice ? 'block' : 'hidden'} text-xs text-red-500`}>This field is required</p>
         </div>
         </div>
 
         {/* Variations */}
         <div className='flex flex-col space-y-2'>
-        {serviceOfferInfo.variant.variantList.map((variation, index) => (
+        {serviceOfferInfo.variants?.map((variation, index) => (
         <div key={index} className='flex gap-2'>
-          <input maxLength={30} onChange={(e) => {
-              setServiceOfferInfo((prevServiceOfferInfo) => ({
-                ...prevServiceOfferInfo,
-                variant: {
-                  ...prevServiceOfferInfo.variant,
-                  variantList: prevServiceOfferInfo.variant.variantList.map(
-                    (item, i) =>
-                      i === index ? { ...item, type: e.target.value } : item
-                  )
-                }
-              }));
-            }}
-            value={variation.type}
-            className='border rounded-sm p-1 font-light text-[0.75rem] w-full'
-            type='text'
-            placeholder='Type'
-          />
+          <input
+          maxLength={30}
+          onChange={(e) => {
+            setServiceOfferInfo((prevServiceOfferInfo) => ({
+              ...prevServiceOfferInfo,
+              variants: prevServiceOfferInfo.variants.map((item, i) =>
+                i === index ? { ...item, type: e.target.value } : item
+              ),
+            }));
+          }}
+          value={variation.type}
+          className='border rounded-sm p-1 font-light text-[0.75rem] w-full'
+          type='text'
+          placeholder='Type'
+        />
 
-          <input pattern="[0-9]*" maxLength={9} onChange={(e) => {
-            const numericValue = e.target.value.replace(/\D/g, '');
+          <input
+            pattern="[0-9]*"
+            maxLength={9}
+            onChange={(e) => {
+              const numericValue = e.target.value.replace(/\D/g, '');
               setServiceOfferInfo((prevServiceOfferInfo) => ({
                 ...prevServiceOfferInfo,
-                variant: {
-                  ...prevServiceOfferInfo.variant,
-                  variantList: prevServiceOfferInfo.variant.variantList.map(
-                    (item, i) =>
-                      i === index ? { ...item, price: numericValue } : item
-                  )
-                }
+                variants: prevServiceOfferInfo.variants.map((item, i) =>
+                  i === index ? { ...item, price: numericValue } : item
+                ),
               }));
             }}
             value={variation.price}
@@ -799,11 +831,11 @@ const BookingInformation = () => {
         ))
         }
         </div>
-        <div className={`${serviceOfferInfo.variant.variantList.length === 0 ? 'hidden' : 'block'} w-full flex justify-start`}>
+        <div className={`${serviceOfferInfo.variants?.length === 0 ? 'hidden' : 'block'} w-full flex justify-start`}>
         <button onClick={()=>{addVariation()}}><AddOutlinedIcon fontSize='small' className='text-white border rounded-full bg-blue-500' /></button>
         </div>
-        <button onClick={()=>{addVariation()}} className={`w-full ${serviceOfferInfo.variant.variantList.length === 0 ? 'block' : 'hidden'} bg-white border-dashed border-blue-500 border-2 p-2 text-blue-500 text-[0.8rem] font-medium rounded-sm`}>Add Variation</button>
-        <button onClick={()=>{updateServiceOffer();setIsEdit(false)}} className={`w-full  ${isEdit ? 'block' : 'hidden'} p-2 text-white bg-themeOrange hover:bg-orange-400 text-sm font-medium rounded-sm`}>Update</button>
+        <button onClick={()=>{addVariation()}} className={`w-full ${serviceOfferInfo.variants?.length === 0 ? 'block' : 'hidden'} bg-white border-dashed border-blue-500 border-2 p-2 text-blue-500 text-[0.8rem] font-medium rounded-sm`}>Add Variation</button>
+        <button onClick={()=>{updateServiceOffer()}} className={`w-full  ${isEdit ? 'block' : 'hidden'} p-2 text-white bg-themeOrange hover:bg-orange-400 text-sm font-medium rounded-sm`}>Update</button>
         {
             serviceOfferInfo.status === 'ACTIVE'
             ?
@@ -816,7 +848,7 @@ const BookingInformation = () => {
     </Modal>
 
 
-    <Modal isOpen={acceptBookingErrorModalOpen} onRequestClose={closeAcceptBookingErrorModal} style={ErrorModal} contentLabel="View Variant">
+    <Modal isOpen={acceptBookingErrorModalOpen} onRequestClose={closeAcceptBookingErrorModal} style={ErrorModal} contentLabel="Error">
     <div className="rounded-md border bg-white shadow-lg border-blue-500 p-4 max-w-md mx-auto mt-8">
       <header className="text-center">
         <p className="text-2xl font-medium text-gray-700">No Services Found</p>

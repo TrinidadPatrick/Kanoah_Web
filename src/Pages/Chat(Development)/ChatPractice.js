@@ -409,7 +409,11 @@ import {io} from 'socket.io-client'
         
         (async () => {
           try {
-            const messages = await http.get(`getMessages/${convoId}/${returnLimit}`);
+            const messages = await http.get(`getMessages/${convoId}/${returnLimit}`, {
+              headers: {
+                Authorization: `Bearer ${accessToken}`, // Include authentication token
+              },
+            });
             const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation._id);
             setReceiver(receiver);
             setServiceInquired(messages.data.result[0].virtualServiceInquired);

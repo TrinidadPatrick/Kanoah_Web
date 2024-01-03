@@ -13,10 +13,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
 import TableRowsOutlinedIcon from '@mui/icons-material/TableRowsOutlined';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
+import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
 import http from '../../http';
 
 const FeaturedPhotos = (value) => {
+  const [windowWidth, setWindowWdith] = useState(null)
+const [windowHeight, setWindowHeight] = useState(null)
   const [imagesToDelete, setImagesToDelete] = useState([])
   const [multipleSelect, setMultipleSelect] = useState(false)
   const [selectedView, setSelectedView] = useState('Grid')
@@ -154,6 +157,22 @@ useEffect(()=>{
   getFeaturedImages()
 }, [])
 
+const handleResize = () => {
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+
+  // Update your code or perform actions based on the new size
+  setWindowWdith(windowWidth)
+  setWindowHeight(windowHeight)
+}
+// Attach the event listener to the window resize event
+window.addEventListener('resize', handleResize);
+
+// Call the function once to get the initial size
+useEffect(()=>{
+  handleResize();
+},[])
+
   return (
     <div className='w-full bg-white h-full  flex flex-col mt-5'>
     
@@ -164,7 +183,7 @@ useEffect(()=>{
         {/* Upload Button */}
         <li className='ml-3 cursor-all-scroll flex items-center space-x-2'>
         <label htmlFor="fileInput" className={` bg-blue-500 h-full text-[0.95rem] shadow-md py-2 flex items-center relative px-4 text-white font-medium text-center rounded cursor-pointer`}>
-        {uploadingImage ? "Uploading" : "Upload Image"}
+        {uploadingImage ? "Uploading" : windowWidth <= 510 ? <FileUploadOutlinedIcon /> : "Upload Image"}
         <input onChange={(e)=>{handleAddImage(e.target.files)}} disabled={uploadingImage} type="file" multiple accept="image/*" id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
         </label>
         {uploadingImage &&
@@ -181,9 +200,9 @@ useEffect(()=>{
 
         {/* Change View */}
         <li>
-          <div className='bg-gray-200 rounded-md p-0.5 flex space-x-0'>
-          <button onClick={()=>{setSelectedView("List")}} className={`rounded-md px-1 ${selectedView === "List" ? "bg-white" : ""}`}><TableRowsOutlinedIcon className='text-gray-700 p-1' fontSize='large' /></button>
-          <button onClick={()=>{setSelectedView("Grid")}} className={`rounded-md px-1 ${selectedView === "Grid" ? "bg-white" : ""}`}><GridViewOutlinedIcon className='text-gray-700  rounded-sm p-1' fontSize='large' /></button>
+          <div className='bg-gray-200  rounded-md h-[35px] sm:h-[37px] p-1 sm:p-1 flex justify-evenly space-x-0'>
+          <button onClick={()=>{setSelectedView("List")}} className={`rounded-md w-[30px] sm:w-[35px] justify-center px-0 sm:px-1 flex items-center ${selectedView === "List" ? "bg-white" : ""}`}><TableRowsOutlinedIcon className='text-gray-700 p-1.5' fontSize={`large`} /></button>
+          <button onClick={()=>{setSelectedView("Grid")}} className={`rounded-md w-[30px] sm:w-[35px] px-0 sm:px-1 flex items-center justify-center ${selectedView === "Grid" ? "bg-white" : ""}`}><GridViewOutlinedIcon className='text-gray-700  rounded-sm p-1.5' fontSize='large' /></button>
           </div>
           
         </li>
@@ -191,7 +210,7 @@ useEffect(()=>{
         {/* Delete */}
         <li>
         <div>
-        <button disabled={imagesToDelete.length == 0 ? true : false} onClick={()=>{deleteMultipleImages()}} className='bg-white disabled:bg-gray-100 border px-2 py-1.5 shadow-sm rounded-md'><DeleteIcon className={`${imagesToDelete.length == 0 ? "text-gray-300" : "hover:text-red-500 cursor-pointer text-gray-700"}  disabled:text-gray-50 `} /></button>
+        <button disabled={imagesToDelete.length == 0 ? true : false} onClick={()=>{deleteMultipleImages()}} className='bg-white disabled:bg-gray-100 border px-1.5 sm-[px-2] py-1 sm:py-1.5 shadow-sm rounded-md'><DeleteIcon className={`${imagesToDelete.length == 0 ? "text-gray-300" : "hover:text-red-500 cursor-pointer text-gray-700"}  disabled:text-gray-50 `} /></button>
         </div>
         </li>
 

@@ -7,7 +7,9 @@ module.exports = {
     
     extend: {
       fontSize : {
-        semiXs : "0.65rem"
+        semiXs : "0.65rem",
+        semiSm : "0.75rem",
+        semiMd : "0.9rem"
       }
       ,
       borderWidth : {

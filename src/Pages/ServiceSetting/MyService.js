@@ -94,14 +94,14 @@ const MyService = () => {
     {/* Service Title and buttons */}
     <div className='h-full flex flex-col'>
     <div className='flex flex-col justify-start space-y-3 h-full'>
-    <h1 className='text-xl sm:text-2xl lg:text-4xl font-semibold text-themeBlue'>{serviceInformation.basicInformation.ServiceTitle}</h1>
-    <h2 className='text-gray-600 text-sm font-semibold'>{serviceInformation.basicInformation.OwnerEmail}</h2>
-    <h2 className='text-gray-600 text-sm font-semibold'>+63{serviceInformation.basicInformation.OwnerContact}</h2>
+    <h1 className='text-[1rem] semiSm:text-[1.2rem] sm:text-2xl lg:text-4xl font-semibold text-themeBlue'>{serviceInformation.basicInformation.ServiceTitle}</h1>
+    <h2 className='text-gray-600 text-semiXs md:text-sm font-semibold'>{serviceInformation.basicInformation.OwnerEmail}</h2>
+    <h2 className='text-gray-600 text-semiXs md:text-sm font-semibold'>+63{serviceInformation.basicInformation.OwnerContact}</h2>
     </div>
     {/* Buttons */}
-    <div className='space-x-3 flex relative justify-self-end'>
-    <Link to={`/myService/editService/basicInformation`} className='px-4 w-fit py-2 rounded-3xl whitespace-nowrap bg-gray-300 text-gray-600 text-semiXs md:text-sm'>Edit Service</Link>
-    <button className='px-4 w-fit py-2 rounded-3xl bg-gray-300 text-gray-600 text-semiXs whitespace-nowrap md:text-sm'>View Service</button>
+    <div className='space-x-3 flex relative justify-self-end mt-2'>
+    <Link to={`/myService/editService/basicInformation`} className='px-2 md:px-4 w-fit h-fit py-1 md:py-2 rounded-md hover:bg-gray-200 whitespace-nowrap bg-gray-300 text-gray-600 text-[0.5rem] semiXs:text-[0.7rem] md:text-sm'>Edit Service</Link>
+    <button className='px-2 md:px-4 w-fit h-fit py-1 md:py-2 rounded-md bg-gray-300 text-gray-600 text-[0.5rem] semiXs:text-[0.7rem] hover:bg-gray-200  whitespace-nowrap md:text-sm'>View Service</button>
     </div>
     </div>
     {/* End of Information */}

@@ -373,11 +373,11 @@ useEffect(()=>{
         )
         
       }
-          <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 sm:mt-2 py-1 w-fit sm:hidden text-gray-100 text-sm xl:text-[1rem] mb-2 font-normal shadow-md rounded-sm `}>Update</button>
+    <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 sm:mt-2 py-1 w-fit sm:hidden text-gray-100 text-semiSm lg:text-semiMd mb-2 font-normal shadow-md rounded-sm `}>Update</button>
 
 
     </div>
-    <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 mt-2 mb-3 py-1 w-fit hidden sm:block text-gray-100 text-sm xl:text-[1rem] font-normal shadow-md rounded-sm `}>Update</button>
+    <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 mt-2 mb-3 py-1 w-fit hidden sm:block text-gray-100 text-semiSm lg:text-semiMd font-normal shadow-md rounded-sm `}>Update</button>
 
     </div>
   )

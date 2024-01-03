@@ -225,7 +225,7 @@ const AdvanceInformation = () => {
 
 
   return (
-    <main className='sm:w-[90%] md:w-[80%] lg:w-1/2 bg-white rounded-md shadow-md flex flex-col space-y-4 h-full sm:h-fit overflow-auto p-5'>
+    <main className='sm:w-[90%] md:w-[80%] xl:w-1/2 bg-white rounded-md shadow-md flex flex-col space-y-4 h-full sm:h-fit overflow-auto p-5'>
     <h1 className='text-xl font-medium text-gray-700'>Advance Information</h1>
     {/* fax and Contact email anf category */}
     <div className='w-full grid grid-cols-2 lg:grid-cols-4 gap-3'>
@@ -515,7 +515,7 @@ const AdvanceInformation = () => {
 
 
 
-    <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 py-1 w-fit text-gray-100 font-medium shadow-md rounded-sm `}>Update</button>
+    <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 py-1 w-fit text-semiSm lg:text-semiMd text-gray-100 font-medium shadow-md rounded-sm `}>Update</button>
     </main>
 
     

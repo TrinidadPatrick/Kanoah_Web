@@ -59,12 +59,11 @@ const Login = () => {
     }
     if(password != "" && UsernameOrEmail != ""){
       setLoading(true)
-      http.post("login", {UsernameOrEmail, password}).then((res)=>{
+      http.post("login", {UsernameOrEmail, password}, {withCredentials: true,}).then((res)=>{
       if(res.data.status == "authenticated"){
         setLoading(false)
         localStorage.setItem("accessToken", res.data.accessToken)
-        localStorage.setItem("chatToken", res.data.chatToken)
-        window.location.reload(false)
+        window.location.reload()
       }
 
     }).catch((err)=>{

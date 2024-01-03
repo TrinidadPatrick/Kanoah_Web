@@ -78,7 +78,10 @@ if (reason !== 'backdropClick') {
     const getUser = async () => {
       const token = localStorage.getItem('accessToken')
       http.get(`getUser`,{
-        headers : {Authorization: `Bearer ${token}`},
+        headers : 
+        {
+          Authorization: `Bearer ${token}`
+        },
         withCredentials: true,
       }).then((res)=>{
         setUserInfo(res.data)
@@ -355,8 +358,8 @@ if (reason !== 'backdropClick') {
     loggedIn === false ? 
     (
     <div className='flex space-x-2'>
-      <button onClick={() => { setShowLogin(true); handleOpen() }} className='text-white border-2 px-4 py-1 rounded-md border-white'>Login</button>
-      <button onClick={() => { setShowSignup(true); handleOpen() }} className='text-white bg-themeOrange border-2 border-themeOrange px-6 py-1 rounded-md'>Join</button>
+      <button onClick={() => { setShowLogin(true); handleOpen() }} className='text-white border-2 w-[60px]  lg:w-[80px] text-sm lg:text-[1.1rem] py-1 lg:py-1.5 rounded-md border-white'>Login</button>
+      <button onClick={() => { setShowSignup(true); handleOpen() }} className='text-white bg-themeOrange border-2 border-themeOrange  w-[60px] text-sm lg:text-[1.1rem]  lg:w-[80px] py-1 lg:py-1.5 rounded-md'>Join</button>
     </div>
     ) : ("")}
   </div>

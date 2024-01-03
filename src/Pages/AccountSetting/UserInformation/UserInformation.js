@@ -29,6 +29,7 @@ const UserInformation = () => {
     const userId = useSelector(selectUserId); 
     const [access, setAccessToken] = useState(null);
     const [refreshToken, setRefreshToken] = useState(null);
+    const [street, setStreet] = useState('')
     const [disableSaveChange, setDisableSaveChange] = useState(true)
     const [isloadingImage, setIsloadingImage] = useState(false)
     const [password, setPassword] = useState('')
@@ -83,7 +84,8 @@ const UserInformation = () => {
     const getUser = async (accessToken) => {
 
           await http.get(`getUser`,{
-            headers : {Authorization: `Bearer ${accessToken}`},
+            // headers : {Authorization: `Bearer ${accessToken}`},
+            withCredentials: true,
           }).then((res)=>{
             setUserInformation(res.data)
             setLoading(false)
@@ -94,10 +96,9 @@ const UserInformation = () => {
 
     //Get Tokens fro Local Storage
     useEffect(() => {
-      const accessToken = localStorage.getItem('accessToken');
-      if (accessToken) {
-        getUser(accessToken);
-      }else{
+      if (userId !== null && userId !== 'loggedOut') {
+        getUser();
+      }else if(userId === 'loggedOut'){
         navigate("/")
       }
     }, [userId])
@@ -150,7 +151,7 @@ const UserInformation = () => {
       }
     } 
     const handleOpenADModal = () => {setOpenADModal(true)};
-        const handleCloseADModal = (event, reason) => {
+    const handleCloseADModal = (event, reason) => {
           if (reason !== 'backdropClick') {
             setOpenADModal(false)
 
@@ -179,9 +180,11 @@ const UserInformation = () => {
         const result = await verifyPassword()
         if(result.status == "verified")
         {
-        http.put(`updateUser/${userId}`, userInformation).then((res)=>{
+        http.put(`updateUser/${userId}`, userInformation,{
+          withCredentials: true,
+        }).then((res)=>{
         // Set errors if there are any
-        
+        console.log(res.data)
         const status = res.data.status
         setLoadingBtn(false)
         switch (status)
@@ -216,14 +219,14 @@ const UserInformation = () => {
     const submitAddress = () => {
         
         const address = {
-            region : locCodesSelected[0][0],
-            province :  locCodesSelected[1][0],
-            municipality : locCodesSelected[2][0],
-            barangay : locCodesSelected[3][0],
-            longitude : location.longitude,
-            latitude : location.latitude
+          region : {name : locCodesSelected[0][0], reg_code : locCodesSelected[0][1]},
+          province :  {name : locCodesSelected[1][0], prov_code : locCodesSelected[1][1]},
+          municipality : {name : locCodesSelected[2][0], mun_code : locCodesSelected[2][1]},
+          barangay : {name : locCodesSelected[3][0], brgy_code : locCodesSelected[3][1]},
+          street : street,
+          longitude : location.longitude,
+          latitude : location.latitude
         }
-
         const newData = {...userInformation, Address : address} 
         setUserInformation(newData)
         handleClose()
@@ -379,7 +382,7 @@ const UserInformation = () => {
         }
     }
 
-
+    console.log(userInformation)
       return (
     
     <div className='w-full h-full '>
@@ -521,8 +524,11 @@ const UserInformation = () => {
                 </div>
                 </form>
         </div>
-                
-                {/* Modal for Address */}
+              
+        </section>
+        </div>
+        )}
+                        {/* Modal for Address */}
                 <Modal open={open} onClose={handleClose}> 
                 <Box sx={style} style={{height: "fitContent", width: "fitContent"}}> 
                 <div className='p-4'>
@@ -730,14 +736,19 @@ const UserInformation = () => {
 
                 {/* Modal for confirm Password */}
                 <Modal open={openCPModal} onClose={handleCloseCPModal}> 
-                <Box sx={style} style={{height: "fitContent", width: "fitContent", padding: "10px"}}>
-                <div className='w-full flex justify-end  '><CloseOutlinedIcon onClick={()=>{handleCloseCPModal()}} className=' cursor-pointer ' /></div>
+                <Box sx={style} style={{height: "fitContent", width: "fitContent", padding: "15px"}}>
+                <div className='w-full flex justify-between'>
+                <h1 className='font-medium text-gray-800'>Confirm Password</h1>
+                <CloseOutlinedIcon onClick={()=>{handleCloseCPModal()}} className=' cursor-pointer ' />
+                </div>
+                
                 <div className="mb-0">
                 <label htmlFor="password" className="text-sm text-gray-600">
-                    Enter Password
+                    For your security, please enter password to continue.
                 </label>
                 <input
                 value={password}
+                onKeyDown={(e)=>{if(e.key === "Enter"){updateUser()}}}
                 onChange={(e)=>setPassword(e.target.value)}
                     type="password"
                     id="password"
@@ -746,7 +757,7 @@ const UserInformation = () => {
                     className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 />
                 <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
-                <button onClick={()=>{updateUser()}} className={`${loadingBtn ? "bg-orange-300" : "bg-themeOrange"}  text-sm w-full text-white px-2 py-1 rounded-sm mt-4`}>Update</button>
+                <button onClick={()=>{updateUser()}} className={`${loadingBtn ? "bg-slate-700" : "bg-themeBlue"}  text-sm w-full text-white px-2 py-1 rounded-sm mt-4`}>Update</button>
                 </div>
                 </Box>
                 </Modal>
@@ -841,9 +852,6 @@ const UserInformation = () => {
                 </div>
                 </Box>
                 </Modal>
-        </section>
-        </div>
-        )}
         </div>
   )
 }

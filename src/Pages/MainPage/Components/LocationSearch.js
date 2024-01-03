@@ -50,7 +50,7 @@ const LocationSearch = () => {
   }
   </div>
   </div>
-  <button onClick={()=>{navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5`)}} className='absolute bg-white hidden sm:flex text-themeBlue px-2.5 lg:px-6 py-2.5 rounded-3xl top-[8px] md:top-[12px] lg:top-[11.6px] space-x-2 right-2 md:right-3'><SearchIcon /> <span className='hidden lg:block'>Search</span></button>
+  <button onClick={()=>{navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5`)}} className='absolute bg-white hidden sm:flex text-themeBlue px-2.5 lg:px-6 py-2.5 rounded-3xl top-[8px] md:top-[12px] lg:top-[11.6px] space-x-2 right-2 md:right-3'><SearchIcon /> <span className='hidden xl:block'>Search</span></button>
   <button onClick={()=>{navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5`)}} className=' mx-2 mb-2 bg-white  justify-center font-medium sm:hidden text-themeBlue px-2.5 md:px-6 py-2.5 rounded-3xl  space-x-2 right-3 '>Search</button>
   </div>
   )

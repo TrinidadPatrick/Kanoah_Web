@@ -26,7 +26,7 @@ function App() {
     </>
   );
   return (
-    <div className="App w-screen h-screen  flex flex-col pt-[4.5rem]">
+    <div className="App w-full h-screen  flex flex-col pt-[4.5rem]">
       <BrowserRouter>
       <Routes>
         <Route element={<NavbarLayout />} >

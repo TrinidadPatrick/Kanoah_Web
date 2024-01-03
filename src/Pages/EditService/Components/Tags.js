@@ -86,7 +86,7 @@ const addTag = () => {
         </div>
 
 
-        <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 py-1 w-fit text-gray-100 font-medium shadow-md rounded-sm `}>Update</button>
+        <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 py-1 w-fit text-gray-100 text-semiSm lg:text-semiMd font-medium shadow-md rounded-sm `}>Update</button>
 
     </div>
   )

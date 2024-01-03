@@ -18,9 +18,6 @@ const CustomerAccount = () => {
     const navigate = useNavigate()
     const [selectedSettings, setSelectedSettings] = useState(optn)
 
-   
-
-
     // Get the selected settings from localstorage
     useEffect(() => {
       setSelectedSettings(optn)
