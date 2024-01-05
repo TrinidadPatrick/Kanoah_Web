@@ -55,15 +55,7 @@ const ViewService = () => {
   const hd = new holidays('PH')
   const holiday = hd.getHolidays()
   
-  const schedule = [{day: "Monday", "startTime" : "9:00 AM", endTime : "8:00 PM"},
-  {day: "Tuesday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
-  {day: "Wednesday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
-  {day: "Thursday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
-  {day: "Friday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
-  {day: "Saturday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"},
-  {day: "Sunday", "startTime" : "9:00 AM", "endTime" : "8:00 PM"}]
 
-  const [description, setDescription] = useState(null)
   const [location, setLocation] = useState({
     longitude : null,
     latitude : null
@@ -252,7 +244,7 @@ useEffect(()=>{
   setDateToday(year+"-"+month+"-"+date)
 },[])
 
-// console.table(holiday)
+console.log(serviceInfo)
   return (
 
     

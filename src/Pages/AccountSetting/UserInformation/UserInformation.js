@@ -9,8 +9,8 @@ import Modal from '@mui/material/Modal';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import EditLocationOutlinedIcon from '@mui/icons-material/EditLocationOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import WarningIcon from '@mui/icons-material/Warning';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';    
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 import phil from 'phil-reg-prov-mun-brgy';
 import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -27,8 +27,6 @@ const UserInformation = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch();
     const userId = useSelector(selectUserId); 
-    const [access, setAccessToken] = useState(null);
-    const [refreshToken, setRefreshToken] = useState(null);
     const [street, setStreet] = useState('')
     const [disableSaveChange, setDisableSaveChange] = useState(true)
     const [isloadingImage, setIsloadingImage] = useState(false)
@@ -81,7 +79,7 @@ const UserInformation = () => {
       
 
     // Get userInformation
-    const getUser = async (accessToken) => {
+    const getUser = async () => {
 
           await http.get(`getUser`,{
             // headers : {Authorization: `Bearer ${accessToken}`},
@@ -110,7 +108,18 @@ const UserInformation = () => {
         setConfirmPassword('')
     }
 
-
+    const notify = (message) => {
+      toast.success(message, {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+      });
+  };
 
     // handle the change of inputs
     const handleChange = (e) => {
@@ -184,7 +193,6 @@ const UserInformation = () => {
           withCredentials: true,
         }).then((res)=>{
         // Set errors if there are any
-        console.log(res.data)
         const status = res.data.status
         setLoadingBtn(false)
         switch (status)
@@ -229,7 +237,15 @@ const UserInformation = () => {
         }
         const newData = {...userInformation, Address : address} 
         setUserInformation(newData)
-        handleClose()
+        http.put(`updateUser/${userId}`, newData,{
+          withCredentials: true,
+        }).then(()=>{
+          handleClose()
+          notify('Update successfull')
+        }).catch((error)=>{
+          throw error
+        })
+        
     }
     // Get my location
     useEffect(() => {
@@ -312,7 +328,15 @@ const UserInformation = () => {
 
             axios.post(`https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`, formData).then((res)=>{
             setUserInformation({...userInformation, profileImage : res.data.url})
-            setDisableSaveChange(false)
+            const newData = {...userInformation, profileImage : res.data.url}
+            http.put(`updateUser/${userId}`, newData,{
+              withCredentials: true,
+            }).then(()=>{
+              handleClose()
+              notify('Update successfull')
+            }).catch((error)=>{
+              throw error
+            })
             setIsloadingImage(false)
             }).catch((err)=>{
                 console.log(err)
@@ -326,7 +350,16 @@ const UserInformation = () => {
         const lastname = userInformation.lastname
         const url = `https://ui-avatars.com/api/?name=${firstname}+${lastname}&background=0D8ABC&color=fff`
         setUserInformation({...userInformation, profileImage : url})
-        setDisableSaveChange(false)
+        const newData = {...userInformation, profileImage : url}
+        http.put(`updateUser/${userId}`, newData,{
+          withCredentials: true,
+        }).then(()=>{
+          handleClose()
+          notify('Update successfull')
+          getUser()
+        }).catch((error)=>{
+          throw error
+        })
     }
 
     // FOr change password
@@ -382,7 +415,23 @@ const UserInformation = () => {
         }
     }
 
-    console.log(userInformation)
+    useEffect(()=>{
+
+      if(userInformation.Address?.region !== undefined)
+      {
+
+        setLocCodesSelected(
+          [
+            [userInformation.Address.region.name, userInformation.Address.region.reg_code],
+            [userInformation.Address.province.name, userInformation.Address.province.prov_code],
+            [userInformation.Address.municipality.name, userInformation.Address.municipality.mun_code],
+            [userInformation.Address.barangay.name, userInformation.Address.barangay.brgy_code]
+          ]
+        )
+      }
+      
+    },[userInformation])
+
       return (
     
     <div className='w-full h-full '>
@@ -504,14 +553,14 @@ const UserInformation = () => {
                 {/* Address */}
                 <p className='text-sm text-gray-500 mt-4'>Address</p>
                 {
-                    userInformation.Address == null ? 
+                    userInformation.Address?.region === undefined ? 
                     (
-                    <p onClick={()=>{handleOpen();setDisableSaveChange(false)}} className=' cursor-pointer font-medium border-1 underline w-fit px-2 py-1 rounded-md'>Setup your Address <EditLocationOutlinedIcon className='ml-1 text-gray-500' /></p>
+                    <p onClick={()=>{handleOpen()}} className=' cursor-pointer font-normal hover:text-gray-600 border-1 underline w-fit px-2 py-1 rounded-md'>Setup your Address <EditLocationOutlinedIcon fontSize='small' className='ml-1 text-gray-500' /></p>
                     )
                     :
                     (
-                        <p onClick={()=>{handleOpen();setDisableSaveChange(false)}} className=' cursor-pointer text-sm font-medium border-1 underline w-fit px-2 py-1 rounded-md'>{
-                            `Brgy. ${userInformation.Address.barangay}, ${userInformation.Address.municipality}, ${userInformation.Address.province}`
+                        <p onClick={()=>{handleOpen()}} className=' cursor-pointer text-sm font-medium border-1 underline w-fit px-2 py-1 rounded-md'>{
+                            `Brgy. ${userInformation.Address.barangay.name}, ${userInformation.Address.municipality.name}, ${userInformation.Address.province.name}`
                                 
                             }</p>
                     )
@@ -537,10 +586,10 @@ const UserInformation = () => {
                 <div className="mb-4">
                 <label htmlFor="region" className="text-sm text-gray-600">Region</label>
                 <select
-                onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 0)}}
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 0);console.log("Hello")}}
                 id="region"
                 name="region"
-                defaultValue=""
+                value={locCodesSelected[0][0] + ',' + locCodesSelected[0][1]}
                 className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 >
                 <option className='w-fit' value=""  >Select Region</option>
@@ -557,11 +606,11 @@ const UserInformation = () => {
                 <div className="mb-4">
                 <label htmlFor="province" className="text-sm text-gray-600">Province</label>
                 <select
-                disabled={`${locCodesSelected[0][1] == "-1" ? "disabled" : ""}`}
-                onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1)}}
-                id="province"
-                name="province"
-                defaultValue=""
+                 disabled={`${locCodesSelected[0][1] == "-1" ? "disabled" : ""}`}
+                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1)}}
+                 id="province"
+                 name="province"
+                 value={locCodesSelected[1][0] + ',' + locCodesSelected[1][1]}
                 className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 >
                 <option value="" disabled >Select Province</option>
@@ -582,7 +631,7 @@ const UserInformation = () => {
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','),2)}}
                 id="city"
                 name="city"
-                defaultValue=""
+                value={locCodesSelected[2][0] + ',' + locCodesSelected[2][1]}
                 className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 >
                 <option value="" disabled >Select City</option>
@@ -605,8 +654,9 @@ const UserInformation = () => {
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','),3)}}
                 id="barangay"
                 name="barangay"
+                value={locCodesSelected[3][0] + ',' + locCodesSelected[3][1]}
                 className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
-                defaultValue=""
+
                 >
                 <option value="" disabled  >Select Barangay</option>
                 {
@@ -725,7 +775,7 @@ const UserInformation = () => {
             </div>
             </div>
             <div className=' flex justify-end space-x-2'>
-            <button onClick={()=>{submitAddress()}} className='px-3 py-1 bg-blue-400 text-white rounded-sm mt-4'>Save</button>
+            <button onClick={()=>{submitAddress()}} className='px-3 py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-4'>Save</button>
             <button onClick={()=>{handleClose()}} className='px-3 py-1 bg-gray-200 text-black rounded-sm mt-4'>Cancel</button>
             </div>
             
@@ -852,6 +902,7 @@ const UserInformation = () => {
                 </div>
                 </Box>
                 </Modal>
+                <ToastContainer />
         </div>
   )
 }

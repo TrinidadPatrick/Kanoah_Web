@@ -43,7 +43,7 @@ const ServiceHours = () => {
     setUpdating(true)
       try {
         const result = await http.patch(`updateService/${userId}`, {serviceHour : serviceHour},  {
-          headers : {Authorization: `Bearer ${accessToken}`},
+          withCredentials : true
         })
         if(result.data.status == "Success")
         {

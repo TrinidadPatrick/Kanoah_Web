@@ -1,8 +1,5 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
-import Login from '../LoginPage/Login'
-import Logo from "./Components//UtilImage/LogoWhite.png"
-import CoverPhoto from '../MainPage/Components//UtilImage/business.jpg'
 import CoverPhoto2 from '../MainPage/Components/UtilImage/business2.jpg'
 import SearchIcon from '@mui/icons-material/Search';
 import TurnedInRoundedIcon from '@mui/icons-material/TurnedInRounded';
@@ -14,8 +11,6 @@ import HowItWorks from './HowItWorks'
 import Footer from './Footer'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import FmdGoodOutlinedIcon from '@mui/icons-material/FmdGoodOutlined';
-import { debounce } from 'lodash';
 import LocationSearch from './Components/LocationSearch'
 
 
@@ -72,11 +67,14 @@ const MainPage = () => {
       {
         categories.filter(category => category.featured == true).map((category, index)=>{
           return (
-          <div onClick={()=>{navigate(`explore?${"category="+category.category_name}&page=1`)}} key={index} className="categoryContainerBox cursor-pointer origin-center w-full xl:w-full hover:shadow-2xl relative rounded-lg saturate-100 brightness-90 border-2 border-white h-80 sm:h-44 md:h-56 xl:h-64 " style={{backgroundImage : `url(${category.category_image})`,backgroundSize: "cover",boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}>
-          <div className='absolute top-3 w-31 py-0 h-9  -right-[1px] pl-6 pr-4 flex items-center ' style={{backgroundImage : `url(${Tag})`,backgroundSize: "100% 35.9px",backgroundRepeat : "no-repeat"}}>
+          <div onClick={()=>{navigate(`explore?${"category="+category.category_name}&page=1`)}} key={index} className="categoryContainerBox cursor-pointer origin-center w-full xl:w-full hover:shadow-2xl relative rounded-lg  border-2 border-white h-80 sm:h-44 md:h-56 xl:h-64 " style={{backgroundImage : `url(${category.category_image})`,backgroundSize: "cover",boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}>
+          <div className='tag bg-themeOrange absolute right-0 top-5 flex  items-center'>
+          <div className='font-medium  text-white'>{category.category_name}</div>
+          </div>
+          {/* <div className='absolute brightness-90 top-3 w-31 py-0 h-9 -right-[1px] pl-6 pr-4 flex items-center ' style={{backgroundImage : `url(${Tag})`,backgroundSize: "100% 35.9px",backgroundRepeat : "no-repeat"}}> */}
           {/* <img className='w-full h-full brightness-75' src={Tag} alt="tag" /> */}
-          <p className='font-medium relative -top-[0.4px] text-gray-500'>{category.category_name}</p>
-          </div> 
+          {/* <div className='font-medium relative -top-[0.4px] bg-white text-gray-500'>{category.category_name}</div> */}
+          {/* </div>  */}
           <div className='absolute flex items-center w-full h-full rounded-md  hover:translate-y-0 bg-black opacity-0 hover:opacity-40 hover:rounded-md ease-in duration-200'></div>
           
           </div> 

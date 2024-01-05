@@ -18,34 +18,28 @@ import { useSelector } from 'react-redux'
 import axios from 'axios';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import cloudinaryCore from '../../../CloudinaryConfig';
+import { subCategories } from '../../MainPage/Components/SubCategories'
 import http from '../../../http'
 
 const AdvanceInformation = () => {
     Modal.setAppElement('#root');
     const userId = useSelector(selectUserId)
     const [updating, setUpdating] = useState(false)
-    const [isEdit, setIsEdit] = useState(false)
-    const [serviceOfferList, setServiceOfferList] = useState([])
-    const [serviceOfferInfo, setServiceOfferInfo] = useState({
-      id : '', 
-      name : '',
-      origPrice : '',
-      variant : {enabled : false, variantList : []}
-    })
-    const accessToken = localStorage.getItem('accessToken')
     const serviceData = useSelector(selectServiceData)
     const [openSocialLinkModal, setOpenSocialLinkModal] = useState(false);
     const [openBookingModal, setOpenBookingModal] = useState(false);
     const serviceOptions = ['Home Service','Online Service','Walk-In Service', 'Pick-up and Deliver']
     const [isGcashChecked, setIsGcashChecked] = useState(false);
     const [isGcashModalOpen, setIsGcashModalOpen] = useState(false);
+    const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+    const [subCategoryList, setSubCategoryList] = useState([]);
     const [isPhotoLoading, setIsPhotoLoading] = useState(false)
-    const [variationsEnabled, setVariationsEnabled] = useState(false)
     const [errors, setErrors] = useState({ GcashServiceTitleError : false, GcashEmailError : false, GcashQRError : false, ServiceContactError : false, ServiceEmailError : false,ServiceCategoryError : false,})
     const [advanceInformation, setAdvanceInformation] = useState({ ServiceContact : "",
     ServiceFax : "",
     ServiceEmail : "",
     ServiceCategory : "",
+    ServiceSubCategory : "",
     ServiceOptions : [],
     AcceptBooking : false,
     SocialLink : [{media : "Youtube",link : ""}, {media : "Facebook",link : ""}, {media : "Instagram",link : ""}],
@@ -202,7 +196,7 @@ const AdvanceInformation = () => {
       setUpdating(true)
       try {
         const result = await http.patch(`updateService/${userId}`, {advanceInformation : advanceInformation},  {
-          headers : {Authorization: `Bearer ${accessToken}`},
+          withCredentials : true
         })
 
         if(result.data.status == "Success")
@@ -214,43 +208,68 @@ const AdvanceInformation = () => {
       }
     }
 
-
-
     useEffect(()=>{
         if(serviceData.advanceInformation !== undefined)
         {
             setAdvanceInformation(serviceData.advanceInformation)
+            const categoryId = categories.find(category => category.category_name === serviceData.advanceInformation.ServiceCategory)
+            setSelectedCategoryId(categoryId?.id)
         }
     },[serviceData])
 
 
+    useEffect(()=>{
+      const filtered = subCategories.find(subCategory => subCategory.category_Id === selectedCategoryId)
+      if(filtered)
+      {
+        setSubCategoryList(filtered)
+      }
+    },[selectedCategoryId])
+
+    
   return (
-    <main className='sm:w-[90%] md:w-[80%] xl:w-1/2 bg-white rounded-md shadow-md flex flex-col space-y-4 h-full sm:h-fit overflow-auto p-5'>
+    <main className='sm:w-[90%] md:w-[80%] xl:w-1/2 bg-white rounded-md shadow-md flex flex-col space-y-4 h-full sm:h-fit overflow-auto p-3 px-5'>
     <h1 className='text-xl font-medium text-gray-700'>Advance Information</h1>
     {/* fax and Contact email anf category */}
-    <div className='w-full grid grid-cols-2 lg:grid-cols-4 gap-3'>
-        <div className='flex flex-col relative'>
+    <div className='w-full grid grid-cols-2 lg:grid-cols-3 gap-3'>
+        <div className='flex flex-col w-full relative'>
         {/* Contact */}
-        <label htmlFor='contact' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Service Contact</label>
-        <span className='absolute text-sm xl:text-[1rem] top-[50%] xl:top-[50%] left-2 text-gray-600'>+63</span>
-        <input onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} value={advanceInformation.ServiceContact} id='contact' className='border  text-sm xl:text-[1rem] py-2 ps-8 md:ps-9 outline-none rounded-md' type='text' />
+        <label htmlFor='contact' className='font-medium text-sm xl:text-[0.8rem] text-gray-700'>Service Contact</label>
+        <span className='absolute text-sm xl:text-[0.9rem] top-[50%] xl:top-[50%] left-2 text-gray-600'>+63</span>
+        <input onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} value={advanceInformation.ServiceContact} id='contact' className='border  text-sm xl:text-[0.9rem] py-2 ps-8 md:ps-9 outline-none rounded-md' type='text' />
         </div>
         {/* Fax */}
         <div className='flex flex-col '>   
-        <label htmlFor='fax' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Service Fax Number</label>
-        <input  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceFax : e.target.value})}} value={advanceInformation.ServiceFax} id='fax' className='border p-2 text-sm xl:text-[1rem] md:p-2 outline-none rounded-md' type='text' />
+        <label htmlFor='fax' className='font-medium text-sm xl:text-[0.8rem] text-gray-700'>Service Fax Number</label>
+        <input  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceFax : e.target.value})}} value={advanceInformation.ServiceFax} id='fax' className='border p-2 text-sm xl:text-[0.9rem] md:p-2 outline-none rounded-md' type='text' />
         </div>
         {/* Email */}
         <div className='flex flex-col '>
-        <label htmlFor='email' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Service Email</label>
-        <input  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} value={advanceInformation.ServiceEmail} id='email' className='border p-2 text-sm xl:text-[1rem] md:p-2 outline-none rounded-md' type='text' />
+        <label htmlFor='email' className='font-medium text-sm xl:text-[0.8rem] text-gray-700'>Service Email</label>
+        <input  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} value={advanceInformation.ServiceEmail} id='email' className='border p-2 text-sm xl:text-[0.9rem] md:p-2 outline-none rounded-md' type='text' />
         </div>
-        {/* Category */}
-        <div className='flex flex-col '>   
-        <label htmlFor='category' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Category</label>
-        <select className='border p-2 rounded-md text-sm xl:text-[1rem]'  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceCategory : e.target.value})}} defaultValue={advanceInformation.ServiceCategory}>
+        
+    </div>
+    {/* Category and sub category */}
+    <div className='flex flex-col sm:flex-row sm:items-center gap-3'>
+      {/* Category */}
+      <div className='flex flex-col w-full'>   
+        <label htmlFor='category' className='font-medium text-sm xl:text-[0.8rem] text-gray-700'>Category</label>
+        <select className='border p-2 rounded-md text-sm xl:text-[0.8rem]'  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceCategory : e.target.value.split(',')[0]});setSelectedCategoryId(Number(e.target.value.split(',')[1]))}} defaultValue={advanceInformation.ServiceCategory}>
         {
-        categories.map((category, index)=>(<option key={index} className='py-2 text-sm xl:text-[1rem]'>{category.category_name}</option>))
+        categories.map((category, index)=>(<option key={index} value={[category.category_name, category.id]} className='py-2 text-sm xl:text-[1rem]'>{category.category_name}</option>))
+        }
+        </select>
+        </div>
+        {/* Sub Category */}
+      <div className='flex flex-col w-full'>   
+        <label htmlFor='subCategory' className='font-medium text-sm xl:text-[0.8rem] text-gray-700'>Sub Category</label>
+        <select id='subCategory' value={advanceInformation.ServiceSubCategory} className='border p-2 rounded-md text-sm xl:text-[0.8rem]'  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceSubCategory : e.target.value === "Select Sub Category" ? "" : e.target.value})}} >
+        <option >Select Sub Category</option>
+        {
+          
+          subCategoryList.length === 0 ? "" :
+        subCategoryList.subCategories.map((subCategory, index)=>(<option key={index} value={subCategory.subCategory_name} className='py-2 text-sm xl:text-[1rem]'>{subCategory.subCategory_name}</option>))
         }
         </select>
         </div>
@@ -263,7 +282,7 @@ const AdvanceInformation = () => {
     <div className='flex justify-start flex-wrap gap-3'>
     {
     serviceOptions.map((service, index)=>(  
-    <button key={index} onClick={()=>handleSelectServiceOption(service)} className={`${advanceInformation.ServiceOptions.includes(service) ? "bg-[#0E2F41] text-white" : "bg-gray-200 text-[#4F7080]"} w-[120px] lg:w-[150px] py-2  relative shadow-sm  rounded-sm text-[0.65rem] lg:text-sm`}>
+    <button key={index} onClick={()=>handleSelectServiceOption(service)} className={`${advanceInformation.ServiceOptions.includes(service) ? "bg-[#0E2F41] text-white" : "bg-gray-200 text-[#4F7080]"} w-[120px] lg:w-[120px] py-1.5  relative shadow-sm  rounded-sm text-[0.65rem] lg:text-semiSm`}>
     <span>{service}</span>
     <div className={`absolute -top-3 -right-2 ${advanceInformation.ServiceOptions.includes(service) ? "rotate-360 opacity-100 transition-transform duration-[0.5s] ease-out" : "opacity-0 transform -rotate-180 transition-transform duration-300 ease-in-out"}`}>
     <CheckCircleIcon fontSize='small' className={`text-blue-500 relative  bg-white rounded-full`} />

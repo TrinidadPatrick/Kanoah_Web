@@ -32,7 +32,7 @@ const addTag = () => {
     setUpdating(true)
       try {
         const result = await http.patch(`updateService/${userId}`, {tags : tags},  {
-          headers : {Authorization: `Bearer ${accessToken}`},
+          withCredentials : true
         })
         if(result.data.status == "Success")
         {

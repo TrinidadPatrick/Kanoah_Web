@@ -21,7 +21,9 @@ const MyService = () => {
   const userId = useSelector(selectUserId);
   
   const getService = async () => {
-    http.get(`getService/${userId}`).then((res)=>{
+    http.get(`getService/${userId}`, {
+      withCredentials : true
+    }).then((res)=>{
         setServiceInformation(res.data.result)
     }).catch((err)=>{
         console.log(err)

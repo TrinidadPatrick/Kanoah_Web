@@ -83,7 +83,7 @@ const handleUpdate = async () => {
       setUpdating(true)
       try {
         const result = await http.patch(`updateService/${userId}`, {address : address},  {
-          headers : {Authorization: `Bearer ${accessToken}`},
+          withCredentials : true
         })
         if(result.data.status == "Success")
         {

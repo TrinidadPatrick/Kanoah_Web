@@ -24,7 +24,7 @@ const BasicInformation = () => {
       setUpdating(true)
       try {
         const result = await http.patch(`updateService/${userId}`, {basicInformation : basicInformation},  {
-          headers : {Authorization: `Bearer ${accessToken}`},
+          withCredentials : true
         })
         if(result.data.status == "Success")
         {
@@ -64,7 +64,7 @@ const BasicInformation = () => {
         </div>
 
          {/* Service Description */}
-         <div className='w-full h-[500px] flex flex-col'>
+         <div className='w-full h-[500px] sm:h-full flex flex-col'>
          <label htmlFor='description' className='font-medium text-semiSm xl:text-[0.9rem] text-gray-700'>Service Description</label>
         <div className='w-full flex flex-col justify-start h-full border p-2'>   
         <textarea value={basicInformation.Description} onChange={(e)=>{setBasicInformation({...basicInformation, Description : e.target.value})}} id='description' className='text-sm xl:text-[0.9rem] p-2 outline-none rounded-md h-full resize-none'  />

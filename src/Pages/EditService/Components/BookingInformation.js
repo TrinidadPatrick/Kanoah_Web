@@ -101,7 +101,7 @@ const BookingInformation = () => {
                 try {
                     setAcceptBooking(false) 
                     const result = await http.patch(`updateService/${userId}`, {acceptBooking : false},  {
-                      headers : {Authorization: `Bearer ${accessToken}`},
+                      withCredentials : true
                     })
             
                   } catch (error) {
@@ -190,7 +190,7 @@ const BookingInformation = () => {
         // Insert the data to database
         try {
             const result = await http.patch(`updateService/${userId}`, {serviceOffers : Instance},  {
-              headers : {Authorization: `Bearer ${accessToken}`},
+              withCredentials : true
             })
             if(result.data.status == "Success")
             {
@@ -275,7 +275,7 @@ const BookingInformation = () => {
         })
         try {
             const result = await http.patch(`updateService/${userId}`, {serviceOffers : instance},  {
-              headers : {Authorization: `Bearer ${accessToken}`},
+              withCredentials : true
             })
             if(result.data.status == "Success")
             {
@@ -300,7 +300,7 @@ const BookingInformation = () => {
         setServiceOfferList(instance)
         try {
             const result = await http.patch(`updateService/${userId}`, {serviceOffers : instance},  {
-              headers : {Authorization: `Bearer ${accessToken}`},
+              withCredentials : true
             })
             if(result.data.status == "Success")
             {
@@ -330,7 +330,7 @@ const BookingInformation = () => {
         closeEditServiceModal()
         try {
             const result = await http.patch(`updateService/${userId}`, {serviceOffers : instance},  {
-              headers : {Authorization: `Bearer ${accessToken}`},
+              withCredentials : true
             })
             if(result.data.status == "Success")
             {
@@ -360,7 +360,7 @@ const BookingInformation = () => {
         closeEditServiceModal()
         try {
             const result = await http.patch(`updateService/${userId}`, {serviceOffers : instance},  {
-              headers : {Authorization: `Bearer ${accessToken}`},
+              withCredentials : true
             })
             if(result.data.status == "Success")
             {
@@ -399,7 +399,7 @@ const BookingInformation = () => {
 
         try {
             const result = await http.patch(`updateService/${userId}`, {serviceOffers : filtered},  {
-              headers : {Authorization: `Bearer ${accessToken}`},
+              withCredentials : true
             })
             if(result.data.status == "Success")
             {
@@ -439,7 +439,7 @@ const BookingInformation = () => {
         setServiceOfferList(updatedServices)
         try {
             const result = await http.patch(`updateService/${userId}`, {serviceOffers : updatedServices},  {
-              headers : {Authorization: `Bearer ${accessToken}`},
+              withCredentials : true
             })
             if(result.data.status == "Success")
             {
@@ -466,7 +466,7 @@ const BookingInformation = () => {
             setAcceptBooking(!instance) 
             try {
                 const result = await http.patch(`updateService/${userId}`, {acceptBooking : !instance},  {
-                  headers : {Authorization: `Bearer ${accessToken}`},
+                  withCredentials : true
                 })
         
                 if(result.data.status == "Success")

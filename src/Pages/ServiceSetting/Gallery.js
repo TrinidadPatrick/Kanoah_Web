@@ -119,7 +119,9 @@ const getGalleryImages = async () => {
 
 // delete single image
 const deleteImage = async (imageId) => {
-  await http.post('deleteImage', {imageId, userId}).then((res)=>{
+  await http.post('deleteImage', {imageId, userId},{
+    withCredentials : true
+  }).then((res)=>{
     getGalleryImages()
   }).catch((err)=>{
     console.log(err)
@@ -144,7 +146,9 @@ const selectMultipleDelete = async (imageId) => {
 
 // Deletes all the selected images
 const deleteMultipleImages = async () => {
-  await http.post('deleteMultipleImages', {userId, imagesToDelete}).then((res)=>{
+  await http.post('deleteMultipleImages', {userId, imagesToDelete},{
+    withCredentials : true
+  }).then((res)=>{
     getGalleryImages()
     setImagesToDelete([])
   }).catch((err)=>{

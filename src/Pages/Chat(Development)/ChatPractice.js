@@ -107,9 +107,7 @@ import {io} from 'socket.io-client'
           try {
 
             const messages = await http.get(`getMessages/${convoId}/${returnLimit}`, {
-              headers: {
-                Authorization: `Bearer ${accessToken}`, // Include authentication token
-              },
+              withCredentials: true,
             });
             // console.log(messages.data)
             if (currentChats && currentChats.length > 0 && currentChats[0]?.conversationId === convoId) {
@@ -133,7 +131,7 @@ import {io} from 'socket.io-client'
     const getUser = async () => {
       try {
         const response = await http.get(`getUser`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
+          withCredentials: true,
         });
         return response.data; // Explicitly return the data
       } catch (err) {
@@ -172,9 +170,7 @@ import {io} from 'socket.io-client'
           try {
             
             const contacts = await http.get(`retrieveContacts/${userId}`, {
-              headers: {
-                Authorization: `Bearer ${accessToken}`, // Include authentication token
-              },
+              withCredentials: true,
             })
             const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
             
@@ -223,9 +219,7 @@ import {io} from 'socket.io-client'
       {
         try {
           const contacts = await http.get(`retrieveContacts/${userInformation._id}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`, // Include authentication token
-            },
+            withCredentials: true,
           })
           const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           setAllContacts(sortedContacts)
@@ -369,9 +363,7 @@ import {io} from 'socket.io-client'
       setFetching(true)
       try {
         const messages = await http.get(`getMessages/${conversationId}/${returnLimit}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`, // Include authentication token
-          },
+          withCredentials: true,
         })
         const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation._id)
         setReceiver(receiver)
@@ -410,9 +402,7 @@ import {io} from 'socket.io-client'
         (async () => {
           try {
             const messages = await http.get(`getMessages/${convoId}/${returnLimit}`, {
-              headers: {
-                Authorization: `Bearer ${accessToken}`, // Include authentication token
-              },
+              withCredentials: true,
             });
             const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation._id);
             setReceiver(receiver);
@@ -547,9 +537,7 @@ import {io} from 'socket.io-client'
         try {
           const messagesPromises = allContacts.map(async (contact) => {
             const messages = await http.get(`getMessages/${contact.conversationId}/${returnLimit}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`, // Include authentication token
-            },
+              withCredentials: true,
           });
             return messages.data;
           });
@@ -570,9 +558,7 @@ import {io} from 'socket.io-client'
         try {
           const messagesPromises = allContacts.map(async (contact) => {
             const messages = await http.get(`getMessages/${contact.conversationId}/${returnLimit}`, {
-              headers: {
-                Authorization: `Bearer ${accessToken}`, // Include authentication token
-              },
+              withCredentials: true,
             });
             return messages.data;
           });
@@ -601,9 +587,7 @@ import {io} from 'socket.io-client'
     {
       try {
         const result = await http.delete(`handleDeleteConversation/${conversationId}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`, // Include authentication token
-          },
+          withCredentials: true,
         })
 
         setSearchParams({})

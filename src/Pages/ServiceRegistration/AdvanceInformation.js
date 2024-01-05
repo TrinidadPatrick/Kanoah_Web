@@ -8,10 +8,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import Gcash from './Utils/images/Gcash.png'
-import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import { subCategories } from '../MainPage/Components/SubCategories';
 import cash from './Utils/images/cash.png'
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import  { categories } from '../MainPage/Components/Categories'
@@ -29,6 +26,8 @@ const [errors, setErrors] = useState({
   ServiceCategoryError : false,
 })
 const [openSocialLinkModal, setOpenSocialLinkModal] = useState(false);
+const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+const [subCategoryList, setSubCategoryList] = useState([]);
 const [openBookingModal, setOpenBookingModal] = useState(false);
 const [isGcashModalOpen, setIsGcashModalOpen] = useState(false);
 const [isGcashChecked, setIsGcashChecked] = useState(false);
@@ -40,6 +39,7 @@ const [advanceInformation, setAdvanceInformation] = useState({
   ServiceFax : "",
   ServiceEmail : "",
   ServiceCategory : "",
+  ServiceSubCategory : "",
   ServiceOptions : [],
   AcceptBooking : false,
   SocialLink : [{media : "Youtube",link : ""}, {media : "Facebook",link : ""}, {media : "Instagram",link : ""}],
@@ -48,14 +48,7 @@ const [advanceInformation, setAdvanceInformation] = useState({
   EmailForGcash : "",
   GcashNote : "",}}, {method : "Cash", enabled : false}],
 })
-const [isEdit, setIsEdit] = useState(false)
-const [serviceOfferList, setServiceOfferList] = useState([])
-const [serviceOfferInfo, setServiceOfferInfo] = useState({
-      id : '', 
-      name : '',
-      origPrice : '',
-      variant : {enabled : false, variantList : []}
-    })
+
 const [isPhotoLoading, setIsPhotoLoading] = useState(false)
 
 const [gcashInformation, setGcashInformation] = useState({
@@ -96,13 +89,7 @@ const closeGcashMethodModal = () => {
     setIsGcashModalOpen(false)
     setGcashInformation(advanceInformation.PaymentMethod[0].enabled = !advanceInformation.PaymentMethod[0].enabled )
 }
-const openBookingInfoModal = () => {
-  setOpenBookingModal(true)
-}
-const closeBookingInfoModal = () => {
-  setOpenBookingModal(false)
- 
-}
+
 
 // Handle service options select
 const handleSelectServiceOption = (serviceOption) => {
@@ -221,90 +208,7 @@ const submitAdvanceInformation = () => {
   }
 }
 
-const addVariation = () => {
-  setServiceOfferInfo((prevServiceOfferInfo) => ({
-    ...prevServiceOfferInfo,
-    variant: {
-      ...prevServiceOfferInfo.variant,
-      variantList: [
-        ...prevServiceOfferInfo.variant.variantList,
-        { type: '', price: '' }
-      ]
-    }
-  }));
-}
 
-const handleAddServcice = () => {
-  const data = {
-    id : Math.floor(Math.random() * 1000 + 1),
-    name : serviceOfferInfo.name,
-    origPrice : serviceOfferInfo.origPrice,
-    variant : serviceOfferInfo.variant
-  }
-  setServiceOfferList([...serviceOfferList, data])
-  setServiceOfferInfo({
-    id : '',
-    name : '',
-    origPrice : '',
-    variant : {enabled : false, variantList : []}
-  })
-}
-
-const removeVariation = (index) => {
-  const variantInstance = [...serviceOfferInfo.variant.variantList]
- variantInstance.splice(index, 1)
-  setServiceOfferInfo({...serviceOfferInfo, variant : {...serviceOfferInfo.variant, variantList : variantInstance}})
-}
-
-const handleEditServiceOffer = (index) => {
-
-  const instance = [...serviceOfferList]
-  const dataToEdit = instance[index]
-  const data = {
-    id : dataToEdit.id,
-    name : dataToEdit.name,
-    origPrice : dataToEdit.origPrice,
-    variant : dataToEdit.variant,
-    isEdit : true
-  }
-  setServiceOfferInfo(data)
-  instance.splice(index, 1, data)
-  setServiceOfferList(instance)
-  const checkExistingEditIndex = instance.findIndex(service => service.isEdit === true && service.id !== dataToEdit.id) // Check the array if there is an existing object with esEdit true
-  if(checkExistingEditIndex !== -1 ) //If there are, make the isEdit false of that filtered
-  { 
-    const dataToReplace = instance[checkExistingEditIndex]
-    const dataUp = {
-      id : dataToReplace.id,
-      name : dataToReplace.name,
-      origPrice : dataToReplace.origPrice,
-      variant : dataToReplace.variant,
-      isEdit : false
-    }
-    instance.splice(checkExistingEditIndex, 1, dataUp)
-    setServiceOfferList(instance)
-  }
-}
-
-const updateServiceOffer = () => {
-  const instance = [...serviceOfferList]
-  const dataToUpdate = serviceOfferList.findIndex(service => service.isEdit === true)
-  instance.splice(dataToUpdate, 1, serviceOfferInfo)
-  setServiceOfferList(instance)
-  setServiceOfferInfo({
-    id : '', 
-      name : '',
-      origPrice : '',
-      variant : {enabled : false, variantList : []}
-    
-  })
-}
-
-const deleteServiceOffer = (index) => {
-  const instance = [...serviceOfferList]
-  instance.splice(index, 1)
-  setServiceOfferList(instance)
-}
 
 useEffect(()=>{
   setAdvanceInformation(serviceInformation.advanceInformation)
@@ -318,7 +222,15 @@ useEffect(()=>{
   }
 },[step])
 
-console.log(isEdit)
+useEffect(()=>{
+  const filtered = subCategories.find(subCategory => subCategory.category_Id === selectedCategoryId)
+  if(filtered)
+  {
+    setSubCategoryList(filtered)
+  }
+},[selectedCategoryId])
+
+
 
   return (
   <div className='w-full h-full  flex flex-col  p-1'>
@@ -346,18 +258,45 @@ console.log(isEdit)
     <input value={advanceInformation["ServiceEmail"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} type="email" id="email" className={`${errors.ServiceEmailError ? "border-red-500 border-2" : ""} w-full text-sm lg:text-md p-2 border rounded`} placeholder="example@email.com" />
   </div>
 
-  {/* Category */}
-  <div>
-  <label className="block text-gray-500 text-sm lg:text-md font-semibold mb-2" htmlFor="category">Category</label>
-  <select value={advanceInformation["ServiceCategory"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceCategory : e.target.value})}} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border w-full p-2 rounded-md text-sm`}>
-  <option >Select Category</option>
-    {
-      categories.map((category, index)=>(
-        <option key={index}>{category.category_name}</option>
-      ))
-    }
+{/* Category */}
+<div className='flex flex-col w-full'>   
+  <label htmlFor='category' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Category</label>
+  <select
+    id='category'
+    value={advanceInformation.ServiceCategory ? [advanceInformation.ServiceCategory, selectedCategoryId].join(',') : ''}
+    className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border w-full p-2 rounded-md text-sm`}
+    onChange={(e) => {
+      const [categoryName, categoryId] = e.target.value.split(',');
+      setAdvanceInformation({ ...advanceInformation, ServiceCategory: categoryName });
+      setSelectedCategoryId(Number(categoryId));
+      setSubCategoryList([]);
+    }}
+  >
+    <option value='' disabled>Select Category</option>
+    {categories.map((category, index) => (
+      <option
+        key={index}
+        value={[category.category_name, category.id].join(',')}
+      >
+        {category.category_name}
+      </option>
+    ))}
   </select>
+</div>
+
+
+  {/* Sub Category */}
+  <div className='flex flex-col w-full'>   
+        <label htmlFor='subCategory' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Sub Category</label>
+        <select id='subCategory' value={advanceInformation.ServiceSubCategory} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border w-full p-2 rounded-md text-sm`}  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceSubCategory : e.target.value})}} >
+        <option disabled>Select Sub Category</option>
+        {
+        subCategoryList.length === 0 ? "" :
+        subCategoryList.subCategories.map((subCategory, index)=>(<option key={index} value={[subCategory.subCategory_name]} className=''>{subCategory.subCategory_name}</option>))
+        }
+        </select>
   </div>
+
 
   </div>
 
@@ -382,17 +321,6 @@ console.log(isEdit)
   </div>
   </div>
 
-  {/* Accepts booking */}
-  <div className=''>
-  <p className='text-sm text-gray-500 font-semibold mb-1'>Accept Booking</p>
-  <div className='flex items-center space-x-2'>
-  <label className="relative inline-flex items-center cursor-pointer">
-  <input type="checkbox" checked={advanceInformation["AcceptBooking"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, AcceptBooking : !advanceInformation["AcceptBooking"]})}} className="sr-only peer outline-none"/>
-  <div className="w-7 h-4 lg:w-[2.4rem] lg:h-[1.3rem] bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[1.1rem] after:h-[0.8rem] after:lg:w-[1.1rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-  </label>
-  <button onClick={()=>{openBookingInfoModal()}} className='bg-gray-100 border rounded-sm text-xs p-1 '>Edit booking Info</button>
-  </div>
-  </div>
 
     {/* Add Social Link Button */}
     <div className='w-full'>
@@ -580,144 +508,6 @@ console.log(isEdit)
 </div>
     </Modal>
 
-    {/* Service offer Modal */}
-    <Modal isOpen={openBookingModal} style={socialLinkModalStyle} contentLabel="Service Modal">
-    <div className="modal-content w-[700px] h-[600px] flex flex-col space-y-5">
-    <div className='flex items-center space-x-2 w-full p-2'>
-    <ArrowBackIosNewIcon onClick={()=>{closeBookingInfoModal()}} fontSize='small' className='mt-0.5 text-gray-500 cursor-pointer hover:text-black' /> 
-    <h1 className='text-gray-800 font-medium text-2xl'>Input services for booking</h1>
-    </div>
-    <div className='flex flex-col space-y-5 p-5'>
-        {/* Name */}
-        <div className='flex flex-col'>
-          <label htmlFor='serviceName'>Service Name: </label>
-          <input value={serviceOfferInfo.name} onChange={(e)=>setServiceOfferInfo({...serviceOfferInfo, name : e.target.value})} className='border rounded-sm p-2 font-light' placeholder='ex. premium carwash' id='serviceName' type='text' />
-        </div>
-        {/* Price */}
-        <div className='flex flex-col'>
-          <label htmlFor='serviceName'>Service Price: </label>
-          <input disabled={serviceOfferInfo.variant.variantList.length === 0 ? false : true} value={serviceOfferInfo.origPrice} onChange={(e)=>setServiceOfferInfo({...serviceOfferInfo, origPrice : e.target.value})} className='border rounded-sm p-2 font-light' placeholder='ex. 200' id='serviceName' type='number' />
-        </div>
-
-        {/* Variations */}
-        <div className='flex flex-col space-y-2'>
-        {serviceOfferInfo.variant.variantList.map((variation, index) => (
-        <div key={index} className='flex gap-2'>
-          <input onChange={(e) => {
-              setServiceOfferInfo((prevServiceOfferInfo) => ({
-                ...prevServiceOfferInfo,
-                variant: {
-                  ...prevServiceOfferInfo.variant,
-                  variantList: prevServiceOfferInfo.variant.variantList.map(
-                    (item, i) =>
-                      i === index ? { ...item, type: e.target.value } : item
-                  )
-                }
-              }));
-            }}
-            value={variation.type}
-            className='border rounded-sm p-1 font-light text-sm w-full'
-            type='text'
-            placeholder='Type'
-          />
-
-          <input onChange={(e) => {
-              setServiceOfferInfo((prevServiceOfferInfo) => ({
-                ...prevServiceOfferInfo,
-                variant: {
-                  ...prevServiceOfferInfo.variant,
-                  variantList: prevServiceOfferInfo.variant.variantList.map(
-                    (item, i) =>
-                      i === index ? { ...item, price: e.target.value } : item
-                  )
-                }
-              }));
-            }}
-            value={variation.price}
-            className='border rounded-sm p-1 font-light text-sm w-full'
-            type='number'
-            placeholder='Price'
-          />
-          <button onClick={()=>{removeVariation(index)}} className='text-red-500 hover:bg-gray-100 flex items-center justify-center rounded-full px-0.5'>
-            <RemoveCircleOutlineOutlinedIcon />
-          </button>
-        </div>
-        ))
-        }
-        </div>
-        <div className={`${serviceOfferInfo.variant.variantList.length === 0 ? 'hidden' : 'block'} w-full flex justify-start`}>
-        <button onClick={()=>{addVariation()}}><AddOutlinedIcon fontSize='small' className='text-white border rounded-full bg-blue-500' /></button>
-        </div>
-        
-
-        {/* Buttons */}
-        <button onClick={()=>{addVariation()}} className={`w-full ${serviceOfferInfo.variant.variantList.length === 0 ? 'block' : 'hidden'} bg-white border-dashed border-blue-500 border-2 p-2 text-blue-500 text-sm font-medium rounded-sm`}>Add Variation</button>
-        <button onClick={()=>{updateServiceOffer();setIsEdit(false)}} className={`w-full ${isEdit ? 'block' : 'hidden'} p-2 text-white bg-themeOrange hover:bg-orange-400 text-sm font-medium rounded-sm`}>Update</button>
-        <button onClick={()=>{handleAddServcice()}} className={`w-full ${isEdit ? 'hidden' : 'block'} p-2 text-white bg-themeOrange hover:bg-orange-400 text-sm font-medium rounded-sm`}>Add Service</button>
-
-        {/* Table */}
-        <div className='overflow-y-scroll w-full'>
-        <table className='border table-auto w-full text-sm'>
-          <thead>
-            <tr>
-              <th className='border text-center p-1 sm:w-1/4 md:w-1/3 lg:w-1/2 xl:w-1/3 2xl:w-1/4'>Name</th>
-                <th className='border text-center p-1 sm:w-1/4 md:w-1/3 lg:w-1/4 xl:w-1/6 2xl:w-1/6'>Price</th>
-              <th className='border text-center p-1 sm:w-1/2 md:w-1/2 lg:w-1/3 xl:w-1/2 2xl:w-1/2'>Variants</th>      
-              <th className='border text-center p-1 sm:w-1/2 md:w-1/2 lg:w-1/3 xl:w-1/2 2xl:w-1/2'>Action</th>      
-            </tr>
-          </thead>
-          <tbody>
-              {
-                serviceOfferList.map((service, index)=>{
-                  return (
-                    <tr key={index}>
-                    <td className='border text-center p-1 max-w-[15rem] overflow-hidden text-ellipsis'>{service.name}</td>
-                    <td className='border text-center p-1 sm:w-1/4 md:w-1/3 lg:w-1/4 xl:w-1/6 2xl:w-1/6'>
-                    {service.variant.variantList.length !== 0 ? `₱${service.variant.variantList[0].price} - ₱${service.variant.variantList.slice(-1)[0].price}` : `₱${service.origPrice}`}
-                    </td>
-                    {/* <td className='border text-center p-1 '><button className='px-2 bg-[#651579] rounded-sm text-sm text-white'>View</button></td> */}
-                    <td className='border p-1 sm:w-1/2 md:w-1/2 lg:w-1/3 xl:w-1/2 2xl:w-1/2'>
-                      <div className={`${service.variant.variantList.length !== 0 ? 'flex' : 'hidden'} w-full  justify-evenly`}>
-                        <div className=' w-full font-medium'>
-                          Type
-                        </div>
-                        <div className='w-full font-medium'>
-                          Price
-                        </div>
-                        </div>
-                        <div className='flex flex-col items-start'>
-                        {
-                        service.variant.variantList.length !== 0 ?
-                        service.variant.variantList.map((variant, index)=>(
-                          
-                          <ul key={index} className="flex items-center justify-evenly w-full">
-                            <li className='w-full text-[0.8rem]'>{variant?.type}</li>
-                            <li className='w-full text-[0.8rem]'>₱ {variant?.price}</li>
-                          </ul>
-                        ))
-                        :
-                        <p className='text-center  w-full'>No Variant</p>
-                      }
-                      </div>   
-                    </td>
-                    <td className='text-center border'>
-                      <EditOutlinedIcon onClick={()=>{handleEditServiceOffer(index);setIsEdit(true)}} className='p-0.5 cursor-pointer hover:text-blue-500' fontSize='small' />
-                      <ClearOutlinedIcon onClick={()=>{deleteServiceOffer(index)}} className='p-0.5 text-red-500 cursor-pointer ' fontSize='small' />
-                    </td>
-                    </tr>
-                  )
-                })
-              }
-              <tr>
-                
-              </tr>
-          </tbody>
-        </table>
-        </div>
-        </div>
-    </div>
-        
-    </Modal>
     </div>
   )
 }

@@ -53,6 +53,8 @@ const Explore = () => {
   const [activeId, setActiveId] = useState(0)
   const [sortFilter, setSortFilter] = useState('Recent Services')
   const [selectedCategory, setSelectedCategory] = useState('Select Category')
+  const [selectedCategoryId, setSelectedCategoryId] = useState(0)
+  const [selectedSubCategory, setSelectedSubCategory] = useState('Select Sub Category')
 
   // For Pagination
   const [currentPage, setCurrentPage] = useState(Number(page - 1));
@@ -79,7 +81,6 @@ const Explore = () => {
 
 
   const [filteredService, setFilteredService] = useState([])
-
   // For rating Filter
   const [selectedRatingCheckbox, setSelectedRatingCheckbox] = useState([])
   const [donotApplyFilter, setDonotApplyFilter] = useState(false)
@@ -451,7 +452,7 @@ const Explore = () => {
       <FilterContext.Provider value={[sortFilter, setSortFilter, donotApplyFilter, setDonotApplyFilter, selectedCategory, setSelectedCategory,
       selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,places, setPlaces,
       filterLocationLongLat, setFilterLocationLongLat, currentPage, setCurrentPage, serviceList, setServiceList, filteredService, setFilteredService,
-      searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList, rerender, setRerender
+      searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList, rerender, setRerender, selectedCategoryId, setSelectedCategoryId, selectedSubCategory, setSelectedSubCategory
       ]} >
         <div className=' w-full flex h-full overflow-hidden relative'>
         {

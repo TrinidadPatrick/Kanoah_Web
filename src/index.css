@@ -409,6 +409,8 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
+
+
 @keyframes spin89345 {
   0% {
     transform: rotate(0deg);
@@ -431,7 +433,37 @@ input::-webkit-inner-spin-button {
 
 
 
+.tag {
+  position: absolute;
+  display: inline-block;
+  padding: 5px 20px; /* Adjust the padding as needed */
+  background-color: #0E2F41; /* Adjust the color as needed */
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  border-radius: 2px;
+  clip-path: polygon(100% 0, 100% 50%, 100% 100%, 0% 100%, 7% 50%, 0% 0%);
+}
 
+.tag:before,
+.tag:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 2px;
+  background-color: #0E2F41; /* Adjust the color as needed */
+}
+
+.tag:before {
+  left: -10px;
+  transform: translateY(-50%);
+}
+
+.tag:after {
+  right: -10px;
+  transform: translateY(-50%);
+}
 
 /*  */
   @keyframes lds-dual-ring {

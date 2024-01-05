@@ -12,7 +12,7 @@ import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import { useNavigate } from 'react-router-dom'
 import { categories } from '../MainPage/Components/Categories'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined';
+import OutsideClickHandler from 'react-outside-click-handler';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import http from '../../http'
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
@@ -119,7 +119,9 @@ if (reason !== 'backdropClick') {
     // Check if the user has a service registered
     const checkUserService = async () => {
       try {
-        const result = await http.get(`getService/${userId}`)
+        const result = await http.get(`getService/${userId}`,{
+          withCredentials : true
+        })
         if(result.data.result === null)
         {
           setHasRegisteredService(false)
@@ -138,9 +140,7 @@ if (reason !== 'backdropClick') {
       
         try {
           const contacts = await http.get(`retrieveContacts/${userId}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`, // Include authentication token
-            },
+            withCredentials: true,
           })
           const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           const check = sortedContacts.some(messages => !messages.readBy.includes(userId))
@@ -304,10 +304,12 @@ if (reason !== 'backdropClick') {
       <NotificationsIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
       <div className='relative'>
         {/* PROFILE IMAGE */}
+        <OutsideClickHandler onOutsideClick={() => {setShowDropDownProfile(false)}}>
         <div onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} className='flex items-center cursor-pointer'>
         <img  className=' w-7 h-7 sm:w-8 sm:h-8 object-cover border-1 border-white rounded-full' src={userInfo.profileImage} alt="User Profile" />
         <ArrowDropDownOutlinedIcon fontSize='small' className='text-white bottom-0 right-0' />
         </div>
+        </OutsideClickHandler>
         {/* Dropdown Profile */}
         <div className={`${showDropdownProfile ? "block" : "hidden"} bg-white absolute p-2 right-4 delay-100 w-fit rounded-md top-[2.2rem] flex-col drop-shadow-lg overflow-hidden`}>
           <header className='flex border-b space-x-2 pb-2'>

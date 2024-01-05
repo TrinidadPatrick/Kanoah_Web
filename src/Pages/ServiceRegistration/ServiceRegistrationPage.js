@@ -19,7 +19,7 @@ const ServiceRegistrationPage = () => {
   const userId = useSelector(selectUserId)
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Holidays'] 
   
-    const [step, setStep] = useState(1)
+    const [step, setStep] = useState(2)
     // const [userId, setUserId] = useState(null)
     const [serviceInformation, setServiceInformation] = useState(
       {
@@ -65,10 +65,10 @@ const ServiceRegistrationPage = () => {
     )
     
        // get user profile
-      const getUserProfile = async (token) => {
+      const getUserProfile = async () => {
         try {
-          const response = await http.get('profile', {
-            headers : {Authorization: `Bearer ${token}`},
+          const response = await http.get(`getUser`, {
+           withCredentials: true
           })
           if(response.data.status == "logged in")
           {
@@ -79,30 +79,30 @@ const ServiceRegistrationPage = () => {
           navigate("/")
         }
       }
-  
-      // check if user is logged In
-      useEffect(()=>{
-        const accessToken = localStorage.getItem('accessToken');
-        if (accessToken) {
-          getUserProfile(accessToken);
-        }else{
-          navigate("/")
-        }
-      },[])
-
 
       useEffect(()=>{
         
         if(userId !== null && userId !== 'loggedOut')
         {
-          http.get(`getService/${userId}`).then((res)=>{
+          getUserProfile()
+          http.get(`getService/${userId}`,{
+            withCredentials : true
+          }).then((res)=>{
             if(res.data.result)
             {
               setServiceExisting(true)
             }
+            else
+            {
+              setServiceExisting(false)
+            }
           }).catch((error)=>{
             throw error
           })
+        }
+        else if(userId === 'loggedOut')
+        {
+          navigate("/")
         }
       },[userId])
   return (

@@ -6,16 +6,18 @@ import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
 import { useSearchParams } from 'react-router-dom';
 import { FilterContext } from './Explore'
+import { subCategories } from '../MainPage/Components/SubCategories';
 
 
 
 const Filters = () => {
     const ratingValues = [5,4,3,2,1]
+    const [subCategoryList, setSubCategoryList] = useState([])
     const [sortFilter, setSortFilter, donotApplyFilter, setDonotApplyFilter, selectedCategory, setSelectedCategory,
         selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,
         places, setPlaces, filterLocationLongLat, setFilterLocationLongLat, currentPage, setCurrentPage, serviceList, setServiceList,
         filteredService, setFilteredService, searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList,
-        rerender, setRerender
+        rerender, setRerender, selectedCategoryId, setSelectedCategoryId, selectedSubCategory, setSelectedSubCategory
     ] = useContext(FilterContext)
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -71,10 +73,18 @@ const Filters = () => {
         document.getElementById("arrow-down").classList.toggle("hidden");
     }
 
+    const showSCDropdownOptions = () => {
+      document.getElementById("SCoptions").classList.toggle("hidden");
+      document.getElementById("SCarrow-up").classList.toggle("hidden");
+      document.getElementById("SCarrow-down").classList.toggle("hidden");
+  }
+
     //  Sets the selected Category
-    const handleSelectCategory = (value) => {
+    const handleSelectCategory = (value, category_id) => {
+        setSelectedCategoryId(category_id)
         setDonotApplyFilter(true)
         setSelectedCategory(value)
+        setSelectedSubCategory("Select Sub Category")
     }
 
     // Set the selected checkbox***************************************************************************************
@@ -131,6 +141,21 @@ const Filters = () => {
         setRadius(Number(radiusParam))
       }
     },[])
+
+    useEffect(()=>{
+      const filtered = subCategories?.find((subCategory => subCategory.category_Id === selectedCategoryId))?.subCategories
+      if(filtered)
+      {
+        setSubCategoryList(filtered)
+      }
+      
+    },[selectedCategoryId])
+
+    const handleSelectSubCategory = (value) => {
+      setSelectedSubCategory(value)
+    }
+
+    // console.log(subCategories?.find((subCategory => subCategory.category_Id === selectedCategoryId)).subCategories)
   return (
     <div>
         <div className='flex flex-col space-y-5 px-7 mt-5'>
@@ -155,7 +180,6 @@ const Filters = () => {
         
 
         {/* Category Filter */}
-
         <div className="flex-none w-full relative">
         <h1 className='font-medium text-lg mb-2'>Categories</h1>
         <button onClick={()=>{showDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
@@ -174,12 +198,55 @@ const Filters = () => {
                 <p
                   key={category.id}
                   onClick={() => {
-                  handleSelectCategory(category.category_name)
+                  handleSelectCategory(category.category_name, category.id)
                   showDropdownOptions();
                   }}
                   className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >
                   {category.category_name}
+                </p>
+              );
+            })
+          }   
+        </div>
+        </div>
+
+        {/* Sub Category Filter */}
+        <div className="flex-none w-full relative">
+        <h1 className='font-medium text-lg mb-2'>Sub Categories</h1>
+        <button onClick={()=>{showSCDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+        <span className="select-none font-medium">{selectedSubCategory}</span>
+
+        <svg id="SCarrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+        <svg id="SCarrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+        </button>
+        <div id="SCoptions" className={`hidden ease-in duration-100 origin-top w-full ${subCategoryList.length === 0 ? 'h-fit' : 'h-[300px]'} overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl`}>
+          {
+          subCategoryList.length === 0 ? 
+          <p
+                 
+                  onClick={() => {
+                  showSCDropdownOptions();
+                  }}
+                  className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
+                >
+                  Select Sub Category
+                </p>
+                :
+           subCategoryList
+            .slice() // Create a copy of the array to avoid modifying the original array
+            .sort((a, b) => a?.subCategory_name.localeCompare(b?.subCategory_name))
+            .map((category) => {
+              return (
+                <p
+                  key={category.id}
+                  onClick={() => {
+                  handleSelectSubCategory(category?.subCategory_name)
+                  showSCDropdownOptions();
+                  }}
+                  className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
+                >
+                  {category?.subCategory_name}
                 </p>
               );
             })
