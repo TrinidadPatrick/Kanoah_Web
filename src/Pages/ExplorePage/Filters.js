@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react'
 import { useState, useContext } from 'react'
-import { categories } from '../MainPage/Components/Categories';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
 import { useSearchParams } from 'react-router-dom';
+import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import { FilterContext } from './Explore'
-import { subCategories } from '../MainPage/Components/SubCategories';
 
 
 
@@ -17,7 +16,7 @@ const Filters = () => {
         selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,
         places, setPlaces, filterLocationLongLat, setFilterLocationLongLat, currentPage, setCurrentPage, serviceList, setServiceList,
         filteredService, setFilteredService, searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList,
-        rerender, setRerender, selectedCategoryId, setSelectedCategoryId, selectedSubCategory, setSelectedSubCategory
+        rerender, setRerender, selectedCategoryCode, setSelectedCategoryCode  , selectedSubCategory, setSelectedSubCategory, categories, subCategories
     ] = useContext(FilterContext)
 
     const [searchParams, setSearchParams] = useSearchParams();
@@ -80,8 +79,8 @@ const Filters = () => {
   }
 
     //  Sets the selected Category
-    const handleSelectCategory = (value, category_id) => {
-        setSelectedCategoryId(category_id)
+    const handleSelectCategory = (value, categoryCode) => {
+        setSelectedCategoryCode(categoryCode)
         setDonotApplyFilter(true)
         setSelectedCategory(value)
         setSelectedSubCategory("Select Sub Category")
@@ -127,6 +126,7 @@ const Filters = () => {
         setSortFilter("Recent Services")
         setServiceList(mainServiceList)
         setFilterLocationLongLat({latitude : 0, longitude : 0})
+        setSelectedSubCategory("Select Sub Category")
         setTimeout(()=>{
           setLoadingPage(false)
           setRerender(prevRerender => prevRerender + 1)
@@ -143,19 +143,32 @@ const Filters = () => {
     },[])
 
     useEffect(()=>{
-      const filtered = subCategories?.find((subCategory => subCategory.category_Id === selectedCategoryId))?.subCategories
-      if(filtered)
+      if(mainServiceList.length !== 0)
       {
-        setSubCategoryList(filtered)
+        const categoryCode = categories.find(category => category.name === selectedCategory)?.category_code
+        setSelectedCategoryCode(categoryCode)
       }
+    },[serviceList])
+
+    useEffect(()=>{
+      if(subCategories.length !== 0)
+      {
+        const filtered = subCategories.filter((subCategory) => subCategory.parent_code === selectedCategoryCode)
+        if(filtered)
+        {
+          setSubCategoryList(filtered)
+        }
+      }
+    
       
-    },[selectedCategoryId])
+    },[selectedCategoryCode])
 
     const handleSelectSubCategory = (value) => {
+      setDonotApplyFilter(true)
       setSelectedSubCategory(value)
     }
+    // console.log(selectedCategoryCode)
 
-    // console.log(subCategories?.find((subCategory => subCategory.category_Id === selectedCategoryId)).subCategories)
   return (
     <div>
         <div className='flex flex-col space-y-5 px-7 mt-5'>
@@ -184,26 +197,26 @@ const Filters = () => {
         <h1 className='font-medium text-lg mb-2'>Categories</h1>
         <button onClick={()=>{showDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
         <span className="select-none font-medium">{selectedCategory}</span>
-
+        
         <svg id="arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-        <svg id="arrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+        <svg id="arrow-up"  className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
         </button>
         <div id="options" className=" hidden ease-in duration-100 origin-top w-full h-[300px] overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl">
           {
             categories
             .slice() // Create a copy of the array to avoid modifying the original array
-            .sort((a, b) => a.category_name.localeCompare(b.category_name))
+            .sort((a, b) => a.name.localeCompare(b.name))
             .map((category) => {
               return (
                 <p
                   key={category.id}
                   onClick={() => {
-                  handleSelectCategory(category.category_name, category.id)
+                  handleSelectCategory(category.name, category.category_code)
                   showDropdownOptions();
                   }}
                   className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >
-                  {category.category_name}
+                  {category.name}
                 </p>
               );
             })
@@ -235,18 +248,18 @@ const Filters = () => {
                 :
            subCategoryList
             .slice() // Create a copy of the array to avoid modifying the original array
-            .sort((a, b) => a?.subCategory_name.localeCompare(b?.subCategory_name))
+            .sort((a, b) => a?.name.localeCompare(b?.name))
             .map((category) => {
               return (
                 <p
-                  key={category.id}
+                  key={category._id}
                   onClick={() => {
-                  handleSelectSubCategory(category?.subCategory_name)
+                  handleSelectSubCategory(category?.name)
                   showSCDropdownOptions();
                   }}
                   className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >
-                  {category?.subCategory_name}
+                  {category?.name}
                 </p>
               );
             })
@@ -311,8 +324,8 @@ const Filters = () => {
         </div>
 
         {/* Buttons */}
-        <button onClick={()=>{setCurrentPage(0);applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput, longitude : filterLocationLongLat.longitude, latitude : filterLocationLongLat.latitude, rd : radius, page : 1})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
-        <button onClick={()=>{setCurrentPage(0);setSearchParams({rating :"", category:"", sort : "Recent Services", search, page: 1});clearFilter()}} className='font-medium'>Clear Filters</button>
+        <button onClick={()=>{setCurrentPage(0);applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, subCategory : selectedSubCategory, sort : sortFilter, search: searchInput, longitude : filterLocationLongLat.longitude, latitude : filterLocationLongLat.latitude, rd : radius, page : 1})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
+        <button onClick={()=>{setCurrentPage(0);setSearchParams({rating :"", category:"", subCategory : "", sort : "Recent Services", search, page: 1});clearFilter()}} className='font-medium'>Clear Filters</button>
         </div>
     </div>
   )

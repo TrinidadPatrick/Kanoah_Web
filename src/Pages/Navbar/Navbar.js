@@ -104,8 +104,15 @@ if (reason !== 'backdropClick') {
 
 
     const signout = () => {
-      localStorage.removeItem("accessToken")
-      window.location.reload()
+      http.get('userLogout', {withCredentials : true}).then((res)=>{
+        if(res.status === 200)
+        {
+          window.location.reload()
+        }
+      }).catch((error)=>{
+        alert(error)
+      })
+     
     }
 
     // Function to handle window resize

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import { useState, useContext } from 'react'
-import { categories } from '../MainPage/Components/Categories';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
@@ -10,12 +9,13 @@ import { FilterContext } from './Explore'
 
 const MobileFilter = () => {
     const ratingValues = [5,4,3,2,1]
+    const [subCategoryList, setSubCategoryList] = useState([])
     const [sortFilter, setSortFilter, donotApplyFilter, setDonotApplyFilter, selectedCategory, setSelectedCategory,
-        selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,
-        places, setPlaces, filterLocationLongLat, setFilterLocationLongLat, currentPage, setCurrentPage, serviceList, setServiceList,
-        filteredService, setFilteredService, searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList,
-        rerender, setRerender
-    ] = useContext(FilterContext)
+      selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,
+      places, setPlaces, filterLocationLongLat, setFilterLocationLongLat, currentPage, setCurrentPage, serviceList, setServiceList,
+      filteredService, setFilteredService, searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList,
+      rerender, setRerender, selectedCategoryCode, setSelectedCategoryCode  , selectedSubCategory, setSelectedSubCategory, categories, subCategories
+  ] = useContext(FilterContext)
 
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get('search')
@@ -72,10 +72,18 @@ const MobileFilter = () => {
     }
 
 
+    const showMobileSCDropdownOptions = () => {
+      document.getElementById("MobileSCoptions").classList.toggle("hidden");
+      document.getElementById("SCarrow-up").classList.toggle("hidden");
+      document.getElementById("MobileSCarrow-down").classList.toggle("hidden");
+  }
+
     //  Sets the selected Category
-    const handleSelectCategory = (value) => {
+    const handleSelectCategory = (value, categoryCode) => {
+        setSelectedCategoryCode(categoryCode)
         setDonotApplyFilter(true)
         setSelectedCategory(value)
+        setSelectedSubCategory("Select Sub Category")
     }
 
     // Set the selected checkbox***************************************************************************************
@@ -132,6 +140,32 @@ const MobileFilter = () => {
       }
     },[])
 
+    useEffect(()=>{
+      if(mainServiceList.length !== 0)
+      {
+        const categoryCode = categories.find(category => category.name === selectedCategory)?.category_code
+        setSelectedCategoryCode(categoryCode)
+      }
+    },[serviceList])
+
+    useEffect(()=>{
+      if(subCategories.length !== 0)
+      {
+        const filtered = subCategories.filter((subCategory) => subCategory.parent_code === selectedCategoryCode)
+        if(filtered)
+        {
+          setSubCategoryList(filtered)
+        }
+      }
+    
+      
+    },[selectedCategoryCode])
+
+    const handleSelectSubCategory = (value) => {
+      setDonotApplyFilter(true)
+      setSelectedSubCategory(value)
+    }
+
   return (
     <div>
      <div className='flex flex-col space-y-5 px-7 mt-10'>
@@ -169,18 +203,61 @@ const MobileFilter = () => {
           {
             categories
             .slice() // Create a copy of the array to avoid modifying the original array
-            .sort((a, b) => a.category_name.localeCompare(b.category_name))
+            .sort((a, b) => a.name.localeCompare(b.name))
             .map((category) => {
               return (
                 <p
                   key={category.id}
                   onClick={() => {
-                  handleSelectCategory(category.category_name)
+                  handleSelectCategory(category.name, category.category_code)
                   showMobileDropdownOptions();
                   }}
                   className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >
-                  {category.category_name}
+                  {category.name}
+                </p>
+              );
+            })
+          }   
+        </div>
+        </div>
+
+        {/* Sub Category Filter */}
+        <div className="flex-none w-full relative">
+        <h1 className='font-medium text-lg mb-2'>Sub Categories</h1>
+        <button onClick={()=>{showMobileSCDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+        <span className="select-none font-medium">{selectedSubCategory}</span>
+
+        <svg id="MobileSCarrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+        <svg id="MobileSCarrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+        </button>
+        <div id="MobileSCoptions" className={`hidden ease-in duration-100 origin-top w-full ${subCategoryList.length === 0 ? 'h-fit' : 'h-[300px]'} overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl`}>
+          {
+          subCategoryList.length === 0 ? 
+          <p
+                 
+                  onClick={() => {
+                  showMobileSCDropdownOptions();
+                  }}
+                  className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
+                >
+                  Select Sub Category
+                </p>
+                :
+           subCategoryList
+            .slice() // Create a copy of the array to avoid modifying the original array
+            .sort((a, b) => a?.name.localeCompare(b?.name))
+            .map((category) => {
+              return (
+                <p
+                  key={category._id}
+                  onClick={() => {
+                  handleSelectSubCategory(category?.name)
+                  showMobileSCDropdownOptions();
+                  }}
+                  className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
+                >
+                  {category?.name}
                 </p>
               );
             })

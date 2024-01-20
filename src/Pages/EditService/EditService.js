@@ -4,18 +4,15 @@ import { useParams, useNavigate } from 'react-router-dom'
 import http from '../../http'
 import { selectServiceData, setServiceData } from '../../ReduxTK/serviceSlice'
 import { Link } from 'react-router-dom'
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import BookOnlineOutlinedIcon from '@mui/icons-material/BookOnlineOutlined';
-import UpdateOutlinedIcon from '@mui/icons-material/UpdateOutlined';
 import BasicInformation from './Components/BasicInformation'
 import AdvanceInformation from './Components/AdvanceInformation'
 import './style.css'
 import Address from './Components/Address'
 import ServiceHours from './Components/ServiceHours'
 import Tags from './Components/Tags'
-import FilterListOutlinedIcon from '@mui/icons-material/FilterListOutlined';
 import PageNotFound from '../NotFoundPage/PageNotFound'
 import BookingInformation from './Components/BookingInformation'
+import useBookings from '../../ClientCustomHook/BookingsProvider'
 
 const EditService = () => {
 const dispatch = useDispatch()
@@ -38,8 +35,9 @@ const getServiceInformation = async () => {
 
     try {
         const result = await http.get(`getServiceProfile`, {
-            headers : {Authorization: `Bearer ${accessToken}`},
+           withCredentials : true
           })
+        //   console.log(result)
         dispatch(setServiceData(result.data))
     } catch (error) {
         navigate('/')
@@ -67,6 +65,7 @@ useEffect(()=>{
     setSelectedSettings(option)
     getServiceInformation()
 },[])
+
     
   return (
     <main  className='w-full h-screen relative  flex'>

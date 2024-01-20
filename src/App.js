@@ -18,21 +18,40 @@ import PageNotFound from './Pages/NotFoundPage/PageNotFound';
 import EditService from './Pages/EditService/EditService';
 import ChatPractice from './Pages/Chat(Development)/ChatPractice';
 import BookService from './Pages/BookService/BookService';
+import AdminMainPage from './AdminPage/AdminManagement';
+import SideBar from './AdminPage/SideBar';
+import AdminLogin from './AdminPage/AdminLogin';
+import { AuthProvider } from './AdminPage/CustomHooks/AuthProvider';
+import AdminList from './AdminPage/AdminList';
+import AdminDashboard from './AdminPage/AdminDashboard';
+import AdminManagement from './AdminPage/AdminManagement';
 
 function App() {
+
+
   const NavbarLayout = () => (
     <>
       <Navbar />
       <Outlet />
     </>
   );
+
+  const SidebarLayout = () => (
+    <>
+      <SideBar />
+      <Outlet />
+    </>
+  );
+
+
+
+
+
   return (
-    <div className="App w-full h-screen  flex flex-col pt-[4.5rem]">
-      <BrowserRouter>
+      
       <Routes>
-        <Route element={<NavbarLayout />} >
         
-        {/* <Route path='/verify' element={<VerifyEmail />} /> */}
+        <Route element={<div className="App w-full h-screen  flex flex-col pt-[4.5rem]"><NavbarLayout /></div>}>   
         <Route path='/forgotPassword' element={<ForgotPassword />} />
         <Route path='/register' element={<Register />} />
         <Route path='/explore/' element={<Explore />} />
@@ -46,13 +65,34 @@ function App() {
         <Route path='/' element={<MainPage />} />
         <Route path='/login' element={<Login />} />
         <Route path='/BookService' element={<BookService />} />
-        <Route path='/chatP' element={<ChatPractice />} />
-        
+        <Route path='/chatP' element={<ChatPractice />} />    
         </Route>
-       
+
+        {/* Admin route */}
+        <Route element={
+        <div className={`w-full h-screen flex`}>
+        <AuthProvider>
+        <SidebarLayout />  
+        </AuthProvider>
+        </div>
+        }>
+
+        <Route path='admin/Admins' element={<AuthProvider><AdminList /></AuthProvider>} />
+        <Route path='admin/Dashboard' element={<AuthProvider><AdminDashboard /></AuthProvider>} />
+        <Route path='admin/Management' element={<AuthProvider><AdminManagement /></AuthProvider>} />
+        </Route>
+        
+        <Route path='adminLogin' element={
+        <div className='w-full h-screen flex'>
+          <AuthProvider>
+          <AdminLogin />
+          </AuthProvider>   
+        </div>
+        
+        } />
       </Routes>
-      </BrowserRouter>
-    </div>
+
+
   );
 }
 

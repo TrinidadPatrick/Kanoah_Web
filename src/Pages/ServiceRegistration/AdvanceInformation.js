@@ -8,11 +8,10 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import Gcash from './Utils/images/Gcash.png'
-import { subCategories } from '../MainPage/Components/SubCategories';
 import cash from './Utils/images/cash.png'
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
-import  { categories } from '../MainPage/Components/Categories'
 import cloudinaryCore from '../../CloudinaryConfig'
+import useCategory from '../../ClientCustomHook/CategoryProvider';
 import axios from 'axios';
 
 const AdvanceInformation = () => {
@@ -24,9 +23,11 @@ const [errors, setErrors] = useState({
   ServiceContactError : false,
   ServiceEmailError : false,
   ServiceCategoryError : false,
+  ServiceOptionError : false
 })
 const [openSocialLinkModal, setOpenSocialLinkModal] = useState(false);
-const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+const [selectedCategoryId, setSelectedCategoryId] = useState('');
+const [selectedCategoryCode, setSelectedCategoryCode] = useState('');
 const [subCategoryList, setSubCategoryList] = useState([]);
 const [openBookingModal, setOpenBookingModal] = useState(false);
 const [isGcashModalOpen, setIsGcashModalOpen] = useState(false);
@@ -34,6 +35,7 @@ const [isGcashChecked, setIsGcashChecked] = useState(false);
 const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
 const serviceOptions = ['Home Service','Online Service','Walk-In Service', 'Pick-up and Deliver']
 const [selectedServiceOptions, setSelectedServiceOptions] = useState([])
+const {categories, subCategories} = useCategory()
 const [advanceInformation, setAdvanceInformation] = useState({
   ServiceContact : "",
   ServiceFax : "",
@@ -193,6 +195,7 @@ const submitGcashPayment = () => {
 }
 
 const submitAdvanceInformation = () => {
+  // console.log(advanceInformation)
   const checkErrors = (input, errorKey) => (
     setErrors((prevErrors)=>({...prevErrors, [errorKey] : advanceInformation[input] == "" ? true : false}))
   )
@@ -200,15 +203,27 @@ const submitAdvanceInformation = () => {
   checkErrors("ServiceContact", "ServiceContactError")
   checkErrors("ServiceEmail", "ServiceEmailError")
   checkErrors("ServiceCategory", "ServiceCategoryError")
-
-  if(advanceInformation.ServiceContact != "" && advanceInformation.ServiceEmail != "" && advanceInformation.ServiceCategory != "")
+  console.log(serviceOptions)
+  if(advanceInformation.ServiceOptions.length === 0) {
+   setErrors({...errors, ServiceOptionError : true})
+  }
+  if(advanceInformation.ServiceContact != "" && advanceInformation.ServiceEmail != "" && advanceInformation.ServiceCategory != "" && advanceInformation.ServiceOptions.length !== 0)
   {
     setServiceInformation({...serviceInformation, advanceInformation : advanceInformation})
     setStep(3)
   }
 }
 
-
+const handleSelectCategory = (value) => {
+  if(value !== "Not Selected")
+  {
+    const category = categories.find(category => category._id === value).category_code
+    setSelectedCategoryCode(category)
+    setSelectedCategoryId(value)
+    setAdvanceInformation({...advanceInformation, ServiceCategory : value})
+  }
+  
+}
 
 useEffect(()=>{
   setAdvanceInformation(serviceInformation.advanceInformation)
@@ -223,15 +238,23 @@ useEffect(()=>{
 },[step])
 
 useEffect(()=>{
-  const filtered = subCategories.find(subCategory => subCategory.category_Id === selectedCategoryId)
+  const filtered = subCategories.filter(subCategory => subCategory.parent_code === selectedCategoryCode)
+  console.log(filtered)
   if(filtered)
   {
     setSubCategoryList(filtered)
   }
-},[selectedCategoryId])
+},[selectedCategoryId, selectedCategoryCode])
 
+useEffect(()=>{
+  if(categories.length !== 0)
+  {
+    setSelectedCategoryCode(categories.find((category) => category._id === advanceInformation.ServiceCategory)?.category_code)
+  }
+  
+},[categories])
 
-
+  console.log(advanceInformation)
   return (
   <div className='w-full h-full  flex flex-col  p-1'>
     
@@ -261,39 +284,25 @@ useEffect(()=>{
 {/* Category */}
 <div className='flex flex-col w-full'>   
   <label htmlFor='category' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Category</label>
-  <select
-    id='category'
-    value={advanceInformation.ServiceCategory ? [advanceInformation.ServiceCategory, selectedCategoryId].join(',') : ''}
-    className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border w-full p-2 rounded-md text-sm`}
-    onChange={(e) => {
-      const [categoryName, categoryId] = e.target.value.split(',');
-      setAdvanceInformation({ ...advanceInformation, ServiceCategory: categoryName });
-      setSelectedCategoryId(Number(categoryId));
-      setSubCategoryList([]);
-    }}
-  >
-    <option value='' disabled>Select Category</option>
-    {categories.map((category, index) => (
-      <option
-        key={index}
-        value={[category.category_name, category.id].join(',')}
-      >
-        {category.category_name}
-      </option>
-    ))}
-  </select>
+  <select value={advanceInformation.ServiceCategory} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border p-2 rounded-md text-sm xl:text-[0.8rem]`}  onChange={(e)=>{handleSelectCategory(e.target.value)}}>
+    <option value="Not Selected" selected>-- Select Category --</option>
+        {
+        categories.map((category, index)=>(<option key={index} value={category._id} className='py-2 text-sm xl:text-[1rem]'>{category.name}</option>))
+        }
+        </select>
 </div>
 
 
   {/* Sub Category */}
   <div className='flex flex-col w-full'>   
-        <label htmlFor='subCategory' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Sub Category</label>
-        <select id='subCategory' value={advanceInformation.ServiceSubCategory} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border w-full p-2 rounded-md text-sm`}  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceSubCategory : e.target.value})}} >
-        <option disabled>Select Sub Category</option>
+        <label htmlFor='subCategory' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Sub Category (Optional)</label>
+        <select id='subCategory' value={advanceInformation.ServiceSubCategory} className={` border w-full p-2 rounded-md text-sm`}  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceSubCategory : e.target.value})}} >
+        <option value="" >-- Select Sub Category --</option>
         {
         subCategoryList.length === 0 ? "" :
-        subCategoryList.subCategories.map((subCategory, index)=>(<option key={index} value={[subCategory.subCategory_name]} className=''>{subCategory.subCategory_name}</option>))
+        subCategoryList.map((subCategory, index)=>(<option key={index} value={[subCategory._id]} className=''>{subCategory.name}</option>))
         }
+
         </select>
   </div>
 
@@ -319,6 +328,7 @@ useEffect(()=>{
   }
   
   </div>
+  <p className={`${errors.ServiceOptionError ? 'block' : 'hidden'} text-xs text-red-500`}>Please Select at least one service option</p>
   </div>
 
 

@@ -20,6 +20,7 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import cloudinaryCore from '../../../CloudinaryConfig';
 import { subCategories } from '../../MainPage/Components/SubCategories'
 import http from '../../../http'
+import useCategory from '../../../ClientCustomHook/CategoryProvider'
 
 const AdvanceInformation = () => {
     Modal.setAppElement('#root');
@@ -27,11 +28,14 @@ const AdvanceInformation = () => {
     const [updating, setUpdating] = useState(false)
     const serviceData = useSelector(selectServiceData)
     const [openSocialLinkModal, setOpenSocialLinkModal] = useState(false);
-    const [openBookingModal, setOpenBookingModal] = useState(false);
+    const {categories, subCategories} = useCategory()
+    // const [categories, setCategories] = useState([]);
+    // const [subCategories, setSubCategories] = useState([]);
     const serviceOptions = ['Home Service','Online Service','Walk-In Service', 'Pick-up and Deliver']
     const [isGcashChecked, setIsGcashChecked] = useState(false);
     const [isGcashModalOpen, setIsGcashModalOpen] = useState(false);
-    const [selectedCategoryId, setSelectedCategoryId] = useState(0);
+    const [selectedCategoryCode, setSelectedCategoryCode] = useState(0);
+    const [selectedSubCategory, setSelectedSubCategory] = useState('Select Sub Category');
     const [subCategoryList, setSubCategoryList] = useState([]);
     const [isPhotoLoading, setIsPhotoLoading] = useState(false)
     const [errors, setErrors] = useState({ GcashServiceTitleError : false, GcashEmailError : false, GcashQRError : false, ServiceContactError : false, ServiceEmailError : false,ServiceCategoryError : false,})
@@ -193,9 +197,20 @@ const AdvanceInformation = () => {
 
     // Update the information
     const handleUpdate = async () => {
+      const data = {
+        ServiceContact : advanceInformation.ServiceContact,
+        ServiceFax : advanceInformation.ServiceFax,
+        ServiceEmail : advanceInformation.ServiceEmail,
+        ServiceOptions : advanceInformation.ServiceOptions,
+        SocialLink : advanceInformation.SocialLink,
+        PaymentMethod : advanceInformation.PaymentMethod,
+        ServiceSubCategory : selectedSubCategory === "Select Sub Category" || selectedSubCategory === undefined ? null : selectedSubCategory,
+        ServiceCategory : categories.find(category => category.category_code === selectedCategoryCode)._id,
+      }
+
       setUpdating(true)
       try {
-        const result = await http.patch(`updateService/${userId}`, {advanceInformation : advanceInformation},  {
+        const result = await http.patch(`updateService/${userId}`, {advanceInformation : data},  {
           withCredentials : true
         })
 
@@ -208,24 +223,39 @@ const AdvanceInformation = () => {
       }
     }
 
+
+    const handleSelectCategory = (categoryCode) => {
+      setSelectedCategoryCode(categoryCode)
+      const categoryId = categories.find(category => category.category_code === categoryCode)._id
+      setAdvanceInformation({...advanceInformation, ServiceCategory : categoryId})
+    }
+
+    const handleSelectSubCategory = (subCategory) => {
+      setSelectedSubCategory(subCategory)
+    }
+
     useEffect(()=>{
         if(serviceData.advanceInformation !== undefined)
-        {
-            setAdvanceInformation(serviceData.advanceInformation)
-            const categoryId = categories.find(category => category.category_name === serviceData.advanceInformation.ServiceCategory)
-            setSelectedCategoryId(categoryId?.id)
+        { 
+          setAdvanceInformation(serviceData.advanceInformation)
+          const categoryCode = categories.find(category => category?.name === serviceData.advanceInformation.ServiceCategory.name)?.category_code
+          const subCategoryId = subCategories.find(subCategory => subCategory?.name === serviceData.advanceInformation.ServiceSubCategory?.name)?._id
+          setSelectedCategoryCode(categoryCode)
+          setSelectedSubCategory(subCategoryId)
         }
-    },[serviceData])
+    },[serviceData, categories])
 
 
     useEffect(()=>{
-      const filtered = subCategories.find(subCategory => subCategory.category_Id === selectedCategoryId)
-      if(filtered)
+      if(subCategories.length !== 0)
       {
-        setSubCategoryList(filtered)
+        const filtered = subCategories.filter((subCategory) => subCategory.parent_code === selectedCategoryCode)
+        if(filtered)
+        {
+          setSubCategoryList(filtered)
+        }
       }
-    },[selectedCategoryId])
-
+    },[selectedCategoryCode, categories])
     
   return (
     <main className='sm:w-[90%] md:w-[80%] xl:w-1/2 bg-white rounded-md shadow-md flex flex-col space-y-4 h-full sm:h-fit overflow-auto p-3 px-5'>
@@ -255,21 +285,21 @@ const AdvanceInformation = () => {
       {/* Category */}
       <div className='flex flex-col w-full'>   
         <label htmlFor='category' className='font-medium text-sm xl:text-[0.8rem] text-gray-700'>Category</label>
-        <select className='border p-2 rounded-md text-sm xl:text-[0.8rem]'  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceCategory : e.target.value.split(',')[0]});setSelectedCategoryId(Number(e.target.value.split(',')[1]))}} defaultValue={advanceInformation.ServiceCategory}>
+        <select value={selectedCategoryCode} className='border p-2 rounded-md text-sm xl:text-[0.8rem]'  onChange={(e)=>{handleSelectCategory(e.target.value)}}>
         {
-        categories.map((category, index)=>(<option key={index} value={[category.category_name, category.id]} className='py-2 text-sm xl:text-[1rem]'>{category.category_name}</option>))
+        categories.map((category, index)=>(<option key={index} value={category.category_code} className='py-2 text-sm xl:text-[1rem]'>{category.name}</option>))
         }
         </select>
         </div>
         {/* Sub Category */}
       <div className='flex flex-col w-full'>   
         <label htmlFor='subCategory' className='font-medium text-sm xl:text-[0.8rem] text-gray-700'>Sub Category</label>
-        <select id='subCategory' value={advanceInformation.ServiceSubCategory} className='border p-2 rounded-md text-sm xl:text-[0.8rem]'  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceSubCategory : e.target.value === "Select Sub Category" ? "" : e.target.value})}} >
+        <select id='subCategory' value={selectedSubCategory} className='border p-2 rounded-md text-sm xl:text-[0.8rem]'  onChange={(e)=>{handleSelectSubCategory(e.target.value)}} >
         <option >Select Sub Category</option>
         {
           
           subCategoryList.length === 0 ? "" :
-        subCategoryList.subCategories.map((subCategory, index)=>(<option key={index} value={subCategory.subCategory_name} className='py-2 text-sm xl:text-[1rem]'>{subCategory.subCategory_name}</option>))
+        subCategoryList.map((subCategory, index)=>(<option key={index} value={subCategory._id} className='py-2 text-sm xl:text-[1rem]'>{subCategory.name}</option>))
         }
         </select>
         </div>

@@ -9,11 +9,10 @@ import http from '../../http';
 import UserInformation from './UserInformation/UserInformation';
 import { useNavigate } from 'react-router-dom';
 import jwtDecode from 'jwt-decode';
+import UserBookings from './UserBookings/UserBookings';
 
 const CustomerAccount = () => {
-  const {optn} = useParams()
-    const [accessToken, setAccessToken] = useState(null);
-    const [refreshToken, setRefreshToken] = useState(null);
+    const {optn} = useParams()
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
     const [selectedSettings, setSelectedSettings] = useState(optn)
@@ -23,11 +22,7 @@ const CustomerAccount = () => {
       setSelectedSettings(optn)
     }, [])
 
-  //  Log the user out
-  const logout = () => {
-    localStorage.clear()
-    window.location.reload()
-  }
+
     
 
   return (
@@ -39,7 +34,7 @@ const CustomerAccount = () => {
           // Main Container
     <div className='flex w-full'>
     {/* Left section */}
-    <section className='w-[370px] h-screen bg-white hidden md:flex flex-col'>
+    <section className='w-[370px] h-full bg-white hidden md:flex flex-col'>
     <div className='border-l-4 ps-2 ml-5 border-l-themeBlue mt-5'>
     <h1 className='text-3xl font-bold text-themeBlue '>Account Setting</h1>
     <p className='text-[0.79rem]'>Manage or edit your account here</p>
@@ -53,15 +48,13 @@ const CustomerAccount = () => {
     <Link to="/myAccount/Favorites" onClick={()=>{setSelectedSettings('Favorites')}} className={`${selectedSettings == "Favorites" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><FavoriteOutlinedIcon /><div to="" className={`${selectedSettings == "Favorites" ? "text-blue-800" : "text-gray-800"}`}>Favorite</div></Link>
     
     </div>
-    <div className='w-full flex ps-6 h-full mb-1 items-end pb-4'>
-    <button onClick={()=>{logout()}} className='bg-red-500 text-white py-1 px-2 rounded-sm text-sm'>Logout</button>
-    </div>
+   
     </section>
 
 
     {/* Right section */}
-    <section className='w-full h-screen bg-white'>
-    {selectedSettings == "Profile" ? <UserInformation /> : ""}
+    <section className='w-full h-full '>
+    {selectedSettings == "Profile" ? <UserInformation /> : <UserBookings />}
     </section>
     </div>
         )

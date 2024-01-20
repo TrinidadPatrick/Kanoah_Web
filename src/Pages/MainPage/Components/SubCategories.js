@@ -511,61 +511,61 @@ export const subCategories = [
         id : 9, 
         category_Id : 9,
         subCategories: [
-            {
-              id: 1,
-              subCategory_name: "Tutoring Services",
-              // Add more properties as needed
-            },
-            {
-              id: 2,
-              subCategory_name: "Language Classes",
-              // Add more properties as needed
-            },
-            {
-              id: 3,
-              subCategory_name: "Music Lessons",
-              // Add more properties as needed
-            },
-            {
-              id: 4,
-              subCategory_name: "Test Preparation",
-              // Add more properties as needed
-            },
-            {
-              id: 5,
-              subCategory_name: "Online Courses",
-              // Add more properties as needed
-            },
-            {
-              id: 6,
-              subCategory_name: "Professional Development",
-              // Add more properties as needed
-            },
-            {
-              id: 7,
-              subCategory_name: "Career Coaching",
-              // Add more properties as needed
-            },
-            {
-              id: 8,
-              subCategory_name: "STEM Education",
-              // Add more properties as needed
-            },
-            {
-              id: 9,
-              subCategory_name: "Art Classes",
-              // Add more properties as needed
-            },
-            {
-              id: 10,
-              subCategory_name: "Driving Schools",
-              // Add more properties as needed
-            },
-            {
-              id: 11,
-              subCategory_name: "Parenting Classes",
-              // Add more properties as needed
-            },
+              {
+                id: 1,
+                subCategory_name: "Tutoring Services",
+                // Add more properties as needed
+              },
+              {
+                id: 2,
+                subCategory_name: "Language Classes",
+                // Add more properties as needed
+              },
+              {
+                id: 3,
+                subCategory_name: "Music Lessons",
+                // Add more properties as needed
+              },
+              {
+                id: 4,
+                subCategory_name: "Test Preparation",
+                // Add more properties as needed
+              },
+              {
+                id: 5,
+                subCategory_name: "Online Courses",
+                // Add more properties as needed
+              },
+              {
+                id: 6,
+                subCategory_name: "Professional Development",
+                // Add more properties as needed
+              },
+              {
+                id: 7,
+                subCategory_name: "Career Coaching",
+                // Add more properties as needed
+              },
+              {
+                id: 8,
+                subCategory_name: "STEM Education",
+                // Add more properties as needed
+              },
+              {
+                id: 9,
+                subCategory_name: "Art Classes",
+                // Add more properties as needed
+              },
+              {
+                id: 10,
+                subCategory_name: "Driving Schools",
+                // Add more properties as needed
+              },
+              {
+                id: 11,
+                subCategory_name: "Parenting Classes",
+                // Add more properties as needed
+              },
             // Add more subcategories as needed
           ]          
     },

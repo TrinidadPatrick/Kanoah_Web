@@ -8,7 +8,6 @@ import axios from 'axios';
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import ShareLocationOutlinedIcon from '@mui/icons-material/ShareLocationOutlined';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { categories } from '../MainPage/Components/Categories';
 import OutsideClickHandler from 'react-outside-click-handler';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
@@ -30,6 +29,7 @@ import ScrollToTop from "react-scroll-to-top";
 import Filters from './Filters';
 import MobileFilter from './MobileFilter';
 import Searchbar from './Searchbar';
+import { subCategories } from '../MainPage/Components/SubCategories';
 export const FilterContext = createContext()
 
 
@@ -47,14 +47,17 @@ const Explore = () => {
   const search = searchParams.get('search')
   const radiusParam = searchParams.get('rd')
   const page = searchParams.get('page')
+  const subCategory = searchParams.get('subCategory')
   const [rerender, setRerender] = useState(0)
   const [serviceList, setServiceList] = useState([])
   const [mainServiceList, setMainServiceList] = useState([])
   const [activeId, setActiveId] = useState(0)
   const [sortFilter, setSortFilter] = useState('Recent Services')
   const [selectedCategory, setSelectedCategory] = useState('Select Category')
-  const [selectedCategoryId, setSelectedCategoryId] = useState(0)
+  const [selectedCategoryCode, setSelectedCategoryCode] = useState(0)
   const [selectedSubCategory, setSelectedSubCategory] = useState('Select Sub Category')
+  const [categories, setCategories] = useState([])
+  const [subCategories, setSubCategories] = useState([])
 
   // For Pagination
   const [currentPage, setCurrentPage] = useState(Number(page - 1));
@@ -113,6 +116,7 @@ const Explore = () => {
   // Computes the rating Average
   const ratingAverage = (services) => {
     return services.map((service, index) => {
+      
       const ratings = service.ratings
       const totalRatings = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
       const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / totalRatings;
@@ -162,7 +166,7 @@ const Explore = () => {
     
   });
 
-    const openMoreOptions = (id) => {
+  const openMoreOptions = (id) => {
     
         if(activeId == id){
           setActiveId(null)
@@ -170,10 +174,10 @@ const Explore = () => {
           setActiveId(id)
         }
     
-    }
+  }
 
-      // Get my current location
-      useEffect(() => {
+  // Get my current location
+  useEffect(() => {
         // Use the Geolocation API to get the user's location
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
@@ -190,10 +194,10 @@ const Explore = () => {
           // Geolocation is not available in this browser
           console.error('Geolocation is not available.');
         }
-      }, []);
+  }, []);
 
-      // For autofill location search
-      useEffect(() => {
+  // For autofill location search
+  useEffect(() => {
         const accessToken = 'pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ydzQ2YzYwNWhvMmtyeTNwNDl3ejNvIn0.9n7wjqLZye4DtZcFneM3vw'; // Replace with your actual Mapbox access token
         const location = locationFilterValue; // Replace with your desired location
       
@@ -205,11 +209,9 @@ const Explore = () => {
           .catch((err) => {
             console.log(err);
           });
-      }, [locationFilterValue]);
-
-
+  }, [locationFilterValue]);
       
-      const getUserId = () =>{
+  const getUserId = () =>{
         return new Promise((resolve,reject)=>{
           if(userId == null)
         {
@@ -223,9 +225,9 @@ const Explore = () => {
           resolve(userId)
         }
         })
-      }
+  }
 
-      const getLoginStatus = () => {
+  const getLoginStatus = () => {
         return new Promise((resolve, reject)=>{
           if(loginStatus === true)
           {
@@ -236,22 +238,31 @@ const Explore = () => {
             resolve('loggedOut')
           }
         })
-      }
+  }
 
-
+  const getCategories = async () => {
+        try {
+          const result = await http.get('getCategories')
+          const categories = result.data.filter((category)=> category.type === "Category")
+          const subCategories = result.data.filter((category)=> category.type === "SubCategory")
+          setCategories(categories)
+          setSubCategories(subCategories)
+        } catch (error) {
+          console.log(error)
+        }
+  }
       // Get All services
-      const getServices = async () => {
+  const getServices = async () => {
        
         try {
           
           const res = await http.get("getServices");
           
           const services = res.data.service;
-          
           const result = ratingAverage(services)
           const loginStatus = await getLoginStatus()
           const myId = await getUserId()
-
+          
           if(loginStatus == "loggedOut")
           {
             setServiceList(result);
@@ -269,14 +280,15 @@ const Explore = () => {
         } catch (err) {
           console.error("Error fetching services:", err);
         }
-      }
+  }
       // get all services
-      useEffect(()=>{
+  useEffect(()=>{
         getServices()
-      },[userId, loginStatus])
+        getCategories()
+  },[userId, loginStatus])
 
       // Apply the filteres in the searchParams
-     useEffect(()=>{
+  useEffect(()=>{
               if( rating == null || rating == "")
               {
 
@@ -319,8 +331,18 @@ const Explore = () => {
               {
                 setFilterLocationLongLat({longitude : longitudeParam, latitude : latitudeParam})
               }
+              if(subCategory == null || subCategory == "")
+              {
+                setSelectedSubCategory("Select Sub Category")
+              }
+              else
+              {
+                setSelectedSubCategory(subCategory)
+              }
+              
 
-     },[mainServiceList])
+  },[mainServiceList])
+
       // Apply the filter
     const applyFilter = () => {    
           setServiceList(filteredService) 
@@ -352,20 +374,23 @@ const Explore = () => {
       
         const filteredServiceByCategory = selectedCategory === "Select Category"
           ? filteredServices
-          : filteredServices.filter(service => service.advanceInformation.ServiceCategory === selectedCategory);
-      
+          : filteredServices.filter(service => service.advanceInformation.ServiceCategory.name === selectedCategory);
+
+        const filteredServiceBySubcategory = selectedSubCategory === "Select Sub Category" ? filteredServiceByCategory
+        : filteredServiceByCategory.filter(service => service.advanceInformation.ServiceSubCategory.name === selectedSubCategory)
+        
         const sortedFilter = sortFilter === "Recent Services"
-          ? filteredServiceByCategory.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          ? filteredServiceBySubcategory.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           : 
           sortFilter === "Oldest Services"
           ?
-          filteredServiceByCategory.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+          filteredServiceBySubcategory.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
           :
           sortFilter === "Most Rated"
           ?
-          filteredServiceByCategory.sort((a, b) => Number(b.ratings) - Number(a.ratings))
+          filteredServiceBySubcategory.sort((a, b) => Number(b.ratings) - Number(a.ratings))
           :
-          filteredServiceByCategory.sort((a, b) => Number(a.ratings) - Number(b.ratings))
+          filteredServiceBySubcategory.sort((a, b) => Number(a.ratings) - Number(b.ratings))
 
         if(search == null || search == "")
         {
@@ -380,7 +405,7 @@ const Explore = () => {
           
         }
         
-    }, [selectedRatingCheckbox, selectedCategory, mainServiceList, sortFilter, searchInput, locationFilterValue, radius]);
+    }, [selectedRatingCheckbox, selectedCategory, mainServiceList, sortFilter, searchInput, locationFilterValue, radius, selectedSubCategory]);
 
 
     //  Apply the filter onload only
@@ -452,7 +477,8 @@ const Explore = () => {
       <FilterContext.Provider value={[sortFilter, setSortFilter, donotApplyFilter, setDonotApplyFilter, selectedCategory, setSelectedCategory,
       selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,places, setPlaces,
       filterLocationLongLat, setFilterLocationLongLat, currentPage, setCurrentPage, serviceList, setServiceList, filteredService, setFilteredService,
-      searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList, rerender, setRerender, selectedCategoryId, setSelectedCategoryId, selectedSubCategory, setSelectedSubCategory
+      searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList, rerender, setRerender, selectedCategoryCode, setSelectedCategoryCode, selectedSubCategory, setSelectedSubCategory,
+      categories, subCategories
       ]} >
         <div className=' w-full flex h-full overflow-hidden relative'>
         {
@@ -485,7 +511,7 @@ const Explore = () => {
               <div key={index}  className='border relative flex cursor-pointer flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
               {/* Image Container */}
               <Link to={`/explore/viewService/${service._id}`} className='flex relative w-full h-[280px] lg:h-[200px] object-cover xl:w-[330px] xl:min-w-[330px] xl:h-[200px]'>
-              <p className='absolute bg-white px-2 py-1 text-sm font-semibold rounded-full top-1 left-1'>{service.advanceInformation.ServiceCategory}</p>
+              <p className='absolute bg-white px-2 py-1 text-sm font-semibold rounded-full top-1 left-1'>{service.advanceInformation.ServiceCategory.name}</p>
               <img className='w-full h-full min-h-[200px] max-h-[280px] object-cover rounded-lg' src={service.serviceProfileImage} alt="Cover"/>
               </Link>
               {/* Info Container */}

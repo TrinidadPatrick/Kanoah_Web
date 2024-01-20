@@ -19,7 +19,7 @@ const ServiceRegistrationPage = () => {
   const userId = useSelector(selectUserId)
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Holidays'] 
   
-    const [step, setStep] = useState(2)
+    const [step, setStep] = useState(1)
     // const [userId, setUserId] = useState(null)
     const [serviceInformation, setServiceInformation] = useState(
       {

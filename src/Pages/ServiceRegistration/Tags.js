@@ -61,7 +61,7 @@ const submitTag = () => {
   setServiceInformation({...serviceInformation, tags : tags})
   openSubmitModal()
 }
-  const submitService = () => {
+const submitService = () => {
 
     http.post("addService", {serviceInformation, userId, createdAt :thisDate}).then((res)=>{
       console.log(res.data)
@@ -70,9 +70,16 @@ const submitTag = () => {
       console.log(err)
     })
     
+}
+
+  const submitAndRedirect = () => {
+    http.post("addService", {serviceInformation, userId, createdAt :thisDate}).then((res)=>{
+      navigate("/myService/editService/Booking")
+    }).catch((err)=>{
+      console.log(err)
+    })
   }
 
-  console.log(tags)
   useEffect(()=>{
     setTags(serviceInformation.tags)
   },[step])
@@ -122,7 +129,7 @@ const submitTag = () => {
             <p className="text-[0.9rem] font-normal text-start">Do you want to enable and setup Booking information?</p>
           </div>
         <div className="flex justify-start">
-          <button className="px-3 text-[0.8rem] py-1 mr-2 text-white bg-themeOrange rounded-sm hover:bg-orange-300 focus:outline-none focus:ring " >Yes</button>
+          <button onClick={()=>{submitAndRedirect()}} className="px-3 text-[0.8rem] py-1 mr-2 text-white bg-themeOrange rounded-sm hover:bg-orange-300 focus:outline-none focus:ring " >Yes</button>
           <button className="px-3 text-[0.8rem] py-1 text-gray-700 bg-gray-300 rounded-sm hover:bg-gray-400 focus:outline-none focus:ring " onClick={()=>{submitService()}}>No, finish setup</button>
         </div>
       </div>

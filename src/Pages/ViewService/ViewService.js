@@ -32,13 +32,18 @@ import http from '../../http';
 import instagram from './img/instagram.png'
 import holidays from 'date-holidays'
 import Footer from '../MainPage/Footer';
+import Modal from 'react-modal';
+import BookService from '../BookService/BookService';
+import UseInfo from '../../ClientCustomHook/UseInfo';
 
 
 
 
 
 const ViewService = () => {
+  Modal.setAppElement('#root');
   const [dateToday, setDateToday] = useState("")
+  const {userInformation,authenticated} = UseInfo()
   const navigate = useNavigate()
   const dispatch = useDispatch();
   const [windowWidth, setWindowWdith] = useState(null)
@@ -48,8 +53,8 @@ const ViewService = () => {
   const [loading, setLoading] = useState(true)
   const [serviceInfo, setServiceInfo] = useState(null)
   const { serviceId } = useParams();
-  const [open, setOpen] = React.useState(false);
-  const [openModal, setOpenModal] = React.useState(false);
+  const [open, setOpen] =useState(false);
+  const [modalIsOpen, setIsOpen] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState('Description')
   const [currentDay, setCurrentDay] = useState('')
   const hd = new holidays('PH')
@@ -60,6 +65,27 @@ const ViewService = () => {
     longitude : null,
     latitude : null
   })
+
+  const ModalStyle = {
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      marginRight: '-50%',
+      transform: 'translate(-50%, -50%)',
+      padding : "0",
+      zIndex: 999,
+    },
+    overlay: {
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', // Change the color and opacity as needed
+      zIndex: 998,
+    },
+  };
+
+  const handleCloseModal = () => {
+    setIsOpen(false)
+  }
 
   // Generated format for featured Images
   const generatedFeaturedImages = (featuredImages) => {
@@ -169,6 +195,7 @@ const ViewService = () => {
 
     // Computes the rating Average
     const ratingAverage = (service) => {
+
         const ratings = service.ratings
         const totalRatings = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
         const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / totalRatings;
@@ -189,7 +216,9 @@ const ViewService = () => {
           ratings : average,
           ratingRounded : Math.floor(average),
           totalReviews : totalRatings,
-          createdAt : service.createdAt
+          createdAt : service.createdAt,
+          serviceOffers : service.serviceOffers,
+          acceptBooking : service.acceptBooking
         });
  
     };
@@ -244,7 +273,17 @@ useEffect(()=>{
   setDateToday(year+"-"+month+"-"+date)
 },[])
 
-console.log(serviceInfo)
+const handleBook = () => {
+  if(authenticated)
+  {
+    setIsOpen(true)
+  }
+  else{
+    dispatch(setShowLoginModal(true))
+  }
+}
+
+
   return (
 
     
@@ -290,10 +329,10 @@ console.log(serviceInfo)
         active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
           Chat now
         </button>
-        <button onClick={()=>{handleChatNow()}} className="cursor-pointer transition-all bg-blue-500 text-white px-6 py-1.5 rounded-lg
+        <button onClick={()=>{handleBook()}} disabled={!serviceInfo.acceptBooking} className="cursor-pointer disabled:bg-blue-300 disabled:border-blue-300 transition-all bg-blue-500 text-white px-6 py-1.5 rounded-lg
         border-blue-600
-        border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px]
-        active:border-b-[2px] active:brightness-90 active:translate-y-[2px]">
+        border-b-[4px] enabled:hover:brightness-110 enabled:hover:-translate-y-[1px] enabled:hover:border-b-[6px]
+        active:border-b-[2px] disabled:cursor-not-allowed active:brightness-90 active:translate-y-[2px]">
           Book Service
         </button>
         {/* <button onClick={()=>{handleChatNow()}} className='text-xs md:text-lg font-semibold bg-green-500 h-full text-white w-24 md:w-36 rounded-[0.150rem]'>Chat now</button> */}
@@ -524,10 +563,14 @@ console.log(serviceInfo)
         </footer>
       )
     }
-    
+    <Modal
+        isOpen={modalIsOpen}
+        style={ModalStyle}
+        contentLabel="Booking Modal"
+      >
+        <BookService handleCloseModal={handleCloseModal}  serviceId={serviceId} />
+      </Modal>
     </div>
-    
- 
 
   )
 }

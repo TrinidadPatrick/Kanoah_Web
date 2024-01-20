@@ -2,57 +2,37 @@ import React from 'react'
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import BookOnlineOutlinedIcon from '@mui/icons-material/BookOnlineOutlined';
 import UpdateOutlinedIcon from '@mui/icons-material/UpdateOutlined';
-import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteOutlined';
+import GradeOutlinedIcon from '@mui/icons-material/GradeOutlined';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import http from '../../http';
 import { useNavigate } from 'react-router-dom';
-import jwtDecode from 'jwt-decode';
-import { useDispatch, useSelector } from 'react-redux';
-import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
 import { useParams } from 'react-router-dom';
-import Gallery from './Gallery';
 import MyService from './MyService';
 import PageNotFound from '../NotFoundPage/PageNotFound';
 import EditService from '../EditService/EditService';
+import Bookings from './BookingManager/Bookings';
+import UseInfo from '../../ClientCustomHook/UseInfo';
 
 const ServiceSettings = () => {
-  const [isEditService, setIsEditService] = useState(false)
+  const {userInformation, authenticated} = UseInfo()
   const [notFound, setNotFound] = useState(false)
     const {option} = useParams()
-    const dispatch = useDispatch();
-    const userId = useSelector(selectUserId); 
-    const [access, setAccessToken] = useState(null);
-    const [loading, setLoading] = useState(true)
     const navigate = useNavigate()
-    const [selectedSettings, setSelectedSettings] = useState(option)
 
     // Handle the selected settings options
     const handleSelectSettings = (value) => {
         navigate(`/serviceSettings/${value}`)
-        window.location.reload()
+        // window.location.reload()
     }
 
-
-      // Get userInformation
-      const getUser = async () => {
-        await http.get(`getUser/${userId}`).then((res)=>{
-        }).catch((err)=>{
-          console.log(err)
-        })
-  }
-
-  //Get Tokens from Local Storage
-  useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (accessToken) {
-      setAccessToken(accessToken);
-      setLoading(false)
-    }else{
-      // setIsLoggedIn(false)
+  useEffect(()=>{
+    if(authenticated === false)
+    {
       navigate("/")
     }
-  }, [userId])
+
+  },[authenticated])
 
   //Check if the url is valid
   useEffect(()=>{
@@ -62,7 +42,6 @@ const ServiceSettings = () => {
     }
   },[])
 
-// console.log(option)
   return (
 
         <div className='w-full h-screen flex flex-col '>
@@ -81,9 +60,9 @@ const ServiceSettings = () => {
     </div>
 
     <div className='flex flex-col items-start mt-10 space-y-6'>
-    <div  onClick={()=>{handleSelectSettings("myService")}}  className={`${selectedSettings == "myService" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><PersonOutlinedIcon /><Link to="" className={`${selectedSettings == "myService" ? "text-blue-800" : "text-gray-800"}`}>My Service</Link></div>
-    <div  onClick={()=>{handleSelectSettings("Bookings")}}  className={`${selectedSettings == "Bookings" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><BookOnlineOutlinedIcon /><Link to="" className={`${selectedSettings == "Bookings" ? "text-blue-800" : "text-gray-800"}`}>Bookings</Link></div>
-    <div  onClick={()=>{handleSelectSettings("BookingHistory")}}  className={`${selectedSettings == "BookingHistory" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><UpdateOutlinedIcon /><Link to="" className={`${selectedSettings == "BookingHistory" ? "text-blue-800" : "text-gray-800"}`}>Booking History</Link></div>
+    <div  onClick={()=>{handleSelectSettings("myService")}}  className={`${option == "myService" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><PersonOutlinedIcon fontSize='small' className='text-gray-600' /><Link to="" className={`${option == "myService" ? "text-blue-800" : "text-gray-700"} font-medium`}>My Service</Link></div>
+    <div  onClick={()=>{handleSelectSettings("Bookings")}}  className={`${option == "Bookings" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><BookOnlineOutlinedIcon fontSize='small' className='text-gray-600' /><Link to="" className={`${option == "Bookings" ? "text-blue-800" : "text-gray-700"} font-medium`}>Bookings</Link></div>
+    <div  onClick={()=>{handleSelectSettings("Reviews")}}  className={`${option == "Reviews" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><GradeOutlinedIcon fontSize='small' className='text-gray-600' /><Link to="" className={`${option == "Reviews" ? "text-blue-800" : "text-gray-700"} font-medium`}>Reviews</Link></div>
     
     </div>
 
@@ -91,8 +70,8 @@ const ServiceSettings = () => {
 
 
     {/* Right section */}
-    <section className='w-full h-full pt-5'>
-    {selectedSettings == "Gallery" ? <Gallery /> : selectedSettings == "myService" ? <MyService /> : selectedSettings == "myService" ?  <EditService /> : "" }
+    <section className='w-full h-full flex pt-5'>
+    {option == "Bookings" ? <Bookings /> : option == "myService" ? <MyService /> : option == "myService" ?  <EditService /> : "" }
     </section>
     </div>
         )
