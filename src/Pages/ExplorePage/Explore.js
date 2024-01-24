@@ -218,7 +218,7 @@ const Explore = () => {
   const getServices = async () => {
         
         try {
-          const dns = await getDNS()
+          const dns = authenticated ? await getDNS() : []
           const services_item = authenticated && dns.length !== 0 ? services.filter(service => !dns.some((dns) => service._id == dns.service._id)) : dns.length == 0 ? services : services
           const result = ratingAverage(services_item)
           if(authenticated === false)
