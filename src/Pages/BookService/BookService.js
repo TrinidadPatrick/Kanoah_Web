@@ -11,7 +11,6 @@ import SetSchedule from './SetSchedule'
 import ContactAndAddress from './ContactAndAddress';
 import UseInfo from '../../ClientCustomHook/UseInfo';
 import Confirmation from './Confirmation';
-import useBookings from '../../ClientCustomHook/BookingsProvider';
 import Success from './Success';
 
 const BookService = ({handleCloseModal, serviceId}) => {
@@ -19,7 +18,6 @@ const BookService = ({handleCloseModal, serviceId}) => {
     const [step, setStep] = useState(1)
     const [serviceInfo, setServiceInfo] = useState(null)
     const [bookingSchedule, setBookingSchedule] = useState([])
-    const {bookings} = useBookings()
 
     const handleStep = (value) => {
         setStep(value)

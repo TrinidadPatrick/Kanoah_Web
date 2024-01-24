@@ -10,40 +10,18 @@ import './style.css'
 import Address from './Components/Address'
 import ServiceHours from './Components/ServiceHours'
 import Tags from './Components/Tags'
+import useService from '../../ClientCustomHook/ServiceProvider'
 import PageNotFound from '../NotFoundPage/PageNotFound'
 import BookingInformation from './Components/BookingInformation'
-import useBookings from '../../ClientCustomHook/BookingsProvider'
 
 const EditService = () => {
 const dispatch = useDispatch()
 const [windowWidth, setWindowWdith] = useState(null)
-const serviceInformation = useSelector(selectServiceData)
+const {serviceInformation, authenticated} = useService()
 const {option} = useParams()
 const {setting} = useParams()
 const navigate = useNavigate()
 const [selectedSettings, setSelectedSettings] = useState(option)
-const accessToken = localStorage.getItem('accessToken')
-
-// Handle the selected settings options
-const handleSelectSettings = (value) => {
-    navigate(`/serviceSettings/${value}`)
-    window.location.reload()
-}
-
-// Get the service Information
-const getServiceInformation = async () => {
-
-    try {
-        const result = await http.get(`getServiceProfile`, {
-           withCredentials : true
-          })
-        //   console.log(result)
-        dispatch(setServiceData(result.data))
-    } catch (error) {
-        navigate('/')
-        console.error('Erro fetching data: ' + error)
-    }
-}
 
 // Function to handle window resize
 const handleResize = () => {
@@ -62,9 +40,15 @@ handleResize();
 },[])
 
 useEffect(()=>{
-    setSelectedSettings(option)
-    getServiceInformation()
-},[])
+    if(authenticated)
+    {
+        setSelectedSettings(option)
+    }
+    else if(authenticated === false){
+        navigate("/")
+    }
+    
+},[authenticated])
 
     
   return (
@@ -98,7 +82,7 @@ useEffect(()=>{
     {/* Body */}
     <div className='w-full h-full relative flex items-center justify-center bg-[#f9f9f9]'>
         {
-           option == 'basicInformation' ? (<BasicInformation />) : option == 'advanceInformation' ? (<AdvanceInformation />) : option == 'address' ? (<Address />) : option == 'serviceHours' ? (<ServiceHours />) : option == 'tags' ? (<Tags />) : option == 'Booking' ? (<BookingInformation />) : (<PageNotFound />)
+           option == 'basicInformation' ? (<BasicInformation serviceInformation={serviceInformation} />) : option == 'advanceInformation' ? (<AdvanceInformation serviceInformation={serviceInformation} />) : option == 'address' ? (<Address serviceInformation={serviceInformation} />) : option == 'serviceHours' ? (<ServiceHours serviceInformation={serviceInformation} />) : option == 'tags' ? (<Tags serviceInformation={serviceInformation} />) : option == 'Booking' ? (<BookingInformation serviceInformation={serviceInformation} />) : (<PageNotFound />)
         }
     
    

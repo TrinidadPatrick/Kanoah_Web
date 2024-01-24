@@ -18,7 +18,7 @@ import { Link } from 'react-router-dom';
 
 
 
-const RecentServices = () => {
+const RecentServices = ({services}) => {
   const [newServices, setNewServices] = useState(null)
   const [showMoreOption, setShowMoreOption] = useState(false)
   const [activeId, setActiveId] = useState(0)
@@ -86,7 +86,7 @@ const RecentServices = () => {
 
   // Computes the rating Average
   const ratingAverage = (services) => {
-        return services.map((service, index) => {
+        return services?.map((service, index) => {
           const ratings = service.ratings
           const totalRatings = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
           const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / totalRatings;
@@ -119,23 +119,16 @@ const RecentServices = () => {
         });
   };
 
-    // Gets all services
-    const getServices = async () => {
-      try {
-        const result = await http.get("getServices")
-        const services = result.data.service
+  
+    useEffect(()=>{
+      if(services !== null)
+      {
         const computed = ratingAverage(services)
         const sorted = computed.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         setNewServices(sorted)
-      } catch (error) {
-        console.log(error)
       }
-    }
   
-    useEffect(()=>{
-      getServices()
-  
-    }, [])
+    }, [services])
 
   
 

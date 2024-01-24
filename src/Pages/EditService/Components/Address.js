@@ -4,24 +4,17 @@ import phil from 'phil-reg-prov-mun-brgy';
 import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import axios from 'axios';
-import { selectUserId } from '../../../ReduxTK/userSlice';
-import { selectServiceData } from '../../../ReduxTK/serviceSlice';
+import useService from '../../../ClientCustomHook/ServiceProvider'
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { useSelector } from 'react-redux';
 import http from '../../../http';
 
-const Address = () => {
-const serviceData = useSelector(selectServiceData)
+const Address = ({serviceInformation}) => {
 const [updating, setUpdating] = useState(false)
 const [loading, setLoading] = useState(true)
-const userId = useSelector(selectUserId)
 const [street, setStreet] = useState('')
-const [fullAddress, setFullAddress] = useState({})
 const [address, setAddress] = useState({})
-const [isDragging, setIsDragging] = useState(false);
 const [closeAutofill, setCloseAutofill] = useState(false)
 const [places, setPlaces] = useState([])
-const accessToken = localStorage.getItem('accessToken')
 const [locationFilterValue, setLocationFilterValue] = useState({
         location : '',
         longitude : '',
@@ -82,7 +75,7 @@ const handleUpdate = async () => {
     {
       setUpdating(true)
       try {
-        const result = await http.patch(`updateService/${userId}`, {address : address},  {
+        const result = await http.patch(`updateService/${serviceInformation.userId}`, {address : address},  {
           withCredentials : true
         })
         if(result.data.status == "Success")
@@ -102,13 +95,13 @@ const handleUpdate = async () => {
 // Get my location
 useEffect(() => {
         // Use the Geolocation API to get the user's location
-        if(serviceData.address !== undefined)
+        if(serviceInformation?.address !== undefined)
         {
-          setLocation({longitude : serviceData.address.longitude, latitude : serviceData.address.latitude})
-          setStreet(serviceData.address.street)
+          setLocation({longitude : serviceInformation?.address.longitude, latitude : serviceInformation?.address.latitude})
+          setStreet(serviceInformation?.address.street)
         }
         
-}, [serviceData]);
+}, [serviceInformation]);
 
 // Map Viewport
 const [viewport, setViewPort] = useState({    
@@ -137,22 +130,22 @@ useEffect(() => {
 
 // Set the address from db
 useEffect(()=>{
-  if(serviceData.address !== undefined)
+  if(serviceInformation?.address !== undefined)
   {
-    setAddress(serviceData.address)
+    setAddress(serviceInformation?.address)
     setLocCodesSelected(
       [
-        [serviceData.address.region.name, serviceData.address.region.reg_code],
-        [serviceData.address.province.name, serviceData.address.province.prov_code],
-        [serviceData.address.municipality.name, serviceData.address.municipality.mun_code],
-        [serviceData.address.barangay.name, serviceData.address.barangay.brgy_code]
+        [serviceInformation?.address.region.name, serviceInformation?.address.region.reg_code],
+        [serviceInformation?.address.province.name, serviceInformation?.address.province.prov_code],
+        [serviceInformation?.address.municipality.name, serviceInformation?.address.municipality.mun_code],
+        [serviceInformation?.address.barangay.name, serviceInformation?.address.barangay.brgy_code]
       ]
     )
 
     setLoading(false)
   }
   
-},[serviceData])
+},[serviceInformation])
 
 
   return (
@@ -255,6 +248,7 @@ useEffect(()=>{
                 <div className='border rounded-md overflow-hidden md:h-[90%]'>
                 <textarea
                 value={street}
+                maxLength={500}
                 onChange={(e)=>{setStreet(e.target.value)}}
                 id="description"
                 className="w-full p-2 text-xs xl:text-sm resize-none outline-none h-full "
@@ -306,11 +300,11 @@ useEffect(()=>{
                   latitude: evt.lngLat.lat / sensitivityFactor,
                 };
                 setLocation(newLocation);
-                setViewPort((prevViewport) => ({
-                  ...prevViewport,
-                  latitude: newLocation.latitude,
-                  longitude: newLocation.longitude ,
-                }));
+                // setViewPort((prevViewport) => ({
+                //   ...prevViewport,
+                //   latitude: newLocation.latitude,
+                //   longitude: newLocation.longitude ,
+                // }));
               }}
             >
         

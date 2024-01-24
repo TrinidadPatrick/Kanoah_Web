@@ -13,6 +13,7 @@ import PageNotFound from '../NotFoundPage/PageNotFound';
 import EditService from '../EditService/EditService';
 import Bookings from './BookingManager/Bookings';
 import UseInfo from '../../ClientCustomHook/UseInfo';
+import MobileServiceSettingSidebar from './MobileServiceSettingSidebar';
 
 const ServiceSettings = () => {
   const {userInformation, authenticated} = UseInfo()
@@ -44,7 +45,7 @@ const ServiceSettings = () => {
 
   return (
 
-        <div className='w-full h-screen flex flex-col '>
+        <div className='w-full h-full flex flex-col '>
       {
 
         notFound ? (<PageNotFound />)
@@ -70,9 +71,12 @@ const ServiceSettings = () => {
 
 
     {/* Right section */}
-    <section className='w-full h-full flex pt-5'>
-    {option == "Bookings" ? <Bookings /> : option == "myService" ? <MyService /> : option == "myService" ?  <EditService /> : "" }
+    <section className='w-full h-full  flex flex-col '>
+      {option == "Bookings" ? <Bookings /> : option == "myService" ? <MyService /> : option == "myService" ?  <EditService /> : "" }
     </section>
+
+    {/* mobile Sidebar */}
+    {/* <MobileServiceSettingSidebar /> */}
     </div>
         )
       }

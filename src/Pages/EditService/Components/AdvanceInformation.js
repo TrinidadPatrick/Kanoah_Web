@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { categories } from '../../MainPage/Components/Categories'
-import { selectServiceData, setServiceData } from '../../../ReduxTK/serviceSlice'
+import { selectserviceInformation, setserviceInformation } from '../../../ReduxTK/serviceSlice'
 import { selectUserId } from '../../../ReduxTK/userSlice'
 import { useState } from 'react'
 import Modal from 'react-modal';
@@ -12,25 +12,18 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import cash from '../../ServiceRegistration/Utils/images/cash.png'
 import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import Gcash from '../../ServiceRegistration/Utils/images/Gcash.png'
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import { useSelector } from 'react-redux'
 import axios from 'axios';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import cloudinaryCore from '../../../CloudinaryConfig';
-import { subCategories } from '../../MainPage/Components/SubCategories'
 import http from '../../../http'
 import useCategory from '../../../ClientCustomHook/CategoryProvider'
 
-const AdvanceInformation = () => {
+const AdvanceInformation = ({serviceInformation}) => {
     Modal.setAppElement('#root');
     const userId = useSelector(selectUserId)
     const [updating, setUpdating] = useState(false)
-    const serviceData = useSelector(selectServiceData)
     const [openSocialLinkModal, setOpenSocialLinkModal] = useState(false);
     const {categories, subCategories} = useCategory()
-    // const [categories, setCategories] = useState([]);
-    // const [subCategories, setSubCategories] = useState([]);
     const serviceOptions = ['Home Service','Online Service','Walk-In Service', 'Pick-up and Deliver']
     const [isGcashChecked, setIsGcashChecked] = useState(false);
     const [isGcashModalOpen, setIsGcashModalOpen] = useState(false);
@@ -193,7 +186,7 @@ const AdvanceInformation = () => {
     setIsGcashModalOpen(false)
     }
     
-    }
+    } 
 
     // Update the information
     const handleUpdate = async () => {
@@ -208,12 +201,12 @@ const AdvanceInformation = () => {
         ServiceCategory : categories.find(category => category.category_code === selectedCategoryCode)._id,
       }
 
-      setUpdating(true)
+      // setUpdating(true)
       try {
-        const result = await http.patch(`updateService/${userId}`, {advanceInformation : data},  {
+        const result = await http.patch(`updateService/${serviceInformation.userId}`, {advanceInformation : data},  {
           withCredentials : true
         })
-
+        console.log(result.data)
         if(result.data.status == "Success")
         {
           window.location.reload()
@@ -235,15 +228,15 @@ const AdvanceInformation = () => {
     }
 
     useEffect(()=>{
-        if(serviceData.advanceInformation !== undefined)
+        if(serviceInformation?.advanceInformation !== undefined)
         { 
-          setAdvanceInformation(serviceData.advanceInformation)
-          const categoryCode = categories.find(category => category?.name === serviceData.advanceInformation.ServiceCategory.name)?.category_code
-          const subCategoryId = subCategories.find(subCategory => subCategory?.name === serviceData.advanceInformation.ServiceSubCategory?.name)?._id
+          setAdvanceInformation(serviceInformation?.advanceInformation)
+          const categoryCode = categories.find(category => category?.name === serviceInformation?.advanceInformation.ServiceCategory.name)?.category_code
+          const subCategoryId = subCategories.find(subCategory => subCategory?.name === serviceInformation?.advanceInformation.ServiceSubCategory?.name)?._id
           setSelectedCategoryCode(categoryCode)
           setSelectedSubCategory(subCategoryId)
         }
-    },[serviceData, categories])
+    },[serviceInformation, categories])
 
 
     useEffect(()=>{
@@ -266,17 +259,17 @@ const AdvanceInformation = () => {
         {/* Contact */}
         <label htmlFor='contact' className='font-medium text-sm xl:text-[0.8rem] text-gray-700'>Service Contact</label>
         <span className='absolute text-sm xl:text-[0.9rem] top-[50%] xl:top-[50%] left-2 text-gray-600'>+63</span>
-        <input onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} value={advanceInformation.ServiceContact} id='contact' className='border  text-sm xl:text-[0.9rem] py-2 ps-8 md:ps-9 outline-none rounded-md' type='text' />
+        <input maxLength={10} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value.replace(/[^0-9]/g, '')})}} value={advanceInformation.ServiceContact} id='contact' className='border  text-sm xl:text-[0.9rem] py-2 ps-8 md:ps-9 outline-none rounded-md' type='text' />
         </div>
         {/* Fax */}
         <div className='flex flex-col '>   
         <label htmlFor='fax' className='font-medium text-sm xl:text-[0.8rem] text-gray-700'>Service Fax Number</label>
-        <input  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceFax : e.target.value})}} value={advanceInformation.ServiceFax} id='fax' className='border p-2 text-sm xl:text-[0.9rem] md:p-2 outline-none rounded-md' type='text' />
+        <input  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceFax : e.target.value.replace(/[^0-9]/g, '')})}} value={advanceInformation.ServiceFax} id='fax' className='border p-2 text-sm xl:text-[0.9rem] md:p-2 outline-none rounded-md' type='text' />
         </div>
         {/* Email */}
         <div className='flex flex-col '>
         <label htmlFor='email' className='font-medium text-sm xl:text-[0.8rem] text-gray-700'>Service Email</label>
-        <input  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} value={advanceInformation.ServiceEmail} id='email' className='border p-2 text-sm xl:text-[0.9rem] md:p-2 outline-none rounded-md' type='text' />
+        <input maxLength={320}  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} value={advanceInformation.ServiceEmail} id='email' className='border p-2 text-sm xl:text-[0.9rem] md:p-2 outline-none rounded-md' type='text' />
         </div>
         
     </div>

@@ -15,18 +15,18 @@ import TableRowsOutlinedIcon from '@mui/icons-material/TableRowsOutlined'
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
+import UseInfo from '../../ClientCustomHook/UseInfo';
 import http from '../../http';
 
 
 const Gallery = (value) => {
+const {authenticated, userInformation} = UseInfo()
 const [windowWidth, setWindowWdith] = useState(null)
 const [windowHeight, setWindowHeight] = useState(null)
 const [imagesToDelete, setImagesToDelete] = useState([])
 const [multipleSelect, setMultipleSelect] = useState(false)
 const [selectedView, setSelectedView] = useState('Grid')
 const [uploadProgress, setUploadProgress] = useState(0);
-const dispatch = useDispatch();
-const userId = useSelector(selectUserId);
 const [uploadingImage, setUploadingImage] = useState(false)
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
@@ -110,7 +110,7 @@ setUploadProgress(0)
 
 // get images
 const getGalleryImages = async () => {
-  await http.get(`getGalleryImages/${userId}`).then((res)=>{
+  await http.get(`getGalleryImages/${userInformation._id}`).then((res)=>{
     setServiceGalleryImages(res.data.images)
   }).catch((err)=>{
     console.log(err)
@@ -119,7 +119,7 @@ const getGalleryImages = async () => {
 
 // delete single image
 const deleteImage = async (imageId) => {
-  await http.post('deleteImage', {imageId, userId},{
+  await http.post('deleteImage', {imageId, userId : userInformation._id},{
     withCredentials : true
   }).then((res)=>{
     getGalleryImages()
@@ -146,7 +146,7 @@ const selectMultipleDelete = async (imageId) => {
 
 // Deletes all the selected images
 const deleteMultipleImages = async () => {
-  await http.post('deleteMultipleImages', {userId, imagesToDelete},{
+  await http.post('deleteMultipleImages', {userId : userInformation._id, imagesToDelete},{
     withCredentials : true
   }).then((res)=>{
     getGalleryImages()
@@ -156,10 +156,6 @@ const deleteMultipleImages = async () => {
   })
 }
 
-// Gets the images gallery
-useEffect(()=>{
-  getGalleryImages()
-}, [])
 
 const handleResize = () => {
   const windowWidth = window.innerWidth;
@@ -177,8 +173,12 @@ useEffect(()=>{
   handleResize();
 },[])
 
+useEffect(()=>{
+  setServiceGalleryImages(value.value.galleryImages)
+},[])
+
   return (
-    <div className='w-full bg-white h-full  flex flex-col mt-5'>
+    <div className='w-full h-full overflow-auto flex flex-col mt-5'>
     
     {/* Navigation */}
     <nav className='w-full h-fit'>
@@ -186,7 +186,7 @@ useEffect(()=>{
 
         {/* Upload Button */}
         <li className='ml-3 cursor-all-scroll flex items-center space-x-2'>
-        <label htmlFor="fileInput" className={` bg-blue-500 h-full text-[0.85rem] shadow-md py-1 semiSm:py-2 flex items-center relative px-2 sm:px-4 text-white font-medium text-center rounded cursor-pointer`}>
+        <label htmlFor="fileInput" className={` bg-themeOrange h-full text-[0.85rem] shadow-md py-1 semiSm:py-2 flex items-center relative px-2 sm:px-4 text-white font-medium text-center rounded cursor-pointer`}>
         {uploadingImage ? "Uploading" : windowWidth <= 510 ? <FileUploadOutlinedIcon /> : "Upload Image"}
         <input onChange={(e)=>{handleAddImage(e.target.files)}} disabled={uploadingImage} type="file" multiple accept="image/*" id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
         </label>
@@ -230,7 +230,7 @@ useEffect(()=>{
     </nav>
 
     {/* Grid Gallery Container */}
-    <section className={`w-full ${selectedView == "Grid" ? "grid" : "hidden"} h-full mt-5 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 p-3 max-h-full`}>
+    <section className={`w-full ${selectedView == "Grid" ? "grid" : "hidden"} h-full mt-5 grid-cols-1 semiSm:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 p-3 max-h-full`}>
     {/* Image Container */}
     {
       serviceGalleryImages.map((image, index)=>{
@@ -243,8 +243,9 @@ useEffect(()=>{
         // onClick={()=>{handleImageClick(index)}}
         <div  key={index} className="relative">
         <div className="relative group">
-        <div className={`${multipleSelect ? "border-2 h-[140px] max-h-[150px] object-fill flex justify-center rounded-lg shadow-sm overflow-hidden" : "border-2 h-[140px] max-h-[150px] object-fill flex justify-center group-hover:brightness-50 group-hover:bg-blue-50 group-hover:blur-[0.9px] rounded-lg shadow-sm overflow-hidden hover:filter hover:brightness-50 hover:blur-[0.9px] hover:opacity-100 hover:bg-blue-50"} `}>
-        <img src={image.src} alt="image" className="max-h-full object-cover" />
+        <div className={`${multipleSelect ? "border aspect-video flex justify-center rounded-md shadow-sm overflow-hidden" :
+        "border aspect-video shadow-sm bg-white flex justify-center group-hover:brightness-50 group-hover:bg-blue-50 group-hover:blur-[0.9px] rounded-md overflow-hidden hover:filter hover:brightness-50 hover:blur-[0.9px] hover:opacity-100 hover:bg-blue-50"} `}>
+        <img src={image.src} alt="image" className="w-full h-full aspect-video object-contain" />
         </div>
         <button onClick={()=>{handleImageClick(index)}} className={`${multipleSelect ? "hidden" : "bg-white px-3 py-1 rounded-md text-gray-500 absolute top-[40%] group left-[30%] opacity-0 group-hover:opacity-100 transition-opacity duration-100"} `}>Preview</button>
         {/* Delete Button */}
@@ -267,8 +268,9 @@ useEffect(()=>{
     </section>
 
      {/* List Gallery Container */}
-     <section className={`w-full h-full mt-5 ${selectedView == "List" ? "flex" : "hidden"} flex-col items-center gap-8 p-3 max-h-full`}>
+     <section className={`w-full h-full overflow-auto   mt-5 ${selectedView == "List" ? "flex" : "hidden"} p-3`}>
     {/* Image Container */}
+    <div className='w-full h-full flex flex-col overflow-auto space-y-5'>
     {
       serviceGalleryImages.map((image, index)=>{
               const from = new Date(image.TimeStamp);
@@ -298,8 +300,8 @@ useEffect(()=>{
       )   
       })
     }
-     
-
+    </div>
+    
     </section>
     <Lightbox
         plugins={[Download,Fullscreen]}

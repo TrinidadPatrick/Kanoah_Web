@@ -15,9 +15,11 @@ import TableRowsOutlinedIcon from '@mui/icons-material/TableRowsOutlined';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
+import UseInfo from '../../ClientCustomHook/UseInfo';
 import http from '../../http';
 
 const FeaturedPhotos = (value) => {
+  const {authenticated, userInformation} = UseInfo()
   const [windowWidth, setWindowWdith] = useState(null)
 const [windowHeight, setWindowHeight] = useState(null)
   const [imagesToDelete, setImagesToDelete] = useState([])
@@ -110,7 +112,7 @@ setUploadProgress(0)
 
 // get images
 const getFeaturedImages = async () => {
-  await http.get(`getFeaturedImages/${userId}`).then((res)=>{
+  await http.get(`getFeaturedImages/${userInformation._id}`).then((res)=>{
     setFeaturedGalleryImages(res.data.images)
   }).catch((err)=>{
     console.log(err)
@@ -119,7 +121,7 @@ const getFeaturedImages = async () => {
 
 // delete single image
 const deleteImage = async (imageId) => {
-  await http.post('deleteFeaturedImage', {imageId, userId},{
+  await http.post('deleteFeaturedImage', {imageId, userId : userInformation._id},{
     withCredentials : true
   }).then((res)=>{
     getFeaturedImages()
@@ -146,7 +148,7 @@ const selectMultipleDelete = async (imageId) => {
 
 // Deletes all the selected images
 const deleteMultipleImages = async () => {
-  await http.post('deleteMultipleFeaturedImages', {userId, imagesToDelete},{
+  await http.post('deleteMultipleFeaturedImages', {userId : userInformation._id, imagesToDelete},{
     withCredentials : true
   }).then((res)=>{
     getFeaturedImages()
@@ -155,11 +157,6 @@ const deleteMultipleImages = async () => {
     console.log(err)
   })
 }
-
-// Gets the images gallery
-useEffect(()=>{
-  getFeaturedImages()
-}, [])
 
 const handleResize = () => {
   const windowWidth = window.innerWidth;
@@ -177,8 +174,12 @@ useEffect(()=>{
   handleResize();
 },[])
 
+useEffect(()=>{
+  setFeaturedGalleryImages(value.value.featuredImages)
+},[])
+
   return (
-    <div className='w-full bg-white h-full  flex flex-col mt-5'>
+    <div className='w-full bg-white h-full overflow-auto  flex flex-col mt-5'>
     
     {/* Navigation */}
     <nav className='w-full h-fit'>
@@ -243,12 +244,13 @@ useEffect(()=>{
         // onClick={()=>{handleImageClick(index)}}
         <div  key={index} className="relative">
         <div className="relative group">
-        <div className={`${multipleSelect ? "border-2 h-[140px] max-h-[150px] object-fill flex justify-center rounded-lg shadow-sm overflow-hidden" : "border-2 h-[140px] max-h-[150px] object-fill flex justify-center group-hover:brightness-50 group-hover:bg-blue-50 group-hover:blur-[0.9px] rounded-lg shadow-sm overflow-hidden hover:filter hover:brightness-50 hover:blur-[0.9px] hover:opacity-100 hover:bg-blue-50"} `}>
-        <img src={image.src} alt="image" className="max-h-full object-cover" />
+        <div className={`${multipleSelect ? "border aspect-video flex justify-center rounded-md shadow-sm overflow-hidden" :
+        "border aspect-video shadow-sm bg-white flex justify-center group-hover:brightness-50 group-hover:bg-blue-50 group-hover:blur-[0.9px] rounded-md overflow-hidden hover:filter hover:brightness-50 hover:blur-[0.9px] hover:opacity-100 hover:bg-blue-50"} `}>
+        <img src={image.src} alt="image" className="w-full h-full aspect-video object-contain" />
         </div>
         <button onClick={()=>{handleImageClick(index)}} className={`${multipleSelect ? "hidden" : "bg-white px-3 py-1 rounded-md text-gray-500 absolute top-[40%] group left-[30%] opacity-0 group-hover:opacity-100 transition-opacity duration-100"} `}>Preview</button>
         {/* Delete Button */}
-        <button onClick={()=>{deleteImage(image.imageId)}} className={`${multipleSelect ? "hidden" : "absolute"} px-1 py-1 rounded-md text-white top-[0%] group hover:text-red-500 left-[0%] opacity-0 group-hover:opacity-100 transition-opacity duration-100`}><DeleteIcon /></button>
+        <button onClick={()=>{deleteImage(image.imageId)}} className={`${multipleSelect ? "hidden" : "absolute"} px-1 py-1 rounded-md text-white top-[0%] group left-[0%] opacity-0 hover:text-red-500 group-hover:opacity-100 transition-opacity duration-100`}><DeleteIcon /></button>
         {/* Checkbox */}
         <input checked={imagesToDelete.includes(image.imageId) ? true : false} onChange={()=>{selectMultipleDelete(image.imageId)}} className={`${multipleSelect ? "absolute" : "hidden"} top-1 left-1 h-5 w-5`} type="checkbox" />
         </div>

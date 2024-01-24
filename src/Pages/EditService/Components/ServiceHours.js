@@ -1,14 +1,10 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import useService from '../../../ClientCustomHook/ServiceProvider'
 import http from '../../../http';
-import { selectServiceData } from '../../../ReduxTK/serviceSlice';
-import { selectUserId } from '../../../ReduxTK/userSlice';
 
-const ServiceHours = () => {
-  const serviceData = useSelector(selectServiceData)
-  const userId = useSelector(selectUserId)
-  const accessToken = localStorage.getItem('accessToken')
+
+const ServiceHours = ({serviceInformation}) => {
   const [updating, setUpdating] = useState(false)
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Holidays'] 
   const [schedule, setSchedule] = useState(
@@ -42,7 +38,7 @@ const ServiceHours = () => {
     const serviceHour = schedule
     setUpdating(true)
       try {
-        const result = await http.patch(`updateService/${userId}`, {serviceHour : serviceHour},  {
+        const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceHour : serviceHour},  {
           withCredentials : true
         })
         if(result.data.status == "Success")
@@ -58,11 +54,11 @@ const ServiceHours = () => {
   }
 
   useEffect(()=>{
-    if(serviceData.serviceHour !== undefined)
+    if(serviceInformation?.serviceHour !== undefined)
     {
-        setSchedule(serviceData.serviceHour)
+        setSchedule(serviceInformation?.serviceHour)
     }
-  },[serviceData])
+  },[serviceInformation])
 
 
   return (

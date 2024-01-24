@@ -23,7 +23,7 @@ import http from '../../http';
 
 
 
-const TopRatedServices = () => {
+const TopRatedServices = ({services}) => {
   const [trendingServices, setTrendingServices] = useState(null)
   const [showMoreOption, setShowMoreOption] = useState(false)
   const [activeId, setActiveId] = useState(0)
@@ -136,25 +136,17 @@ const TopRatedServices = () => {
       });
     };
 
-  // Gets all services
-  const getServices = async () => {
-    try {
-      const result = await http.get("getServices")
-      const services = result.data.service
-      const computed = ratingAverage(services)
-      const sorted = computed.sort((a,b)=>(
-      Number(b.ratings) - Number(a.ratings)
-      ))
-      setTrendingServices(sorted)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
   useEffect(()=>{
-    getServices()
+    if(services !== null)
+      {
+        const computed = ratingAverage(services)
+        const sorted = computed.sort((a,b)=>(
+          Number(b.ratings) - Number(a.ratings)
+          ))
+          setTrendingServices(sorted)
+      }
 
-  }, [])
+  }, [services])
 
 
   

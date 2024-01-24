@@ -9,21 +9,15 @@ import TopRatedServices from './TopRatedServices'
 import RecentServices from './RecentServices'
 import HowItWorks from './HowItWorks'
 import Footer from './Footer'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import UserAllServices from '../../ClientCustomHook/AllServiceProvider';
+import { useActionData, useNavigate } from 'react-router-dom'
 import LocationSearch from './Components/LocationSearch'
 
 
 const MainPage = () => {
-
+  const {services} = UserAllServices()
   const navigate = useNavigate()
-  const [searchInput,setSearchInput] = useState('')
-  const [trendingServices, setTrendingServices] = useState(null)
   const [showMenu, setShowMenu] = useState(false)
-  const [showLogin, setShowLogin] = useState(false)
-  const [locationFilterValue, setLocationFilterValue] = useState('')
-  const [locationInput, setLocationInput] = useState('')
-  const [places, setPlaces] = useState([])
 
     // Handles the showing oh menu on small screens
   const handleMenu = () => {
@@ -85,12 +79,12 @@ const MainPage = () => {
     
     {/* TOP RATED SERVICES */}
     <section className='top_rated_service w-full h-screen bg-[#f8f8f8] py-[1rem] sm:px-0 md:px-16 lg:px-16'>
-    <TopRatedServices />
+    <TopRatedServices services={services} />
     </section>
 
     {/* RECENT SERVICES */}
     <section className='top_rated_service w-full h-screen bg-[#f8f8f8] py-[1rem] sm:px-0 md:px-16 lg:px-16'>
-    <RecentServices />
+    <RecentServices services={services} />
     </section>
 
      {/* How it works */}

@@ -1,35 +1,28 @@
 import React from 'react'
 import { useState, useEffect, useRef } from 'react'
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
+import useService from '../../../ClientCustomHook/ServiceProvider'
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { selectUserId } from '../../../ReduxTK/userSlice';
 import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
-import { selectServiceData } from '../../../ReduxTK/serviceSlice';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
-import { useSelector } from 'react-redux';
 import OutsideClickHandler from 'react-outside-click-handler';
 import http from '../../../http';
 import Modal from 'react-modal';
 
-const BookingInformation = () => {
-    const dropdownRef = useRef();
+const BookingInformation = ({serviceInformation}) => {
     Modal.setAppElement('#root');
-    const userId = useSelector(selectUserId)
-    const accessToken = localStorage.getItem('accessToken')
     const [isEdit, setIsEdit] = useState(false)
     const [fieldError, setFieldError] = useState({name : false, origPrice : false, type : false, price : false})
     const [acceptBooking, setAcceptBooking] = useState(false)
     const [noServices, setNoServices] = useState(false)
     const [isSelectAll, setIsSelectAll] = useState(false)
-    const serviceData = useSelector(selectServiceData)
+
     const [serviceModalOpen, setServiceModalIsOpen] = useState(false);
     const [openFilter, setOpenFilter] = useState(false);
     const [showMoreOption, setShowMoreOption] = useState(false);
@@ -86,12 +79,12 @@ const BookingInformation = () => {
 
     useEffect(()=>{
        
-        if(serviceData.serviceOffers !== undefined)
+        if(serviceInformation?.serviceOffers !== undefined)
         {
-            setServiceOfferList(serviceData.serviceOffers)
-            setAcceptBooking(serviceData.acceptBooking)
+            setServiceOfferList(serviceInformation?.serviceOffers)
+            setAcceptBooking(serviceInformation?.acceptBooking)
         }
-    }, [serviceData])
+    }, [serviceInformation])
 
     useEffect(()=>{
         if(serviceOfferList?.length === 0)
@@ -100,7 +93,7 @@ const BookingInformation = () => {
             (async()=>{
                 try {
                     setAcceptBooking(false) 
-                    const result = await http.patch(`updateService/${userId}`, {acceptBooking : false},  {
+                    const result = await http.patch(`updateService/${serviceInformation.userId}`, {acceptBooking : false},  {
                       withCredentials : true
                     })
             
@@ -189,7 +182,7 @@ const BookingInformation = () => {
         closeServiceModal()
         // Insert the data to database
         try {
-            const result = await http.patch(`updateService/${userId}`, {serviceOffers : Instance},  {
+            const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceOffers : Instance},  {
               withCredentials : true
             })
             if(result.data.status == "Success")
@@ -274,7 +267,7 @@ const BookingInformation = () => {
         
         })
         try {
-            const result = await http.patch(`updateService/${userId}`, {serviceOffers : instance},  {
+            const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceOffers : instance},  {
               withCredentials : true
             })
             if(result.data.status == "Success")
@@ -299,7 +292,7 @@ const BookingInformation = () => {
         instance.splice(index, 1)
         setServiceOfferList(instance)
         try {
-            const result = await http.patch(`updateService/${userId}`, {serviceOffers : instance},  {
+            const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceOffers : instance},  {
               withCredentials : true
             })
             if(result.data.status == "Success")
@@ -329,7 +322,7 @@ const BookingInformation = () => {
         setServiceOfferList(instance)
         closeEditServiceModal()
         try {
-            const result = await http.patch(`updateService/${userId}`, {serviceOffers : instance},  {
+            const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceOffers : instance},  {
               withCredentials : true
             })
             if(result.data.status == "Success")
@@ -359,7 +352,7 @@ const BookingInformation = () => {
         setServiceOfferList(instance)
         closeEditServiceModal()
         try {
-            const result = await http.patch(`updateService/${userId}`, {serviceOffers : instance},  {
+            const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceOffers : instance},  {
               withCredentials : true
             })
             if(result.data.status == "Success")
@@ -398,7 +391,7 @@ const BookingInformation = () => {
         setServiceOfferList(filtered)
 
         try {
-            const result = await http.patch(`updateService/${userId}`, {serviceOffers : filtered},  {
+            const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceOffers : filtered},  {
               withCredentials : true
             })
             if(result.data.status == "Success")
@@ -438,7 +431,7 @@ const BookingInformation = () => {
 
         setServiceOfferList(updatedServices)
         try {
-            const result = await http.patch(`updateService/${userId}`, {serviceOffers : updatedServices},  {
+            const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceOffers : updatedServices},  {
               withCredentials : true
             })
             if(result.data.status == "Success")
@@ -465,7 +458,7 @@ const BookingInformation = () => {
             const instance = acceptBooking  
             setAcceptBooking(!instance) 
             try {
-                const result = await http.patch(`updateService/${userId}`, {acceptBooking : !instance},  {
+                const result = await http.patch(`updateService/${serviceInformation.userId}`, {acceptBooking : !instance},  {
                   withCredentials : true
                 })
         
@@ -491,9 +484,7 @@ const BookingInformation = () => {
 
         setServiceOfferList(updatedServices)
         try {
-            const result = await http.patch(`updateService/${userId}`, {serviceOffers : updatedServices},  {
-              headers : {Authorization: `Bearer ${accessToken}`},
-            })
+            const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceOffers : updatedServices},  {withCredentials : true})
             if(result.data.status == "Success")
             {
               notify('Update successfull')
@@ -509,14 +500,14 @@ const BookingInformation = () => {
     }
 
     const handleSearch = (searchInput) => {
-        const services = serviceData.serviceOffers
+        const services = serviceInformation?.serviceOffers
         const filtered = services.filter(service => service.name.toLowerCase().includes(searchInput.toLowerCase()))
         setServiceOfferList(filtered)
     }
 
     const handleFilter = (filter) => {
         setSelectedFilter(filter)
-        const instance = [...serviceData.serviceOffers]
+        const instance = [...serviceInformation?.serviceOffers]
         if(filter === 'All services')
         {
             setServiceOfferList(instance)

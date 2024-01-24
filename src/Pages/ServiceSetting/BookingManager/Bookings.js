@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import useBookings from '../../../ClientCustomHook/BookingsProvider'
 import { useParams } from 'react-router-dom'
 import Modal from 'react-modal'
 import PendingBookings from './PendingBookings'
@@ -16,7 +15,6 @@ const Bookings = () => {
     const [acceptedBookings, setAcceptedBookings] = useState([])
     const [rejectedBookings, setRejectedBookings] = useState([])
     const [history, setHistory] = useState([])
-    const {bookings} = useBookings()
 
     const lazyLoad = async () => {
         const accepted = await http.get(`getAcceptedBooking/${serviceInformation._id}`)
@@ -64,7 +62,7 @@ const Bookings = () => {
         </ul>
     </nav>
     {
-    bookings === null ? 
+    pendingBookings === null ? 
     (
         <div className='w-full h-screen grid place-items-center'>
             <div className="spinner"></div>

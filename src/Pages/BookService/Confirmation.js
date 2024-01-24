@@ -35,7 +35,9 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
             contactAndAddress : contactAndAddress,
             createdAt : Date(),
             booking_id : generateBookingId(),
-            client : userContext._id
+            client : userContext._id,
+            booking_fee : service.price * 0.1,
+            net_Amount : service.price - service.price * 0.1
           }
 
           setBookingInformation(data)
@@ -62,7 +64,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         }
     }
 
-
+    console.log(bookingInformation)
   return (
     <div className='w-[600px] bg-[#f9f9f9] flex flex-col h-fit py-3 relative space-y-3 rounded-md '>
         <h1 className='text-center font-semibold text-2xl text-gray-800'>Booking Confirmation</h1>
@@ -79,7 +81,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
                 <h1 className='font-medium text-[1rem]'>{serviceInfo.basicInformation?.ServiceTitle}</h1>
                 <h2 className='font-normal text-sm'>Service: {bookingInformation.service?.selectedService}</h2>
                 <h2 className='font-normal text-sm'>Variant: {bookingInformation.service?.selectedVariant.type}</h2>
-                <h2 className='font-normal text-sm'>Service Delivery: {bookingInformation.schedule?.serviceOption}</h2>
+                <h2 className='font-normal text-sm'>Service Option: {bookingInformation.schedule?.serviceOption}</h2>
             </div>
             <div className='relative justify-self-end w-fit font-semibold'>
                 ₱{bookingInformation.service?.price}
@@ -111,13 +113,25 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
             {/* Address */}
             <div className='mt-2'>
             <h2 className='font-semibold'>Address</h2>
-            <ul className='flex flex-col items-start '>
-                <li className='text-sm font-medium text-gray-700'>{bookingInformation.contactAndAddress?.Address.barangay.name},</li>
-                <li className='text-sm font-medium text-gray-700'>{bookingInformation.contactAndAddress?.Address.province.name},</li>
-                <li className='text-sm font-medium text-gray-700'>{bookingInformation.contactAndAddress?.Address.region.name}</li>
+            <ul className='flex items-start '>
+                <li className='text-sm font-medium mx-0.5 text-gray-700'>{bookingInformation.contactAndAddress?.Address.barangay.name}, </li>
+                <li className='text-sm font-medium mx-0.5 text-gray-700'>{bookingInformation.contactAndAddress?.Address.municipality.name}, </li>
+                <li className='text-sm font-medium mx-0.5 text-gray-700'>{bookingInformation.contactAndAddress?.Address.province.name}, </li>
+                <li className='text-sm font-medium mx-0.5 text-gray-700'>{bookingInformation.contactAndAddress?.Address.region.name}</li>
             </ul>
             <span className='text-sm text-gray-700'>{bookingInformation.contactAndAddress?.Address.street}</span>
             </div>
+        </div>
+        <div className='p-3 bg-white w-full border rounded-sm shadow-sm'>
+        <ul className=' grid grid-cols-2 gap-0 gap-x-5'>
+                <div className={`font-medium text-semiMd text-gray-600 `}>Total Service Amount:</div>
+                <div className={`font-medium text-semiMd text-gray-600 `}>₱{bookingInformation.service?.price}</div>
+                <div className={`font-medium text-semiMd text-gray-600 `}>Booking Fee (10%):</div>
+                <div className={`font-medium text-semiMd text-gray-600 `}>₱{bookingInformation.booking_fee}</div>
+                <div className={`font-medium text-semiMd text-gray-600 `}>Net Amount:</div>
+                <div className={`font-medium text-semiMd text-gray-600 `}>₱{bookingInformation.net_Amount}</div>
+        </ul>
+        <span className='text-semiXs text-red-500'>Note: Your booking is pending approval. Upon approval, a ₱{bookingInformation.booking_fee} booking fee is required to secure your appointment.</span>
         </div>
         <button onClick={()=>{submitBooking()}} className={`text-white ${loading ? "bg-slate-500" : "bg-themeBlue"} px-2 py-2 text-sm rounded-sm `}>
         Submit

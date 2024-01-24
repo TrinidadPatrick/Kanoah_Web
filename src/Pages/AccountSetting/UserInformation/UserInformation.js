@@ -1,11 +1,10 @@
 import React from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { DateData } from '../../RegisterPage/RegisterComponents/MMDDYY/Date'
 import http from '../../../http'
-import jwtDecode from 'jwt-decode'
 import axios from 'axios'
 import Box from '@mui/material/Box';
-import Modal from '@mui/material/Modal';
+import Modal from 'react-modal';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import EditLocationOutlinedIcon from '@mui/icons-material/EditLocationOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
@@ -15,18 +14,18 @@ import phil from 'phil-reg-prov-mun-brgy';
 import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import cloudinaryCore from '../../../CloudinaryConfig'
-import { useDispatch, useSelector } from 'react-redux';
-import { setUserId, selectUserId } from '../../../ReduxTK/userSlice';
 import mapboxgl from 'mapbox-gl';
+import getCroppedImg from '../../ServiceSetting/ForCropping/CreateImage';
+import Cropper from 'react-easy-crop'
+import UseInfo from '../../../ClientCustomHook/UseInfo'
 import { useNavigate } from 'react-router-dom'
 
 
 
 const UserInformation = () => {
-  
+  Modal.setAppElement('#root');
+    const {authenticated, userInformation} = UseInfo()
     const navigate = useNavigate()
-    const dispatch = useDispatch();
-    const userId = useSelector(selectUserId); 
     const [street, setStreet] = useState('')
     const [disableSaveChange, setDisableSaveChange] = useState(true)
     const [isloadingImage, setIsloadingImage] = useState(false)
@@ -54,16 +53,17 @@ const UserInformation = () => {
         ['','-1'] //Barangay
     ])
     const [open, setOpen] = React.useState(false);
-    const [openCPModal, setOpenCPModal] = React.useState(false);
-    const [openNPModal, setOpenNPModal] = React.useState(false);
-    const [openADModal, setOpenADModal] = React.useState(false);
+    const [openCPModal, setOpenCPModal] = useState(false);
+    const [openNPModal, setOpenNPModal] = useState(false);
+    const [openADModal, setOpenADModal] = useState(false);
+    const [openCropModal, setOpenCropModal] = useState(false);
     const [errors, setErrors] = useState({
         contactError : null, //0 = invalid, 1 = isDuplicate
         emailError : null, //0 = invalid, 1 = isDuplicate
         usernameError : null, //0 = invalid, 1 = isDuplicate
         passwordError : null //0 = invalid, 1 = newPassword and confirm does not mwatch 
     })
-    const [userInformation, setUserInformation] = useState({username : "",
+    const [userDetails, setUserDetails] = useState({username : "",
     email : "",
     password : "",
     firstname: "",
@@ -76,30 +76,22 @@ const UserInformation = () => {
         day : "1",
         year : DateData.year[0]
     })
-      
+    const [crop, setCrop] = useState({ x: 0, y: 0 })
+    const [zoom, setZoom] = useState(1)
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [image, setImage] = useState('');
+    
 
-    // Get userInformation
-    const getUser = async () => {
-
-          await http.get(`getUser`,{
-            // headers : {Authorization: `Bearer ${accessToken}`},
-            withCredentials: true,
-          }).then((res)=>{
-            setUserInformation(res.data)
-            setLoading(false)
-          }).catch((err)=>{
-            navigate('/')
-          })
-    }
-
-    //Get Tokens fro Local Storage
+    // protected route
     useEffect(() => {
-      if (userId !== null && userId !== 'loggedOut') {
-        getUser();
-      }else if(userId === 'loggedOut'){
+      if (authenticated) {
+        setUserDetails(userInformation)
+        setStreet(userInformation.Address.street)
+        setLoading(false)
+      }else if(authenticated === false){
         navigate("/")
       }
-    }, [userId])
+    }, [authenticated])
 
     // Clear password input fields
     const clearPasswords = () => {
@@ -125,7 +117,7 @@ const UserInformation = () => {
     const handleChange = (e) => {
         setDisableSaveChange(false)
         const {name, value} = e.target
-        setUserInformation({...userInformation, [name]:value})
+        setUserDetails({...userDetails, [name]:value})
     }
     
     // Handles the data change
@@ -166,22 +158,42 @@ const UserInformation = () => {
 
           }
         } 
-    const style = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        bgcolor: 'background.paper',
-        boxShadow: 0,
-        padding : 0,
-        borderRadius : 1,
-  
-        
+
+      const ModalStyle = {
+        content: {
+          top: '50%',
+          left: '50%',
+          right: 'auto',
+          bottom: 'auto',
+          marginRight: '-50%',
+          transform: 'translate(-50%, -50%)',
+          padding : "10px"
+        },
+        overlay: {
+          backgroundColor: 'rgba(0, 0, 0, 0.7)', // Change the color and opacity as needed
+          zIndex: 998,
+        },
+      };
+
+      const CropperModalStyle = {
+        content: {
+          top: '50%',
+          left: '50%',
+          right: 'auto',
+          bottom: 'auto',
+          marginRight: '-50%',
+          transform: 'translate(-50%, -50%)',
+          padding : "0"
+        },
+        overlay: {
+          backgroundColor: 'rgba(0, 0, 0, 0.7)', // Change the color and opacity as needed
+          zIndex: 998,
+        },
       };
 
     // So that whenever birthdate is updated so is the userinfo
   useEffect(()=>{
-    setUserInformation({...userInformation, birthDate : birthDate})
+    setUserDetails({...userDetails, birthDate : birthDate})
     },[birthDate])
 
     // Updates the user Information
@@ -189,7 +201,7 @@ const UserInformation = () => {
         const result = await verifyPassword()
         if(result.status == "verified")
         {
-        http.put(`updateUser/${userId}`, userInformation,{
+        http.put(`updateUser/${userInformation._id}`, userDetails,{
           withCredentials: true,
         }).then((res)=>{
         // Set errors if there are any
@@ -216,10 +228,49 @@ const UserInformation = () => {
         
     }
     // Handles the location seleced by the user
-    const handleLocationSelect = (value, index) => {
-        const newData = [...locCodesSelected]
-        newData.splice(index, 1, value)
-        setLocCodesSelected(newData)
+    const handleLocationSelect = (value, index, optionChanges) => {
+      const newData = [...locCodesSelected]
+      switch (optionChanges) {
+          case 'region':
+          
+            setLocCodesSelected([
+              [value[0], value[1]],
+              ['', '-1'], // Province
+              ['', '-1'], // Municipality
+              ['', '-1']  // Barangay
+            ]);
+            break;
+          
+          case 'province':
+
+              setLocCodesSelected([
+                  [newData[0][0], newData[0][1]],
+                  [value[0], value[1]], // Province
+                  ['', '-1'], // Municipality
+                  ['', '-1']  // Barangay
+              ]);
+              break;
+          
+          case 'city':
+
+          setLocCodesSelected([
+              [newData[0][0], newData[0][1]],
+              [newData[1][0], newData[1][1]], // Province
+              [value[0], value[1]], // Municipality
+              ['', '-1']  // Barangay
+          ]);
+          break;
+
+          case 'barangay':
+
+          setLocCodesSelected([
+              [newData[0][0], newData[0][1]],
+              [newData[1][0], newData[1][1]], // Province
+              [newData[2][0], newData[2][1]], // Municipality
+              [value[0], value[1]]  // Barangay
+          ]);
+          break;
+        }
         
     }
 
@@ -235,9 +286,9 @@ const UserInformation = () => {
           longitude : location.longitude,
           latitude : location.latitude
         }
-        const newData = {...userInformation, Address : address} 
-        setUserInformation(newData)
-        http.put(`updateUser/${userId}`, newData,{
+        const newData = {...userDetails, Address : address} 
+        setUserDetails(newData)
+        http.put(`updateUser/${userInformation._id}`, newData,{
           withCredentials: true,
         }).then(()=>{
           handleClose()
@@ -254,7 +305,15 @@ const UserInformation = () => {
           navigator.geolocation.getCurrentPosition(
             (position) => {
               const { latitude, longitude } = position.coords;
-              setLocation({ latitude, longitude });
+              if(userInformation?.Address !== null)
+              {
+                setLocation({ latitude : userInformation?.Address?.latitude, longitude :  userInformation?.Address?.longitude })
+              }
+              else
+              {
+                setLocation({ latitude, longitude });
+              }
+             
               
             },
             (error) => {
@@ -266,7 +325,7 @@ const UserInformation = () => {
           // Geolocation is not available in this browser
           console.error('Geolocation is not available.');
         }
-      }, []);
+      }, [userInformation]);
 
     // Map Viewport
     const [viewport, setViewPort] = useState({    
@@ -317,19 +376,15 @@ const UserInformation = () => {
       };
 
     // For profile picture
-    const addImage = async (files) => {
+    const addImage = async (croppedImage) => {
         setIsloadingImage(true)
-        const file = files[0];
 
-        if(file){
-            const formData = new FormData()
-            formData.append('file', file)
-            formData.append('upload_preset', 'KanoahProfileUpload');
+        const upload = async (formData) => {
 
             axios.post(`https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`, formData).then((res)=>{
-            setUserInformation({...userInformation, profileImage : res.data.url})
+            setUserDetails({...userDetails, profileImage : res.data.url})
             const newData = {...userInformation, profileImage : res.data.url}
-            http.put(`updateUser/${userId}`, newData,{
+            http.put(`updateUser/${userInformation._id}`, newData,{
               withCredentials: true,
             }).then(()=>{
               handleClose()
@@ -341,6 +396,18 @@ const UserInformation = () => {
             }).catch((err)=>{
                 console.log(err)
             })
+          }
+
+        if(croppedImage){
+          setIsloadingImage(true)
+          fetch(croppedImage)
+          .then(response => response.blob())
+          .then(blobData => {
+            const formData = new FormData();
+            formData.append('file', blobData, 'filename.jpg');
+            formData.append('upload_preset', 'KanoahProfileUpload');
+            upload(formData)
+          })
         }
     }
     
@@ -349,14 +416,13 @@ const UserInformation = () => {
         const firstname = userInformation.firstname
         const lastname = userInformation.lastname
         const url = `https://ui-avatars.com/api/?name=${firstname}+${lastname}&background=0D8ABC&color=fff`
-        setUserInformation({...userInformation, profileImage : url})
-        const newData = {...userInformation, profileImage : url}
-        http.put(`updateUser/${userId}`, newData,{
+        setUserDetails({...userDetails, profileImage : url})
+        const newData = {...userDetails, profileImage : url}
+        http.put(`updateUser/${userInformation._id}`, newData,{
           withCredentials: true,
         }).then(()=>{
           handleClose()
           notify('Update successfull')
-          getUser()
         }).catch((error)=>{
           throw error
         })
@@ -417,20 +483,54 @@ const UserInformation = () => {
 
     useEffect(()=>{
 
-      if(userInformation.Address?.region !== undefined)
+      if(userDetails.Address?.region !== undefined)
       {
 
         setLocCodesSelected(
           [
-            [userInformation.Address.region.name, userInformation.Address.region.reg_code],
-            [userInformation.Address.province.name, userInformation.Address.province.prov_code],
-            [userInformation.Address.municipality.name, userInformation.Address.municipality.mun_code],
-            [userInformation.Address.barangay.name, userInformation.Address.barangay.brgy_code]
+            [userDetails.Address.region.name, userDetails.Address.region.reg_code],
+            [userDetails.Address.province.name, userDetails.Address.province.prov_code],
+            [userDetails.Address.municipality.name, userDetails.Address.municipality.mun_code],
+            [userDetails.Address.barangay.name, userDetails.Address.barangay.brgy_code]
           ]
         )
+
+        
       }
       
-    },[userInformation])
+    },[userDetails])
+
+    const cropImage = (files) => {
+      const file = files[0];
+  
+      if (file) {
+        const reader = new FileReader();
+  
+        reader.onload = () => {
+          setImage(reader.result);
+          setOpenCropModal(true)
+        };
+  
+        reader.readAsDataURL(file);
+      }
+    }
+
+    const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    }, []);
+  
+    const showCroppedImage = useCallback(async () => {
+      try {
+        const croppedImage = await getCroppedImg(
+          image,
+          croppedAreaPixels
+        );
+        addImage(croppedImage)
+        setOpenCropModal(false)
+      } catch (e) {
+        console.error(e);
+      }
+    }, [croppedAreaPixels, image]);
 
       return (
     
@@ -445,7 +545,7 @@ const UserInformation = () => {
         (
             
         /* main container */
-        <div className='flex flex-col lg:flex-row'>
+        <div className='flex flex-col h-full lg:flex-row'>
         {/* Left side */}
         <section className='flex bg-white h-fit lg:h-full w-full lg:w-[400px] flex-col px-10'>
         <div className='mt-5'>
@@ -454,12 +554,12 @@ const UserInformation = () => {
         <div className='w-full flex flex-col justify-between h-full pb-10'>
         {/* Image Container */}
         <div className=' flex flex-col lg:mt-10 p-2 items-center justify-center'>
-        <img className='rounded-full object-cover w-24 h-24 lg:w-32 lg:h-32 max-h-32 max-w-32' src={userInformation.profileImage} />
+        <img className='rounded-full object-cover w-24 h-24 lg:w-32 lg:h-32 max-h-32 max-w-32' src={userDetails.profileImage} />
         <div className='flex flex-col mt-5 space-y-2 w-full '>
         {/* INput Profile Picture */}
         <label htmlFor="fileInput" className={`${isloadingImage ? "bg-orange-300" : "bg-themeOrange"} relative inline-block px-4 py-1 text-white text-center rounded cursor-pointer`}>
         {isloadingImage ? "Uploading" : "Change Picture"}
-        <input type="file" onChange={(e)=>{addImage(e.target.files)}} id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
+        <input type="file" onChange={(e)=>{cropImage(e.target.files)}} id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
         </label>
         <button onClick={()=>{removeProfile()}} className='px-2 py-1 rounded-sm text-sm whitespace-nowrap border'>Remove Picture</button>
         </div>
@@ -479,18 +579,18 @@ const UserInformation = () => {
                 {/* Username */}
                 <div className="mb-4">
                     <label htmlFor="username" className="text-sm text-gray-600">Username</label>
-                    <input onChange={handleChange} type="text" id="username" name="username" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userInformation.username}/>
+                    <input onChange={handleChange} type="text" id="username" name="username" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userDetails.username}/>
                     <p className={`text-xs text-red-500 ml-1 ${errors.usernameError == 1 ? "block":"hidden"}`}>Username already exist</p>
                 </div>
                 {/* Full name */}
                 <div className="mb-4 flex w-full space-x-3">
                     <div className='w-full'>
                     <label htmlFor="firstname" className="text-sm text-gray-600">First Name</label>
-                    <input onChange={handleChange} type="text" id="firstname" name="firstname" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userInformation.firstname}/>
+                    <input onChange={handleChange} type="text" id="firstname" name="firstname" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userDetails.firstname}/>
                     </div>
                     <div className='w-full'>
                     <label htmlFor="lastname" className="text-sm text-gray-600">Last Name</label>
-                    <input onChange={handleChange} type="text" id="lastname" name="lastname" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userInformation.lastname}/>
+                    <input onChange={handleChange} type="text" id="lastname" name="lastname" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userDetails.lastname}/>
                     </div>
                 </div>
                 {/* Contact */}
@@ -498,7 +598,7 @@ const UserInformation = () => {
                     <div className='w-1/2'>
                     <label htmlFor="contact" className="text-sm text-gray-600">Contact</label>
                     <div className="relative flex items-center">
-                    <input onChange={handleChange} type="text" id="contact" name="contact" className="w-full py-2 ps-9 border border-gray-300 rounded-md pl-8 shadow-sm" value={userInformation.contact} />
+                    <input onChange={handleChange} type="text" id="contact" name="contact" className="w-full py-2 ps-9 border border-gray-300 rounded-md pl-8 shadow-sm" value={userDetails.contact} />
                     <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-600">+63</span>
                     <div className="absolute h-8 bg-gray-300 top-1/2 -translate-y-1/2 w-px"></div>
                     </div>
@@ -506,7 +606,7 @@ const UserInformation = () => {
                     </div>
                     {/* Change Password */}
                     <div className='w-1/2 flex flex-col'>
-                    <label htmlFor="changePassword" className="text-sm text-gray-600">Password Settings</label>
+                    <label className="text-sm text-gray-600">Password Settings</label>
                     <button onClick={(e)=>{handleOpenNPModal(e)}} className='bg-gray-100 py-2 px-5 w-fit text-xs md:text-sm  rounded-sm shadow-sm text-gray-700 border flex  items-center gap-1 '> Change Password</button>
                     </div>
                     
@@ -515,14 +615,14 @@ const UserInformation = () => {
                 {/* Email */}
                 <div className="mb-4">
                     <label htmlFor="email" className="text-sm text-gray-600">Email</label>
-                    <input onChange={handleChange} type="email" id="email" name="email" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userInformation.email}/>
+                    <input onChange={handleChange} type="email" id="email" name="email" className="w-full p-2 border border-gray-300 rounded-md shadow-sm" value={userDetails.email}/>
                     <p className={`text-xs text-red-500 ml-1 ${errors.emailError == 1 ? "block":"hidden"}`}>Email already exist</p>
                 </div>
                  {/* birth Field */}
                 <div className='birth_container w-full '>
                 <p className='text-xs text-gray-500 mt-2'>Date of birth</p>
                 <div className='select_container w-full flex  space-x-5'>
-                <select value={userInformation.birthDate.month} onChange={(e)=>handleDate(e)} name="month" className='border-1 border-gray rounded-sm text-xs'>
+                <select value={userDetails.birthDate.month} onChange={(e)=>handleDate(e)} name="month" className='border-1 border-gray rounded-sm text-xs'>
                 {
                     DateData.months.map((month, index)=>
                     {
@@ -530,7 +630,7 @@ const UserInformation = () => {
                     })
                 }
                 </select>
-                <select value={userInformation.birthDate.day} onChange={(e)=>handleDate(e)} name="day" className='border-1 border-gray rounded-sm text-sm'>
+                <select value={userDetails.birthDate.day} onChange={(e)=>handleDate(e)} name="day" className='border-1 border-gray rounded-sm text-sm'>
                 {
                     DateData.days.map((day, index)=>
                     {
@@ -538,7 +638,7 @@ const UserInformation = () => {
                     })
                 }
                 </select>
-                <select value={userInformation.birthDate.year} onChange={(e)=>handleDate(e)} name="year"  className='border-1 border-gray text-sm rounded-sm'>
+                <select value={userDetails.birthDate.year} onChange={(e)=>handleDate(e)} name="year"  className='border-1 border-gray text-sm rounded-sm'>
                 {
                     DateData.year.map((year, index)=>
                     {
@@ -553,14 +653,14 @@ const UserInformation = () => {
                 {/* Address */}
                 <p className='text-sm text-gray-500 mt-4'>Address</p>
                 {
-                    userInformation.Address?.region === undefined ? 
+                    userDetails.Address?.region === undefined ? 
                     (
                     <p onClick={()=>{handleOpen()}} className=' cursor-pointer font-normal hover:text-gray-600 border-1 underline w-fit px-2 py-1 rounded-md'>Setup your Address <EditLocationOutlinedIcon fontSize='small' className='ml-1 text-gray-500' /></p>
                     )
                     :
                     (
                         <p onClick={()=>{handleOpen()}} className=' cursor-pointer text-sm font-medium border-1 underline w-fit px-2 py-1 rounded-md'>{
-                            `Brgy. ${userInformation.Address.barangay.name}, ${userInformation.Address.municipality.name}, ${userInformation.Address.province.name}`
+                            `Brgy. ${userDetails.Address.barangay.name}, ${userDetails.Address.municipality.name}, ${userDetails.Address.province.name}`
                                 
                             }</p>
                     )
@@ -577,25 +677,46 @@ const UserInformation = () => {
         </section>
         </div>
         )}
-                        {/* Modal for Address */}
-                <Modal open={open} onClose={handleClose}> 
-                <Box sx={style} style={{height: "fitContent", width: "fitContent"}}> 
-                <div className='p-4'>
+                {/* Modal for cropping */}
+                <Modal isOpen={openCropModal} style={CropperModalStyle} contentLabel="Cropper Modal">
+                <div className='w-[500px] h-[500px] flex flex-col relative'>
+                  <div className=''>
+                    <Cropper
+                      image={image}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={4/4}
+                      cropShape="round"
+                      onCropChange={setCrop}
+                      onCropComplete={onCropComplete}
+                      onZoomChange={setZoom}
+                    />
+                  </div>
+                  <div className='text-center absolute py-1 bottom-0 bg-themeBlue text-white mx-2 mb-2 rounded-sm left-0 right-0'>
+                    <button onClick={()=>showCroppedImage()} className='py-1 px-2'>Upload</button>
+                  </div>
+                </div>
+                
+                </Modal>
+                {/* Modal for Address */}
+                <Modal isOpen={open} onClose={handleClose} style={ModalStyle} > 
+                <div className='p-4 w-[400px]'>
                 <h1 className='font-medium'>Address</h1>
                 {/* Regions ***************************************/}
                 <div className="mb-4">
-                <label htmlFor="region" className="text-sm text-gray-600">Region</label>
+                <label htmlFor="province" className="text-sm text-gray-600">Province</label>
                 <select
-                onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 0);console.log("Hello")}}
-                id="region"
-                name="region"
-                value={locCodesSelected[0][0] + ',' + locCodesSelected[0][1]}
-                className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                 disabled={`${locCodesSelected[0][1] == "-1" ? "disabled" : ""}`}
+                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1, 'province')}}
+                 id="province"
+                 name="province"
+                 value={locCodesSelected[1][0] + ',' + locCodesSelected[1][1]}
+                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 >
-                <option className='w-fit' value=""  >Select Region</option>
+                <option value=""  >Select Province</option>
                 {
-                phil.regions.map((regions, index)=>(
-                <option key={index} value={[regions.name , regions.reg_code]}>{regions.name}</option>
+                phil.getProvincesByRegion(locCodesSelected[0][1]).sort((a, b) => a.name.localeCompare(b.name)).map((province, index)=>(
+                <option key={index} value={[province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase() , province.prov_code]}>{province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase()}</option>
                 ))
                 }
                 </select>
@@ -603,17 +724,18 @@ const UserInformation = () => {
 
 
                 {/* Provinces***************************************************************** */}
-                <div className="mb-4">
+                <div className='w-full flex items-center gap-3  justify-evenly'>
+                <div className="mb-4 w-full">
                 <label htmlFor="province" className="text-sm text-gray-600">Province</label>
                 <select
                  disabled={`${locCodesSelected[0][1] == "-1" ? "disabled" : ""}`}
-                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1)}}
+                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1, 'province')}}
                  id="province"
                  name="province"
                  value={locCodesSelected[1][0] + ',' + locCodesSelected[1][1]}
-                className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 >
-                <option value="" disabled >Select Province</option>
+                <option value=""  >Select Province</option>
                 {
                 phil.getProvincesByRegion(locCodesSelected[0][1]).sort((a, b) => a.name.localeCompare(b.name)).map((province, index)=>(
                 <option key={index} value={[province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase() , province.prov_code]}>{province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase()}</option>
@@ -624,17 +746,18 @@ const UserInformation = () => {
 
 
                 {/* Cities ***********************************************************/}
+                <div className='flex gap-3 w-full'>
                 <div className="mb-4">
                 <label htmlFor="city" className="text-sm text-gray-600">City</label>
                 <select
                 disabled={`${locCodesSelected[1][1] == "-1" ? "disabled" : ""}`}
-                onChange={(e)=>{handleLocationSelect(e.target.value.split(','),2)}}
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','),2, 'city')}}
                 id="city"
                 name="city"
                 value={locCodesSelected[2][0] + ',' + locCodesSelected[2][1]}
-                className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 >
-                <option value="" disabled >Select City</option>
+                <option value=""  >Select City</option>
                 {
                 phil.getCityMunByProvince(locCodesSelected[1][1]).sort((a, b) => a.name.localeCompare(b.name)).map((city, index) => (
                 <option key={index} onClick={()=>{console.log("Hello")}}  value={[city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase(), city.mun_code]}>
@@ -644,21 +767,22 @@ const UserInformation = () => {
                 }
                 </select>
                 </div>
-
+                </div>
+                </div>
 
                 {/* Barangays *****************************************************************8*/}
                 <div className="mb-4">
                 <label htmlFor="barangay" className="text-sm text-gray-600">Barangay</label>
                 <select
                 disabled={`${locCodesSelected[2][1] == "-1" ? "disabled" : ""}`}
-                onChange={(e)=>{handleLocationSelect(e.target.value.split(','),3)}}
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','),3, 'barangay')}}
                 id="barangay"
                 name="barangay"
                 value={locCodesSelected[3][0] + ',' + locCodesSelected[3][1]}
-                className="block w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
 
                 >
-                <option value="" disabled  >Select Barangay</option>
+                <option value=""   >Select Barangay</option>
                 {
                 phil.getBarangayByMun(locCodesSelected[2][1]).sort((a, b) => a.name.localeCompare(b.name)).map((barangay, index)=>(
                 <option key={index} value={[barangay.name , barangay.mun_code]}>{barangay.name}</option>
@@ -666,7 +790,12 @@ const UserInformation = () => {
                 }
                 </select>
                 </div>
-                
+
+                <div className='w-full'>
+                <label htmlFor="barangay" className="text-sm text-gray-600">Street</label>
+                <textarea value={street} onChange={(e)=>{setStreet(e.target.value)}} className='w-full border p-2 rounded-md resize-none text-sm' row={3} />
+                </div>
+
 
                 {/* MAP******************************************************************* */}
             <div className='relative'>
@@ -703,7 +832,6 @@ const UserInformation = () => {
             longitude={location.longitude}
             draggable={true}
             onDragStart={()=>{setIsDragging(true)}}
-            // onDrag={(evt) => {setLocation({longitude : evt.lngLat.lng, latitude : evt.lngLat.lat});setViewPort({longitude : evt.lngLat.lng, latitude : evt.lngLat.lng})}}
             onDrag={(evt) => {
                 const sensitivityFactor = 1;
                 const newLocation = {
@@ -711,15 +839,15 @@ const UserInformation = () => {
                   latitude: evt.lngLat.lat / sensitivityFactor,
                 };
                 setLocation(newLocation);
-                setViewPort((prevViewport) => ({
-                  ...prevViewport,
-                  latitude: newLocation.latitude,
-                  longitude: newLocation.longitude ,
-                }));
+                // setViewPort((prevViewport) => ({
+                //   ...prevViewport,
+                //   latitude: newLocation.latitude,
+                //   longitude: newLocation.longitude ,
+                // }));
               }}
             onDragEnd={()=>[setIsDragging(false)]}
             >
-        
+              
             </Marker>
             <GeolocateControl />
             
@@ -781,12 +909,10 @@ const UserInformation = () => {
             
             </div>
             
-                </Box>
                 </Modal> 
 
                 {/* Modal for confirm Password */}
-                <Modal open={openCPModal} onClose={handleCloseCPModal}> 
-                <Box sx={style} style={{height: "fitContent", width: "fitContent", padding: "15px"}}>
+                <Modal isOpen={openCPModal} onClose={handleCloseCPModal} style={ModalStyle} > 
                 <div className='w-full flex justify-between'>
                 <h1 className='font-medium text-gray-800'>Confirm Password</h1>
                 <CloseOutlinedIcon onClick={()=>{handleCloseCPModal()}} className=' cursor-pointer ' />
@@ -809,24 +935,22 @@ const UserInformation = () => {
                 <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
                 <button onClick={()=>{updateUser()}} className={`${loadingBtn ? "bg-slate-700" : "bg-themeBlue"}  text-sm w-full text-white px-2 py-1 rounded-sm mt-4`}>Update</button>
                 </div>
-                </Box>
                 </Modal>
 
                 {/* Modal for Change Password */}
-                <Modal open={openNPModal} onClose={handleCloseNPModal}> 
-                <Box sx={style} style={{height: "fitContent", width: "fitContent", padding: "10px"}}>
-                <div className='w-full flex justify-end  '><CloseOutlinedIcon onClick={()=>{handleCloseNPModal()}} className=' cursor-pointer ' /></div>
-                <div className="space-y-4">
-
+                <Modal isOpen={openNPModal} onClose={handleCloseNPModal} style={ModalStyle} > 
+                <div className='w-[400px]'>
+                <div className='w-full flex justify-between'><h1 className='text-gray-900 font-medium'>Change Password</h1><CloseOutlinedIcon onClick={()=>{handleCloseNPModal()}} className=' cursor-pointer ' /></div>
+                <div className="space-y-4 mt-2">
                 <div className="flex flex-col">
-                    <label htmlFor="password" className="text-sm font-semibold text-gray-600">Current Password</label>
+                    <label htmlFor="password" className="text-semiSm font-semibold text-gray-600">Current Password</label>
                     <input
                     value={password}
                     onChange={(e)=>{setPassword(e.target.value)}}
                     type="password"
                     id="password"
                     name="newPassword"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                    className="w-full text-sm px-2 py-1.5 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                     placeholder="Enter your new password"
                     />
                     <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
@@ -835,14 +959,14 @@ const UserInformation = () => {
 
 
                 <div className="flex flex-col">
-                    <label htmlFor="newPassword" className="text-sm font-semibold text-gray-600">New Password</label>
+                    <label htmlFor="newPassword" className="text-semiSm font-semibold text-gray-600">New Password</label>
                     <input
                     value={newPassword}
                     onChange={(e)=>{setNewPassword(e.target.value)}}
                     type="password"
                     id="newPassword"
                     name="password"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                    className="w-full text-sm px-2 py-1.5 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                     placeholder="Enter your password"
                     />
                     <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 1 ? "block":"hidden"}`}>Password do not match</p>
@@ -851,27 +975,26 @@ const UserInformation = () => {
 
 
                 <div className="flex flex-col">
-                    <label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-600">Confirm Password</label>
+                    <label htmlFor="confirmPassword" className="text-semiSm font-semibold text-gray-600">Confirm Password</label>
                     <input
                     value={confirmPassword}
                     onChange={(e)=>{setConfirmPassword(e.target.value)}}
                     type="password"
                     id="confirmPassword"
                     name="confirmPassword"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                    className="w-full text-sm px-2 py-1.5 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                     placeholder="Confirm your password"
                     />
                     <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 1 ? "block":"hidden"}`}>Password do not match</p>
                     <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
                 </div>
-                <button onClick={()=>{changePassword()}} className='px-2 py-1 bg-gray-200'>Update</button>
+                <button onClick={()=>{changePassword()}} className='px-2 py-2 w-full text-semiSm bg-themeBlue text-white'>Update</button>
                 </div>
-                </Box>
+                </div>
                 </Modal>
 
                 {/* Modal for Account deletion */}
-                <Modal open={openADModal} onClose={handleCloseADModal}> 
-                <Box sx={style} style={{height: "fitContent", width: "fitContent", padding: "10px", outline : "none", width : "350px"}}>
+                <Modal isOpen={openADModal} onClose={handleCloseADModal} style={ModalStyle} > 
    
                 <p className="text-lg font-semibold mb-4 text-center">Confirm Account Deactivate</p>
                 <p className="text-gray-600 mb-6 text-center">Are you sure you want to deactivate your account? This action is irreversible.</p>
@@ -888,7 +1011,7 @@ const UserInformation = () => {
                     id="password"
                     name="newPassword"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
-                    placeholder="Enter your new password"
+                    placeholder="Enter your password"
                     />
                     <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
                     
@@ -900,7 +1023,6 @@ const UserInformation = () => {
                 </div>
 
                 </div>
-                </Box>
                 </Modal>
                 <ToastContainer />
         </div>

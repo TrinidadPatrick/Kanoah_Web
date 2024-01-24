@@ -3,14 +3,12 @@ import { useState } from 'react';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import Modal from 'react-modal'
 import http from '../../../http';
-import useBookings from '../../../ClientCustomHook/BookingsProvider';
 
 const AcceptedBookings = ({ acceptedBookings, lazyLoad }) => {
     Modal.setAppElement('#root');
     const [modalIsOpen, setIsOpen] = useState(false);
     const [clientInformation, setClientInformation] = useState(null);
     const [accepted_Bookings_Orig, set_Accepted_Bookings_Orig] = useState(null);
-    const bookings = useBookings()
     const ModalStyle = {
         content: {
           top: '50%',

@@ -207,7 +207,7 @@ const MobileFilter = () => {
             .map((category) => {
               return (
                 <p
-                  key={category.id}
+                  key={category._id}
                   onClick={() => {
                   handleSelectCategory(category.name, category.category_code)
                   showMobileDropdownOptions();

@@ -152,39 +152,6 @@ const ViewService = () => {
     }
   }, []);
 
-  // convert long lat to place name
-  const getPlaceNameFromLatLng = async () => {
-    // Construct the MapQuest Geocoding API URL for reverse geocoding
-    const geocodingUrl = `http://www.mapquestapi.com/geocoding/v1/reverse?key=znl7fsvPy4mHHjWLGW6ULUo6bOzXgwFz&location=${location.latitude},${location.longitude}`;
-  
-    // Make an HTTP GET request to the API
-    await fetch(geocodingUrl)
-      .then(response => response.json())
-      .then(data => {
-        if (data.results && data.results[0] && data.results[0].locations) {
-          const location = data.results[0].locations[0];
-          const street = location.adminArea6
-          const city = location.adminArea5
-          const province = location.adminArea4
-        } else {
-          console.error('Geocoding failed. Check the API response.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-  }
-
-  // convert long lat to place name
-  useEffect(()=>{
-    if(location.longitude == null && location.latitude == null){
-      
-    }else{
-      getPlaceNameFromLatLng()
-    }
-    
-  },[location])
-
   // Get current Day name
   useEffect(()=>{
     const currentDate = new Date()

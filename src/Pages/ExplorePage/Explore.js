@@ -1,5 +1,4 @@
 import React from 'react'
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import { useState, useEffect, useContext, useRef } from 'react';
 import Rating from '@mui/material/Rating';
@@ -7,6 +6,7 @@ import { styled } from '@mui/material/styles';
 import axios from 'axios';
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import ShareLocationOutlinedIcon from '@mui/icons-material/ShareLocationOutlined';
+import PlaylistRemoveOutlinedIcon from '@mui/icons-material/PlaylistRemoveOutlined';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import OutsideClickHandler from 'react-outside-click-handler';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -14,7 +14,7 @@ import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined';
 import HideSourceIcon from '@mui/icons-material/HideSource';
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
-import ReportIcon from '@mui/icons-material/Report';
+import ReportGmailerrorredOutlinedIcon from '@mui/icons-material/ReportGmailerrorredOutlined';
 import FilterListOutlinedIcon from '@mui/icons-material/FilterListOutlined';
 import {Link} from "react-router-dom"
 import http from "../../http"
@@ -22,21 +22,23 @@ import { createContext } from 'react';
 import ReactPaginate from 'react-paginate';
 import { useNavigate } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { setUserId, selectUserId, selectLoggedIn } from '../../ReduxTK/userSlice';
 import getDistance from 'geolib/es/getPreciseDistance';
-import ScrollToTop from "react-scroll-to-top";
 import Filters from './Filters';
 import MobileFilter from './MobileFilter';
 import Searchbar from './Searchbar';
-import { subCategories } from '../MainPage/Components/SubCategories';
+import UseFavorite from '../../ClientCustomHook/FavoriteProvider';
+import UseDNS from '../../ClientCustomHook/DNSProvider';
+import UseInfo from '../../ClientCustomHook/UseInfo';
+import UserAllServices from '../../ClientCustomHook/AllServiceProvider';
 export const FilterContext = createContext()
 
 
 const Explore = () => {
+  const {services} = UserAllServices()
+  const {authenticated, userInformation} = UseInfo()
+  const {favorites, getFavorites} = UseFavorite()
+  const {DNS, getDNS} = UseDNS()
   const navigate = useNavigate()
-  const userId = useSelector(selectUserId);
-  const loginStatus = useSelector(selectLoggedIn);
   const [loadingPage, setLoadingPage] = useState(true)
   const [searchParams, setSearchParams] = useSearchParams();
   const longitudeParam = parseFloat(searchParams.get('longitude')) || 0;
@@ -101,18 +103,6 @@ const Explore = () => {
   const currentDay = currentDate.getDate().toString().padStart(2, '0');
   const thisDate = currentYear + "-" + currentMonth + "-" + currentDay
 
-
-  // For km radius
-  const radiusList = () => {
-    const radiusValues = []
-    
-    for(let i = 1;i<=100;i++)
-    {
-      radiusValues.push(i)
-    }
-
-    return radiusValues
-  }
   // Computes the rating Average
   const ratingAverage = (services) => {
     return services.map((service, index) => {
@@ -168,13 +158,14 @@ const Explore = () => {
 
   const openMoreOptions = (id) => {
     
-        if(activeId == id){
-          setActiveId(null)
-        }else {
+        if(activeId === null){
           setActiveId(id)
+        }else {
+          setActiveId(null)
         }
     
   }
+
 
   // Get my current location
   useEffect(() => {
@@ -211,34 +202,6 @@ const Explore = () => {
           });
   }, [locationFilterValue]);
       
-  const getUserId = () =>{
-        return new Promise((resolve,reject)=>{
-          if(userId == null)
-        {
-          console.log("userId")
-        }
-        else if(userId == "loggedOut")
-        {
-          resolve("loggedOut")
-        }
-        else{
-          resolve(userId)
-        }
-        })
-  }
-
-  const getLoginStatus = () => {
-        return new Promise((resolve, reject)=>{
-          if(loginStatus === true)
-          {
-            resolve('loggedIn')
-          }
-          else if(loginStatus === false)
-          {
-            resolve('loggedOut')
-          }
-        })
-  }
 
   const getCategories = async () => {
         try {
@@ -253,24 +216,19 @@ const Explore = () => {
   }
       // Get All services
   const getServices = async () => {
-       
+        
         try {
-          
-          const res = await http.get("getServices");
-          
-          const services = res.data.service;
-          const result = ratingAverage(services)
-          const loginStatus = await getLoginStatus()
-          const myId = await getUserId()
-          
-          if(loginStatus == "loggedOut")
+          const dns = await getDNS()
+          const services_item = authenticated && dns.length !== 0 ? services.filter(service => !dns.some((dns) => service._id == dns.service._id)) : dns.length == 0 ? services : services
+          const result = ratingAverage(services_item)
+          if(authenticated === false)
           {
             setServiceList(result);
             setMainServiceList(result);
           }
-          else if(loginStatus === "loggedIn" && myId != null)
+          else if(authenticated)
           {
-          const filteredService = result.filter(service => service.owner._id !== myId)
+          const filteredService = result.filter(service => service.owner._id !== userInformation._id)
           setServiceList(filteredService);
           setMainServiceList(filteredService);
           }
@@ -283,9 +241,13 @@ const Explore = () => {
   }
       // get all services
   useEffect(()=>{
-        getServices()
-        getCategories()
-  },[userId, loginStatus])
+    if(services !== null && authenticated !== null)
+    {
+      getServices()
+      getCategories()
+    }
+
+  },[services, authenticated])
 
       // Apply the filteres in the searchParams
   useEffect(()=>{
@@ -448,6 +410,46 @@ const Explore = () => {
       }
     };
 
+    const removeFavorites = async (serviceId) => {
+
+      try {
+        const result = await http.delete(`removeFavorite/${serviceId}`,{withCredentials : true})
+        setActiveId(null)
+        getFavorites()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    const addToFavorites = async (serviceId) => {
+      const data = {
+        serviceId,
+        createdAt : new Date()
+      }
+
+      try {
+        const result = await http.post('addFavorites', data, {withCredentials : true})
+        setActiveId(null)
+        getFavorites()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    const addToDNS = async (serviceId) => {
+      const data = {
+        serviceId,
+        createdAt : new Date()
+      }
+
+      try {
+        const result = await http.post('addToDoNotShow', data, {withCredentials : true})
+        setActiveId(null)
+        getServices()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
     useEffect(()=>{
       if(longitudeParam != 0)
       {
@@ -546,31 +548,40 @@ const Explore = () => {
                 </div>
 
                 {/* Location */}
-                <div className='flex space-x-1 w-[300px] xl:w-full justify-between  ml-1 xl:ml-2 '>
+                <div className='flex space-x-1  w-[300px] xl:w-full justify-between  ml-1 xl:ml-2 '>
                   <div className='flex space-x-1'>
                   <ShareLocationOutlinedIcon className='text-themeGray' />
                   <p className='text-themeGray whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay.name + ", " + service.address.municipality.name + ", " + service.address.province.name}</p>
                   </div>
                   {/* More Options Button */}
-                  <OutsideClickHandler onOutsideClick={()=>{setActiveId(null)}}>
-                  <MoreVertIcon onClick={()=>{openMoreOptions(service._id)}} className={` ${service._id == activeId ? "text-gray-300" : "text-gray-600"}  absolute right-1 bottom-3 cursor-pointer hover:text-gray-300`} />
-                  <div id={service.id} className={`${service._id == activeId ? "absolute" : "hidden"} options ease-in-out duration-200 z-20  bg-white h-fit shadow-lg rounded-md right-[1.5rem] xl:right-[2rem] bottom-[1rem] xl:top-[12rem]`}>
-                  <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
-                  <LibraryAddIcon />
-                  <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Add to Library</p>
-                  </div>
-                  
-                  <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
-                  <HideSourceIcon />
-                  <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Do not show</p>
-                  </div>
-                  
-                  <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
-                  <ReportIcon />
-                  <p className=' px-4  text-gray-600 rounded-md cursor-pointer py-1'>Report</p>
-                  </div>
+                  <OutsideClickHandler onOutsideClick={(e)=>{setActiveId(null);e.stopPropagation()}}>
+                  <div onClick={(e)=>{openMoreOptions(service._id);e.stopPropagation()}} className='w-fit p-0  absolute right-2 cursor-pointer'>
+                  <MoreVertIcon  className={` ${service._id == activeId ? "text-gray-300" : "text-gray-600"}  cursor-pointer hover:text-gray-300`} />
                   </div>
                   </OutsideClickHandler>
+                  <div id={service.id} className={`${service._id == activeId ? "absolute" : "hidden"} options  z-20  bg-white h-fit shadow-lg rounded-md right-[1.5rem] xl:right-[2rem] bottom-[1rem] xl:top-[12rem]`}>
+
+                  <div id='optionMenu' className='flex hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>             
+                  {
+                    
+                    favorites?.some((favorite) => favorite.service?._id === service._id) ?
+                    <div className='flex items-center'><PlaylistRemoveOutlinedIcon className='text-red-500 p-0.5' fontSize='small' /><p onClick={()=>{removeFavorites(service._id)}} className=' px-2  text-red-500 text-sm rounded-md cursor-pointer py-1'>Remove from Favorites</p></div> :
+                    <div className='flex items-center'><LibraryAddIcon className='p-0.5' fontSize='small' /><p onClick={()=>{addToFavorites(service._id)}} className=' px-2  text-gray-600 rounded-md cursor-pointer py-1 text-sm'>Add to Favorites</p></div>
+                  }
+
+                  </div>
+                  
+                  <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
+                  <HideSourceIcon className='p-0.5' fontSize='small' />
+                  <p onClick={()=>{addToDNS(service._id)}} className=' px-2 text-sm text-gray-600 rounded-md cursor-pointer py-1'>Do not show</p>
+                  </div>
+                  
+                  <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
+                  <ReportGmailerrorredOutlinedIcon className='p-0.5' fontSize='small' />
+                  <p className=' px-2 text-sm text-gray-600 rounded-md cursor-pointer py-1'>Report</p>
+                  </div>
+                  </div>
+                  
                   
         
                 </div>
