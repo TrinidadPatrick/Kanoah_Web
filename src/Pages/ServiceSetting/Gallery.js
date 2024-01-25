@@ -230,7 +230,7 @@ useEffect(()=>{
     </nav>
 
     {/* Grid Gallery Container */}
-    <section className={`w-full ${selectedView == "Grid" ? "grid" : "hidden"} h-full mt-5 grid-cols-2 semiSm:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 semiXs:gap-8 p-3 max-h-full`}>
+    <section className={`w-full ${selectedView == "Grid" ? "grid" : "hidden"} h-fit max-h-full mt-5 grid-cols-2 semiSm:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 semiXs:gap-8 p-3 max-h-full`}>
     {/* Image Container */}
     {
       serviceGalleryImages.map((image, index)=>{

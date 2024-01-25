@@ -507,13 +507,8 @@ import {io} from 'socket.io-client'
     } 
 
     const handleReadMessage = async (conversationId) => {
-      // const selectedChat = allChats.filter(chats => chats.result[0].conversationId === conversationId)
-      // const unreadChats = currentChats.filter(chats => !chats.readBy.includes(userInformation?._id))
-      
-      // console.log(currentChats)
       const readMessage = await http.put('handleReadMessage', {conversationId, myId : userInformation?._id})
       await getContacts()
-      // getChatsAync()
       
     }
 
