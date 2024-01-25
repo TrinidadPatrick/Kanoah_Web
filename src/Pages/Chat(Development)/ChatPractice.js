@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useSearchParams } from 'react-router-dom';
 import http from '../../http';
-import { selectUserId } from '../../ReduxTK/userSlice'
 import { useNavigate } from 'react-router-dom';
 import { selectNewMessage, setNewMessage, selectOnlineUsers } from '../../ReduxTK/chatSlice';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
@@ -22,15 +21,14 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import ContactPhoneRoundedIcon from '@mui/icons-material/ContactPhoneRounded';
 import './chat.css'
+import UseInfo from '../../ClientCustomHook/UseInfo';
 import {io} from 'socket.io-client'
 
   const ChatPractice = () => {
     const dispatch = useDispatch()
+    const {authenticated, userInformation} = UseInfo()
     const newMessage = useSelector(selectNewMessage)
     const navigate = useNavigate()
-    const accessToken = localStorage.getItem("accessToken")
-    const [userInformation, setUserInformation] = useState({})
-    const userId = useSelector(selectUserId)
     const [searchParams, setSearchParams] = useSearchParams();
     const convoId = searchParams.get('convoId')
     const service = searchParams.get('service')
@@ -88,11 +86,11 @@ import {io} from 'socket.io-client'
     },[])
 
   useEffect(()=>{
-    if(userId === 'loggedOut')
+    if(authenticated === false)
     {
       navigate('/')
     }
-  },[userId])
+  },[authenticated])
 
   useEffect(()=>{
     setSocket(io("https://kanoah.onrender.com"))
@@ -127,18 +125,6 @@ import {io} from 'socket.io-client'
       
   },[newMessage, userInformation, currentChats])
 
-   
-    const getUser = async () => {
-      try {
-        const response = await http.get(`getUser`, {
-          withCredentials: true,
-        });
-        return response.data; // Explicitly return the data
-      } catch (err) {
-        console.error(err);
-        throw err; // Re-throw the error to be caught in the calling code
-      }
-    };
 
     useEffect(()=>{
       if(service == "")
@@ -147,29 +133,29 @@ import {io} from 'socket.io-client'
       }
     },[])
     
-    // Get Current User
-    useEffect(() => {
-      // Gets the current user information
-      (async () => {
-        try {
-          const result = await getUser();
-          setUserInformation(result)
-        } catch (error) {
-          // Handle the error if needed
-          console.error('Error fetching user:', error);
-        }
-      })();
+    // // Get Current User
+    // useEffect(() => {
+    //   // Gets the current user information
+    //   (async () => {
+    //     try {
+    //       const result = await getUser();
+    //       setUserInformation(result)
+    //     } catch (error) {
+    //       // Handle the error if needed
+    //       console.error('Error fetching user:', error);
+    //     }
+    //   })();
 
-    }, []);
+    // }, []);
     
     // load first chat upon load when there is no service or convoId
     useEffect(()=>{
-      if(userId !== null && service == null)
+      if(userInformation !== null && service == null)
       {
         (async()=>{
           try {
             
-            const contacts = await http.get(`retrieveContacts/${userId}`, {
+            const contacts = await http.get(`retrieveContacts/${userInformation?._id}`, {
               withCredentials: true,
             })
             const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -182,7 +168,7 @@ import {io} from 'socket.io-client'
             setSearchParams({service : firstContact.serviceInquired, convoId : firstContact.conversationId})
             setAllContacts(sortedContacts)
             setOrigAllContacts(sortedContacts)
-            setReceiver(firstContact.participants.filter(receiver => receiver._id !== userId)[0])
+            setReceiver(firstContact.participants.filter(receiver => receiver._id !== userInformation?._id)[0])
             setServiceInquired(firstContact.virtualServiceInquired)
             getChats(firstContact.conversationId)
             setLoadingHeader(false)
@@ -198,7 +184,7 @@ import {io} from 'socket.io-client'
         getChats(convoId)
       }
       
-    },[userId, allContacts])
+    },[userInformation, allContacts])
 
 
     // Gets the information of receiver and service
@@ -215,10 +201,10 @@ import {io} from 'socket.io-client'
 
     //Get all Contacts related to current users
     const getContacts = async () => {
-      if(userInformation._id !== undefined && convoId !== undefined)
+      if(userInformation?._id !== undefined && convoId !== undefined)
       {
         try {
-          const contacts = await http.get(`retrieveContacts/${userInformation._id}`, {
+          const contacts = await http.get(`retrieveContacts/${userInformation?._id}`, {
             withCredentials: true,
           })
           const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -278,14 +264,14 @@ import {io} from 'socket.io-client'
       const data = {
         sendingId : Math.floor(Math.random() * 1000),
         conversationId : convoId,
-        participants : [userInformation._id, receiver._id],
-        readBy : [userInformation._id],
+        participants : [userInformation?._id, receiver._id],
+        readBy : [userInformation?._id],
         serviceInquired : service,
         createdAt : currentDate,
         messageType : type,
         messageContent : 
         {
-          sender : userInformation._id,
+          sender : userInformation?._id,
           receiver: receiver._id,
           content: message,
           date : thisDate,
@@ -305,7 +291,6 @@ import {io} from 'socket.io-client'
         getAllChats()
         setSendingMessages([...sendingMessages.filter(message => message.sendingId !== data.sendingId)])
         getContacts()
-        console.log(sendMessage)
 
         setSearchParams({service : service, convoId : sendMessage.data.result.conversationId})   
         socket.emit('message', {notificationMessage, receiverName : receiver._id});
@@ -358,14 +343,14 @@ import {io} from 'socket.io-client'
     //Get chats from selected conversation
     const getChats = async (conversationId) => {
       
-    if(conversationId !== "" && userInformation._id !== undefined && fetching == false && allChats.length == 0)
+    if(conversationId !== "" && userInformation?._id !== undefined && fetching == false && allChats.length == 0)
     {
       setFetching(true)
       try {
         const messages = await http.get(`getMessages/${conversationId}/${returnLimit}`, {
           withCredentials: true,
         })
-        const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation._id)
+        const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation?._id)
         setReceiver(receiver)
         setServiceInquired(messages.data.result[0].virtualServiceInquired)
         setCurrentChats(messages.data.result)
@@ -386,7 +371,7 @@ import {io} from 'socket.io-client'
      }
     }
 
-    else if(conversationId !== "" && userInformation._id !== undefined && fetching == false && allChats.length !== 0)
+    else if(conversationId !== "" && userInformation?._id !== undefined && fetching == false && allChats.length !== 0)
     {
       
       const selectedChats = allChats.find(chats => chats.result[0].conversationId === conversationId)
@@ -404,7 +389,7 @@ import {io} from 'socket.io-client'
             const messages = await http.get(`getMessages/${convoId}/${returnLimit}`, {
               withCredentials: true,
             });
-            const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation._id);
+            const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation?._id);
             setReceiver(receiver);
             setServiceInquired(messages.data.result[0].virtualServiceInquired);
             setCurrentChats(messages.data.result);
@@ -523,10 +508,10 @@ import {io} from 'socket.io-client'
 
     const handleReadMessage = async (conversationId) => {
       // const selectedChat = allChats.filter(chats => chats.result[0].conversationId === conversationId)
-      // const unreadChats = currentChats.filter(chats => !chats.readBy.includes(userId))
+      // const unreadChats = currentChats.filter(chats => !chats.readBy.includes(userInformation?._id))
       
       // console.log(currentChats)
-      const readMessage = await http.put('handleReadMessage', {conversationId, myId : userId})
+      const readMessage = await http.put('handleReadMessage', {conversationId, myId : userInformation?._id})
       await getContacts()
       // getChatsAync()
       
@@ -577,8 +562,8 @@ import {io} from 'socket.io-client'
     async function handleViewInformation(participants)
     {
      
-      const profileToView = participants.find(user => user._id !== userId)
-      const profileToView2 = participants.find(user => user !== userId)
+      const profileToView = participants.find(user => user._id !== userInformation?._id)
+      const profileToView2 = participants.find(user => user !== userInformation?._id)
       const profile = await http.get(`viewChatMemberProfile/${profileToView._id == undefined ? profileToView2 : profileToView._id}`)
       setReceiverInformation(profile.data)
     }
@@ -670,9 +655,9 @@ import {io} from 'socket.io-client'
               {/* Title */}
               <div className='flex justify-start'>
             
-              <p className={`${contact.readBy.includes((userId)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium overflow-hidden max-w-[200px] sm:max-w-[130px] xl:max-w-[200px] text-ellipsis pe-2`}>{contact.virtualServiceInquired.basicInformation.ServiceTitle}</p>
-              {/* <input readOnly className={`${contact.readBy.includes((userId)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium text-ellipsis pointer-events-none bg-transparent`} type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} /> */}
-              <div className={` ${contact.serviceInquired === userId ? 'block' : 'hidden'} flex items-center`}>
+              <p className={`${contact.readBy.includes((userInformation?._id)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium overflow-hidden max-w-[200px] sm:max-w-[130px] xl:max-w-[200px] text-ellipsis pe-2`}>{contact.virtualServiceInquired.basicInformation.ServiceTitle}</p>
+              {/* <input readOnly className={`${contact.readBy.includes((userInformation?._id)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium text-ellipsis pointer-events-none bg-transparent`} type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} /> */}
+              <div className={` ${contact.serviceInquired === userInformation?._id ? 'block' : 'hidden'} flex items-center`}>
               <StorefrontOutlinedIcon className=' text-blue-500 p-0.5' fontSize='small' />
               </div>
               </div>
@@ -681,7 +666,7 @@ import {io} from 'socket.io-client'
                   contact.messageType === 'image' ?
                   <input type='text' readOnly value='Photo' className='font-light w-full pointer-events-none text-ellipsis bg-transparent text-xs text-gray-700' />
                   :
-                  <input type='text' readOnly value={contact.messageContent.sender === userId ? 'You: ' + contact.messageContent.content : contact.messageContent.content} className='font-light w-[100%]  bg-transparent pointer-events-none text-ellipsis  text-semiXs text-gray-700' />
+                  <input type='text' readOnly value={contact.messageContent.sender === userInformation?._id ? 'You: ' + contact.messageContent.content : contact.messageContent.content} className='font-light w-[100%]  bg-transparent pointer-events-none text-ellipsis  text-semiXs text-gray-700' />
                   }
                   <div className=' whitespace-nowrap text-[0.5rem]'>{contact.messageContent.timestamp}</div>
                 </div>
@@ -817,8 +802,8 @@ import {io} from 'socket.io-client'
                 
               </div>
             {
-              chatGroup.chats.map((chat)=>(
-                <div key={chat._id} className={`w-full p-1 flex flex-col ${chat.messageContent.sender === userInformation._id ? 'items-end' : 'items-start'}`}>
+              chatGroup.chats.map((chat, index)=>(
+                <div key={index} className={`w-full p-1 flex flex-col ${chat.messageContent.sender === userInformation._id ? 'items-end' : 'items-start'}`}>
                 {
                   chat.messageType === "image" ?
                   <div className=' w-56 max-w-[14rem] rounded-lg'>
@@ -826,7 +811,7 @@ import {io} from 'socket.io-client'
                   </div>
                   :
                   <div className='flex items-end space-x-2'>
-                  <img className={`${chat.messageContent.sender === userId ? 'hidden' : 'block'} w-6 h-6 rounded-full mb-4`} src={chat.participants.filter(user => user._id !== userId)[0].profileImage} />
+                  <img className={`${chat.messageContent.sender === userInformation?._id ? 'hidden' : 'block'} w-6 h-6 rounded-full mb-4`} src={chat.participants.filter(user => user._id !== userInformation?._id)[0].profileImage} />
                   <div>
                   <p className={`py-2 px-4 w-fit whitespace-pre-wrap max-w-[300px] break-words rounded-md ${chat.messageContent.sender !== userInformation ._id ? 'bg-gray-100 text-gray-700 text-sm shadow-sm rounded-es-none' : 'bg-blue-500 text-white text-sm rounded-ee-none shadow-md'}`}>  
                     {chat.messageContent.content}

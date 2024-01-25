@@ -181,8 +181,8 @@ const MyService = () => {
     <section className='h-full w-full max-h-full overflow-auto flex flex-col'>
     {/* Top Part */}
     <header className='text-start mb-3 w-full border-b-2 mt-5'>
-    <button className={`px-3 py-1 font-medium text-gray-600 ${selectedFolder == "Gallery" ? "border-b-2 border-stone-600" : ""} `} onClick={()=>{setSelectedFolder("Gallery")}}>Gallery</button>
-    <button className={`px-3 py-1 font-medium text-gray-600 ${selectedFolder == "Featured" ? "border-b-2 border-stone-600" : ""} `} onClick={()=>{setSelectedFolder("Featured")}}>Featured Photos</button>
+    <button className={`px-3 text-semiSm semiSm:text-base py-1 font-medium text-gray-600 ${selectedFolder == "Gallery" ? "border-b-2 border-themeOrange" : ""} `} onClick={()=>{setSelectedFolder("Gallery")}}>Gallery</button>
+    <button className={`px-3 text-semiSm semiSm:text-base py-1 font-medium text-gray-600 ${selectedFolder == "Featured" ? "border-b-2 border-themeOrange" : ""} `} onClick={()=>{setSelectedFolder("Featured")}}>Featured Photos</button>
     </header>
     {selectedFolder == "Gallery" ? (<Gallery value={{id : serviceInformation._id, galleryImages : serviceInformation.galleryImages}} />) : (<FeaturedPhotos value={{id : serviceInformation._id, featuredImages : serviceInformation.featuredImages}} />)}
     </section>

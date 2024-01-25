@@ -186,7 +186,7 @@ useEffect(()=>{
 
         {/* Upload Button */}
         <li className='ml-3 cursor-all-scroll flex items-center space-x-2'>
-        <label htmlFor="fileInput" className={` bg-themeOrange h-full text-[0.85rem] shadow-md py-1 semiSm:py-2 flex items-center relative px-2 sm:px-4 text-white font-medium text-center rounded cursor-pointer`}>
+        <label htmlFor="fileInput" className={` bg-themeOrange h-full text-[0.85rem] shadow-md py-1 semiSm:py-2 flex items-center relative px-1 sm:px-4 text-white font-medium text-center rounded cursor-pointer`}>
         {uploadingImage ? "Uploading" : windowWidth <= 510 ? <FileUploadOutlinedIcon /> : "Upload Image"}
         <input onChange={(e)=>{handleAddImage(e.target.files)}} disabled={uploadingImage} type="file" multiple accept="image/*" id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
         </label>
@@ -221,8 +221,8 @@ useEffect(()=>{
         {/* Select multiple */}
         <li>
         <div className='flex items-center space-x-1'>
-        <input checked={multipleSelect} onChange={()=>{setMultipleSelect(!multipleSelect)}} id='selectMultiple' className='h-[15px] w-[15px]' type="checkbox" />
-        <label htmlFor='selectMultiple' className='text-sm text-gray-700'>Multiple Select</label>
+        <input checked={multipleSelect} onChange={()=>{setMultipleSelect(!multipleSelect)}} id='selectMultiple' className='sm:h-[15px] sm:w-[15px]' type="checkbox" />
+        <label htmlFor='selectMultiple' className='text-semiXs sm:text-sm text-gray-700'>Multiple Select</label>
         </div>
         </li>
 
@@ -230,7 +230,7 @@ useEffect(()=>{
     </nav>
 
     {/* Grid Gallery Container */}
-    <section className={`w-full ${selectedView == "Grid" ? "grid" : "hidden"} h-full mt-5 grid-cols-1 semiSm:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 p-3 max-h-full`}>
+    <section className={`w-full ${selectedView == "Grid" ? "grid" : "hidden"} h-full mt-5 grid-cols-2 semiSm:grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 semiXs:gap-8 p-3 max-h-full`}>
     {/* Image Container */}
     {
       serviceGalleryImages.map((image, index)=>{
@@ -279,16 +279,16 @@ useEffect(()=>{
               const months = to.getMonth() - from.getMonth();
               const days = to.getDate() - from.getDate();
       return (
-        <div  key={index} className="relative flex justify-between pr-5 shadow-sm items-center w-full">
+        <div  key={index} className="relative flex justify-between pr-5 py-3 shadow-sm items-center w-full">
         <div className='flex items-center space-x-2'>
           {/* Delete Multiple */}
         <input checked={imagesToDelete.includes(image.imageId) ? true : false} onChange={()=>{selectMultipleDelete(image.imageId)}} className={`${multipleSelect ? "block" : "hidden"}`} type="checkbox" />
-        <div onClick={()=>{handleImageClick(index)}} className=' h-[60px] w-[60px] max-h-[150px] object-contain flex justify-center rounded-lg shadow-sm overflow-hidden'>
+        <div onClick={()=>{handleImageClick(index)}} className=' h-[60px] bg-stone-200 w-[60px] max-h-[150px] aspect-video object-contain flex justify-center rounded-lg shadow-sm overflow-hidden'>
           <img src={image.src} alt="image" className='max-h-full object-contain cursor-pointer' />
         </div>
         </div>
         
-        <div className='flex space-x-56'>
+        <div className='flex space-x-56 whitespace-nowrap'>
         {
         years > 0 ? (<p className='text-xs text-gray-400 ml-1 mt-1'>{years}{years > 1 ? " years ago" : " year ago"}</p>) : months > 0 ? (<p className='text-xs text-gray-400 ml-1 mt-1'>{months}{months > 1 ? " months ago" : " month ago"}</p>) : days > 0  ? (<p className='text-xs text-gray-400 ml-1 mt-1'>{days} {days > 1 ? " days ago" : " day ago"}</p>) : (<p className='text-xs text-gray-400 ml-1 mt-1'>Less than a day ago</p>)
         }

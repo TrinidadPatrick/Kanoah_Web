@@ -11,7 +11,7 @@ import SortOutlinedIcon from '@mui/icons-material/SortOutlined';
 import { useNavigate } from 'react-router-dom';
 import http from '../../../http';
 
-const BlockedServices = () => {
+const BlockedServices = ({authenticated}) => {
     const navigate = useNavigate()
     const {getDNS} = UseDNS()
     const [DNSList, setDNSList] = useState([])
@@ -19,6 +19,9 @@ const BlockedServices = () => {
     const [selectedIndex, setSelectedIndex] = useState(null)
     const [hoveredIndex, setHoveredIndex] = useState(null)
     const [showFilter, setShowFilter] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const BSsortOption = localStorage.getItem("BSsortOption")
 
     const StyledRating = styled(Rating)({
       '& .MuiRating-iconFilled': {
@@ -36,6 +39,11 @@ const BlockedServices = () => {
       },
   
     });
+
+      // Update window width on resize
+    const handleResize = () => {
+        setWindowWidth(window.innerWidth);
+    };
 
     const finalize_list = (dnsList) => {
       return dnsList.map((dns)=>{
@@ -70,7 +78,8 @@ const BlockedServices = () => {
 
     const getDNSFunction = async () => {
       const DNS = await getDNS()
-      setDNSList(finalize_list(DNS))      
+      setDNSList(finalize_list(DNS)) 
+      setLoading(false)     
     }
 
     const removeDNS = async (serviceId) => {
@@ -104,6 +113,7 @@ const BlockedServices = () => {
     }
 
     const sortList = (option) => {
+      localStorage.setItem("BSsortOption", option)
       const DNSInstance = [...DNSList]
       const convertedDNS = DNSInstance.map((dns) => ({...dns, createdAt : new Date(dns.createdAt)}))
       switch (option)
@@ -132,60 +142,135 @@ const BlockedServices = () => {
       setShowFilter(false)
     }
 
+    useEffect(()=>{
+      if(authenticated)
+      {
+        getDNSFunction()
+      }
+      
+  },[authenticated])
+
+  useEffect(()=>{
+    if(DNSList.length !== 0)
+    {
+      if(BSsortOption != undefined || BSsortOption != null)
+      {
+        sortList(BSsortOption)
+      }
+      else
+      {
+        
+        sortList('newestAdded')
+        localStorage.setItem("BSsortOption","newestAdded" )
+      }
+      
+    }
+  },[loading])
+
+   // Attach event listener on component mount and clean up on unmount
+   useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+   }, []);
+
     
   return (
-    <div onClick={()=>{setSelectedIndex(null);setShowFilter(false)}} className='w-full pl-10 h-full flex flex-col p-3'>
-      <h1 className='mt-5 text-2xl font-semibold text-gray-800'>Blocked Services</h1>
-        <hr className='my-3'></hr>
-          <nav className='px-2 py-1 flex items-center space-x-2 relative'>
-            <button onClick={(e)=>{setShowFilter(!showFilter);e.stopPropagation()}}>
-              <SortOutlinedIcon />
-            </button>
-            <span className='text-sm font-medium text-gray-600 mt-1'>Showing {DNSList.length} results</span>
-              <SortDropdown sortList={sortList} showFilter={showFilter} />
-          </nav>
-          <div onClick={()=>{setSelectedIndex(null);setShowFilter(false)}} className='w-full h-full relative z-0 flex flex-col space-y-6 overflow-auto max-h-full'>
-          {
-            DNSList?.map((dns, index)=>{
-              return (
-              <div  onMouseEnter={()=>{setHoveredIndex(index)}} key={dns._id} className='serviceItem relative flex items-stretch bg-white gap-5 hover:bg-gray-100 p-2 rounded-md cursor-pointer'>
-                <div id='imageContainer' className='flex bg-stone-300 shadow-sm rounded-md items-center justify-center h-[80px] md:h-[100px] xl:h-[120px] aspect-video'>
-                  <img className='w-full h-full object-scale-down ' src={dns.serviceProfileImage} />
-                </div>
-                <div onClick={()=>{navigate(`/explore/viewService/${dns.serviceId}`)}} id='infoContainer' className='flex flex-col w-full items-start justify-between'>
-                  <div id='Header' className='flex flex-col'><h1 className='text-xl text-gray-800 font-semibold'>{dns.serviceTitle}</h1>
-                    <div id='nameAndYear' className='flex items-center gap-2'>
-                      <h2 className='text-semiSm text-gray-500 font-medium'>{dns.owner}</h2>
-                        <span className='w-1 h-1 rounded-full bg-gray-500'></span>
-                      <h2 className='text-semiSm text-gray-500 font-medium'>{dns.createdAgo}</h2>
-                    </div>
-                  </div>
-                  <div id='rating container'>
-                    <div className='flex whitespace-nowrap relative ml-0 items-center'>
-                      <StyledRating className='relative '  readOnly defaultValue={Number(dns.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
-                        <div className='flex items-center space-x-2 pl-1'>
-                          <p className='text-gray-400 text-sm font-medium'>{dns.ratings}</p> 
-                          <p className='text-gray-300'>|</p>
-                          <p className='text-gray-500 text-semiSm mt-0.5 font-medium'>{dns.totalReviews} Reviews</p> 
-                        </div>
-                    </div>
-                  </div>
-                </div>
-                  <div className={`w-[70px] relative top-0 right-0 h-full flex items-center justify-center`}>
-                    <button onClick={(e)=>{handleOpenMoreOption(index);e.stopPropagation()}} className={`${index === hoveredIndex ? "flex" : "hidden"}  cursor-pointer p-2`}>
-                    <MoreVertOutlinedIcon  className='text-gray-700 cursor-pointer hover:text-gray-500' />
-                    </button>
-                    <MoreOption selectedIndex={selectedIndex} removeDNS={removeDNS} serviceId={dns.serviceId} index={index} openDirection={openDirection}  />
-                  </div>
-              </div>
-            )})
-          }
-          </div>
-    </div>
+    <>
+    {
+       loading ?
+       <div className='w-full h-full flex flex-col items-start p-10 gap-5 justify-between animate-pulse'>
+         <div className='flex w-full space-x-3'>
+         <div className='w-[90px] h-[80px] semiSm:w-[150px] semiSm:h-[120px] md:w-[200px] md:h-[150px] rounded-md bg-gray-300'></div>
+         <div className='w-full h-[80px] semiSm:h-[120px] md:h-[150px] justify-between flex flex-col'>
+         <div className='w-[100%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         <div className='w-[70%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         <div className='w-[85%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         <div className='w-[80%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         </div>
+         </div>
+         <div className='flex w-full space-x-3'>
+         <div className='w-[90px] h-[80px] semiSm:w-[150px] semiSm:h-[120px] md:w-[200px] md:h-[150px] rounded-md bg-gray-300'></div>
+         <div className='w-full h-[80px] semiSm:h-[120px] md:h-[150px] justify-between flex flex-col'>
+         <div className='w-[100%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         <div className='w-[70%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         <div className='w-[85%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         <div className='w-[80%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         </div>
+         </div>
+         <div className='flex w-full space-x-3'>
+         <div className='w-[90px] h-[80px] semiSm:w-[150px] semiSm:h-[120px] md:w-[200px] md:h-[150px] rounded-md bg-gray-300'></div>
+         <div className='w-full h-[80px] semiSm:h-[120px] md:h-[150px] justify-between flex flex-col'>
+         <div className='w-[100%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         <div className='w-[70%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         <div className='w-[85%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         <div className='w-[80%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+         </div>
+         </div>
+         
+       </div>
+       :
+       <div onClick={()=>{setSelectedIndex(null);setShowFilter(false)}} className='w-full semiMd:pl-10 h-full flex flex-col p-3'>
+       <h1 className='mt-5 ml-4 md:ml-0 text-2xl font-semibold text-gray-800'>Blocked Services</h1>
+         <hr className='my-3'></hr>
+           <nav className='px-2 py-1 flex items-center space-x-2 relative'>
+             <button onClick={(e)=>{setShowFilter(!showFilter);e.stopPropagation()}}>
+               <SortOutlinedIcon />
+             </button>
+             <span className='text-sm font-medium text-gray-600 mt-1'>Showing {DNSList.length} results</span>
+               <SortDropdown sortList={sortList} showFilter={showFilter} BSsortOption={BSsortOption} setShowFilter={setShowFilter} />
+           </nav>
+           <div onClick={()=>{setSelectedIndex(null);setShowFilter(false)}} className='w-full h-full relative z-0 flex flex-col space-y-6 overflow-auto max-h-full'>
+           {
+             DNSList?.map((dns, index)=>{
+               return (
+               <div onMouseLeave={()=>setHoveredIndex(null)} onMouseEnter={()=>{setHoveredIndex(index)}} key={dns._id} className='serviceItem w-full relative flex items-stretch bg-white gap-2 semiSm:gap-5 hover:bg-gray-100 p-2 rounded-md cursor-pointer'>
+                 <div id='imageContainer' className='flex bg-stone-300 shadow-sm rounded-md  items-center justify-center h-[70px] semiSm:h-[80px] md:h-[100px] xl:h-[120px] aspect-video'>
+                   <img className='w-full h-full object-contain rounded-md ' src={dns.serviceProfileImage} />
+                 </div>
+                 <div onClick={()=>{navigate(`/explore/viewService/${dns.serviceId}`)}} id='infoContainer' className='flex flex-col w-full items-start justify-between'>
+                   <div id='Header' className='w-full  flex flex-col'><h1 className='text-base whitespace-nowrap  semiSm:text-xl text-gray-800 font-semibold'>{dns.serviceTitle}</h1>
+                     <div id='nameAndYear' className='flex items-center gap-2'>
+                       <h2 className='text-semiXs semiSm:text-semiSm whitespace-nowrap text-gray-500 font-medium'>{dns.owner}</h2>
+                         <span className='w-1 h-1 rounded-full bg-gray-500'></span>
+                       <h2 className='text-semiXs semiSm:text-semiSm whitespace-nowrap text-gray-500 font-medium'>{dns.createdAgo}</h2>
+                     </div>
+                   </div>
+                   <div id='rating container'>
+                     <div className='flex whitespace-nowrap relative ml-0 items-center'>
+                       {
+                         windowWidth > 400 &&
+                         <StyledRating className='relative hidden'  readOnly defaultValue={Number(dns.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize={`${windowWidth <= 1000 ? "small" : "medium"}`} />  } emptyIcon={<StarRoundedIcon fontSize={`${windowWidth <= 1000 ? "small" : "medium"}`} className='text-gray-300' />} />
+ 
+                       }
+                         <div className='flex items-center space-x-2 pl-1'>
+                           <p className='text-[#FFA534] text-xs semiSm:text-sm font-medium'>{dns.ratings}</p> 
+                           <p className='text-gray-300'>|</p>
+                           <p className='text-gray-500 text-xs semiSm:text-sm mt-0.5 font-medium'>{dns.totalReviews} Reviews</p> 
+                         </div>
+                     </div>
+                   </div>
+                 </div>
+                   <div className={`w-[70px] relative top-0 right-0 h-full flex items-center justify-center`}>
+                     <button onClick={(e)=>{handleOpenMoreOption(index);e.stopPropagation()}} className={`${index === hoveredIndex ? "flex" : "hidden"}  cursor-pointer p-2`}>
+                     <MoreVertOutlinedIcon  className='text-gray-700 cursor-pointer hover:text-gray-500' />
+                     </button>
+                     <MoreOption selectedIndex={selectedIndex} removeDNS={removeDNS} serviceId={dns.serviceId} index={index} openDirection={openDirection}  />
+                   </div>
+               </div>
+             )})
+           }
+           </div>
+     </div>
+    }
+
+    </>
+
   )
 }
 
-const MoreOption = ({selectedIndex, index, openDirection, serviceId, removeDNS}) => {
+const MoreOption = ({selectedIndex, index, openDirection, serviceId, removeDNS,}) => {
   return (
     <div className={`w-fit ${selectedIndex === index ? '' : 'hidden'} flex flex-col z-20 rounded-md absolute bg-white shadow-md ${openDirection === "up" ? "-left-[10rem] -top-[6rem]" : "-left-[10rem] top-[4.5rem]"}`}>
       <button className='text-sm hover:bg-gray-100 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'><ContentCopyOutlinedIcon fontSize='small' className='p-0.5' />Copy link address</button>
@@ -194,13 +279,13 @@ const MoreOption = ({selectedIndex, index, openDirection, serviceId, removeDNS})
   )
 }
 
-const SortDropdown = ({sortList, showFilter}) => {
+const SortDropdown = ({sortList, showFilter, setShowFilter, BSsortOption}) => {
   return (
-    <div className={`w-fit ${showFilter ? "flex" : "hidden"} flex-col z-20 -bottom-[9rem] left-0 rounded-md absolute bg-[#f9f9f9] shadow-md`}>
-      <button onClick={()=>sortList('newestAdded')} className='text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'>Date added (newest)</button>
-      <button onClick={()=>sortList('oldestAdded')}  className='text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'>Date added (oldest)</button>
-      <button onClick={()=>sortList('MostRated')} className='text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'>Most Rated</button>
-      <button onClick={()=>sortList('LeastRated')} className='text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'>Least Rated</button>
+    <div className={`w-fit ${showFilter ? "flex" : "hidden"} flex-col z-20 -bottom-[9rem] left-0 rounded-md absolute overflow-hidden bg-[#f9f9f9] shadow-md`}>
+      <button onClick={()=>{sortList('newestAdded');setShowFilter(false)}} className={`${BSsortOption === "newestAdded" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date added (newest)</button>
+      <button onClick={()=>{sortList('oldestAdded');setShowFilter(false)}} className={`${BSsortOption === "oldestAdded" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date added (oldest)</button>
+      <button onClick={()=>{sortList('MostRated');setShowFilter(false)}}   className={` ${BSsortOption === "MostRated" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Most Rated</button>
+      <button onClick={()=>{sortList('LeastRated');setShowFilter(false)}} className={` ${BSsortOption === "LeastRated" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Least Rated</button>
     </div>
   )
 }

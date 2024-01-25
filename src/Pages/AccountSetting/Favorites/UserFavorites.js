@@ -11,14 +11,17 @@ import SortOutlinedIcon from '@mui/icons-material/SortOutlined';
 import { useNavigate } from 'react-router-dom';
 import http from '../../../http';
 
-const UserFavorites = () => {
+const UserFavorites = ({authenticated}) => {
     const navigate = useNavigate()
     const {getFavorites} = UseFavorite()
+    const UFsortOption = localStorage.getItem("UFsortOption")
+    const [loading, setLoading] = useState(true)
     const [favoriteList, setFavoriteList] = useState([])
     const [openDirection, setOpenDirection] = useState("down")
     const [selectedIndex, setSelectedIndex] = useState(null)
     const [hoveredIndex, setHoveredIndex] = useState(null)
     const [showFilter, setShowFilter] = useState(false)
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
     const StyledRating = styled(Rating)({
       '& .MuiRating-iconFilled': {
@@ -36,6 +39,11 @@ const UserFavorites = () => {
       },
   
     });
+
+    // Update window width on resize
+    const handleResize = () => {
+    setWindowWidth(window.innerWidth);
+    };
 
     const finalize_list = (favorites) => {
       return favorites?.map((favorite)=>{
@@ -70,7 +78,8 @@ const UserFavorites = () => {
 
     const getFavoritesFunction = async () => {
       const favorites = await getFavorites()
-      setFavoriteList(finalize_list(favorites))      
+      setFavoriteList(finalize_list(favorites))  
+      setLoading(false)    
     }
 
     const addToDNS = async (serviceId) => { 
@@ -102,8 +111,37 @@ const UserFavorites = () => {
     }
     
     useEffect(()=>{
-        getFavoritesFunction()
-    },[])
+        if(authenticated)
+        {
+          getFavoritesFunction()
+        }
+        
+    },[authenticated])
+
+    useEffect(()=>{
+      if(favoriteList.length !== 0)
+      {
+        if(UFsortOption != undefined || UFsortOption != null)
+        {
+          sortList(UFsortOption)
+        }
+        else
+        {
+          
+          sortList('newestAdded')
+          localStorage.setItem("UFsortOption","newestAdded" )
+        }
+        
+      }
+    },[loading])
+
+   // Attach event listener on component mount and clean up on unmount
+   useEffect(() => {
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+   }, []);
 
     const handleOpenMoreOption = (index) => {
       setSelectedIndex(index)
@@ -119,6 +157,7 @@ const UserFavorites = () => {
     }
 
     const sortList = (option) => {
+      localStorage.setItem("UFsortOption", option)
       const favoriteInstance = [...favoriteList]
       const convertedFavorite = favoriteInstance.map((favorite) => ({...favorite, createdAt : new Date(favorite.createdAt)}))
       switch (option)
@@ -144,44 +183,81 @@ const UserFavorites = () => {
         setFavoriteList(leastRatedSorted)
         break
       }
-      setShowFilter(false)
+      
     }
-
     
   return (
-    <div onClick={()=>{setSelectedIndex(null);setShowFilter(false)}} className='w-full pl-10 h-full flex flex-col p-3'>
+    <>
+    {
+      loading ?
+      <div className='w-full h-full flex flex-col items-start p-10 gap-5 justify-between animate-pulse'>
+        <div className='flex w-full space-x-3'>
+        <div className='w-[90px] h-[80px] semiSm:w-[150px] semiSm:h-[120px] md:w-[200px] md:h-[150px] rounded-md bg-gray-300'></div>
+        <div className='w-full h-[80px] semiSm:h-[120px] md:h-[150px] justify-between flex flex-col'>
+        <div className='w-[100%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        <div className='w-[70%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        <div className='w-[85%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        <div className='w-[80%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        </div>
+        </div>
+        <div className='flex w-full space-x-3'>
+        <div className='w-[90px] h-[80px] semiSm:w-[150px] semiSm:h-[120px] md:w-[200px] md:h-[150px] rounded-md bg-gray-300'></div>
+        <div className='w-full h-[80px] semiSm:h-[120px] md:h-[150px] justify-between flex flex-col'>
+        <div className='w-[100%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        <div className='w-[70%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        <div className='w-[85%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        <div className='w-[80%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        </div>
+        </div>
+        <div className='flex w-full space-x-3'>
+        <div className='w-[90px] h-[80px] semiSm:w-[150px] semiSm:h-[120px] md:w-[200px] md:h-[150px] rounded-md bg-gray-300'></div>
+        <div className='w-full h-[80px] semiSm:h-[120px] md:h-[150px] justify-between flex flex-col'>
+        <div className='w-[100%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        <div className='w-[70%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        <div className='w-[85%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        <div className='w-[80%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+        </div>
+        </div>
+        
+      </div>
+      :
+      <div onClick={()=>{setSelectedIndex(null);setShowFilter(false)}} className='w-full semiMd:pl-10 h-full flex flex-col p-3'>
       <h1 className='mt-5 text-2xl font-semibold text-gray-800'>My Favorites</h1>
         <hr className='my-3'></hr>
           <nav className='px-2 py-1 flex items-center space-x-2 relative'>
-            <button onClick={(e)=>{setShowFilter(!showFilter);e.stopPropagation()}}>
+            <button className='bg-gray-100 border border-[#e1e1e1] rounded-sm px-0.5' onClick={(e)=>{setShowFilter(!showFilter);e.stopPropagation()}}>
               <SortOutlinedIcon />
             </button>
             <span className='text-sm font-medium text-gray-600 mt-1'>Showing {favoriteList.length} results</span>
-              <SortDropdown sortList={sortList} showFilter={showFilter} />
+              <SortDropdown sortOption={UFsortOption} setShowFilter={setShowFilter} sortList={sortList} showFilter={showFilter} />
           </nav>
-          <div onClick={()=>{setSelectedIndex(null);setShowFilter(false)}} className='w-full h-full relative z-0 flex flex-col space-y-6 overflow-auto max-h-full'>
+          <div onClick={()=>{setSelectedIndex(null);setShowFilter(false)}} className='w-full text-ellipsis overflow-x-hidden h-full relative z-0 flex flex-col space-y-6 overflow-auto max-h-full'>
           {
             favoriteList?.map((favorite, index)=>{
               return (
-              <div  onMouseEnter={()=>{setHoveredIndex(index)}} key={favorite._id} className='serviceItem relative flex items-stretch bg-white gap-5 hover:bg-gray-100 p-2 rounded-md cursor-pointer'>
-                <div id='imageContainer' className='flex bg-stone-300 shadow-sm rounded-md items-center justify-center h-[80px] md:h-[100px] xl:h-[120px] aspect-video'>
-                  <img className='w-full h-full object-scale-down ' src={favorite.serviceProfileImage} />
+              <div onMouseLeave={()=>setHoveredIndex(null)} onMouseEnter={()=>{setHoveredIndex(index)}} key={favorite._id} className='serviceItem w-full relative flex items-stretch bg-white gap-2 semiSm:gap-5 hover:bg-gray-100 p-2 rounded-md cursor-pointer'>
+                <div id='imageContainer' className='flex bg-stone-300 shadow-sm rounded-md  items-center justify-center h-[70px] semiSm:h-[80px] md:h-[100px] xl:h-[120px] aspect-video'>
+                  <img className='w-full h-full object-contain rounded-md ' src={favorite.serviceProfileImage} />
                 </div>
                 <div onClick={()=>{navigate(`/explore/viewService/${favorite.serviceId}`)}} id='infoContainer' className='flex flex-col w-full items-start justify-between'>
-                  <div id='Header' className='flex flex-col'><h1 className='text-xl text-gray-800 font-semibold'>{favorite.serviceTitle}</h1>
+                  <div id='Header' className='w-full  flex flex-col'><h1 className='text-base whitespace-nowrap  semiSm:text-xl text-gray-800 font-semibold'>{favorite.serviceTitle}</h1>
                     <div id='nameAndYear' className='flex items-center gap-2'>
-                      <h2 className='text-semiSm text-gray-500 font-medium'>{favorite.owner}</h2>
+                      <h2 className='text-semiXs semiSm:text-semiSm whitespace-nowrap text-gray-500 font-medium'>{favorite.owner}</h2>
                         <span className='w-1 h-1 rounded-full bg-gray-500'></span>
-                      <h2 className='text-semiSm text-gray-500 font-medium'>{favorite.createdAgo}</h2>
+                      <h2 className='text-semiXs semiSm:text-semiSm whitespace-nowrap text-gray-500 font-medium'>{favorite.createdAgo}</h2>
                     </div>
                   </div>
                   <div id='rating container'>
                     <div className='flex whitespace-nowrap relative ml-0 items-center'>
-                      <StyledRating className='relative '  readOnly defaultValue={Number(favorite.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
+                      {
+                        windowWidth > 400 &&
+                        <StyledRating className='relative hidden'  readOnly defaultValue={Number(favorite.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize={`${windowWidth <= 1000 ? "small" : "medium"}`} />  } emptyIcon={<StarRoundedIcon fontSize={`${windowWidth <= 1000 ? "small" : "medium"}`} className='text-gray-300' />} />
+
+                      }
                         <div className='flex items-center space-x-2 pl-1'>
-                          <p className='text-gray-400 text-sm font-medium'>{favorite.ratings}</p> 
+                          <p className='text-[#FFA534] text-xs semiSm:text-sm font-medium'>{favorite.ratings}</p> 
                           <p className='text-gray-300'>|</p>
-                          <p className='text-gray-500 text-semiSm mt-0.5 font-medium'>{favorite.totalReviews} Reviews</p> 
+                          <p className='text-gray-500 text-xs semiSm:text-sm mt-0.5 font-medium'>{favorite.totalReviews} Reviews</p> 
                         </div>
                     </div>
                   </div>
@@ -197,12 +273,15 @@ const UserFavorites = () => {
           }
           </div>
     </div>
+    }
+   
+    </>
   )
 }
 
-const MoreOption = ({selectedIndex, index, openDirection, serviceId, removeFavorites, addToDNS}) => {
+const MoreOption = ({selectedIndex, index, openDirection, serviceId, removeFavorites, addToDNS, }) => {
   return (
-    <div className={`w-fit ${selectedIndex === index ? '' : 'hidden'} flex flex-col z-20 rounded-md absolute bg-white shadow-md ${openDirection === "up" ? "-left-[10rem] -top-[6rem]" : "-left-[10rem] top-[4.5rem]"}`}>
+    <div className={`w-fit ${selectedIndex === index ? '' : 'hidden'} flex flex-col z-20 rounded-md absolute bg-white shadow-md ${openDirection === "up" ? "-left-[10rem] -top-[4rem]" : "-left-[10rem] top-[4.5rem]"}`}>
       <button className='text-sm hover:bg-gray-100 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'><ContentCopyOutlinedIcon fontSize='small' className='p-0.5' />Copy link address</button>
       <button onClick={()=>removeFavorites(serviceId)} className='text-sm hover:bg-gray-100 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'><RemoveCircleOutlineOutlinedIcon fontSize='small' className='p-0.5' />Remove from favorites</button>
       <button onClick={()=>addToDNS(serviceId)} className='text-sm hover:bg-gray-100 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'><BlockOutlinedIcon fontSize='small' className='p-0.5' />Do not show</button>
@@ -210,13 +289,13 @@ const MoreOption = ({selectedIndex, index, openDirection, serviceId, removeFavor
   )
 }
 
-const SortDropdown = ({sortList, showFilter}) => {
+const SortDropdown = ({sortList, showFilter, setShowFilter, UFsortOption}) => {
   return (
-    <div className={`w-fit ${showFilter ? "flex" : "hidden"} flex-col z-20 -bottom-[9rem] left-0 rounded-md absolute bg-[#f9f9f9] shadow-md`}>
-      <button onClick={()=>sortList('newestAdded')} className='text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'>Date added (newest)</button>
-      <button onClick={()=>sortList('oldestAdded')}  className='text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'>Date added (oldest)</button>
-      <button onClick={()=>sortList('MostRated')} className='text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'>Most Rated</button>
-      <button onClick={()=>sortList('LeastRated')} className='text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'>Least Rated</button>
+    <div className={`w-fit ${showFilter ? "flex" : "hidden"} flex-col z-20 -bottom-[9rem] left-0 rounded-md absolute overflow-hidden bg-[#f9f9f9] shadow-md`}>
+      <button onClick={()=>{sortList('newestAdded');setShowFilter(false)}} className={`${UFsortOption === "newestAdded" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date added (newest)</button>
+      <button onClick={()=>{sortList('oldestAdded');setShowFilter(false)}} className={`${UFsortOption === "oldestAdded" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date added (oldest)</button>
+      <button onClick={()=>{sortList('MostRated');setShowFilter(false)}}   className={` ${UFsortOption === "MostRated" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Most Rated</button>
+      <button onClick={()=>{sortList('LeastRated');setShowFilter(false)}} className={` ${UFsortOption === "LeastRated" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Least Rated</button>
     </div>
   )
 }

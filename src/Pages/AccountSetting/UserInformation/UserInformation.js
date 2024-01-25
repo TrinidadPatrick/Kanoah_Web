@@ -534,7 +534,7 @@ const UserInformation = () => {
 
       return (
     
-    <div className='w-full h-full '>
+    <div className='w-full h-full overflow-auto flex flex-col '>
         {
         loading ? 
         (
@@ -545,7 +545,7 @@ const UserInformation = () => {
         (
             
         /* main container */
-        <div className='flex flex-col h-full lg:flex-row'>
+        <div className='flex flex-col h-fit lg:flex-row'>
         {/* Left side */}
         <section className='flex bg-white h-fit lg:h-full w-full lg:w-[400px] flex-col px-10'>
         <div className='mt-5'>
@@ -572,7 +572,7 @@ const UserInformation = () => {
         </section>
 
         {/* Right side */}
-        <section className=' w-full h-fit '>
+        <section className='w-full h-full bg-white '>
         <div className=" w-full h-fit lg:h-full  p-6 lg:pt-[1.3rem] ">
             <h1 className="text-xl lg:text-2xl font-semibold text-gray-800 mb-4">User Profile Settings</h1>
             <form onSubmit={(e)=>{handleOpenCPModal(e)}}>
@@ -677,8 +677,10 @@ const UserInformation = () => {
         </section>
         </div>
         )}
-                {/* Modal for cropping */}
-                <Modal isOpen={openCropModal} style={CropperModalStyle} contentLabel="Cropper Modal">
+                
+                
+        {/* Modal for cropping */}
+        <Modal isOpen={openCropModal} style={CropperModalStyle} contentLabel="Cropper Modal">
                 <div className='w-[500px] h-[500px] flex flex-col relative'>
                   <div className=''>
                     <Cropper
@@ -697,9 +699,9 @@ const UserInformation = () => {
                   </div>
                 </div>
                 
-                </Modal>
-                {/* Modal for Address */}
-                <Modal isOpen={open} onClose={handleClose} style={ModalStyle} > 
+        </Modal>
+        {/* Modal for Address */}
+        <Modal isOpen={open} onClose={handleClose} style={ModalStyle} > 
                 <div className='p-4 w-[400px]'>
                 <h1 className='font-medium'>Address</h1>
                 {/* Regions ***************************************/}
@@ -909,10 +911,10 @@ const UserInformation = () => {
             
             </div>
             
-                </Modal> 
+        </Modal> 
 
-                {/* Modal for confirm Password */}
-                <Modal isOpen={openCPModal} onClose={handleCloseCPModal} style={ModalStyle} > 
+        {/* Modal for confirm Password */}
+        <Modal isOpen={openCPModal} onClose={handleCloseCPModal} style={ModalStyle} > 
                 <div className='w-full flex justify-between'>
                 <h1 className='font-medium text-gray-800'>Confirm Password</h1>
                 <CloseOutlinedIcon onClick={()=>{handleCloseCPModal()}} className=' cursor-pointer ' />
@@ -935,10 +937,10 @@ const UserInformation = () => {
                 <p className={`text-xs text-red-500 ml-1 ${errors.passwordError == 0 ? "block":"hidden"}`}>Invalid Password</p>
                 <button onClick={()=>{updateUser()}} className={`${loadingBtn ? "bg-slate-700" : "bg-themeBlue"}  text-sm w-full text-white px-2 py-1 rounded-sm mt-4`}>Update</button>
                 </div>
-                </Modal>
+        </Modal>
 
-                {/* Modal for Change Password */}
-                <Modal isOpen={openNPModal} onClose={handleCloseNPModal} style={ModalStyle} > 
+        {/* Modal for Change Password */}
+        <Modal isOpen={openNPModal} onClose={handleCloseNPModal} style={ModalStyle} > 
                 <div className='w-[400px]'>
                 <div className='w-full flex justify-between'><h1 className='text-gray-900 font-medium'>Change Password</h1><CloseOutlinedIcon onClick={()=>{handleCloseNPModal()}} className=' cursor-pointer ' /></div>
                 <div className="space-y-4 mt-2">
@@ -991,10 +993,10 @@ const UserInformation = () => {
                 <button onClick={()=>{changePassword()}} className='px-2 py-2 w-full text-semiSm bg-themeBlue text-white'>Update</button>
                 </div>
                 </div>
-                </Modal>
+        </Modal>
 
-                {/* Modal for Account deletion */}
-                <Modal isOpen={openADModal} onClose={handleCloseADModal} style={ModalStyle} > 
+        {/* Modal for Account deletion */}
+        <Modal isOpen={openADModal} onClose={handleCloseADModal} style={ModalStyle} > 
    
                 <p className="text-lg font-semibold mb-4 text-center">Confirm Account Deactivate</p>
                 <p className="text-gray-600 mb-6 text-center">Are you sure you want to deactivate your account? This action is irreversible.</p>
@@ -1023,8 +1025,8 @@ const UserInformation = () => {
                 </div>
 
                 </div>
-                </Modal>
-                <ToastContainer />
+        </Modal>
+        <ToastContainer />
         </div>
   )
 }
