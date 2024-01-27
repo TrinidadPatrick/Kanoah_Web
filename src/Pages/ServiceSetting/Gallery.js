@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react';
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import ResponsiveGallery from 'react-responsive-gallery';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Download from "yet-another-react-lightbox/plugins/download";

@@ -1,8 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import CoverPhoto2 from '../MainPage/Components/UtilImage/business2.jpg'
-import SearchIcon from '@mui/icons-material/Search';
-import TurnedInRoundedIcon from '@mui/icons-material/TurnedInRounded';
 import { categories } from './Components/Categories'
 import Tag from '../MainPage/Components/CategoryImage/Tag.png'
 import TopRatedServices from './TopRatedServices'
@@ -12,25 +10,32 @@ import Footer from './Footer'
 import UserAllServices from '../../ClientCustomHook/AllServiceProvider';
 import { useActionData, useNavigate } from 'react-router-dom'
 import LocationSearch from './Components/LocationSearch'
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import AboutUs from './AboutUs';
+import WhyChooseUs from './WhyChooseUs'
 
 
-const MainPage = () => {
+const MainPage = ({ scrollToAboutUs, setScrollToAboutUs }) => {
+  const aboutUsSectionRef = useRef(null);
   const {services} = UserAllServices()
   const navigate = useNavigate()
-  const [showMenu, setShowMenu] = useState(false)
 
-    // Handles the showing oh menu on small screens
-  const handleMenu = () => {
-        if(showMenu){
-            setShowMenu(false)
-        }else{
-            setShowMenu(true)
-        }
+  useEffect(() => {
+    if(scrollToAboutUs)
+    {
+      aboutUsSectionRef.current.scrollIntoView({ behavior: 'smooth', block : "center" });
+      setScrollToAboutUs(false);
     }
+      
+  }, [scrollToAboutUs, setScrollToAboutUs]);
 
-
-
-
+  useEffect(()=>{
+    AOS.init({
+        duration : 700,
+        easing : "ease-in-out-cubic"
+    })
+},[])
 
   return (
     <div className='h-full w-full relative'>
@@ -88,12 +93,22 @@ const MainPage = () => {
     </section>
 
      {/* How it works */}
-     <section className='top_rated_service w-full h-fit lg:h-fit pb-20 bg-gray-100 py-[1rem] sm:px-10 md:px-16 lg:px-36' >
+    <section ref={aboutUsSectionRef} id='AboutUs' className='about_us w-full h-full xl:h-[85vh] bg-[#f5f5f5] '>
+    <AboutUs />
+    </section>
+
+    {/* How it works */}
+    <section className='top_rated_service w-full h-fit lg:h-fit pb-20 bg-gray-100 py-[1rem] sm:px-10 md:px-16 lg:px-36' >
     <HowItWorks />
     </section>
 
+    {/* Why choose us */}
+    <section className='top_rated_service w-full h-fit lg:h-fit pb-20 bg-gray-100 py-[1rem] sm:px-10 md:px-16 lg:px-36' >
+    <WhyChooseUs />
+    </section>
+
     {/* Footer */}
-    <section className='top_rated_service w-full pb-10 bg-[#071B22] py-[1rem] sm:px-10 md:px-16 lg:px-36' >
+    <section className='top_rated_service w-full pb-10 bg-themeBlue py-[1rem] sm:px-10 md:px-16 lg:px-36' >
     <Footer />
     </section>
 

@@ -1,4 +1,4 @@
-import {react} from 'react'
+import {react, useState ,useMemo} from 'react'
 import {BrowserRouter, Routes, Route, Outlet} from "react-router-dom"
 import Login from './Pages/LoginPage/Login';
 import Register from './Pages/RegisterPage/Register';
@@ -25,16 +25,22 @@ import { AuthProvider } from './AdminPage/CustomHooks/AuthProvider';
 import AdminList from './AdminPage/AdminList';
 import AdminDashboard from './AdminPage/AdminDashboard';
 import AdminManagement from './AdminPage/AdminManagement';
+import ChatProvider from './ClientCustomHook/ChatProvider';
 
-function App() {
 
+const App = () => {
 
-  const NavbarLayout = () => (
+  const [scrollToAboutUs, setScrollToAboutUs] = useState(false);
+
+  const handleScrollToAboutUs = () => {
+    setScrollToAboutUs(true)
+  };
+  const NavbarLayout = useMemo(()=>(
     <>
-      <Navbar />
-      <Outlet />
-    </>
-  );
+    <Navbar onAboutUsClick={()=>setScrollToAboutUs(true)} />
+    <Outlet />   
+  </>
+  ),[handleScrollToAboutUs])
 
   const SidebarLayout = () => (
     <>
@@ -51,7 +57,11 @@ function App() {
       
       <Routes>
         
-        <Route element={<div className="App w-full h-screen  flex flex-col pt-[4.5rem]"><NavbarLayout /></div>}>   
+        <Route element={<div className="App w-full h-screen  flex flex-col pt-[4.5rem]">
+        
+          {NavbarLayout}
+
+          </div>}>   
         <Route path='/forgotPassword' element={<ForgotPassword />} />
         <Route path='/register' element={<Register />} />
         <Route path='/explore/' element={<Explore />} />
@@ -62,7 +72,7 @@ function App() {
         <Route path='/serviceSettings/:option' element={<ServiceSettings />} />
         <Route path=':setting/editService/:option' element={<EditService />} />
         <Route path="*" element={<PageNotFound />} />
-        <Route path='/' element={<MainPage />} />
+        <Route path='/' element={<MainPage scrollToAboutUs={scrollToAboutUs} setScrollToAboutUs={setScrollToAboutUs} />} />
         <Route path='/login' element={<Login />} />
         <Route path='/BookService' element={<BookService />} />
         <Route path='/chatP' element={<ChatPractice />} />    

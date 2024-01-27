@@ -3,16 +3,28 @@ import explore from './Components/howitworks/Explore.png'
 import connect from './Components/howitworks/connect.png'
 import rate from './Components/howitworks/Rate.png'
 import view from './Components/howitworks/view.png'
+import { useEffect } from 'react'
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
 
 const HowItWorks = () => {
+  useEffect(()=>{
+    AOS.init({
+        duration : 500,
+        disable : "phone",
+        easing : "ease-in-out-cubic"
+    })
+},[])
+
   return (
     <div className='w-full p-1 mt-10 `'>
-    <div className='border-l-4 mx-7 border-x-themeGray pl-3 mt-10'>
+    <div data-aos='fade-right' className='border-l-4 mx-7 border-x-themeGray pl-3 mt-10'>
       <h1 className='text-sm md:text-sm text-gray-400 font-bold'>How it Works</h1>
       <p className='text-gray-700 text-3xl md:text-4xl font-medium'>Get Started with 4 Easy Steps</p>
       </div>
         {/* Card Containers */}
-        <div className='grid gap-y-7 md:grid-cols-2 md:gap-8 lg:grid-cols-4 place-items-center mt-[6rem]'>
+        <div data-aos='fade-left' className='grid gap-y-7 md:grid-cols-2 md:gap-8 lg:grid-cols-4 place-items-center mt-[6rem]'>
             {/* Card1 */}
             <div className='w-[215px] h-[290px] HIW_box p-2 bg-white rounded-lg relative flex flex-col items-center'>
                 {/* Circle Container */}

@@ -5,10 +5,12 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Roboto', sans-serif;
+    -webkit-tap-highlight-color: transparent;
     /* border: 2px solid black !important */
 
     
  }
+ 
 
 @tailwind base;
 @tailwind components;

@@ -15,24 +15,22 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import OutsideClickHandler from 'react-outside-click-handler';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import http from '../../http'
-import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUserId, selectUserId, selectLoggedIn, setLoggedIn, selectShowLoginModal, setShowLoginModal } from '../../ReduxTK/userSlice';
 import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
 import UseInfo from '../../ClientCustomHook/UseInfo'
 import {io} from 'socket.io-client'
 import { selectNewMessage, setNewMessage, selectOnlineUsers, setOnlineUsers } from '../../ReduxTK/chatSlice'
+import ChatProvider from '../../ClientCustomHook/ChatProvider'
 export const Context = React.createContext()
 
 
 
-const Navbar = () => {
-  const {authenticated, userInformation} = UseInfo()
+const Navbar = ({ onAboutUsClick }) => {
+const {authenticated, userInformation} = UseInfo()
 const [windowWidth, setWindowWdith] = useState(null)
 const dispatch = useDispatch();
-const userId = useSelector(selectUserId);
 const newMessage = useSelector(selectNewMessage);
-const loggedIn = useSelector(selectLoggedIn);
 const showLoginModal = useSelector(selectShowLoginModal);
 const navigate = useNavigate()
 const [accessToken, setAccessToken] = useState(null);
@@ -45,7 +43,6 @@ if (reason !== 'backdropClick') {
       dispatch(setShowLoginModal(false))
     }
   } 
-  const [userInfo, setUserInfo] = useState(null)
   const [showMenu, setShowMenu] = useState(false)
   const [showDropdownProfile, setShowDropDownProfile] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
@@ -75,33 +72,6 @@ if (reason !== 'backdropClick') {
       
     };
 
-    // Get userInformation and check if loggedin
-    // const getUser = async () => {
-    //   const token = localStorage.getItem('accessToken')
-    //   http.get(`getUser`,{
-    //     headers : 
-    //     {
-    //       Authorization: `Bearer ${token}`
-    //     },
-    //     withCredentials: true,
-    //   }).then((res)=>{
-    //     setUserInfo(res.data)
-    //     dispatch(setUserId(res.data._id));
-    //   }).catch((err)=>{
-    //     dispatch(setUserId('loggedOut'))
-    //     dispatch(setLoggedIn(false))
-    //   })
-    // }
-    // useEffect(() => {
-    //   const accessToken = localStorage.getItem('accessToken');
-    //   if (accessToken) {
-    //     setAccessToken(accessToken);
-    //     getUser(accessToken)
-    //   }else{
-    //     dispatch(setLoggedIn(false))
-    //     dispatch(setUserId("loggedOut"));
-    //   }
-    // }, [])
 
 
     const signout = () => {
@@ -143,35 +113,12 @@ if (reason !== 'backdropClick') {
       }
     }
 
-    // Check for unread Messages
-    const checkUnreadMessage = async () => {
-      
-        try {
-          const contacts = await http.get(`retrieveContacts/${userInformation._id}`, {
-            withCredentials: true,
-          })
-          const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          const check = sortedContacts.some(messages => !messages.readBy.includes(userId))
-          if(check)
-          {
-            dispatch(setNewMessage(true))
-          }
-          else{
-            dispatch(setNewMessage(false))
-          }
-          return sortedContacts;
-        } catch (error) {
-          console.error(error)
-        }
-
-
-    }
     // Attach the event listener to the window resize event
     window.addEventListener('resize', handleResize);
 
     // Call the function once to get the initial size
     useEffect(()=>{
-  handleResize();
+    handleResize();
     },[])
 
     useEffect(()=>{
@@ -189,44 +136,6 @@ if (reason !== 'backdropClick') {
       
     },[])
 
-    //emit the userId to socket
-    useEffect(()=>{
-      if(authenticated !== null && authenticated)
-      {
-        console.log("")
-        socket?.emit('loggedUser', userInformation._id)
-      }
-    }, [authenticated])
-
-    //notify if there is a new message
-    useEffect(()=>{
-      socket?.on('message', (message)=>{
-        console.log('')
-        if(message == 'newMessage')
-        {
-          dispatch(setNewMessage(true))
-        }
-      })
-
-      return () => {
-        // Clean up the socket event listeners when the component unmounts
-        socket?.off('message');
-      };
-    },[socket])
-
-    useEffect(()=>{
-      socket?.on('onlineUsers', (onlineUsers)=>{
-      dispatch(setOnlineUsers(onlineUsers))
-        // setOnlineUsers(onlineUsers)
-      })
-    },[authenticated])
-
-    useEffect(()=>{
-      if(authenticated !== null && authenticated)
-      {
-        checkUnreadMessage()
-      }
-    },[authenticated])
 
     useEffect(()=>{
       if(authenticated)
@@ -242,6 +151,7 @@ if (reason !== 'backdropClick') {
     <>
   <div className='fixed h-fit p-0 top-0 left-0 bg-transparent w-full z-50'>
           {/* NAV BAR */}
+  <ChatProvider socket={socket} />
   <nav className=" bg-themeBlue relative w-full z-20 top-0 left-0  dark:border-gray-600">
   <div className="px-3 md:px-10 flex  items-center justify-between mx-auto py-5">
   <div className='flex items-center justify-evenly'>
@@ -283,7 +193,7 @@ if (reason !== 'backdropClick') {
         </div>
       </li>
       <li>
-        <a href="#" className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md">About Us</a>
+        <a onClick={()=>{onAboutUsClick();navigate("/")}} className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md cursor-pointer">About Us</a>
       </li>
       <li>
         <a href="#" className="contact block py-2 pl-3 pr-4 md:text-sm lg:text-md">Contact</a>

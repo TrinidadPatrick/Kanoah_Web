@@ -11,6 +11,7 @@ import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import ScrollToBottom from 'react-scroll-to-bottom';
 import axios from 'axios';
 import cloudinaryCore from '../../CloudinaryConfig';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
 import EmojiPicker from 'emoji-picker-react';
 import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
@@ -19,6 +20,7 @@ import MyLocationOutlinedIcon from '@mui/icons-material/MyLocationOutlined';
 import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import ContactPhoneRoundedIcon from '@mui/icons-material/ContactPhoneRounded';
 import './chat.css'
 import UseInfo from '../../ClientCustomHook/UseInfo';
@@ -30,6 +32,7 @@ import {io} from 'socket.io-client'
     const newMessage = useSelector(selectNewMessage)
     const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams();
+    const [openViewer, setOpenViewer] = useState(false)
     const convoId = searchParams.get('convoId')
     const service = searchParams.get('service')
     const [loadingHeader, setLoadingHeader] = useState(true)
@@ -65,6 +68,7 @@ import {io} from 'socket.io-client'
     const [sendingMessages, setSendingMessages] = useState([])
     const [loadingMore, setLoadingMore] = useState(false)
     const [openMoreOptions, setOpenMoreOptions] = useState(false)
+    const [imageSelected, setImageSelected] = useState('')
     const onlineUsers = useSelector(selectOnlineUsers)
     const [chatClass, setChatClass] = useState('w-full hidden sm:flex h-full flex-col bg-white shadow-sm py-2 px-5 space-y-3')
     const [contactClass, setContactClass] = useState('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full border-r-1 bg-white shadow-sm')
@@ -95,7 +99,6 @@ import {io} from 'socket.io-client'
   useEffect(()=>{
     setSocket(io("https://kanoah.onrender.com"))
 
-    // setSocket(io("http://localhost:10000"))
   },[])
 
   useEffect(()=>{
@@ -132,21 +135,7 @@ import {io} from 'socket.io-client'
         navigate('/notFound')
       }
     },[])
-    
-    // // Get Current User
-    // useEffect(() => {
-    //   // Gets the current user information
-    //   (async () => {
-    //     try {
-    //       const result = await getUser();
-    //       setUserInformation(result)
-    //     } catch (error) {
-    //       // Handle the error if needed
-    //       console.error('Error fetching user:', error);
-    //     }
-    //   })();
 
-    // }, []);
     
     // load first chat upon load when there is no service or convoId
     useEffect(()=>{
@@ -587,6 +576,13 @@ import {io} from 'socket.io-client'
       }
     }
 
+    function openVIewerContent(image){
+      setOpenViewer(true)
+      setImageSelected(image)
+    }
+
+    
+
     useEffect(()=>{
       
       if(convoId === null && service === null && windowWidth < 640)
@@ -604,8 +600,18 @@ import {io} from 'socket.io-client'
 
 
   return (
-        <main className=' w-full bg-[#f9f9f9] h-full flex justify-evenly'>
-        
+        <main className=' w-full bg-[#f9f9f9] h-[100svh] overflow-hidden relative flex justify-evenly'>
+          {/* Image Viewer */}
+        <div  className={`${openViewer ? "" : "hidden"} w-full h-full bg-[#000000ED] absolute z-50 flex justify-center items-center`}>
+          <div className='absolute top-2 right-2 flex flex-row-reverse gap-4'>
+          <CloseOutlinedIcon onClick={()=>{setOpenViewer(false);setImageSelected('')}}  className='text-white cursor-pointer' fontSize='large'/>
+          </div>
+          
+          {/* Image container */}
+          <div className='h-[500px] aspect-video'>
+            <img className='w-full h-full aspect-video object-contain' src={imageSelected} alt='image' />
+          </div>
+        </div>
         {
           noChats ? 
           (
@@ -676,7 +682,7 @@ import {io} from 'socket.io-client'
         {/* Messages Windowwss_________________________________________________________________________________________________________ */}
         <section className={chatClass}>
         {/* Headers */}
-        <div className='w-full flex space-x-2 p-1 sticky top-[5rem] z-30 bg-white border-b-[1.5px] shadow-sm pb-2'>
+        <div className='w-full flex space-x-2 p-1 sticky top-[0.6rem] z-30 bg-white border-b-[1.5px] shadow-sm pb-2'>
         {
           loadingHeader ? (
           <div className="relative flex w-64 animate-pulse gap-2 p-4">
@@ -802,7 +808,8 @@ import {io} from 'socket.io-client'
                 {
                   chat.messageType === "image" ?
                   <div className=' w-56 max-w-[14rem] rounded-lg'>
-                  <img className='rounded-lg' src={chat.messageContent.content} />
+                  <img onClick={()=>{openVIewerContent(chat.messageContent.content)}} className='rounded-lg cursor-pointer' src={chat.messageContent.content} />
+                  <p className={`text-[0.55rem] ${chat.messageContent.sender === userInformation._id ? 'text-end' : 'text-start'} text-gray-500 mt-1 ml-0.5`}>{chat.messageContent.timestamp}</p>
                   </div>
                   :
                   <div className='flex items-end space-x-2'>
@@ -833,14 +840,14 @@ import {io} from 'socket.io-client'
         {/* <input value={messageInput} onChange={(e)=>{setMessageInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSendMessage(e.target.value, 'text')}}} className='w-full py-2 px-1 rounded-lg outline-none' type='text' placeholder='Enter message' /> */}
         
         {/* Emoji picker */}
-        <div className={`${openEmojiPicker ? 'block' : 'hidden'} absolute bottom-[5.3rem] right-[10rem] shadow-md`}>
+        {/* <div className={`${openEmojiPicker ? 'block' : 'hidden'} absolute bottom-[5.3rem] right-[10rem] shadow-md`}>
         <EmojiPicker emojiStyle='facebook' onEmojiClick={(emoji)=>{setMessageInput((prevMessageInput) => prevMessageInput + emoji.emoji)}} autoFocusSearch={false} searchDisabled={true} height={400} width={300} />
-        </div>
+        </div> */}
 
         {/* Emoji Picker button */}
-        <button onClick={()=>{handleEmojiPicker()}} className={`${openEmojiPicker ? 'text-blue-500' : 'text-gray-600'}`}>
+        {/* <button onClick={()=>{handleEmojiPicker()}} className={`${openEmojiPicker ? 'text-blue-500' : 'text-gray-600'}`}>
           <EmojiEmotionsOutlinedIcon />
-        </button>
+        </button> */}
 
 
         {/* Image send Input */}
@@ -891,16 +898,16 @@ import {io} from 'socket.io-client'
             <div className='w-[200px] border mx-auto p-2 rounded-md flex flex-col items-center'>
             <MyLocationOutlinedIcon fontSize='small' className='text-white' />
             <p className='text-white text-center font-light text-sm'>
-            {receiverInformation?.Address?.barangay ?? ''}{' '}
-            {receiverInformation?.Address?.municipality ?? ''}{' '}
-            {receiverInformation?.Address?.province ?? ''}
+            {receiverInformation?.Address?.barangay.name ?? ''}{' '}
+            {receiverInformation?.Address?.municipality.name ?? ''}{' '}
+            {receiverInformation?.Address?.province.name ?? ''}
             </p>
             </div>
             
           </div>
         </div>
         </div>
-          
+  
         </main>
     
   

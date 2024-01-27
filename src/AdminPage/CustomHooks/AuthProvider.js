@@ -8,7 +8,7 @@ const AuthContext = createContext()
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate()
   const [authenticated, setAuthenticated] = useState(null)
-
+    console.log(children)
     const checkStatus = async () => {
         try {
             const result = await http.get('checkStatus', {withCredentials : true})

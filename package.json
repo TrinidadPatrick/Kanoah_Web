@@ -17,6 +17,7 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/mapbox-gl": "^2.7.17",
+    "aos": "^2.3.4",
     "axios": "^1.5.1",
     "cloudinary": "^1.41.0",
     "cloudinary-react": "^1.8.1",
