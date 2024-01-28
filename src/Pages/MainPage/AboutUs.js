@@ -9,7 +9,7 @@ const AboutUs = () => {
 
     useEffect(()=>{
         AOS.init({
-            duration : 500,
+            duration : 300,
             disable : "phone",
             easing : "ease-in-out-cubic"
         })
@@ -30,11 +30,13 @@ const AboutUs = () => {
             with KANOAH - where services meet satisfaction.</p>
         </div>
         {/* Right Section */}
-        <div className='w-full h-full flex items-center justify-center semiMd:justify-end relative z-50 '>
-            
-            <h1 data-aos='fade-down-left' className='absolute text-gray-100 text-3xl font-medium top-14 left-5'>Search. Discover. Connect</h1>
-            <img data-aos='fade-right' src={responsive} className="w-[500px]  md:w-[650px] absolute z-10 lg:w-[900px] lg:mt-8 " />
-            <button data-aos='fade-up-left' className='px-3 py-2 bottom-3 left-[32%] z-30 hover:bg-orange-400 bg-themeOrange text-gray-100 rounded-md flex items-center gap-2 font-medium whitespace-nowrap absolute'><FileDownloadOutlinedIcon /> Download Mobile App</button>
+        <div className='w-full h-full flex flex-col items-center justify-center gap-5 relative z-50 '>
+        <h1 data-aos='fade-down' className=' text-gray-100 w-full text-center xl:text-start text-3xl font-medium top-0'>Search. Discover. Connect</h1>
+        <img data-aos='fade-left' src={responsive} className="w-[300px]  md:w-[300px]   z-10 lg:w-[400px] " />
+        <button data-aos='fade-up' className='px-3 py-2  z-30 hover:bg-orange-400 bg-themeOrange text-gray-100 rounded-md flex items-center gap-2 font-medium whitespace-nowrap '><FileDownloadOutlinedIcon /> Download Mobile App</button>
+            {/* <h1 data-aos='fade-down-left' className='absolute text-gray-100 text-3xl font-medium top-0 semiMd:top-14 semiMd:left-5'>Search. Discover. Connect</h1>
+            <img data-aos='fade-right' src={responsive} className="w-[500px]  md:w-[650px] mt-20 semiMd:mt-0 absolute z-10 lg:w-[900px] lg:mt-8 " />
+            <button data-aos='fade-up-left' className='px-3 py-2 lg:bottom-24 left-[20%] md:-bottom-24 semiMd:bottom-10 xl:bottom-3 md:left-[56%] lg:left-[28%] xl:left-[32%] z-30 hover:bg-orange-400 bg-themeOrange text-gray-100 rounded-md flex items-center gap-2 font-medium whitespace-nowrap absolute'><FileDownloadOutlinedIcon /> Download Mobile App</button> */}
         </div>
         </div>
     </div>
