@@ -19,7 +19,6 @@ const dispatch = useDispatch()
           const unreadMessages = await http.get(`checkUnreadMessages`, {
             withCredentials: true,
           })
-          console.log(unreadMessages)
           if(unreadMessages.data.length !== 0)
           {
             dispatch(setNewMessage(true))

@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
+import { createContext } from 'react'
+import UseInfo from './UseInfo'
 import http from '../http'
 
 const UserAllServices = () => {
+    const {authenticated, userInformation} = UseInfo()
+    
     const [services, setServices] = useState(null)
     
     const getServices = async () => {

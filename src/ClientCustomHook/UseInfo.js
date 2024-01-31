@@ -5,7 +5,7 @@ const UseInfo = () => {
     const [userInformation, setUserInformation] = useState(null)
     const [authenticated, setAuthenticated] = useState(null)
 
-    useEffect(()=>{
+    const getAuth = async () => {
         try {
             http.get('getUser', {withCredentials : true})
             .then((res)=>{
@@ -14,13 +14,17 @@ const UseInfo = () => {
             }).catch((error)=>{
                 console.log(error)
                 setAuthenticated(false)
+                return false
             })
         } catch (error) {
             console.log(error)
         }
+    }
+    useEffect(()=>{
+       getAuth()
     },[])
   return {
-    userInformation,authenticated
+    userInformation,authenticated, getAuth
   }
 }
 

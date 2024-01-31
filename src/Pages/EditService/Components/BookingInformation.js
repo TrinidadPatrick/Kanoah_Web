@@ -36,6 +36,7 @@ const BookingInformation = ({serviceInformation}) => {
       uniqueId : '', 
       name : '',
       origPrice : '',
+      duration : 0,
       variants : []
     })
 
@@ -167,7 +168,8 @@ const BookingInformation = ({serviceInformation}) => {
         const tempData = {
           uniqueId : Math.floor(Math.random() * 1000 + 1),
           name : serviceOfferInfo.name,
-          origPrice : serviceOfferInfo.origPrice,
+          origPrice : serviceOfferInfo.variants.length !== 0 ? '' : serviceOfferInfo.origPrice,
+          duration : serviceOfferInfo.variants.length !== 0 ? '' : serviceOfferInfo.duration,
           variants : serviceOfferInfo.variants.filter(variant => variant.type !== '' && variant.price !== '') ,
           status : 'ACTIVE'
         }
@@ -215,6 +217,7 @@ const BookingInformation = ({serviceInformation}) => {
           name : dataToEdit.name,
           origPrice : dataToEdit.origPrice,
           variants : dataToEdit.variants,
+          duration : dataToEdit.duration,
           status : dataToEdit.status,
           isEdit : true
         }
@@ -252,8 +255,9 @@ const BookingInformation = ({serviceInformation}) => {
         const data = {
           uniqueId : serviceOfferInfo.uniqueId,
           name : serviceOfferInfo.name,
-          origPrice : serviceOfferInfo.origPrice,
+          origPrice : serviceOfferInfo.variants.length !== 0 ? '' : serviceOfferInfo.origPrice,
           variants : serviceOfferInfo.variants.filter(variant => variant.type !== '' && variant.price !== '') ,
+          duration : serviceOfferInfo.variants.length !== 0 ? '' : serviceOfferInfo.duration,
           status : serviceOfferInfo.status
         }
         instance.splice(dataToUpdate, 1, data)
@@ -523,6 +527,8 @@ const BookingInformation = ({serviceInformation}) => {
       })
     }
 
+    console.log(serviceOfferInfo)
+
   return (
     <main className='flex justify-center items-center bg-[#f9f9f9] flex-col h-full w-full bg-na max-h-full xl:p-3 '>
     <div className="w-[100%] sm:w-[90%] md:w-[80%] xl:w-[60%] shadow-md rounded-md h-full sm:h-[90%] xl:h-[70vh] p-5 flex flex-col bg-white space-y-5">
@@ -702,6 +708,12 @@ const BookingInformation = ({serviceInformation}) => {
           <p style={{userSelect: 'none'}} className='text-[0.8rem] pointer-events-none absolute top-2 left-1 peer-focus:font-bold peer-valid:font-bold user-select-none peer-focus:-top-2 peer-focus:left-2 peer-valid:left-2 peer-focus:text-xs peer-focus:text-gray-800  peer-valid:text-gray-800 peer-valid:-top-2 peer-valid:text-xs ease-in-out transition-all bg-white px-1 text-gray-500' htmlFor='servicePrice'>Service price </p>
           <p className={`${fieldError.origPrice ? 'block' : 'hidden'} text-xs text-red-500`}>This field is required</p>
         </div>
+        {/* Duration */}
+        <div className='flex flex-col relative'>
+          <input maxLength={9} pattern="[0-9]*" required disabled={serviceOfferInfo.variants?.length === 0 ? false : true} value={serviceOfferInfo.duration} onChange={(e)=>{const numericValue = e.target.value.replace(/\D/g, '');setServiceOfferInfo({...serviceOfferInfo, duration : numericValue})}} className={`border-2 ${fieldError.duration ? 'border-red-500' : ''} valid:border-themeBlue peer outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]`} placeholder={`${document.getElementById('serviceDUration')?.focus ? 'Duration in minutes' : ''}`}  id='serviceDUration' type='text' />
+          <p style={{userSelect: 'none'}} className='text-[0.8rem] pointer-events-none absolute top-2 left-1 peer-focus:font-bold peer-valid:font-bold user-select-none peer-focus:-top-2 peer-focus:left-2 peer-valid:left-2 peer-focus:text-xs peer-focus:text-gray-800  peer-valid:text-gray-800 peer-valid:-top-2 peer-valid:text-xs ease-in-out transition-all bg-white px-1 text-gray-500' htmlFor='servicePrice'>Service Duration </p>
+          <p className={`${fieldError.origPrice ? 'block' : 'hidden'} text-xs text-red-500`}>This field is required</p>
+        </div>
         </div>
         {/* Variations */}
         <div className='flex flex-col space-y-2'>
@@ -739,6 +751,24 @@ const BookingInformation = ({serviceInformation}) => {
             className='border rounded-sm p-1 text-[0.75rem] font-light text-sm w-full'
             type='text'
             placeholder='Price'
+          />
+
+          <input
+            pattern="[0-9]*"
+            maxLength={9}
+            onChange={(e) => {
+              const numericValue = e.target.value.replace(/\D/g, '');
+              setServiceOfferInfo((prevServiceOfferInfo) => ({
+                ...prevServiceOfferInfo,
+                variants: prevServiceOfferInfo.variants.map((item, i) =>
+                  i === index ? { ...item, duration: numericValue } : item
+                ),
+              }));
+            }}
+            value={variation.duration}
+            className='border rounded-sm p-1 text-[0.75rem] font-light text-sm w-full'
+            type='text'
+            placeholder='Duration (mins)'
           />
           <button onClick={()=>{removeVariation(index)}} className='text-red-500 hover:bg-gray-100 flex items-center justify-center rounded-full px-0.5'>
             <RemoveCircleOutlineOutlinedIcon />
@@ -778,6 +808,13 @@ const BookingInformation = ({serviceInformation}) => {
         </div>
         </div>
 
+        {/* Duration */}
+        <div className='flex flex-col relative'>
+          <input maxLength={9} pattern="[0-9]*" required disabled={serviceOfferInfo.variants?.length === 0 ? false : true} value={serviceOfferInfo.duration} onChange={(e)=>{const numericValue = e.target.value.replace(/\D/g, '');setServiceOfferInfo({...serviceOfferInfo, duration : numericValue})}} className={`border-2 ${fieldError.duration ? 'border-red-500' : ''} valid:border-themeBlue peer outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]`} placeholder={`${document.getElementById('serviceDUration')?.focus ? 'Duration in minutes' : ''}`}  id='serviceDUration' type='text' />
+          <p style={{userSelect: 'none'}} className='text-[0.8rem] pointer-events-none absolute top-2 left-1 peer-focus:font-bold peer-valid:font-bold user-select-none peer-focus:-top-2 peer-focus:left-2 peer-valid:left-2 peer-focus:text-xs peer-focus:text-gray-800  peer-valid:text-gray-800 peer-valid:-top-2 peer-valid:text-xs ease-in-out transition-all bg-white px-1 text-gray-500' htmlFor='servicePrice'>Service Duration </p>
+          <p className={`${fieldError.origPrice ? 'block' : 'hidden'} text-xs text-red-500`}>This field is required</p>
+        </div>
+
         {/* Variations */}
         <div className='flex flex-col space-y-2'>
         {serviceOfferInfo.variants?.map((variation, index) => (
@@ -814,6 +851,24 @@ const BookingInformation = ({serviceInformation}) => {
             className='border rounded-sm p-1 text-[0.75rem] font-light text-sm w-full'
             type='text'
             placeholder='Price'
+          />
+
+            <input
+            pattern="[0-9]*"
+            maxLength={9}
+            onChange={(e) => {
+              const numericValue = e.target.value.replace(/\D/g, '');
+              setServiceOfferInfo((prevServiceOfferInfo) => ({
+                ...prevServiceOfferInfo,
+                variants: prevServiceOfferInfo.variants.map((item, i) =>
+                  i === index ? { ...item, duration: numericValue } : item
+                ),
+              }));
+            }}
+            value={variation.duration}
+            className='border rounded-sm p-1 text-[0.75rem] font-light text-sm w-full'
+            type='text'
+            placeholder='Duration (mins)'
           />
           <button onClick={()=>{removeVariation(index)}} className='text-red-500 hover:bg-gray-100 flex items-center justify-center rounded-full px-0.5'>
             <RemoveCircleOutlineOutlinedIcon />

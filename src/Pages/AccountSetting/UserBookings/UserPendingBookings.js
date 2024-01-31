@@ -80,7 +80,7 @@ const UserPendingBookings = ({ pendingBookings }) => {
                         <div className='font-medium text-semiMd text-gray-600'>₱ {pendingBooking.service.price}</div>
                         {/* Amount */}
                         <div className='text-semiMd font-semibold whitespace-nowrap'>Booking fee</div>
-                        <div className='font-medium text-semiMd text-gray-600'>₱ {pendingBooking.service.price}</div>
+                        <div className='font-medium text-semiMd text-gray-600'>₱ {pendingBooking.Booking_fee}</div>
                         {/* Schedule */}
                         <div className='text-semiMd font-semibold whitespace-nowrap'>Schedule</div>
                         <div className='font-medium text-semiMd text-gray-600'>{formattedDate}</div>

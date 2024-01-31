@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import QRCode from "react-qr-code";
 import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined';
 import { selectService, selectSchedule, selectContactAndAddress, setService, setSchedule, setContactAndAddress } from '../../ReduxTK/BookingSlice'
 import http from '../../http';
@@ -9,6 +10,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     const dispatch = useDispatch()
     const [loading, setLoading] = useState(false)
     const [bookingInformation, setBookingInformation] = useState({})
+    const [invoiceId, setInvoiceId] = useState('')
     const contactAndAddress = useSelector(selectContactAndAddress)
     const schedule = useSelector(selectSchedule)
     const service = useSelector(selectService)
@@ -26,8 +28,64 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         return id;
     }
 
+    const generateExternalId = () => {
+        const variables = '1234567890'
+        let id = ''
+        for(let i = 0; i <= 10;i++)
+        {
+            const randomIndex = Math.floor(Math.random() * variables.length)
+            id += variables.charAt(randomIndex)
+
+        }
+
+        return id;
+    }
+
+    const computeDistance = () => {
+        const providerPlace = {longitude : serviceInfo.address.longitude, latitude : serviceInfo.address.latitude}
+        const clientPlace = {longitude : userContext.Address.longitude, latitude : userContext.Address.latitude}
+
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+        const earthRadius = 6371;
+        const toRadians = degrees => degrees * (Math.PI / 180);
+
+        // Convert latitude and longitude from degrees to radians
+        const radLat1 = toRadians(lat1);
+        const radLon1 = toRadians(lon1);
+        const radLat2 = toRadians(lat2);
+        const radLon2 = toRadians(lon2);
+
+        // Calculate differences in coordinates
+        const deltaLat = radLat2 - radLat1;
+        const deltaLon = radLon2 - radLon1;
+
+        // Haversine formula
+        const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                  Math.cos(radLat1) * Math.cos(radLat2) *
+                  Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        // Distance in kilometers
+        const distance = earthRadius * c;
+
+        return distance;
+    }
+
+
+    
+         // Calculate distance between providerPlace and clientPlace
+    const distance = Number(calculateDistance(providerPlace.latitude, providerPlace.longitude, clientPlace.latitude, clientPlace.longitude).toFixed(0))
+
+    const basePrice = 49
+    
+    return basePrice + (distance * 5)
+    }
+
 
     useEffect(()=>{
+        const booking_fee = service.price <= 200 ? 15 : service.price <= 500 ? 25 : service.price <= 1000 ? 35 : 45
+        const service_fee = schedule?.serviceOption === "Home Service" ? computeDistance() : 0
         const data = {
             shop : serviceInfo._id,
             service : service,
@@ -36,12 +94,54 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
             createdAt : Date(),
             booking_id : generateBookingId(),
             client : userContext._id,
-            booking_fee : service.price * 0.1,
-            net_Amount : service.price - service.price * 0.1
+            service_fee : service_fee,
+            booking_fee,
+            net_Amount : Number(service.price) + Number(service_fee) + Number(booking_fee)
           }
 
           setBookingInformation(data)
     },[])
+
+    useEffect(()=>{
+        // checkPayment()
+
+        const intervalId = setInterval(() => checkPayment(), 5000); // Check every 5 seconds
+
+        return () => clearInterval(intervalId);
+    },[invoiceId])
+
+    const checkPayment = async () => {
+        if(invoiceId !== '')
+        {
+            try {
+                const result = await http.get(`checkPaymentStatus/${invoiceId}`)
+                if(result.data.status === "PAID")
+                {
+                    submitBooking()
+                }
+            } catch (error) {
+                console.error(error)
+            }
+        }
+    }
+
+    const pay = async () => {
+        try {
+            const response = await http.post('payGcash', {
+            email : bookingInformation.contactAndAddress.email,
+            amount : bookingInformation.net_Amount,
+            externalId : generateExternalId(),
+            description : `Payment of ${bookingInformation.net_Amount} for ${bookingInformation.service.selectedService}`
+
+            });
+            setInvoiceId(response.data.id)
+            console.log(response.data)
+            window.open( response.data.invoiceUrl, '_blank');
+            // window.location.href = response.data.invoiceUrl
+          } catch (error) {
+            console.error(error);
+          }
+    }
 
     const submitBooking = async () => {
         if(bookingInformation !== null)
@@ -64,9 +164,9 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         }
     }
 
-    console.log(bookingInformation)
+
   return (
-    <div className='w-[600px] bg-[#f9f9f9] flex flex-col h-fit py-3 relative space-y-3 rounded-md '>
+    <div className='w-[600px] bg-[#f9f9f9] flex  flex-col h-fit py-3 relative space-y-3 rounded-md '>
         <h1 className='text-center font-semibold text-2xl text-gray-800'>Booking Confirmation</h1>
         <button onClick={()=>{handleStep(3)}} className='absolute top-1'>
             <ArrowBackIosOutlinedIcon className=' hover:text-gray-400' fontSize='small left-0' />
@@ -125,15 +225,16 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         <div className='p-3 bg-white w-full border rounded-sm shadow-sm'>
         <ul className=' grid grid-cols-2 gap-0 gap-x-5'>
                 <div className={`font-medium text-semiMd text-gray-600 `}>Total Service Amount:</div>
-                <div className={`font-medium text-semiMd text-gray-600 `}>₱{bookingInformation.service?.price}</div>
-                <div className={`font-medium text-semiMd text-gray-600 `}>Booking Fee (10%):</div>
-                <div className={`font-medium text-semiMd text-gray-600 `}>₱{bookingInformation.booking_fee}</div>
-                <div className={`font-medium text-semiMd text-gray-600 `}>Net Amount:</div>
-                <div className={`font-medium text-semiMd text-gray-600 `}>₱{bookingInformation.net_Amount}</div>
+                <div className={`font-normal pl-2 text-semiMd text-gray-600 `}>₱{bookingInformation.service?.price}</div>
+                <div className={`font-medium text-semiMd text-gray-600 `}>Service Fee:</div>
+                <div className={`font-normal pl-2 text-semiMd text-gray-600 `}>₱{bookingInformation.service_fee}</div>
+                <div className={`font-medium text-semiMd text-gray-600 `}>Booking Fee:</div>
+                <div className={`font-normal pl-2 text-semiMd text-gray-600 `}>₱{bookingInformation.booking_fee}</div>
+                <div className={`font-medium text-semiMd text-gray-600 `}>Total amount to pay:</div>
+                <div className={`font-normal pl-2 text-semiMd text-red-500 border-t-1 border-gray-700 `}>₱{bookingInformation.net_Amount}</div>
         </ul>
-        <span className='text-semiXs text-red-500'>Note: Your booking is pending approval. Upon approval, a ₱{bookingInformation.booking_fee} booking fee is required to secure your appointment.</span>
         </div>
-        <button onClick={()=>{submitBooking()}} className={`text-white ${loading ? "bg-slate-500" : "bg-themeBlue"} px-2 py-2 text-sm rounded-sm `}>
+        <button onClick={()=>{pay()}} className={`text-white ${loading ? "bg-slate-500" : "bg-themeBlue"} px-2 py-2 text-sm rounded-sm `}>
         Submit
         </button>
     </div>

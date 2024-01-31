@@ -29,12 +29,13 @@ import Searchbar from './Searchbar';
 import UseFavorite from '../../ClientCustomHook/FavoriteProvider';
 import UseDNS from '../../ClientCustomHook/DNSProvider';
 import UseInfo from '../../ClientCustomHook/UseInfo';
-import UserAllServices from '../../ClientCustomHook/AllServiceProvider';
+import { UseServiceHook } from '../../ClientCustomHook/AllServiceContext';
 export const FilterContext = createContext()
 
 
-const Explore = () => {
-  const {services} = UserAllServices()
+const Explore = ({services}) => {
+  const {getServiceList} = UseServiceHook()
+  // const {services} = UserAllServices()
   const {authenticated, userInformation} = UseInfo()
   const {favorites, getFavorites} = UseFavorite()
   const {DNS, getDNS} = UseDNS()
@@ -97,47 +98,7 @@ const Explore = () => {
   const [filterLocationLongLat, setFilterLocationLongLat] = useState({longitude : 0, latitude : 0})
 
   const [radius, setRadius] = useState(1)
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-  const currentDay = currentDate.getDate().toString().padStart(2, '0');
-  const thisDate = currentYear + "-" + currentMonth + "-" + currentDay
 
-  // Computes the rating Average
-  const ratingAverage = (services) => {
-    return services.map((service, index) => {
-      
-      const ratings = service.ratings
-      const totalRatings = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
-      const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / totalRatings;
-      const rounded = Math.round(ratingAverage * 100) / 100;
-      const average = rounded.toFixed(1)
-      const from = new Date(service.createdAt);
-      const to = new Date(thisDate);
-      const years = to.getFullYear() - from.getFullYear();
-      const months = to.getMonth() - from.getMonth();
-      const days = to.getDate() - from.getDate();
-      const createdAgo = years > 0 ? years + " years ago" : months > 0 ? months + `${months <= 1 ? " month ago" : " months ago"}` : days > 0  ? days + `${days <= 1 ? " day ago" : " days ago"}` : "Less than a day ago"
-      return ({
-        _id : service._id,
-        key : index,
-        basicInformation: service.basicInformation,
-        advanceInformation: service.advanceInformation,
-        address: service.address,
-        serviceHour: service.serviceHour,
-        tags: service.tags,
-        owner : service.owner,
-        galleryImages: service.galleryImages,
-        featuredImages: service.featuredImages,
-        serviceProfileImage: service.serviceProfileImage,
-        ratings : average,
-        ratingRounded : Math.floor(average),
-        totalReviews : totalRatings,
-        createdAgo : createdAgo,
-        createdAt : service.createdAt
-      });
-    });
-  };
   
   const StyledRating = styled(Rating)({
         '& .MuiRating-iconFilled': {
@@ -214,30 +175,14 @@ const Explore = () => {
           console.log(error)
         }
   }
+
       // Get All services
   const getServices = async () => {
         
-        try {
-          const dns = authenticated ? await getDNS() : []
-          const services_item = authenticated && dns.length !== 0 ? services.filter(service => !dns.some((dns) => service._id == dns.service._id)) : dns.length == 0 ? services : services
-          const result = ratingAverage(services_item)
-          if(authenticated === false)
-          {
-            setServiceList(result);
-            setMainServiceList(result);
-          }
-          else if(authenticated)
-          {
-          const filteredService = result.filter(service => service.owner._id !== userInformation._id)
-          setServiceList(filteredService);
-          setMainServiceList(filteredService);
-          }
-          
-          
-          return result
-        } catch (err) {
-          console.error("Error fetching services:", err);
-        }
+          setServiceList(services);
+          setMainServiceList(services);
+
+          return services
   }
       // get all services
   useEffect(()=>{
@@ -383,9 +328,9 @@ const Explore = () => {
     
     useEffect(()=>{
       if(serviceList.length!== 0){
-        setTimeout(()=>{
+
           setLoadingPage(false)
-        }, 200)
+
           
       }
     },[serviceList])
@@ -436,6 +381,10 @@ const Explore = () => {
     }
 
     const addToDNS = async (serviceId) => {
+      const newServiceList = [...serviceList]
+      const index = newServiceList.findIndex((service) => service._id === serviceId)
+      newServiceList.splice(index, 1)
+      setServiceList(newServiceList)
       const data = {
         serviceId,
         createdAt : new Date()
@@ -444,7 +393,6 @@ const Explore = () => {
       try {
         const result = await http.post('addToDoNotShow', data, {withCredentials : true})
         setActiveId(null)
-        getServices()
       } catch (error) {
         console.log(error)
       }
@@ -473,7 +421,7 @@ const Explore = () => {
       }
     }, [currentPage]);
 
-
+    
 
     return (
       <FilterContext.Provider value={[sortFilter, setSortFilter, donotApplyFilter, setDonotApplyFilter, selectedCategory, setSelectedCategory,
@@ -483,14 +431,7 @@ const Explore = () => {
       categories, subCategories
       ]} >
         <div className=' w-full flex h-full overflow-hidden relative'>
-        {
-          // Loading page
-          loadingPage ? (
-            <div className='w-full h-screen grid place-items-center'>
-            <div className="spinner"></div>
-            </div>
-          ) :
-          (
+        
             <>
         {/* Left Section */}
         <section className='filterSideBar w-[500px] hidden lg:flex h-full overflow-y-scroll relative flex-col space-y-3 pb-5 lg:ps-20 pe-5 bg-[#F9F9F9]'>
@@ -499,120 +440,156 @@ const Explore = () => {
         
         {/* Right Section */}
         <section ref={scrollableDivRef} className='w-[100%] h-full overflow-auto pt-5 ps-2 xl:pe-20 pb-5 bg-[#f9f9f9]' onClick={()=>{document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute"}} >
-        <div>
-        {/* Search Box */}
-        <div className='flex flex-col ml-2.5 items-end relative w-full '>
-        <Searchbar />
-        </div>
-        <hr className='mt-5 mx-3'></hr>
-        {/* Cards Container */}
-        <article className='w-full relative z-10 bg-[#f9f9f9] grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-1 h-fit  px-3 mt-0 mb-5'>
-          {/* Card */}
-          {
-            currentServices.map((service, index)=>(
-              <div key={index}  className='border relative flex cursor-pointer flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
-              {/* Image Container */}
-              <Link to={`/explore/viewService/${service._id}`} className='flex relative w-full h-[280px] lg:h-[200px] object-cover xl:w-[330px] xl:min-w-[330px] xl:h-[200px]'>
-              <p className='absolute bg-white px-2 py-1 text-sm font-semibold rounded-full top-1 left-1'>{service.advanceInformation.ServiceCategory.name}</p>
-              <img className='w-full h-full min-h-[200px] max-h-[280px] object-cover rounded-lg' src={service.serviceProfileImage} alt="Cover"/>
-              </Link>
-              {/* Info Container */}
-              <div className=' px-1 py-3 w-full overflow-hidden flex flex-col justify-between space-y-5'>
-                {/* Title and Reviews*/}
-                <div className='Header_Container space-y-2 xl:space-y-0 w-full flex flex-col xl:flex-row justify-between'>
-                <div className='w-full overflow-hidden'>
-                  <h1 onClick={()=>{navigate(`/explore/viewService/${service._id}`)}} className='font-bold text-xl sm:text-md md:text-xl ps-1 w-full whitespace-nowrap text-ellipsis overflow-hidden'>{service.basicInformation.ServiceTitle}</h1>
-                  <div className='flex items-center space-x-2'>
-                  <p className='text-sm md:text-md text-gray-400  flex items-center gap-1'><Person2OutlinedIcon  />{service.owner.firstname + " " + service.owner.lastname}</p>
-                  <span className='w-1 h-1 rounded-full bg-gray-500'></span>
-                  <p className='text-sm text-gray-400 '>{service.createdAgo}</p>
-                  </div>
-                  
-                </div>
-                {/* Reviews */}
-                <div className='flex flex-col w- whitespace-nowrap relative ml-0  xl:ml-3 mr-2 space-x-1'>
-                <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={Number(service.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
-                <div className='flex items-center space-x-2 pl-1'>
-                <p className='text-gray-400 text-sm font-medium'>{service.ratings}</p> 
-                <p className='text-gray-300'>|</p>
-                <p className='text-gray-700 text-sm  font-medium'>{service.totalReviews} Reviews</p> 
-                </div>
-                </div>
-                </div>
-
-
-                {/* Description */}
-                <div className=' p-2 w-full h-[3.2em]  overflow-hidden text-ellipsis'>
-                <p className='text-sm'>{service.basicInformation.Description}</p>
-                
-                </div>
-
-                {/* Location */}
-                <div className='flex space-x-1  w-[300px] xl:w-full justify-between  ml-1 xl:ml-2 '>
-                  <div className='flex space-x-1'>
-                  <ShareLocationOutlinedIcon className='text-themeGray' />
-                  <p className='text-themeGray whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay.name + ", " + service.address.municipality.name + ", " + service.address.province.name}</p>
-                  </div>
-                  {/* More Options Button */}
-                  <OutsideClickHandler onOutsideClick={(e)=>{setActiveId(null);e.stopPropagation()}}>
-                  <div onClick={(e)=>{openMoreOptions(service._id);e.stopPropagation()}} className='w-fit p-0  absolute right-2 cursor-pointer'>
-                  <MoreVertIcon  className={` ${service._id == activeId ? "text-gray-300" : "text-gray-600"}  cursor-pointer hover:text-gray-300`} />
-                  </div>
-                  </OutsideClickHandler>
-                  <div id={service.id} className={`${service._id == activeId ? "absolute" : "hidden"} options  z-20  bg-white h-fit shadow-lg rounded-md right-[1.5rem] xl:right-[2rem] bottom-[1rem] xl:top-[12rem]`}>
-
-                  <div id='optionMenu' className='flex hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>             
-                  {
-                    
-                    favorites?.some((favorite) => favorite.service?._id === service._id) ?
-                    <div className='flex items-center'><PlaylistRemoveOutlinedIcon className='text-red-500 p-0.5' fontSize='small' /><p onClick={()=>{removeFavorites(service._id)}} className=' px-2  text-red-500 text-sm rounded-md cursor-pointer py-1'>Remove from Favorites</p></div> :
-                    <div className='flex items-center'><LibraryAddIcon className='p-0.5' fontSize='small' /><p onClick={()=>{addToFavorites(service._id)}} className=' px-2  text-gray-600 rounded-md cursor-pointer py-1 text-sm'>Add to Favorites</p></div>
-                  }
-
-                  </div>
-                  
-                  <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
-                  <HideSourceIcon className='p-0.5' fontSize='small' />
-                  <p onClick={()=>{addToDNS(service._id)}} className=' px-2 text-sm text-gray-600 rounded-md cursor-pointer py-1'>Do not show</p>
-                  </div>
-                  
-                  <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
-                  <ReportGmailerrorredOutlinedIcon className='p-0.5' fontSize='small' />
-                  <p className=' px-2 text-sm text-gray-600 rounded-md cursor-pointer py-1'>Report</p>
-                  </div>
-                  </div>
-                  
-                  
-        
-                </div>
-                
-              </div>
+        {
+          loadingPage ? 
+          (
+            <div className='w-full h-full flex flex-col items-start p-10 gap-5 justify-between animate-pulse'>
+            <div className='flex w-full space-x-3'>
+            <div className='w-[90px] h-[80px] semiSm:w-[150px] semiSm:h-[120px] md:w-[200px] md:h-[150px] rounded-md bg-gray-300'></div>
+            <div className='w-full h-[80px] semiSm:h-[120px] md:h-[150px] justify-between flex flex-col'>
+            <div className='w-[100%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            <div className='w-[70%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            <div className='w-[85%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            <div className='w-[80%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
             </div>
-
-            ))
-          }
-
-        </article>
-
-        <ReactPaginate
-        pageCount={Math.ceil(serviceList.length / servicesPerPage)}
-        pageRangeDisplayed={3}
-        marginPagesDisplayed={1}
-        onPageChange={handlePageClick}
-        containerClassName={'explorePagination'}
-        forcePage={Number(page) - 1}
-        activeLinkClassName={'activePage'}
-        pageLinkClassName={'paginationNumber'}
-        previousLabel={<ArrowBackIosOutlinedIcon fontSize='small' />}
-        previousClassName={'previousArrow'}
-        nextClassName={'nextArrow'}
-        nextLabel={<ArrowForwardIosOutlinedIcon fontSize='small' />}
-      />
-        </div>
+            </div>
+            <div className='flex w-full space-x-3'>
+            <div className='w-[90px] h-[80px] semiSm:w-[150px] semiSm:h-[120px] md:w-[200px] md:h-[150px] rounded-md bg-gray-300'></div>
+            <div className='w-full h-[80px] semiSm:h-[120px] md:h-[150px] justify-between flex flex-col'>
+            <div className='w-[100%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            <div className='w-[70%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            <div className='w-[85%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            <div className='w-[80%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            </div>
+            </div>
+            <div className='flex w-full space-x-3'>
+            <div className='w-[90px] h-[80px] semiSm:w-[150px] semiSm:h-[120px] md:w-[200px] md:h-[150px] rounded-md bg-gray-300'></div>
+            <div className='w-full h-[80px] semiSm:h-[120px] md:h-[150px] justify-between flex flex-col'>
+            <div className='w-[100%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            <div className='w-[70%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            <div className='w-[85%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            <div className='w-[80%] h-[10px] semiSm:h-[20px] rounded-full bg-gray-300'></div>
+            </div>
+            </div>
+            
+          </div>
+          )
+          :
+          <div>
+          {/* Search Box */}
+          <div className='flex flex-col ml-2.5 items-end relative w-full '>
+          <Searchbar />
+          </div>
+          <hr className='mt-5 mx-3'></hr>
+          {/* Cards Container */}
+          <article className='w-full relative z-10 bg-[#f9f9f9] grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-1 h-fit  px-3 mt-0 mb-5'>
+            {/* Card */}
+            {
+              currentServices.map((service, index)=>(
+                <div key={index}  className='border relative flex cursor-pointer flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
+                {/* Image Container */}
+                <Link to={`/explore/viewService/${service._id}`} className='flex relative w-full h-[280px] lg:h-[200px] object-cover xl:w-[330px] xl:min-w-[330px] xl:h-[200px]'>
+                <p className='absolute bg-white px-2 py-1 text-sm font-semibold rounded-full top-1 left-1'>{service.advanceInformation.ServiceCategory.name}</p>
+                <img className='w-full h-full min-h-[200px] max-h-[280px] object-cover rounded-lg' src={service.serviceProfileImage} alt="Cover"/>
+                </Link>
+                {/* Info Container */}
+                <div className=' px-1 py-3 w-full overflow-hidden flex flex-col justify-between space-y-5'>
+                  {/* Title and Reviews*/}
+                  <div className='Header_Container space-y-2 xl:space-y-0 w-full flex flex-col xl:flex-row justify-between'>
+                  <div className='w-full overflow-hidden'>
+                    <h1 onClick={()=>{navigate(`/explore/viewService/${service._id}`)}} className='font-bold text-xl sm:text-md md:text-xl ps-1 w-full whitespace-nowrap text-ellipsis overflow-hidden'>{service.basicInformation.ServiceTitle}</h1>
+                    <div className='flex items-center space-x-2'>
+                    <p className='text-sm md:text-md text-gray-400  flex items-center gap-1'><Person2OutlinedIcon  />{service.owner.firstname + " " + service.owner.lastname}</p>
+                    <span className='w-1 h-1 rounded-full bg-gray-500'></span>
+                    <p className='text-sm text-gray-400 '>{service.createdAgo}</p>
+                    </div>
+                    
+                  </div>
+                  {/* Reviews */}
+                  <div className='flex flex-col w- whitespace-nowrap relative ml-0  xl:ml-3 mr-2 space-x-1'>
+                  <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={Number(service.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
+                  <div className='flex items-center space-x-2 pl-1'>
+                  <p className='text-gray-400 text-sm font-medium'>{service.ratings}</p> 
+                  <p className='text-gray-300'>|</p>
+                  <p className='text-gray-700 text-sm  font-medium'>{service.totalReviews} Reviews</p> 
+                  </div>
+                  </div>
+                  </div>
+  
+  
+                  {/* Description */}
+                  <div className=' p-2 w-full h-[3.2em]  overflow-hidden text-ellipsis'>
+                  <p className='text-sm'>{service.basicInformation.Description}</p>
+                  
+                  </div>
+  
+                  {/* Location */}
+                  <div className='flex space-x-1  w-[300px] xl:w-full justify-between  ml-1 xl:ml-2 '>
+                    <div className='flex space-x-1'>
+                    <ShareLocationOutlinedIcon className='text-themeGray' />
+                    <p className='text-themeGray whitespace-nowrap overflow-hidden text-ellipsis'>{service.address.barangay.name + ", " + service.address.municipality.name + ", " + service.address.province.name}</p>
+                    </div>
+                    {/* More Options Button */}
+                    <OutsideClickHandler onOutsideClick={(e)=>{setActiveId(null);e.stopPropagation()}}>
+                    <div onClick={(e)=>{openMoreOptions(service._id);e.stopPropagation()}} className='w-fit p-0  absolute right-2 cursor-pointer'>
+                    <MoreVertIcon  className={` ${service._id == activeId ? "text-gray-300" : "text-gray-600"}  cursor-pointer hover:text-gray-300`} />
+                    </div>
+                    </OutsideClickHandler>
+                    <div id={service.id} className={`${service._id == activeId ? "absolute" : "hidden"} options  z-20  bg-white h-fit shadow-lg rounded-md right-[1.5rem] xl:right-[2rem] bottom-[1rem] xl:top-[12rem]`}>
+  
+                    <div id='optionMenu' className='flex hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>             
+                    {
+                      
+                      favorites?.some((favorite) => favorite.service?._id === service._id) ?
+                      <div className='flex items-center'><PlaylistRemoveOutlinedIcon className='text-red-500 p-0.5' fontSize='small' /><p onClick={()=>{removeFavorites(service._id)}} className=' px-2  text-red-500 text-sm rounded-md cursor-pointer py-1'>Remove from Favorites</p></div> :
+                      <div className='flex items-center'><LibraryAddIcon className='p-0.5' fontSize='small' /><p onClick={()=>{addToFavorites(service._id)}} className=' px-2  text-gray-600 rounded-md cursor-pointer py-1 text-sm'>Add to Favorites</p></div>
+                    }
+  
+                    </div>
+                    
+                    <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
+                    <HideSourceIcon className='p-0.5' fontSize='small' />
+                    <p onClick={()=>{addToDNS(service._id)}} className=' px-2 text-sm text-gray-600 rounded-md cursor-pointer py-1'>Do not show</p>
+                    </div>
+                    
+                    <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
+                    <ReportGmailerrorredOutlinedIcon className='p-0.5' fontSize='small' />
+                    <p className=' px-2 text-sm text-gray-600 rounded-md cursor-pointer py-1'>Report</p>
+                    </div>
+                    </div>
+                    
+                    
+          
+                  </div>
+                  
+                </div>
+              </div>
+  
+              ))
+            }
+  
+          </article>
+  
+          <ReactPaginate
+          pageCount={Math.ceil(serviceList.length / servicesPerPage)}
+          pageRangeDisplayed={3}
+          marginPagesDisplayed={1}
+          onPageChange={handlePageClick}
+          containerClassName={'explorePagination'}
+          forcePage={Number(page) - 1}
+          activeLinkClassName={'activePage'}
+          pageLinkClassName={'paginationNumber'}
+          previousLabel={<ArrowBackIosOutlinedIcon fontSize='small' />}
+          previousClassName={'previousArrow'}
+          nextClassName={'nextArrow'}
+          nextLabel={<ArrowForwardIosOutlinedIcon fontSize='small' />}
+        />
+          </div>
+        }
         </section>
             </>
-          )
-        }
+          
+        
         
         {/* Mobile Sidebar */}
         <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = 'w-[260px] transition duration-500 translate-x-[0%] exploreSidebarOpen ease-out h-screen overflow-y-scroll bg-white z-10 absolute'}} className='absolute top-[1.6rem] left-5 lg:hidden'><FilterListOutlinedIcon fontSize='large' /></button>

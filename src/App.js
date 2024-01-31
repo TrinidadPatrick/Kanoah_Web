@@ -25,11 +25,15 @@ import { AuthProvider } from './AdminPage/CustomHooks/AuthProvider';
 import AdminList from './AdminPage/AdminList';
 import AdminDashboard from './AdminPage/AdminDashboard';
 import AdminManagement from './AdminPage/AdminManagement';
-import ChatProvider from './ClientCustomHook/ChatProvider';
+import UserAllServices from './ClientCustomHook/AllServiceProvider';
+import { UseServiceHook } from './ClientCustomHook/AllServiceContext';
+import GcashPay from './Pages/GcashPayment/GcashPay';
+import PaypalPay from './Pages/GcashPayment/PaypalPay';
 
 
 const App = () => {
-
+  // const {services} = UserAllServices()
+  const { services } = UseServiceHook();
   const [scrollToAboutUs, setScrollToAboutUs] = useState(false);
 
   const handleScrollToAboutUs = () => {
@@ -49,9 +53,7 @@ const App = () => {
     </>
   );
 
-
-
-
+    
 
   return (
       
@@ -64,7 +66,8 @@ const App = () => {
           </div>}>   
         <Route path='/forgotPassword' element={<ForgotPassword />} />
         <Route path='/register' element={<Register />} />
-        <Route path='/explore/' element={<Explore />} />
+        <Route path='/explore/' element={
+        <Explore services={services} />} />
         <Route path='/chat' element={<Chat />} />
         <Route path='explore/viewService/:serviceId' element={<ViewService />} />
         <Route path='/myAccount/:optn' element={<CustomerAccount />} />
@@ -75,6 +78,8 @@ const App = () => {
         <Route path='/' element={<MainPage scrollToAboutUs={scrollToAboutUs} setScrollToAboutUs={setScrollToAboutUs} />} />
         <Route path='/login' element={<Login />} />
         <Route path='/BookService' element={<BookService />} />
+        <Route path='/Gcash' element={<GcashPay />} />
+        <Route path='/Paypal' element={<PaypalPay />} />
         <Route path='/chatP' element={<ChatPractice />} />    
         </Route>
 

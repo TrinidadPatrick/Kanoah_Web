@@ -7,11 +7,14 @@ import RejectedBooking from './RejectedBooking'
 import OwnerBookingHistory from './OwnerHistory'
 import http from '../../../http'
 import useService from '../../../ClientCustomHook/ServiceProvider'
+import PendingPayment from './PendingPayment'
+import PageNotFound from '../../NotFoundPage/PageNotFound'
 
 const Bookings = () => {
     const {serviceInformation} = useService()
     const [selectedTab, setSelectedTab] = useState("Pending")
     const [pendingBookings, setPendingBookings] = useState([])
+    const [pendingPaymentBookings, setPendingPaymentBookings] = useState([])
     const [acceptedBookings, setAcceptedBookings] = useState([])
     const [rejectedBookings, setRejectedBookings] = useState([])
     const [history, setHistory] = useState([])
@@ -19,6 +22,8 @@ const Bookings = () => {
     const lazyLoad = async () => {
         const accepted = await http.get(`getAcceptedBooking/${serviceInformation._id}`)
         setAcceptedBookings(accepted.data)
+        const toPay = await http.get(`getPendingPaymentBooking/${serviceInformation._id}`)
+        setPendingPaymentBookings(toPay.data)
         const rejected = await http.get(`getRejectedBooking/${serviceInformation._id}`)
         setRejectedBookings(rejected.data)
         const history = await http.get(`getBookingHistory/${serviceInformation._id}`)
@@ -72,7 +77,7 @@ const Bookings = () => {
        
     <div className='w-full h-full flex flex-col pb-2 mt-11'>
     {
-        selectedTab === "Pending" ? <PendingBookings lazyLoad={lazyLoad} pendingBookings={pendingBookings} /> : selectedTab === "Accepted" ? <AcceptedBookings lazyLoad={lazyLoad} acceptedBookings={acceptedBookings} /> : selectedTab === "Rejected" ? <RejectedBooking lazyLoad={lazyLoad} rejectedBookings={rejectedBookings} /> : <OwnerBookingHistory lazyLoad={lazyLoad} history={history} />
+        selectedTab === "Pending" ? <PendingBookings lazyLoad={lazyLoad} pendingBookings={pendingBookings} /> : selectedTab === "Accepted" ? <AcceptedBookings lazyLoad={lazyLoad} acceptedBookings={acceptedBookings} /> : selectedTab === "Rejected" ? <RejectedBooking lazyLoad={lazyLoad} rejectedBookings={rejectedBookings} /> : selectedTab === "History" ? <OwnerBookingHistory lazyLoad={lazyLoad} history={history} /> : <PageNotFound />
     }
     </div>
        
