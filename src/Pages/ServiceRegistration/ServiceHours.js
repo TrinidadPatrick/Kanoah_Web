@@ -13,7 +13,7 @@ const ServiceHours = () => {
     fromTime: '',
     toTime: '',
   })
-  const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
+  const [step, setStep, serviceInformation, setServiceInformation] = useContext(pageContext)
   const [schedule, setSchedule] = useState(
     days.map((day) => ({
       day,

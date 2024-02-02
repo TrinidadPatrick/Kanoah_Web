@@ -10,7 +10,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 const AddressRegistration = () => {
 const [street, setStreet] = useState('')
 const [fullAddress, setFullAddress] = useState({})
-const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
+const [step, setStep, serviceInformation, setServiceInformation] = useContext(pageContext)
 const [isDragging, setIsDragging] = useState(false);
 const [closeAutofill, setCloseAutofill] = useState(false)
 const [places, setPlaces] = useState([])
@@ -280,11 +280,7 @@ console.log(fullAddress)
                   latitude: evt.lngLat.lat / sensitivityFactor,
                 };
                 setLocation(newLocation);
-                setViewPort((prevViewport) => ({
-                  ...prevViewport,
-                  latitude: newLocation.latitude,
-                  longitude: newLocation.longitude ,
-                }));
+                
               }}
             onDragEnd={()=>{setIsDragging(false)}}
             >

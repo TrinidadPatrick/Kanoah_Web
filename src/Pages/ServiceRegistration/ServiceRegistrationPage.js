@@ -4,22 +4,19 @@ import BusinessInformation from './BusinessInformation'
 import Tags from './Tags'
 import AdvanceInformation from './AdvanceInformation'
 import ServiceHours from './ServiceHours'
-import background1 from './Utils/images/background5.svg'
-import jwtDecode from 'jwt-decode';
-import { useDispatch, useSelector } from 'react-redux';
-import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
+import UseInfo from '../../ClientCustomHook/UseInfo'
 import { useNavigate } from 'react-router-dom'
 import http from '../../http'
 export const pageContext = React.createContext()
 
 
 const ServiceRegistrationPage = () => {
+  const {authenticated, userInformation} = UseInfo()
   const [serviceExisting, setServiceExisting] = useState(null)
   const navigate = useNavigate()
-  const userId = useSelector(selectUserId)
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Holidays'] 
   
-    const [step, setStep] = useState(1)
+    const [step, setStep] = useState(5)
     // const [userId, setUserId] = useState(null)
     const [serviceInformation, setServiceInformation] = useState(
       {
@@ -80,12 +77,14 @@ const ServiceRegistrationPage = () => {
         }
       }
 
+    
+
       useEffect(()=>{
         
-        if(userId !== null && userId !== 'loggedOut')
+        if(authenticated === true)
         {
           getUserProfile()
-          http.get(`getService/${userId}`,{
+          http.get(`getService/${userInformation._id}`,{
             withCredentials : true
           }).then((res)=>{
             if(res.data.result)
@@ -100,13 +99,13 @@ const ServiceRegistrationPage = () => {
             throw error
           })
         }
-        else if(userId === 'loggedOut')
+        else if(authenticated === false)
         {
           navigate("/")
         }
-      },[userId])
+      },[authenticated])
   return (
-    <pageContext.Provider value={[step, setStep, userId, serviceInformation, setServiceInformation]} >
+    <pageContext.Provider value={[step, setStep, serviceInformation, setServiceInformation]} >
     {/* // Main Container */}
     <div className='w-full h-fit md:h-screen  bg-[#f9f9f9] flex items-center justify-center'>
     {

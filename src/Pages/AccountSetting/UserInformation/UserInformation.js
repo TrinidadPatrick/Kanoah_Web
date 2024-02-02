@@ -86,7 +86,7 @@ const UserInformation = () => {
     useEffect(() => {
       if (authenticated) {
         setUserDetails(userInformation)
-        setStreet(userInformation.Address.street)
+        setStreet(userInformation.Address?.street)
         setLoading(false)
       }else if(authenticated === false){
         navigate("/")

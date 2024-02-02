@@ -1,10 +1,12 @@
 import React, { useContext } from 'react'
 import { useState, useEffect } from 'react';
 import { pageContext } from './ServiceRegistrationPage';
+import UseInfo from '../../ClientCustomHook/UseInfo'
 
 
 const BusinessInformation = () => {
-    const [page, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
+  const {authenticated, userInformation} = UseInfo()
+    const [page, setStep, serviceInformation, setServiceInformation] = useContext(pageContext)
     const [errors, setErrors] = useState({
       //0 for not input, 1 for invalid
       TitleError : null,

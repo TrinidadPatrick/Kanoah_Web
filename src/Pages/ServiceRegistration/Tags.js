@@ -5,9 +5,11 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { pageContext } from './ServiceRegistrationPage'
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
+import UseInfo from '../../ClientCustomHook/UseInfo';
 import http from '../../http'
 
 const Tags = () => {
+  const {userInformation} = UseInfo()
   const navigate = useNavigate()
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -17,7 +19,7 @@ const Tags = () => {
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   const [input, setInput] = useState('')
   const [tags, setTags] = useState([])
-  const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
+  const [step, setStep, serviceInformation, setServiceInformation] = useContext(pageContext)
 
   const addTag = () => {
     const newInput = [...tags]
@@ -62,7 +64,7 @@ const submitTag = () => {
   openSubmitModal()
 }
 const submitService = () => {
-
+    const userId = userInformation._id
     http.post("addService", {serviceInformation, userId, createdAt :thisDate}).then((res)=>{
       console.log(res.data)
       navigate("/")
@@ -73,6 +75,7 @@ const submitService = () => {
 }
 
   const submitAndRedirect = () => {
+    const userId = userInformation._id
     http.post("addService", {serviceInformation, userId, createdAt :thisDate}).then((res)=>{
       navigate("/myService/editService/Booking")
     }).catch((err)=>{

@@ -32,7 +32,7 @@ const [subCategoryList, setSubCategoryList] = useState([]);
 const [openBookingModal, setOpenBookingModal] = useState(false);
 const [isGcashModalOpen, setIsGcashModalOpen] = useState(false);
 const [isGcashChecked, setIsGcashChecked] = useState(false);
-const [step, setStep, userId, serviceInformation, setServiceInformation] = useContext(pageContext)
+const [step, setStep, serviceInformation, setServiceInformation] = useContext(pageContext)
 const serviceOptions = ['Home Service','Online Service','Walk-In Service', 'Pick-up and Deliver']
 const [selectedServiceOptions, setSelectedServiceOptions] = useState([])
 const {categories, subCategories} = useCategory()
@@ -227,11 +227,11 @@ const handleSelectCategory = (value) => {
 
 useEffect(()=>{
   setAdvanceInformation(serviceInformation.advanceInformation)
-  if(serviceInformation.advanceInformation.PaymentMethod[0].Gcash == true)
+  if(serviceInformation.advanceInformation?.PaymentMethod[0].Gcash == true)
   {
     setIsGcashChecked(true)
   }
-  else if (serviceInformation.advanceInformation.PaymentMethod[0].Gcash == false)
+  else if (serviceInformation.advanceInformation?.PaymentMethod[0].Gcash == false)
   {
     setIsGcashChecked(false)
   }
@@ -254,7 +254,7 @@ useEffect(()=>{
   
 },[categories])
 
-  console.log(advanceInformation)
+  // console.log(serviceInformation)
   return (
   <div className='w-full h-full  flex flex-col  p-1'>
     
@@ -265,12 +265,12 @@ useEffect(()=>{
   <div className="w-full relative">
     <label className="block text-sm text-gray-500 font-semibold mb-2" htmlFor="contact">Service Contact</label>
     <span className='absolute top-[2.303rem] text-sm lg:text-md text-gray-400 left-2'>+63</span>
-    <input maxLength={10} value={advanceInformation["ServiceContact"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} type="tel" id="contact" className={`${errors.ServiceContactError ? "border-red-500 border-2" : ""} w-full ps-9 p-2 text-sm lg:text-md border rounded outline-none shadow-sm" placeholder="1234567890`} />
+    <input maxLength={10} value={advanceInformation?.ServiceContact} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} type="tel" id="contact" className={`${errors.ServiceContactError ? "border-red-500 border-2" : ""} w-full ps-9 p-2 text-sm lg:text-md border rounded outline-none shadow-sm" placeholder="1234567890`} />
   </div>
 {/* Fax */}
   <div className="w-full">
     <label className="block text-gray-500 text-sm lg:text-md font-semibold mb-2" htmlFor="fax">Fax Number</label>
-    <input max={10} value={advanceInformation["ServiceFax"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceFax : e.target.value})}} type="tel" id="fax" className={`w-full p-2 text-sm lg:text-md border rounded`} placeholder="Enter fax number" />
+    <input max={10} value={advanceInformation?.ServiceFax} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceFax : e.target.value})}} type="tel" id="fax" className={`w-full p-2 text-sm lg:text-md border rounded`} placeholder="Enter fax number" />
   </div>
   </div>
 
@@ -278,13 +278,13 @@ useEffect(()=>{
     <div className='grid grid-cols-2 m-0 items-center gap-4'>
   <div className="w-full">
     <label className="block text-gray-500 text-sm lg:text-md font-semibold mb-2" htmlFor="email">Service Email</label>
-    <input value={advanceInformation["ServiceEmail"]} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} type="email" id="email" className={`${errors.ServiceEmailError ? "border-red-500 border-2" : ""} w-full text-sm lg:text-md p-2 border rounded`} placeholder="example@email.com" />
+    <input value={advanceInformation?.ServiceEmail} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} type="email" id="email" className={`${errors.ServiceEmailError ? "border-red-500 border-2" : ""} w-full text-sm lg:text-md p-2 border rounded`} placeholder="example@email.com" />
   </div>
 
 {/* Category */}
 <div className='flex flex-col w-full'>   
   <label htmlFor='category' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Category</label>
-  <select value={advanceInformation.ServiceCategory} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border p-2 rounded-md text-sm xl:text-[0.8rem]`}  onChange={(e)=>{handleSelectCategory(e.target.value)}}>
+  <select value={advanceInformation?.ServiceCategory} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border p-2 rounded-md text-sm xl:text-[0.8rem]`}  onChange={(e)=>{handleSelectCategory(e.target.value)}}>
     <option value="Not Selected" selected>-- Select Category --</option>
         {
         categories.map((category, index)=>(<option key={index} value={category._id} className='py-2 text-sm xl:text-[1rem]'>{category.name}</option>))
@@ -296,7 +296,7 @@ useEffect(()=>{
   {/* Sub Category */}
   <div className='flex flex-col w-full'>   
         <label htmlFor='subCategory' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Sub Category (Optional)</label>
-        <select id='subCategory' value={advanceInformation.ServiceSubCategory} className={` border w-full p-2 rounded-md text-sm`}  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceSubCategory : e.target.value})}} >
+        <select id='subCategory' value={advanceInformation?.ServiceSubCategory} className={` border w-full p-2 rounded-md text-sm`}  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceSubCategory : e.target.value})}} >
         <option value="" >-- Select Sub Category --</option>
         {
         subCategoryList.length === 0 ? "" :
@@ -334,7 +334,7 @@ useEffect(()=>{
 
     {/* Add Social Link Button */}
     <div className='w-full'>
-    <button onClick={()=>openSocialModal()} className='bg-gray-100 border text-semiXs md:text-sm rounded-sm shadow-sm px-3 font-medium py-1 hover:bg-gray-200 text-gray-600'>{advanceInformation.SocialLink[0].link != "" ||advanceInformation.SocialLink[1].link != "" || advanceInformation.SocialLink[2].link != "" ? "View Social Link" : "Add social link"}</button>
+    <button onClick={()=>openSocialModal()} className='bg-gray-100 border text-semiXs md:text-sm rounded-sm shadow-sm px-3 font-medium py-1 hover:bg-gray-200 text-gray-600'>{advanceInformation?.SocialLink[0].link != "" ||advanceInformation?.SocialLink[1].link != "" || advanceInformation?.SocialLink[2].link != "" ? "View Social Link" : "Add social link"}</button>
     </div>
 
   {/* Payment Method */}
@@ -362,16 +362,16 @@ useEffect(()=>{
   <p className='font-semibold text-gray-600'>Cash</p>
   </div>
   <div className='flex space-x-5 md:space-x-20'>
-  <p className='text-gray-500 text-xs'>{advanceInformation.PaymentMethod[1].enabled ? "Enabled" : "Not set"}</p>
+  <p className='text-gray-500 text-xs'>{advanceInformation?.PaymentMethod[1].enabled ? "Enabled" : "Not set"}</p>
   <label className="relative inline-flex items-center cursor-pointer">
   <input  onClick={() => {
     setAdvanceInformation((prevAdvanceInformation) => ({
       ...prevAdvanceInformation,
       PaymentMethod: [
-        ...prevAdvanceInformation.PaymentMethod.slice(0, 1), // Keep the first element unchanged
-        { ...prevAdvanceInformation.PaymentMethod[1], enabled: !advanceInformation.PaymentMethod[1].enabled },
+        ...prevAdvanceInformation?.PaymentMethod.slice(0, 1), // Keep the first element unchanged
+        { ...prevAdvanceInformation?.PaymentMethod[1], enabled: !advanceInformation?.PaymentMethod[1].enabled },
       ],
-    }));
+    }))
   }} type="checkbox" value=""  className="sr-only peer outline-none"/>
   <div className="w-[29px] h-4 lg:w-[1.85rem] lg:h-4 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[0.8rem] after:h-[0.8rem] after:lg:w-[0.8rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
   </label>
@@ -401,11 +401,11 @@ useEffect(()=>{
     <YouTube fontSize="large" className='text-red-500'  />
   </div>
   <input
-    value={advanceInformation.SocialLink[0].link}
+    value={advanceInformation?.SocialLink[0].link}
     onChange={(e) => {
       setAdvanceInformation({
         ...advanceInformation,
-        SocialLink: advanceInformation.SocialLink.map((socialLink, index) =>
+        SocialLink: advanceInformation?.SocialLink.map((socialLink, index) =>
           index === 0 ? { ...socialLink, link: e.target.value } : socialLink
         ),
       });
@@ -423,11 +423,11 @@ useEffect(()=>{
     <FacebookIcon fontSize="large" className='text-blue-500'  />
   </div>
   <input
-    value={advanceInformation.SocialLink[1].link}
+    value={advanceInformation?.SocialLink[1].link}
     onChange={(e) => {
       setAdvanceInformation({
         ...advanceInformation,
-        SocialLink: advanceInformation.SocialLink.map((socialLink, index) =>
+        SocialLink: advanceInformation?.SocialLink.map((socialLink, index) =>
           index === 1 ? { ...socialLink, link: e.target.value } : socialLink
         ),
       });
