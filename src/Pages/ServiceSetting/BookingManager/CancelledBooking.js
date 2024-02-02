@@ -1,14 +1,13 @@
 import React from 'react'
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import Modal from 'react-modal'
 import http from '../../../http';
 
-const PendingBookings = ({pendingBookings, lazyLoad}) => {
+const CancelledBooking = ({ cancelledBookings, lazyLoad }) => {
     Modal.setAppElement('#root');
     const [modalIsOpen, setIsOpen] = useState(false);
     const [clientInformation, setClientInformation] = useState(null);
-    const [Pending_Bookings_Orig, set_Pending_Bookings_Orig] = useState(null);
     const ModalStyle = {
         content: {
           top: '50%',
@@ -25,14 +24,9 @@ const PendingBookings = ({pendingBookings, lazyLoad}) => {
           },
     };
 
-    useEffect(()=>{
-        set_Pending_Bookings_Orig(pendingBookings)
-    },[pendingBookings])
-
-
     const OpenClientInformation = (id) => {
         setIsOpen(true)
-        const booking = pendingBookings.find((booking) => booking._id === id)
+        const booking = cancelledBookings?.find((booking) => booking._id === id)
         const dateObject = new Date(booking.createdAt)
         const formattedDate = dateObject.toLocaleDateString('en-US', {
             year: 'numeric',
@@ -44,30 +38,21 @@ const PendingBookings = ({pendingBookings, lazyLoad}) => {
     }
 
     const updateStatus = async (id, status) => {
-        const index = Pending_Bookings_Orig.findIndex(booking => booking._id === id)
-        if(index !== -1)
-        {
-            const newBooking = [...Pending_Bookings_Orig]
-            newBooking[index] = {...newBooking[index], ["status"] : status}
-            const filtered = newBooking.filter((booking) => booking.status === "PENDING")
-            set_Pending_Bookings_Orig(filtered)
-            try {
-                const result = await http.patch(`respondBooking/${id}`, {status})
-                lazyLoad()
-            } catch (error) {
-                console.log(error)
-            }
+        try {
+            const result = await http.patch(`respondBooking/${id}`, {status})
+            lazyLoad()
+        } catch (error) {
+            console.log(error)
         }
-
-        return ;
-       
         
     }
 
+
   return (
-    <div className='w-full h-full  max-h-full mt-5 overflow-auto flex flex-col gap-4 py-5'>
+    
+    <div className='w-full h-full max-h-full flex flex-col gap-4 py-5 mt-5'>
     {
-        Pending_Bookings_Orig?.map((booking)=>{
+        cancelledBookings?.map((booking)=>{
             const dateObject = new Date(booking.createdAt)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -136,12 +121,7 @@ const PendingBookings = ({pendingBookings, lazyLoad}) => {
                     </tr>
                 </tbody>
             </table>
-            
-            <div className='relative flex gap-2 mb-3'>
-                <button onClick={()=>updateStatus(booking._id, "ACCEPTED")} className='text-semiSm  px-2  rounded-sm font-medium py-1 text-green-600' style={{backgroundColor : "rgba(152, 255, 188, 0.38)",}}>Accept booking</button>
-                <button onClick={()=>updateStatus(booking._id, "REJECTED")} className='text-semiSm px-2 rounded-sm font-medium py-1 text-red-600' style={{backgroundColor: "rgba(255, 0, 0, 0.12)"}}>Reject booking</button>
-            </div>
-            
+
             </div>
 
             
@@ -152,7 +132,6 @@ const PendingBookings = ({pendingBookings, lazyLoad}) => {
     
     {/* Modal */}
     <Modal  isOpen={modalIsOpen} style={ModalStyle}>
-        
         <div className='w-[300px] p-2'>
             <div className='flex w-full justify-start space-x-2  items-center mb-2 border-b-1 pb-1'>
             <ArrowBackIosNewOutlinedIcon onClick={()=>setIsOpen(false)} fontSize='small' className=' p-0.5 cursor-pointer' />
@@ -199,4 +178,4 @@ const PendingBookings = ({pendingBookings, lazyLoad}) => {
   )
 }
 
-export default PendingBookings
+export default CancelledBooking

@@ -26,6 +26,7 @@ const ServiceHours = ({serviceInformation}) => {
   };
 
   const handleTimeChange = (day, field, value) => {
+    console.log(day)
     setSchedule((prevSchedule) => {
       const newSchedule = prevSchedule.map((entry) =>
         entry.day === day ? { ...entry, [field]: value } : entry
@@ -33,6 +34,8 @@ const ServiceHours = ({serviceInformation}) => {
       return newSchedule;
     });
   };
+
+  console.log(schedule)
 
   const submitSchedule = async () => {
     const serviceHour = schedule
@@ -86,7 +89,7 @@ const ServiceHours = ({serviceInformation}) => {
     <span className='hidden semiXs:block ml-2 text-xs lg:text-[1rem]'>{entry.isOpen ? 'Open' : 'Closed'}</span>
   </label>
 </div>
-
+      {console.log(entry)}
 
           {/* Input time */}
           {/* From */}
@@ -95,7 +98,7 @@ const ServiceHours = ({serviceInformation}) => {
               <input
                 type="time"
                 className="p-1 text-[0.65rem] md:text-xs xl:text-[1rem] w-[90px] sm:w-[100px] md:w-[130px] sm:ps-3 border rounded-xl focus:outline-none focus:border-blue-50"
-                value={entry.isOpen ? entry.fromTime == "" ? "06:00" : entry.toTime : ""}
+                value={entry.fromTime}
                 onChange={(e) => handleTimeChange(entry.day, 'fromTime', e.target.value)}
                 disabled={!entry.isOpen}
               />
@@ -107,7 +110,7 @@ const ServiceHours = ({serviceInformation}) => {
                 type="time"
                 
                 className="p-1 text-[0.65rem] md:text-xs xl:text-[1rem] w-[90px] sm:w-[100px] md:w-[130px] sm:ps-3 border rounded-xl focus:outline-none focus:border-blue-50"
-                value={entry.isOpen ? entry.toTime == "" ? "06:00" : entry.toTime : ""}
+                value={entry.toTime}
                 onChange={(e) => handleTimeChange(entry.day, 'toTime', e.target.value)}
                 disabled={!entry.isOpen}
               />

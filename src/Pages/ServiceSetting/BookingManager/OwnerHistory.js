@@ -50,7 +50,7 @@ const OwnerBookingHistory = ({ history, lazyLoad }) => {
 
   return (
     
-    <div className='w-full h-full max-h-full flex flex-col gap-4 py-5'>
+    <div className='w-full h-full max-h-full flex flex-col gap-4 py-5 mt-5'>
     {
         history.map((booking)=>{
             const dateObject = new Date(booking.createdAt)
@@ -121,11 +121,6 @@ const OwnerBookingHistory = ({ history, lazyLoad }) => {
                     </tr>
                 </tbody>
             </table>
-            
-            <div className='relative flex gap-2 mb-3'>
-                <button onClick={()=>updateStatus(booking._id, "ACCEPTED")} className='text-semiSm  px-2  rounded-sm font-medium py-1 text-green-600' style={{backgroundColor : "rgba(152, 255, 188, 0.38)",}}>Accept booking</button>
-                <button onClick={()=>updateStatus(booking._id, "REJECTED")} className='text-semiSm px-2 rounded-sm font-medium py-1 text-red-600' style={{backgroundColor: "rgba(255, 0, 0, 0.12)"}}>Reject booking</button>
-            </div>
             
             </div>
 

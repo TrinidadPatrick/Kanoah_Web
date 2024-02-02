@@ -78,6 +78,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     const distance = Number(calculateDistance(providerPlace.latitude, providerPlace.longitude, clientPlace.latitude, clientPlace.longitude).toFixed(0))
 
     const basePrice = 49
+
     
     return basePrice + (distance * 5)
     }
@@ -165,6 +166,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     }
 
 
+
   return (
     <div className='w-[600px] bg-[#f9f9f9] flex  flex-col h-fit py-3 relative space-y-3 rounded-md '>
         <h1 className='text-center font-semibold text-2xl text-gray-800'>Booking Confirmation</h1>
@@ -207,7 +209,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
             <ul className='w-full '>
             <h1 className='font-semibold'>Schedule</h1>
                 <li className='text-semiSm text-gray-700'>{bookingInformation.schedule?.bookingDate}</li >
-                <li className='text-semiSm text-gray-700'>{bookingInformation.schedule?.bookingTime}</li >
+                <li className='text-semiSm text-gray-700'>{bookingInformation.schedule?.timeSpan[0]} - {bookingInformation.schedule?.timeSpan[1]}</li >
             </ul>
             </div>
             {/* Address */}

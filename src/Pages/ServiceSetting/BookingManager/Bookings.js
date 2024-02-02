@@ -1,48 +1,46 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Modal from 'react-modal'
-import PendingBookings from './PendingBookings'
-import AcceptedBookings from './AcceptedBookings'
-import RejectedBooking from './RejectedBooking'
 import OwnerBookingHistory from './OwnerHistory'
 import http from '../../../http'
 import useService from '../../../ClientCustomHook/ServiceProvider'
-import PendingPayment from './PendingPayment'
 import PageNotFound from '../../NotFoundPage/PageNotFound'
+import InProgressBooking from './InProgressBooking'
+import CompletedBooking from './CompletedBooking'
+import CancelledBooking from './CancelledBooking'
 
 const Bookings = () => {
     const {serviceInformation} = useService()
-    const [selectedTab, setSelectedTab] = useState("Pending")
-    const [pendingBookings, setPendingBookings] = useState([])
-    const [pendingPaymentBookings, setPendingPaymentBookings] = useState([])
-    const [acceptedBookings, setAcceptedBookings] = useState([])
-    const [rejectedBookings, setRejectedBookings] = useState([])
+    const [selectedTab, setSelectedTab] = useState("InProgress")
+    const [inProgressBookings, setInProgressBookings] = useState([])
+    const [cancelledBookings, setCancelledBookings] = useState([])
+    const [completedBookings, setCompletedBookings] = useState([])
     const [history, setHistory] = useState([])
 
     const lazyLoad = async () => {
-        const accepted = await http.get(`getAcceptedBooking/${serviceInformation._id}`)
-        setAcceptedBookings(accepted.data)
-        const toPay = await http.get(`getPendingPaymentBooking/${serviceInformation._id}`)
-        setPendingPaymentBookings(toPay.data)
-        const rejected = await http.get(`getRejectedBooking/${serviceInformation._id}`)
-        setRejectedBookings(rejected.data)
+        const inProgress = await http.get(`getInProgressBooking/${serviceInformation._id}`)
+        setInProgressBookings(inProgress.data)
+        const cancelled = await http.get(`getCancelledBooking/${serviceInformation._id}`)
+        setCancelledBookings(cancelled.data)
+        const completed = await http.get(`getCompletedBooking/${serviceInformation._id}`)
+        setCompletedBookings(completed.data)
         const history = await http.get(`getBookingHistory/${serviceInformation._id}`)
         setHistory(history.data)
     }
 
     useEffect(()=>{
-        const getPendingBookings = async () => {
-                const pending =  await http.get(`getPendingBooking/${serviceInformation._id}`)
-                setPendingBookings(pending.data)
+        const getInProgressBookings = async () => {
+                const inprogress =  await http.get(`getInProgressBooking/${serviceInformation._id}`)
+                setInProgressBookings(inprogress.data)
                 lazyLoad()
         }
            
-        serviceInformation !== null && getPendingBookings()
+        serviceInformation !== null && getInProgressBookings()
         
         
     },[serviceInformation])
-
-
+    
+    console.log(history)
 
   return (
     
@@ -52,22 +50,24 @@ const Bookings = () => {
     <nav className=' fixed top-[4.5rem] w-full bg-white pt-3'>
     <h1 className='text-xl font-semibold text-gray-800'>My service bookings</h1>
         <ul className='flex space-x-3 border-b-1 border-gray-700'>
+           
             <li className=''>
-                <button onClick={()=>setSelectedTab("Pending")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Pending" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>Pending</button>
+                <button onClick={()=>setSelectedTab("InProgress")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "InProgress" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>In Progress</button>
             </li>
             <li>
-                <button onClick={()=>setSelectedTab("Accepted")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Accepted" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>Accepted</button>
+                <button onClick={()=>setSelectedTab("Completed")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Completed" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>Completed</button>
             </li>
             <li>
-                <button onClick={()=>setSelectedTab("Rejected")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Rejected" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>Rejected</button>
+                <button onClick={()=>setSelectedTab("Cancelled")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Cancelled" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>Cancelled</button>
             </li>
             <li>
-                <button onClick={()=>setSelectedTab("History")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "History" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>History</button>
+                <button onClick={()=>setSelectedTab("History")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "History" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>All Bookings</button>
             </li>
+            
         </ul>
     </nav>
     {
-    pendingBookings === null ? 
+    inProgressBookings === null ? 
     (
         <div className='w-full h-screen grid place-items-center'>
             <div className="spinner"></div>
@@ -77,7 +77,7 @@ const Bookings = () => {
        
     <div className='w-full h-full flex flex-col pb-2 mt-11'>
     {
-        selectedTab === "Pending" ? <PendingBookings lazyLoad={lazyLoad} pendingBookings={pendingBookings} /> : selectedTab === "Accepted" ? <AcceptedBookings lazyLoad={lazyLoad} acceptedBookings={acceptedBookings} /> : selectedTab === "Rejected" ? <RejectedBooking lazyLoad={lazyLoad} rejectedBookings={rejectedBookings} /> : selectedTab === "History" ? <OwnerBookingHistory lazyLoad={lazyLoad} history={history} /> : <PageNotFound />
+        selectedTab === "InProgress" ? <InProgressBooking lazyLoad={lazyLoad} inProgressBookings={inProgressBookings} /> : selectedTab === "Completed" ? <CompletedBooking lazyLoad={lazyLoad} completedBookings={completedBookings} /> : selectedTab === "Cancelled" ? <CancelledBooking lazyLoad={lazyLoad} cancelledBookings={cancelledBookings} /> : selectedTab === "History" ? <OwnerBookingHistory lazyLoad={lazyLoad} history={history} /> : <PageNotFound />
     }
     </div>
        

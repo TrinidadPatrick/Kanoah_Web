@@ -12,22 +12,24 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
     const [error, setError] = useState(false)
     const [selectedService, setSelectedService] = useState('') //this has a value of unique ID
     const [selectedVariant, setSelectedVariant] = useState({}) //this has a value of unique ID
+    const [duration, setDuration] = useState(null)
     const [variants, setVariants] = useState([])
     const [price, setPrice] = useState('')
     
 
     const handleSelectService = (service) => {
         if(service.origPrice === "" && service.variants.length !== 0)
-        {
+        {   
+            
             const variantList = service.variants
             setSelectedService(service.name)
             setSelectedVariant("")
-            setPrice("")
             setVariants(variantList)
             return
         }
         setSelectedService(service.name)
         setPrice(service.origPrice)
+        setDuration(Number(service.duration))
         return
        
     }
@@ -35,13 +37,15 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
     const handleSelectVariant = (variant) => {
         setSelectedVariant(variant)
         setPrice(variant.price)
+        setDuration(Number(variant.duration))
     }
 
     const submitServiceContext = () => {
         const data = {
             selectedService,
             selectedVariant,
-            price
+            price,
+            duration
         }
         if(selectService === "" || price === "")
         {
@@ -64,7 +68,6 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
         }
     },[])
 
-    // console.log(serviceInfo.AcceptBooking)
 
   return (
     <section id='step1' className='w-[600px] h-fit flex flex-col space-y-4 p-3 rounded-md shadow-md bg-white'>

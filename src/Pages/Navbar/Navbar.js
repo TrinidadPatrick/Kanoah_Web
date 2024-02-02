@@ -76,6 +76,7 @@ if (reason !== 'backdropClick') {
 
     const signout = () => {
       http.get('userLogout', {withCredentials : true}).then((res)=>{
+        console.log(res.data)
         if(res.status === 200)
         {
           window.location.reload()

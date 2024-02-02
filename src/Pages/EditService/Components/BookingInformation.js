@@ -527,8 +527,6 @@ const BookingInformation = ({serviceInformation}) => {
       })
     }
 
-    console.log(serviceOfferInfo)
-
   return (
     <main className='flex justify-center items-center bg-[#f9f9f9] flex-col h-full w-full bg-na max-h-full xl:p-3 '>
     <div className="w-[100%] sm:w-[90%] md:w-[80%] xl:w-[60%] shadow-md rounded-md h-full sm:h-[90%] xl:h-[70vh] p-5 flex flex-col bg-white space-y-5">

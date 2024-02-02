@@ -3,7 +3,7 @@ import Modal from 'react-modal'
 import { useState } from 'react';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 
-const UserPendingBookings = ({ pendingBookings }) => {
+const UserInProgressBooking = ({ inProgressBookings }) => {
     Modal.setAppElement('#root');
     const [modalIsOpen, setIsOpen] = useState(false);
     const [clientInformation, setClientInformation] = useState(null);
@@ -23,8 +23,10 @@ const UserPendingBookings = ({ pendingBookings }) => {
           },
     };
 
+    console.log(inProgressBookings)
+
     const openBookingInfo = (booking_id) => {
-        const selected = pendingBookings.find(booking => booking.Booking_id === booking_id)
+        const selected = inProgressBookings.find(booking => booking.booking_id === booking_id)
         const scheduleObject = new Date(selected.schedule.bookingDate)
         const issuedDateObject = new Date(selected.createdAt)
         const bookTimeObject = new Date(selected.createdAt);
@@ -48,12 +50,11 @@ const UserPendingBookings = ({ pendingBookings }) => {
         setIsOpen(true)
     }
 
-    console.log(clientInformation)
   return (
     <>
     <div className='w-full h-full max-h-full overflow-auto'>
         {
-        pendingBookings?.map((pendingBooking) => {
+        inProgressBookings?.map((pendingBooking) => {
             const dateObject = new Date(pendingBooking.schedule.bookingDate)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -77,16 +78,13 @@ const UserPendingBookings = ({ pendingBookings }) => {
                         <div className={`font-medium text-semiMd text-gray-600 `}>{pendingBooking.service.selectedVariant ? pendingBooking.service.selectedVariant?.type : "None"}</div>
                         {/* Amount */}
                         <div className='text-semiMd font-semibold whitespace-nowrap'>Total Amount</div>
-                        <div className='font-medium text-semiMd text-gray-600'>₱ {pendingBooking.service.price}</div>
-                        {/* Amount */}
-                        <div className='text-semiMd font-semibold whitespace-nowrap'>Booking fee</div>
-                        <div className='font-medium text-semiMd text-gray-600'>₱ {pendingBooking.Booking_fee}</div>
+                        <div className='font-medium text-semiMd text-gray-600'>₱ {pendingBooking.net_Amount}</div>
                         {/* Schedule */}
                         <div className='text-semiMd font-semibold whitespace-nowrap'>Schedule</div>
                         <div className='font-medium text-semiMd text-gray-600'>{formattedDate}</div>
                         {/* Time */}
                         <div className='text-semiMd font-semibold whitespace-nowrap'>Time</div>
-                        <div className='font-medium text-semiMd text-gray-600'>{pendingBooking.schedule.bookingTime}</div>
+                        <div className='font-medium text-semiMd text-gray-600'>{pendingBooking.schedule.timeSpan}</div>
                         {/* Time */}
                         <div className='text-semiMd font-semibold whitespace-nowrap'>Service Option</div>
                         <div className='font-medium text-semiMd text-gray-600'>{pendingBooking.schedule.serviceOption}</div>
@@ -158,12 +156,26 @@ const UserPendingBookings = ({ pendingBookings }) => {
                     <div className='text-semiMd font-semibold whitespace-nowrap'>Book Date</div>
                     <div className='font-medium text-right text-semiMd text-gray-600'>{clientInformation?.issuedDate}</div>
 
-                    <div className='text-semiMd font-semibold whitespace-nowrap'>Book Time</div>
-                    <div className='font-medium text-right text-semiMd text-gray-600'>{clientInformation?.bookTime}</div>
+                    <div className='text-semiMd font-semibold whitespace-nowrap'>Book Schedule</div>
+                    <div className='font-medium text-right text-semiMd text-gray-600'>{clientInformation?.schedule.timeSpan}</div>
+                    
+                </div>
+                <div className='w-full mt-4 grid grid-cols-2 gap-0 gap-x-5 bg-white rounded-md border shadow-sm p-2'>
+                    <div className='text-semiMd font-semibold whitespace-nowrap'>Service Amount</div>
+                    <div className='font-medium text-right text-semiMd text-gray-600'>₱{clientInformation?.service.price}</div>
+
+                    <div className='text-semiMd font-semibold whitespace-nowrap'>Booking Fee</div>
+                    <div className='font-medium text-right text-semiMd text-gray-600'>₱{clientInformation?.booking_fee}</div>
+
+                    <div className='text-semiMd font-semibold whitespace-nowrap'>Service Fee</div>
+                    <div className='font-medium text-right text-semiMd text-gray-600'>₱{clientInformation?.service_fee}</div>
+
+                    <div className='text-semiMd font-semibold whitespace-nowrap'>Total Amount</div>
+                    <div className='font-medium text-right text-semiMd text-red-500'>₱{clientInformation?.net_Amount}</div>
 
                     <button className='bg-gray-100 border rounded-sm text-sm text-gray-800 py-1 mt-2'>View Service</button>
                     <button className='bg-green-400 border rounded-sm text-sm text-gray-100 py-1 mt-2'>Contact Service</button>
-                </div>
+                    </div>
                 </div>
         </div>
     </Modal>
@@ -171,4 +183,4 @@ const UserPendingBookings = ({ pendingBookings }) => {
   )
 }
 
-export default UserPendingBookings
+export default UserInProgressBooking
