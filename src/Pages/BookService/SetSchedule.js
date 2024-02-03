@@ -18,14 +18,20 @@ import dayjs from 'dayjs';
     const dispatch = useDispatch()
     const scheduleContext = useSelector(selectSchedule)
     const serviceContext = useSelector(selectService)
+    const [error, setError] = useState({
+      dateSelected : false,
+      timeSelected : false,
+      serviceOption : false,
+    })
     const [serviceOptionError, setServiceOptionError] = useState(false)
+    const [serviceDateError, setServiceDateError] = useState(false)
     const [bookings, setBookings] = useState([])
     const [currentDay, setCurrentDay] = useState('');
     const [bookingScheds, setBookingScheds] = useState([])
     const date = new Date()
     const dateToday = date.getFullYear() + "-" +(date.getMonth() + 1) + "-" + date.getDate()
     const [dateSelected, setDateSelected] = useState(dateToday)
-    const [timeSelected, setTimeSelected] = useState('12:00 AM')
+    const [timeSelected, setTimeSelected] = useState('')
     const [timeSpan, setTimeSpan] = useState([])
     const [serviceOption, setServiceOption] = useState('')
     const [bookingTimeSlot, setBookingTimeSlot] = useState([])
@@ -71,16 +77,32 @@ import dayjs from 'dayjs';
             timeSpan,
             serviceOption : serviceOption
         }
-
-        if(serviceOption === '')
-        {
-          setServiceOptionError(true)
-          return
+        const keys = {
+          dateSelected,
+          timeSelected,
+          serviceOption
         }
+        let hasError = false
+        
+        Object.entries(keys).forEach(([key, value])=>{
+         if(value === '')
+         {
+          setError((prevError) => ({...prevError, [key] : true}))
+          hasError = true
+         }
+         else
+         {
+          setError((prevError) => ({...prevError, [key] : false}))
+         }
+        })
 
-        dispatch(setSchedule(data))
-        handleStep(3)
+        if(!hasError)
+        {
+          dispatch(setSchedule(data))
+          handleStep(3)
+        }
     }
+
 
     useEffect(()=>{
       const bookings = bookingSchedule.filter((schedule) => schedule.schedule.bookingDate === dateSelected)
@@ -102,6 +124,7 @@ import dayjs from 'dayjs';
       const time12Hour = `${hours12}:${paddedMinutes} ${period}`;
       setTimeSpan([timeSelected, time12Hour])
     },[dateSelected, timeSelected])
+
 
     useEffect(()=>{
       if(scheduleContext !== null)
@@ -131,29 +154,6 @@ import dayjs from 'dayjs';
       const time24Hour = `${hours}:${minutes < 10 ? `0${minutes}` :minutes}`;
 
       return timeObject;
-    }
-
-    const disableTime = (time) => {
-      const dayName = dayjs(time).format('dddd');
-      const selectedTime = dayjs(time).format('HH:mm');
-
-      const fromSched = convertTo24(bookings[0]?.schedule?.timeSpan[0])
-      const toSched = convertTo24(bookings[0]?.schedule?.timeSpan[1])
-
-      const disableTimeSpan = (selectedTime) => {
-      
-        const selectedTime24 = convertTo24(selectedTime);
-       
-        return selectedTime24 >= fromSched && selectedTime24 <= toSched;
-      };
-      
-      
-      // console.log(convertTo24(selectedTime), disableTimeSpan(selectedTime), fromSched, toSched)
-      const openTime = serviceInfo.serviceHour.find((hour) => {
-        return hour.day === dayName && selectedTime >= hour.fromTime && selectedTime <= hour.toTime;
-      });
-
-      return openTime && !disableTimeSpan(selectedTime) ? false : true;
     }
 
     useEffect(()=>{
@@ -247,12 +247,13 @@ import dayjs from 'dayjs';
       },
     }} />
 
-    <div id='booked' className='w-[300px] h-[372px] bg-white  flex flex-col justify-between pb-3 rounded-md relative shadow-md px-2'>
-    <div className='grid grid-cols-3 gap-2 mt-5'>
+    <div id='booked' className='w-[300px] h-[372px] bg-white  flex flex-col justify-start pb-3 rounded-md relative shadow-md px-2'>
+      <span className={`${error.timeSelected ? "" : "hidden"} text-xs text-red-500`}>*Please select a time below</span>
+    <div className='grid grid-cols-3 gap-2 mt-3'>
     {
       bookingTimeSlot.map((time) =>{
         return (
-          <button disabled={unavailableTimes.includes(time)} onClick={()=>setTimeSelected(time)} className={`px-3 py-1 ${time === timeSelected ? 'bg-blue-800' : 'bg-blue-500'} disabled:bg-blue-300  text-semiSm rounded-sm text-white`}>{time}</button>
+          <button key={time} disabled={unavailableTimes.includes(time)} onClick={()=>setTimeSelected(time)} className={`px-3 py-1 ${time === timeSelected ? 'bg-blue-500 text-gray-50' : 'bg-gray-100 border text-gray-700'} disabled:bg-blue-300  text-semiSm rounded-sm `}>{time}</button>
         )
       })
     }
@@ -262,7 +263,7 @@ import dayjs from 'dayjs';
     </div>
     {/* Service Options */}
     <div className='w-full shadow-md rounded-md bg-white p-2 mt-3'>
-      <h1 className='font-semibold text-gray-800 mb-2 ml-1'>Select option <span className={`text-xs ${serviceOptionError ? "" : "hidden"} font-normal text-red-500`}>*Required</span></h1>
+      <h1 className='font-semibold text-gray-800 mb-2 ml-1'>Select option <span className={`text-xs ${error.serviceOption ? "" : "hidden"} font-normal text-red-500`}>*Required</span></h1>
     {
       serviceInfo.advanceInformation.ServiceOptions.map((service, index)=>(
         <button onClick={()=>{setServiceOption(service)}} className={`${serviceOption === service ? "bg-themeBlue text-white" : "bg-gray-200 border border-neutral-500 text-gray-800"} relative px-2 py-1 text-sm  mx-1 rounded-sm`} key={index}>

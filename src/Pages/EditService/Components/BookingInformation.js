@@ -179,6 +179,7 @@ const BookingInformation = ({serviceInformation}) => {
           uniqueId : '',
           name : '',
           origPrice : '',
+          duration : '',
           variants : []
         })
         closeServiceModal()
@@ -267,6 +268,7 @@ const BookingInformation = ({serviceInformation}) => {
             uniqueId : '',
           name : '',
           origPrice : '',
+          duration : '',
           variants : []
         
         })

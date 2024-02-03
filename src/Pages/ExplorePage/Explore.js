@@ -34,11 +34,8 @@ export const FilterContext = createContext()
 
 
 const Explore = ({services}) => {
-  const {getServiceList} = UseServiceHook()
-  // const {services} = UserAllServices()
   const {authenticated, userInformation} = UseInfo()
   const {favorites, getFavorites} = UseFavorite()
-  const {DNS, getDNS} = UseDNS()
   const navigate = useNavigate()
   const [loadingPage, setLoadingPage] = useState(true)
   const [searchParams, setSearchParams] = useSearchParams();
@@ -537,7 +534,7 @@ const Explore = ({services}) => {
                     </OutsideClickHandler>
                     <div id={service.id} className={`${service._id == activeId ? "absolute" : "hidden"} options  z-20  bg-white h-fit shadow-lg rounded-md right-[1.5rem] xl:right-[2rem] bottom-[1rem] xl:top-[12rem]`}>
   
-                    <div id='optionMenu' className='flex hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>             
+                    <div id='optionMenu' className={`${authenticated ? "flex" : "hidden"} hover:bg-gray-300 cursor-pointer items-center px-2 py-2`}>             
                     {
                       
                       favorites?.some((favorite) => favorite.service?._id === service._id) ?
@@ -547,7 +544,7 @@ const Explore = ({services}) => {
   
                     </div>
                     
-                    <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
+                    <div id='optionMenu' className={`${authenticated ? "flex" : "hidden"}  hover:bg-gray-300 cursor-pointer items-center px-2 py-2`}>
                     <HideSourceIcon className='p-0.5' fontSize='small' />
                     <p onClick={()=>{addToDNS(service._id)}} className=' px-2 text-sm text-gray-600 rounded-md cursor-pointer py-1'>Do not show</p>
                     </div>

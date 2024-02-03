@@ -5,11 +5,14 @@ import http from '../../../http'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import UserInProgressBooking from './UserInProgressBookings'
+import UserCompletedBookings from './UserCompletedBookings'
+import UserCancelledBookings from './UserCancelledBookings'
+import UserBookingHistory from './UserBookingHistory'
 
 const UserBookings = () => {
 const navigate = useNavigate()
 const {authenticated, userInformation} = UseInfo()
-const [selectedTab, setSelectedTab] = useState("Pending")
+const [selectedTab, setSelectedTab] = useState("InProgress")
 const [inProgressBookings, setInProgressBookings] = useState(null)
 const [completedBookings, setCompletedBookings] = useState(null)
 const [cancelledBookings, setCancelledBookings] = useState(null)
@@ -29,6 +32,7 @@ const [bookingHistory, setBookingHistory] = useState(null)
         console.error(error)
     }
   }
+
 
   useEffect(()=>{
     const getBookings = async () => {
@@ -57,9 +61,7 @@ const [bookingHistory, setBookingHistory] = useState(null)
     <nav className=' w-full  h-fit pt-3'>
     <h1 className='text-xl font-semibold text-gray-800'>My bookings</h1>
         <ul className='flex space-x-3 border-b-1 border-gray-700 mt-3'>
-            <li className=''>
-                <button onClick={()=>setSelectedTab("All Bookings")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "All Bookings" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>All Bookings</button>
-            </li>
+            
             <li className=''>
                 <button onClick={()=>setSelectedTab("InProgress")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "InProgress" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>In Progress</button>
             </li>
@@ -69,12 +71,15 @@ const [bookingHistory, setBookingHistory] = useState(null)
             <li>
                 <button onClick={()=>setSelectedTab("Cancelled")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Cancelled" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>Cancelled</button>
             </li>
+            <li className=''>
+                <button onClick={()=>setSelectedTab("All Bookings")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "All Bookings" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>History</button>
+            </li>
         </ul>
     </nav>
 
     <section className='w-full h-full bg-gray-50 flex flex-col max-h-full overflow-auto p-3'>
     {
-        selectedTab === "InProgress" ? (<UserInProgressBooking inProgressBookings={inProgressBookings} />) : ""
+        selectedTab === "InProgress" ? (<UserInProgressBooking inProgressBookings={inProgressBookings} />) : selectedTab === "Completed" ? <UserCompletedBookings completedBookings={completedBookings} /> : selectedTab === "Cancelled" ? <UserCancelledBookings cancelledBookings={cancelledBookings} /> :  <UserBookingHistory bookingHistory={bookingHistory} />
     }
     </section>
     </main>

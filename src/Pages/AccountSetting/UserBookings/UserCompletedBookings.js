@@ -3,11 +3,10 @@ import Modal from 'react-modal'
 import { useState } from 'react';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import { useNavigate } from 'react-router-dom';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-const UserInProgressBooking = ({ inProgressBookings }) => {
+const UserCompletedBookings = ({completedBookings}) => {
     const navigate = useNavigate()
-    Modal.setAppElement('#root');
     const [modalIsOpen, setIsOpen] = useState(false);
     const [clientInformation, setClientInformation] = useState(null);
     const ModalStyle = {
@@ -27,7 +26,7 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
     };
 
     const openBookingInfo = (id) => {
-        const selected = inProgressBookings.find(booking => booking._id === id)
+        const selected = completedBookings.find(booking => booking._id === id)
         const scheduleObject = new Date(selected.schedule.bookingDate)
         const issuedDateObject = new Date(selected.createdAt)
         const bookTimeObject = new Date(selected.createdAt);
@@ -50,11 +49,10 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
         setClientInformation(newData)
         setIsOpen(true)
     }
-
   return (
     <>
     {
-        inProgressBookings?.length === 0 ?
+        completedBookings?.length === 0 ?
         <div className="flex items-center justify-center h-screen">
             <div className="text-center">
                 <h2 className="text-3xl font-semibold mb-4">No Bookings Yet</h2>
@@ -64,61 +62,66 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
         :
         <div className='w-full h-full max-h-full overflow-auto'>
         {
-        inProgressBookings?.map((inprogress) => {
-            const dateObject = new Date(inprogress.schedule.bookingDate)
+        completedBookings?.map((completedBookings) => {
+            const dateObject = new Date(completedBookings.schedule.bookingDate)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
             })
             return(
-                <div key={inprogress._id} className="flex gap-3 cursor-pointer flex-col h-fit my-4 bg-white hover:bg-gray-50 rounded-md border shadow-sm p-2">
+                <div key={completedBookings._id} className="flex gap-3 cursor-pointer flex-col h-fit my-4 bg-white hover:bg-gray-50 rounded-md border shadow-sm p-2">
                 {/* Header */}
                 <div className='w-full justify-between flex items-center border-b-1 p-2'>
-                    <div onClick={()=>navigate(`/explore/viewService/${inprogress.shop._id}`)} className='flex items-center cursor-pointer'>
-                    <h2 className='font-medium text-base text-gray-700'>{inprogress.shop.basicInformation.ServiceTitle}</h2>
+                    <div onClick={()=>navigate(`/explore/viewService/${completedBookings.shop._id}`)} className='flex items-center cursor-pointer'>
+                    <h2 className='font-medium text-base text-gray-700'>{completedBookings.shop.basicInformation.ServiceTitle}</h2>
                     <ArrowForwardIosIcon fontSize='small' className='p-0.5 text-gray-600' />
                     </div>
-                    <span className='text-themeOrange font-medium'>In Progress</span>
+                    <span className='text-themeOrange font-medium'>Completed</span>
                 </div>
                 {/* Image and personal info container */}
-                <div onClick={()=>openBookingInfo(inprogress._id)} className='w-full cursor-pointer flex'>
+                <div onClick={()=>openBookingInfo(completedBookings._id)} className='w-full gap-3 h-full relative cursor-pointer flex'>
                     {/* Image Container */}
-                    <div className='h-[200px] aspect-[3/2] flex '>
-                        <img className='w-full rounded-md h-full object-cover' src={inprogress.shop.serviceProfileImage} alt="image" />
+                    <div className='md:h-[120px] lg:h-[200px] aspect-[3/2] flex '>
+                        <img className='w-full rounded-md h-full object-cover' src={completedBookings.shop.serviceProfileImage} alt="image" />
                     </div>
                     {/* Booking Information */}
-                    <div className='flex flex-col space-y-2 px-2'>
-                    <div className='text-xl font-semibold text-themeOrange '>{inprogress.service.selectedService}</div>
+                    <div className='flex flex-col w-full px-2 flex-1 justify-between'>
+                    <div className='text-lg lg:text-xl font-semibold text-themeOrange '>{completedBookings.service.selectedService}</div>
                     <div className='w-fit h-full grid grid-cols-2 gap-0 gap-x-5 '>
                         {/* Variant */}
-                        <div className={`text-semiMd text-gray-700 font-medium whitespace-nowrap  `}>Variant</div>
-                        <div className={`font-normal text-semiMd text-gray-600 `}>{inprogress.service.selectedVariant ? inprogress.service.selectedVariant?.type : "None"}</div>
+                        <div className={`text-sm lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap  `}>Variant</div>
+                        <div className={`font-normal text-sm lg:text-semiMd flex items-center text-gray-600 `}>{completedBookings.service.selectedVariant ? completedBookings.service.selectedVariant?.type : "None"}</div>
                         {/* Amount */}
-                        <div className='text-semiMd text-gray-700 font-medium whitespace-nowrap'>Total Amount</div>
-                        <div className='font-normal text-semiMd text-gray-600'>₱ {inprogress.net_Amount}</div>
+                        <div className='text-sm lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Total Amount</div>
+                        <div className='font-normal text-sm lg:text-semiMd flex items-center text-gray-600'>₱ {completedBookings.net_Amount}</div>
                         {/* Schedule */}
-                        <div className='text-semiMd text-gray-700 font-medium whitespace-nowrap'>Schedule</div>
-                        <div className='font-normal text-semiMd text-gray-600'>{formattedDate}</div>
+                        <div className='text-sm lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Schedule</div>
+                        <div className='font-normal text-sm lg:text-semiMd flex items-center text-gray-600'>{formattedDate}</div>
                         {/* Time */}
-                        <div className='text-semiMd text-gray-700 font-medium whitespace-nowrap'>Time</div>
-                        <div className='font-normal text-semiMd text-gray-600'>{inprogress.schedule.timeSpan}</div>
+                        <div className='text-sm lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Time</div>
+                        <div className='font-normal text-sm lg:text-semiMd flex items-center text-gray-600'>{completedBookings.schedule.timeSpan[0]} - {completedBookings.schedule.timeSpan[1]}</div>
                         {/* Time */}
-                        <div className='text-semiMd text-gray-700 font-medium whitespace-nowrap'>Service Option</div>
-                        <div className='font-normal text-semiMd text-gray-600'>{inprogress.schedule.serviceOption}</div>
+                        <div className='text-sm lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Service Option</div>
+                        <div className='font-normal text-sm lg:text-semiMd flex items-center text-gray-600'>{completedBookings.schedule.serviceOption}</div>
                     </div>
                     </div>
-                    {/* Buttons */}
-                    
+                    {/* Rate button */}
+                    <div className=' absolute bottom-3 w-full hidden lg:flex justify-end pr-5 items-end h-full'>
+                        <button className='px-3 py-1 bg-themeOrange text-white text-sm rounded-sm'>Rate</button>
+                    </div>
                 </div>
+                {/* Rate button */}
+                <div className=' w-full flex lg:hidden border-t-1 pt-2 justify-end items-center h-full'>
+                        <button className=' w-36 py-1 bg-themeOrange text-white text-sm rounded-sm'>Rate</button>
+                    </div>
                 </div>
             )
         })
     }
     </div>
-
     }
-    
+
 
 
     <Modal  isOpen={modalIsOpen} style={ModalStyle}>
@@ -200,4 +203,4 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
   )
 }
 
-export default UserInProgressBooking
+export default UserCompletedBookings

@@ -3,11 +3,10 @@ import Modal from 'react-modal'
 import { useState } from 'react';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import { useNavigate } from 'react-router-dom';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-const UserInProgressBooking = ({ inProgressBookings }) => {
+const UserCancelledBookings = ({cancelledBookings}) => {
     const navigate = useNavigate()
-    Modal.setAppElement('#root');
     const [modalIsOpen, setIsOpen] = useState(false);
     const [clientInformation, setClientInformation] = useState(null);
     const ModalStyle = {
@@ -27,7 +26,7 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
     };
 
     const openBookingInfo = (id) => {
-        const selected = inProgressBookings.find(booking => booking._id === id)
+        const selected = cancelledBookings.find(booking => booking._id === id)
         const scheduleObject = new Date(selected.schedule.bookingDate)
         const issuedDateObject = new Date(selected.createdAt)
         const bookTimeObject = new Date(selected.createdAt);
@@ -51,61 +50,62 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
         setIsOpen(true)
     }
 
+    console.log(cancelledBookings)
   return (
     <>
     {
-        inProgressBookings?.length === 0 ?
-        <div className="flex items-center justify-center h-screen">
-            <div className="text-center">
-                <h2 className="text-3xl font-semibold mb-4">No Bookings Yet</h2>
-                <p className="text-gray-500">Sorry, there are no bookings yet.</p>
-            </div>
+    cancelledBookings?.length === 0 ?
+    <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+            <h2 className="text-3xl font-semibold mb-4">No Bookings Yet</h2>
+            <p className="text-gray-500">Sorry, there are no bookings yet.</p>
         </div>
-        :
-        <div className='w-full h-full max-h-full overflow-auto'>
+    </div>
+    :
+    <div className='w-full h-full max-h-full overflow-auto'>
         {
-        inProgressBookings?.map((inprogress) => {
-            const dateObject = new Date(inprogress.schedule.bookingDate)
+        cancelledBookings?.map((cancelledBookings) => {
+            const dateObject = new Date(cancelledBookings.schedule.bookingDate)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
             })
             return(
-                <div key={inprogress._id} className="flex gap-3 cursor-pointer flex-col h-fit my-4 bg-white hover:bg-gray-50 rounded-md border shadow-sm p-2">
+                <div key={cancelledBookings._id} className="flex gap-3 cursor-pointer flex-col h-fit my-4 bg-white hover:bg-gray-50 rounded-md border shadow-sm p-2">
                 {/* Header */}
                 <div className='w-full justify-between flex items-center border-b-1 p-2'>
-                    <div onClick={()=>navigate(`/explore/viewService/${inprogress.shop._id}`)} className='flex items-center cursor-pointer'>
-                    <h2 className='font-medium text-base text-gray-700'>{inprogress.shop.basicInformation.ServiceTitle}</h2>
+                    <div onClick={()=>navigate(`/explore/viewService/${cancelledBookings.shop._id}`)} className='flex items-center cursor-pointer'>
+                    <h2 className='font-medium text-base text-gray-700'>{cancelledBookings.shop.basicInformation.ServiceTitle}</h2>
                     <ArrowForwardIosIcon fontSize='small' className='p-0.5 text-gray-600' />
                     </div>
-                    <span className='text-themeOrange font-medium'>In Progress</span>
+                    <span className='text-themeOrange font-medium'>Cancelled</span>
                 </div>
                 {/* Image and personal info container */}
-                <div onClick={()=>openBookingInfo(inprogress._id)} className='w-full cursor-pointer flex'>
+                <div onClick={()=>openBookingInfo(cancelledBookings._id)} className='w-full cursor-pointer flex'>
                     {/* Image Container */}
                     <div className='h-[200px] aspect-[3/2] flex '>
-                        <img className='w-full rounded-md h-full object-cover' src={inprogress.shop.serviceProfileImage} alt="image" />
+                        <img className='w-full rounded-md h-full object-cover' src={cancelledBookings.shop.serviceProfileImage} alt="image" />
                     </div>
                     {/* Booking Information */}
                     <div className='flex flex-col space-y-2 px-2'>
-                    <div className='text-xl font-semibold text-themeOrange '>{inprogress.service.selectedService}</div>
+                    <div className='text-xl font-semibold text-themeOrange '>{cancelledBookings.service.selectedService}</div>
                     <div className='w-fit h-full grid grid-cols-2 gap-0 gap-x-5 '>
                         {/* Variant */}
                         <div className={`text-semiMd text-gray-700 font-medium whitespace-nowrap  `}>Variant</div>
-                        <div className={`font-normal text-semiMd text-gray-600 `}>{inprogress.service.selectedVariant ? inprogress.service.selectedVariant?.type : "None"}</div>
+                        <div className={`font-normal text-semiMd text-gray-600 `}>{cancelledBookings.service.selectedVariant ? cancelledBookings.service.selectedVariant?.type : "None"}</div>
                         {/* Amount */}
                         <div className='text-semiMd text-gray-700 font-medium whitespace-nowrap'>Total Amount</div>
-                        <div className='font-normal text-semiMd text-gray-600'>₱ {inprogress.net_Amount}</div>
+                        <div className='font-normal text-semiMd text-gray-600'>₱ {cancelledBookings.net_Amount}</div>
                         {/* Schedule */}
                         <div className='text-semiMd text-gray-700 font-medium whitespace-nowrap'>Schedule</div>
                         <div className='font-normal text-semiMd text-gray-600'>{formattedDate}</div>
                         {/* Time */}
                         <div className='text-semiMd text-gray-700 font-medium whitespace-nowrap'>Time</div>
-                        <div className='font-normal text-semiMd text-gray-600'>{inprogress.schedule.timeSpan}</div>
+                        <div className='font-normal text-semiMd text-gray-600'>{cancelledBookings.schedule.timeSpan}</div>
                         {/* Time */}
                         <div className='text-semiMd text-gray-700 font-medium whitespace-nowrap'>Service Option</div>
-                        <div className='font-normal text-semiMd text-gray-600'>{inprogress.schedule.serviceOption}</div>
+                        <div className='font-normal text-semiMd text-gray-600'>{cancelledBookings.schedule.serviceOption}</div>
                     </div>
                     </div>
                     {/* Buttons */}
@@ -116,10 +116,7 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
         })
     }
     </div>
-
     }
-    
-
 
     <Modal  isOpen={modalIsOpen} style={ModalStyle}>
         <div className='w-fit h-fit flex flex-col bg-[#f9f9f9] border p-2'>
@@ -190,7 +187,6 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
                     <div className='text-semiMd font-semibold whitespace-nowrap'>Total Amount</div>
                     <div className='font-medium text-right text-semiMd text-red-500'>₱{clientInformation?.net_Amount}</div>
 
-                    <button className='bg-gray-100 border rounded-sm text-sm text-gray-800 py-1 mt-2'>View Service</button>
                     <button className='bg-green-400 border rounded-sm text-sm text-gray-100 py-1 mt-2'>Contact Service</button>
                     </div>
                 </div>
@@ -200,4 +196,4 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
   )
 }
 
-export default UserInProgressBooking
+export default UserCancelledBookings

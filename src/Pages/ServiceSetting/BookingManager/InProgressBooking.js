@@ -31,8 +31,8 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
     },[inProgressBookings])
 
 
-    const OpenClientInformation = (booking_id) => {
-        const selected = inProgressBookings.find(booking => booking.booking_id === booking_id)
+    const OpenClientInformation = (id) => {
+        const selected = inProgressBookings.find(booking => booking._id === id)
         const scheduleObject = new Date(selected.schedule.bookingDate)
         const issuedDateObject = new Date(selected.createdAt)
         const bookTimeObject = new Date(selected.createdAt);
@@ -152,7 +152,7 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
             </table>
             
             <div className='relative flex gap-2 mb-3'>
-                <button className='text-semiSm  px-2 bg-gray-100 border hover:bg-gray-200 relative z-20 rounded-sm font-medium py-1 text-gray-500'><OpenInNewOutlinedIcon /></button>
+                <button onClick={()=>OpenClientInformation(booking._id)} className='text-semiSm  px-2 bg-gray-100 border hover:bg-gray-200 relative z-20 rounded-sm font-medium py-1 text-gray-500'><OpenInNewOutlinedIcon /></button>
                 <button onClick={()=>updateStatus(booking._id, "COMPLETED")} className='text-semiSm  px-2 hover:bg-black relative z-20 rounded-sm font-medium py-1 text-green-600' style={{backgroundColor : "rgba(152, 255, 188, 0.38)",}}>Mark as Complete</button>
                 <button onClick={()=>updateStatus(booking._id, "CANCELLED")} className='text-semiSm px-2 rounded-sm font-medium py-1 text-red-600' style={{backgroundColor: "rgba(255, 0, 0, 0.12)"}}>Cancel booking</button>
             </div>

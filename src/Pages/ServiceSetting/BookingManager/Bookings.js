@@ -39,8 +39,7 @@ const Bookings = () => {
         
         
     },[serviceInformation])
-    
-    console.log(history)
+
 
   return (
     

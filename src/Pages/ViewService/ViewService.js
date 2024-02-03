@@ -201,7 +201,7 @@ const ViewService = () => {
 
   // Make logic for chatnow
   const handleChatNow = () => {
-    if(isLoggedIn)
+    if(authenticated)
     {
       navigate(`/chatP?service=${serviceInfo.owner._id}`)
       // navigate(`/chatP?to=${serviceInfo.owner._id}&service=${serviceInfo.owner._id}`)
