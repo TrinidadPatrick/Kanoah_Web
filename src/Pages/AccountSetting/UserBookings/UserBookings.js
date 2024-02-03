@@ -58,8 +58,8 @@ const [bookingHistory, setBookingHistory] = useState(null)
 
   return (
     <main className='w-full h-full flex flex-col  '>
-    <nav className=' w-full  h-fit pt-3'>
-    <h1 className='text-xl font-semibold text-gray-800'>My bookings</h1>
+    <nav className=' w-full  h-fit pt-3 px-3'>
+    <h1 className='text-xl pl-5 md:pl-0 font-semibold text-gray-800'>My bookings</h1>
         <ul className='flex space-x-3 border-b-1 border-gray-700 mt-3'>
             
             <li className=''>

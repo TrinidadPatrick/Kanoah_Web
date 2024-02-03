@@ -13,6 +13,7 @@ import UserBookings from './UserBookings/UserBookings';
 import UserFavorites from './Favorites/UserFavorites';
 import BlockedServices from './BlockedServices/BlockedServices';
 import MobileServiceSettingSidebar from '../ServiceSetting/MobileServiceSettingSidebar';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 
 const CustomerAccount = () => {
     const {authenticated} = UseInfo()
@@ -62,12 +63,14 @@ const CustomerAccount = () => {
 
     {/* Right section */}
     <section className='w-full relative h-full max-h-full overflow-auto  flex flex-col'>
-    <div className='h-full w-[10px] flex md:hidden bg-themeBlue absolute'>
-    <div className={`absolute ${openMobileSidebar ? "translate-x-[12.2rem]" : ""}  ease-in-out duration-300 h-[30px] w-[20px] flex items-center justify-center top-8 bg-themeBlue text-white rounded-e-full`}>
-      <button className='flex items-center ' onClick={()=>setOpenMobileSidebar(!openMobileSidebar)}><ExpandLessOutlinedIcon className={`${openMobileSidebar ? "-rotate-90" : "rotate-90"}`} /></button>
+    
+    <div className='h-full flex md:hidden absolute z-30'>
+    <div className={`absolute ${openMobileSidebar ? "hidden" : ""}  ease-in-out duration-300 h-[30px] flex items-center justify-center top-3 left-1  text-black `}>
+      <button className='flex items-center ' onClick={()=>setOpenMobileSidebar(!openMobileSidebar)}><MenuOpenIcon  /></button>
     </div>
-    <MobileServiceSettingSidebar setSelectedSettings={setSelectedSettings} selectedSettings={selectedSettings} openMobileSidebar={openMobileSidebar} />
+    <MobileServiceSettingSidebar setSelectedSettings={setSelectedSettings} selectedSettings={selectedSettings} openMobileSidebar={openMobileSidebar} setOpenMobileSidebar={setOpenMobileSidebar} />
     </div>
+    <div onClick={()=>setOpenMobileSidebar(false)} className={`w-full cursor-pointer ${openMobileSidebar ? "" : "hidden"} h-full absolute bg-[#00000080] z-10`}></div>
     {selectedSettings == "Profile" ? <UserInformation /> : selectedSettings == "Bookings" ? <UserBookings /> : selectedSettings == "Favorites" ? <UserFavorites authenticated={authenticated} /> : <BlockedServices authenticated={authenticated} />}
     </section>
     </div>

@@ -600,7 +600,7 @@ import {io} from 'socket.io-client'
 
 
   return (
-        <main className=' w-full bg-[#f9f9f9] h-[100svh] overflow-hidden relative flex justify-evenly'>
+        <main className=' w-full bg-[#f9f9f9] h-[100dvh] overflow-hidden relative flex justify-evenly'>
           {/* Image Viewer */}
         <div  className={`${openViewer ? "" : "hidden"} w-full h-full bg-[#000000ED] absolute z-50 flex justify-center items-center`}>
           <div className='absolute top-2 right-2 flex flex-row-reverse gap-4'>

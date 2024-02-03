@@ -127,7 +127,7 @@ const UserCompletedBookings = ({completedBookings}) => {
 
 
     <Modal  isOpen={modalIsOpen} style={ModalStyle}>
-        <div className='w-full sm:w-fit h-[90dvh] sm:h-full flex flex-col bg-[#f9f9f9] p-2'>
+        <div className='w-full sm:w-fit h-fit max-h-[90dvh] sm:h-full flex flex-col bg-[#f9f9f9] p-2'>
             <div className='flex items-center space-x-1'>
             <ArrowBackIosNewOutlinedIcon onClick={()=>setIsOpen(false)} fontSize='small' className='text-gray-500 p-0.5 cursor-pointer' />
             <h1 className='text-lg text-gray-700 font-medium'>Booking Details</h1>
