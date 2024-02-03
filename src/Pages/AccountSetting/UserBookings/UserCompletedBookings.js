@@ -82,7 +82,7 @@ const UserCompletedBookings = ({completedBookings}) => {
                 {/* Image and personal info container */}
                 <div onClick={()=>openBookingInfo(completedBookings._id)} className='w-full gap-3 h-full relative cursor-pointer flex'>
                     {/* Image Container */}
-                    <div className='md:h-[120px] lg:h-[200px] aspect-[3/2] flex '>
+                    <div className='hidden sm:flex sm:h-[120px] lg:h-[200px] aspect-[3/2] '>
                         <img className='w-full rounded-md h-full object-cover' src={completedBookings.shop.serviceProfileImage} alt="image" />
                     </div>
                     {/* Booking Information */}
@@ -91,19 +91,19 @@ const UserCompletedBookings = ({completedBookings}) => {
                     <div className='w-fit h-full grid grid-cols-2 gap-0 gap-x-5 '>
                         {/* Variant */}
                         <div className={`text-sm lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap  `}>Variant</div>
-                        <div className={`font-normal text-sm lg:text-semiMd flex items-center text-gray-600 `}>{completedBookings.service.selectedVariant ? completedBookings.service.selectedVariant?.type : "None"}</div>
+                        <div className={`font-normal text-xs lg:text-semiMd flex items-center text-gray-600 `}>{completedBookings.service.selectedVariant ? completedBookings.service.selectedVariant?.type : "None"}</div>
                         {/* Amount */}
-                        <div className='text-sm lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Total Amount</div>
-                        <div className='font-normal text-sm lg:text-semiMd flex items-center text-gray-600'>₱ {completedBookings.net_Amount}</div>
+                        <div className='text-xs lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Total Amount</div>
+                        <div className='font-normal text-xs lg:text-semiMd flex items-center text-gray-600'>₱ {completedBookings.net_Amount}</div>
                         {/* Schedule */}
-                        <div className='text-sm lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Schedule</div>
-                        <div className='font-normal text-sm lg:text-semiMd flex items-center text-gray-600'>{formattedDate}</div>
+                        <div className='text-xs lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Schedule</div>
+                        <div className='font-normal text-xs lg:text-semiMd flex items-center text-gray-600'>{formattedDate}</div>
                         {/* Time */}
-                        <div className='text-sm lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Time</div>
-                        <div className='font-normal text-sm lg:text-semiMd flex items-center text-gray-600'>{completedBookings.schedule.timeSpan[0]} - {completedBookings.schedule.timeSpan[1]}</div>
+                        <div className='text-xs lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Time</div>
+                        <div className='font-normal text-xs lg:text-semiMd flex items-center text-gray-600'>{completedBookings.schedule.timeSpan[0]} - {completedBookings.schedule.timeSpan[1]}</div>
                         {/* Time */}
-                        <div className='text-sm lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Service Option</div>
-                        <div className='font-normal text-sm lg:text-semiMd flex items-center text-gray-600'>{completedBookings.schedule.serviceOption}</div>
+                        <div className='text-xs lg:text-semiMd text-gray-700 flex items-center font-medium whitespace-nowrap'>Service Option</div>
+                        <div className='font-normal text-xs lg:text-semiMd flex items-center text-gray-600'>{completedBookings.schedule.serviceOption}</div>
                     </div>
                     </div>
                     {/* Rate button */}
