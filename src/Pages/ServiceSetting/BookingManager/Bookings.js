@@ -12,10 +12,10 @@ import CancelledBooking from './CancelledBooking'
 const Bookings = () => {
     const {serviceInformation} = useService()
     const [selectedTab, setSelectedTab] = useState("InProgress")
-    const [inProgressBookings, setInProgressBookings] = useState([])
-    const [cancelledBookings, setCancelledBookings] = useState([])
-    const [completedBookings, setCompletedBookings] = useState([])
-    const [history, setHistory] = useState([])
+    const [inProgressBookings, setInProgressBookings] = useState(null)
+    const [cancelledBookings, setCancelledBookings] = useState(null)
+    const [completedBookings, setCompletedBookings] = useState(null)
+    const [history, setHistory] = useState(null)
 
     const lazyLoad = async () => {
         const inProgress = await http.get(`getInProgressBooking/${serviceInformation._id}`)
@@ -46,21 +46,21 @@ const Bookings = () => {
     <div className='w-full h-full flex bg-white flex-col px-2'>
     
     {/* Navigation */}
-    <nav className=' fixed top-[4.5rem] w-full bg-white pt-3'>
-    <h1 className='text-xl font-semibold text-gray-800'>My service bookings</h1>
-        <ul className='flex space-x-3 border-b-1 border-gray-700'>
+    <nav className=' top-[4.5rem] w-full bg-white pt-3'>
+    <h1 className='text-xl font-semibold text-themeOrange'>My service bookings</h1>
+        <ul className='flex space-x-3  border-gray-700 mt-3'>
            
             <li className=''>
-                <button onClick={()=>setSelectedTab("InProgress")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "InProgress" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>In Progress</button>
+                <button onClick={()=>setSelectedTab("InProgress")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "InProgress" ? "border-b-[3px] text-themeOrange border-themeOrange font-semibold" : "text-gray-600"}`}>In Progress</button>
             </li>
             <li>
-                <button onClick={()=>setSelectedTab("Completed")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Completed" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>Completed</button>
+                <button onClick={()=>setSelectedTab("Completed")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Completed" ? "border-b-[3px] text-themeOrange border-themeOrange font-semibold" : "text-gray-600"}`}>Completed</button>
             </li>
             <li>
-                <button onClick={()=>setSelectedTab("Cancelled")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Cancelled" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>Cancelled</button>
+                <button onClick={()=>setSelectedTab("Cancelled")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Cancelled" ? "border-b-[3px] text-themeOrange border-themeOrange font-semibold" : "text-gray-600"}`}>Cancelled</button>
             </li>
             <li>
-                <button onClick={()=>setSelectedTab("History")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "History" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>All Bookings</button>
+                <button onClick={()=>setSelectedTab("History")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "History" ? "border-b-[3px] text-themeOrange border-themeOrange font-semibold" : "text-gray-600"}`}>All Bookings</button>
             </li>
             
         </ul>
@@ -74,9 +74,9 @@ const Bookings = () => {
     ) :
     (
        
-    <div className='w-full h-full flex flex-col pb-2 mt-11'>
+    <div className='w-full h-full flex flex-col pb-2 mt-0 overflow-auto'>
     {
-        selectedTab === "InProgress" ? <InProgressBooking lazyLoad={lazyLoad} inProgressBookings={inProgressBookings} /> : selectedTab === "Completed" ? <CompletedBooking lazyLoad={lazyLoad} completedBookings={completedBookings} /> : selectedTab === "Cancelled" ? <CancelledBooking lazyLoad={lazyLoad} cancelledBookings={cancelledBookings} /> : selectedTab === "History" ? <OwnerBookingHistory lazyLoad={lazyLoad} history={history} /> : <PageNotFound />
+        selectedTab === "InProgress" ? <InProgressBooking lazyLoad={lazyLoad} inProgressBookings={inProgressBookings} /> : selectedTab === "Completed" ? <CompletedBooking lazyLoad={lazyLoad} completedBookings={completedBookings} /> : selectedTab === "Cancelled" ? <CancelledBooking lazyLoad={lazyLoad} cancelledBookings={cancelledBookings} /> : selectedTab === "History" ? <OwnerBookingHistory lazyLoad={lazyLoad} history={history} setHistory={setHistory} /> : <PageNotFound />
     }
     </div>
        

@@ -103,7 +103,7 @@ const MainPage = ({ scrollToAboutUs, setScrollToAboutUs }) => {
     </section>
 
     {/* Why choose us */}
-    <section className='top_rated_service w-full h-fit lg:h-fit pb-20 bg-gray-100 py-[1rem] sm:px-10 md:px-16 lg:px-36' >
+    <section className='top_rated_service w-full h-fit bg-gray-100 lg:h-fit pb-20 ' >
     <WhyChooseUs />
     </section>
 

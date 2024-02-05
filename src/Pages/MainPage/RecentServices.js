@@ -12,13 +12,18 @@ import HideSourceIcon from '@mui/icons-material/HideSource';
 import ReportIcon from '@mui/icons-material/Report';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Carousel from 'react-multi-carousel';
-import http from '../../http';
+import UseInfo from '../../ClientCustomHook/UseInfo';
+import UseDNS from '../../ClientCustomHook/DNSProvider';
+import useAllRatings from '../../ClientCustomHook/AllRatingsProvider';
 import 'react-multi-carousel/lib/styles.css';
 import { Link } from 'react-router-dom';
 
 
 
 const RecentServices = ({services}) => {
+  const {authenticated, userInformation} = UseInfo()
+  const {DNS} = UseDNS()
+  const {ratings, getRatings} = useAllRatings()
   const [newServices, setNewServices] = useState(null)
   const [showMoreOption, setShowMoreOption] = useState(false)
   const [activeId, setActiveId] = useState(0)
@@ -85,50 +90,56 @@ const RecentServices = ({services}) => {
   };
 
   // Computes the rating Average
-  const ratingAverage = (services) => {
-        return services?.map((service, index) => {
-          const ratings = service.ratings
-          const totalRatings = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
-          const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / totalRatings;
-          const rounded = Math.round(ratingAverage * 100) / 100;
-          const average = rounded.toFixed(1)
-          const from = new Date(service.createdAt);
-          const to = new Date(thisDate);
-          const years = to.getFullYear() - from.getFullYear();
-          const months = to.getMonth() - from.getMonth();
-          const days = to.getDate() - from.getDate();
-          const createdAgo = years > 0 ? years + " years ago" : months > 0 ? months + `${months <= 1 ? " month ago" : " months ago"}` : days > 0  ? days + `${days <= 1 ? " day ago" : " days ago"}` : "Less than a day ago"
-          return ({
-            _id : service._id,
-            key : index,
-            basicInformation: service.basicInformation,
-            advanceInformation: service.advanceInformation,
-            address: service.address,
-            serviceHour: service.serviceHour,
-            tags: service.tags,
-            owner : service.owner,
-            galleryImages: service.galleryImages,
-            featuredImages: service.featuredImages,
-            serviceProfileImage: service.serviceProfileImage,
-            ratings : average,
-            ratingRounded : Math.floor(average),
-            totalReviews : totalRatings,
-            createdAgo : createdAgo,
-            createdAt : service.createdAt
-          });
+  const ratingAverage = async (services, ratings, dns) => {
+    const processedServices = await Promise.all(
+      services.map((service, index) => {
+        const serviceRatings = ratings.filter((rating)=> rating.service === service._id)
+        const totalRatings = serviceRatings.length
+        const sumOfRatings = serviceRatings.reduce((sum, rating) => sum + rating.rating, 0);
+        const average = totalRatings === 0 ? 0 : sumOfRatings / totalRatings
+        const from = new Date(service.createdAt);
+        const to = new Date(thisDate);
+        const years = to.getFullYear() - from.getFullYear();
+        const months = to.getMonth() - from.getMonth();
+        const days = to.getDate() - from.getDate();
+        const createdAgo = years > 0 ? `${years} ${years <= 1 ? "year" : "years"} ago` : months > 0 ? `${months} ${months <= 1 ? "month" : "months"} ago` : days > 0 ? `${days} ${days <= 1 ? "day" : "days"} ago` : "Less than a day ago";
+        return ({
+          _id : service._id,
+          key : index,
+          basicInformation: service.basicInformation,
+          advanceInformation: service.advanceInformation,
+          address: service.address,
+          tags: service.tags,
+          owner : service.owner,
+          serviceProfileImage: service.serviceProfileImage,
+          ratings : average,
+          ratingRounded : Math.floor(average),
+          totalReviews : totalRatings,
+          createdAgo : createdAgo,
+          createdAt : service.createdAt
         });
+      })
+      )
+      return authenticated ? processedServices.filter(service => (
+          !dns.some(dnsService => service._id === dnsService.service._id) &&
+          service.owner && userInformation &&
+          service.owner._id !== userInformation._id
+        )) : authenticated === false ? processedServices : ""
   };
 
+    const getRecentServices = async () => {
+      const computed = await ratingAverage(services, ratings, DNS)
+      const sorted = computed.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      setNewServices(sorted)
+    }
   
     useEffect(()=>{
-      if(services !== null)
+      if(services !== null && ratings !== null && DNS !== null)
       {
-        const computed = ratingAverage(services)
-        const sorted = computed.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        setNewServices(sorted)
+        getRecentServices()
       }
   
-    }, [services])
+    }, [services, ratings, DNS])
 
   
 

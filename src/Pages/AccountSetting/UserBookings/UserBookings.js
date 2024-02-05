@@ -57,29 +57,30 @@ const [bookingHistory, setBookingHistory] = useState(null)
 
 
   return (
-    <main className='w-full h-full flex flex-col  '>
-    <nav className=' w-full  h-fit pt-3 px-3'>
-    <h1 className='text-xl pl-5 md:pl-0 font-semibold text-gray-800'>My bookings</h1>
-        <ul className='flex space-x-3 border-b-1 border-gray-700 mt-3'>
-            
+    <main className='w-full h-full flex flex-col px-5 '>
+    <nav className=' top-[4.5rem] w-full bg-white pt-3'>
+    <h1 className='text-xl ml-3 md:ml-0 font-semibold text-themeOrange'>My service bookings</h1>
+        <ul className='flex space-x-3  border-gray-700 mt-3'>
+           
             <li className=''>
-                <button onClick={()=>setSelectedTab("InProgress")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "InProgress" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>In Progress</button>
-            </li>
-            <li className=''>
-                <button onClick={()=>setSelectedTab("Completed")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Completed" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>Completed</button>
+                <button onClick={()=>setSelectedTab("InProgress")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "InProgress" ? "border-b-[3px] text-themeOrange border-themeOrange font-semibold" : "text-gray-600"}`}>In Progress</button>
             </li>
             <li>
-                <button onClick={()=>setSelectedTab("Cancelled")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Cancelled" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>Cancelled</button>
+                <button onClick={()=>setSelectedTab("Completed")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Completed" ? "border-b-[3px] text-themeOrange border-themeOrange font-semibold" : "text-gray-600"}`}>Completed</button>
             </li>
-            <li className=''>
-                <button onClick={()=>setSelectedTab("All Bookings")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "All Bookings" ? "border-b-[3px] text-themeOrange border-themeOrange" : "text-gray-600"}`}>History</button>
+            <li>
+                <button onClick={()=>setSelectedTab("Cancelled")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "Cancelled" ? "border-b-[3px] text-themeOrange border-themeOrange font-semibold" : "text-gray-600"}`}>Cancelled</button>
             </li>
+            <li>
+                <button onClick={()=>setSelectedTab("History")} className={`pb-2 text-semiSm sm:text-sm ${selectedTab === "History" ? "border-b-[3px] text-themeOrange border-themeOrange font-semibold" : "text-gray-600"}`}>All Bookings</button>
+            </li>
+            
         </ul>
     </nav>
 
-    <section className='w-full h-full bg-gray-50 flex flex-col max-h-full overflow-auto p-3'>
+    <section className='w-full h-full bg-gray-50 flex flex-col max-h-full overflow-auto'>
     {
-        selectedTab === "InProgress" ? (<UserInProgressBooking inProgressBookings={inProgressBookings} />) : selectedTab === "Completed" ? <UserCompletedBookings completedBookings={completedBookings} /> : selectedTab === "Cancelled" ? <UserCancelledBookings cancelledBookings={cancelledBookings} /> :  <UserBookingHistory bookingHistory={bookingHistory} />
+        selectedTab === "InProgress" ? (<UserInProgressBooking inProgressBookings={inProgressBookings} />) : selectedTab === "Completed" ? <UserCompletedBookings completedBookings={completedBookings} /> : selectedTab === "Cancelled" ? <UserCancelledBookings cancelledBookings={cancelledBookings} /> :  <UserBookingHistory bookingHistory={bookingHistory} setBookingHistory={setBookingHistory} />
     }
     </section>
     </main>

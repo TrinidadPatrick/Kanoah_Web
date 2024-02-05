@@ -34,10 +34,10 @@ const LocationSearch = () => {
     {/* Search Field */}
 
   <LocationSearchingOutlinedIcon fontSize='small' className='absolute text-white top-5 md:top-6 left-5' />
-  <input onChange={(e)=>{setSearchInput(e.target.value)}} className='text-white font-light w-[65%] text-sm md:text-lg py-5 ps-[3rem] px-6 bg-themeBlue rounded-s-4xl outline-none ' onKeyDown={(e)=>{if(e.key === "Enter"){navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5&page=1`)}}} type="text" placeholder='Search for service' />
+  <input onChange={(e)=>{setSearchInput(e.target.value)}} className='text-white font-light w-[65%] text-sm md:text-lg py-5 border-0 ps-[3rem] px-6 bg-themeBlue rounded-s-4xl outline-none ' onKeyDown={(e)=>{if(e.key === "Enter"){navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5&page=1`)}}} type="text" placeholder='Search for service' />
   <div className='w-1/2 relative'>
   <NearMeRoundedIcon fontSize='small' className='text-white absolute top-5 md:top-6 left-5' />
-  <input onKeyDown={(e)=>{if(e.key === "Enter"){navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5&page=1`)}}} value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} type='text' className='text-white w-full font-light text-sm md:text-lg ps-[3rem] py-5 px-6 bg-themeBlue rounded-s-4xl sm:border-s-2 border-slate-800 rounded-e-4xl outline-none' placeholder='Your Location' />
+  <input onKeyDown={(e)=>{if(e.key === "Enter"){navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5&page=1`)}}} value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} type='text' className='text-white shadow-none w-full font-light text-sm md:text-lg ps-[3rem] py-5 px-6 bg-themeBlue rounded-s-4xl sm:border-s-2 border-slate-800 rounded-e-4xl outline-none' placeholder='Your Location' />
   {/* Places dropdown */}
   <div id='placeDropdown' className={`${locationFilterValue != "" ? "absolute" : "hidden"} w-[300px] overflow-auto pt-3 flex flex-col space-y-4 justify-start h-[200px] bg-themeBlue absolute`}>
   {

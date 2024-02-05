@@ -165,7 +165,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         }
     }
 
-
+    console.log(bookingInformation)
 
   return (
     <div className='w-[600px] bg-[#f9f9f9] flex  flex-col h-fit py-3 relative space-y-3 rounded-md '>

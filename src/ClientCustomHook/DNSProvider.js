@@ -26,6 +26,10 @@ const UseDNS = () => {
         {
             getDNS()
         }
+        else if (authenticated === false)
+        {
+            SetDNS([])
+        }
 
     },[authenticated])
  return {

@@ -4,11 +4,14 @@ import { useState } from 'react';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import Rate from './Rate';
 
 const UserCompletedBookings = ({completedBookings}) => {
     const navigate = useNavigate()
     const [modalIsOpen, setIsOpen] = useState(false);
+    const [rateModalIsOpen, setRateModalIsOpen] = useState(false);
     const [clientInformation, setClientInformation] = useState(null);
+    const [serviceToRate, setServiceToRate] = useState(null)
     const ModalStyle = {
         content: {
           top: '50%',
@@ -50,6 +53,11 @@ const UserCompletedBookings = ({completedBookings}) => {
         const newData = {...selected, bookSchedule : bookSchedule, issuedDate : issuedDate, bookTime : bookTime}
         setClientInformation(newData)
         setIsOpen(true)
+    }
+
+    const rateService = (booking) => {
+        setRateModalIsOpen(true)
+        setServiceToRate(booking)
     }
   return (
     <>
@@ -110,12 +118,22 @@ const UserCompletedBookings = ({completedBookings}) => {
                     </div>
                     {/* Rate button */}
                     <div className=' absolute bottom-3 w-full hidden lg:flex justify-end pr-5 items-end h-full'>
-                        <button className='px-3 py-1 bg-themeOrange text-white text-sm rounded-sm'>Rate</button>
+                        {
+                            completedBookings.rated ? 
+                            <button className='px-3 py-1 bg-themeOrange hover:bg-orange-500 text-white text-sm rounded-sm'>View Rating</button>
+                            :
+                            <button onClick={(e)=>{e.stopPropagation();rateService(completedBookings)}} className='px-3 py-1 bg-themeOrange text-white text-sm rounded-sm'>Rate</button>
+                        }
                     </div>
                 </div>
                 {/* Rate button */}
                 <div className=' w-full flex lg:hidden border-t-1 pt-2 justify-end items-center h-full'>
-                        <button className=' w-36 py-1 bg-themeOrange text-white text-sm rounded-sm'>Rate</button>
+                        {
+                            completedBookings.rated ?
+                            <button className=' w-36 py-1 bg-themeOrange text-white text-sm rounded-sm'>View Rating</button>
+                            :
+                            <button onClick={(e)=>{e.stopPropagation();rateService(completedBookings)}} className=' w-36 py-1 bg-themeOrange text-white text-sm rounded-sm'>Rate</button>
+                        }
                     </div>
                 </div>
             )
@@ -124,8 +142,7 @@ const UserCompletedBookings = ({completedBookings}) => {
     </div>
     }
 
-
-
+    {/* Book Details Modal */}
     <Modal  isOpen={modalIsOpen} style={ModalStyle}>
         <div className='w-full sm:w-fit h-fit max-h-[90dvh] sm:h-full flex flex-col bg-[#f9f9f9] p-2'>
             <div className='flex items-center space-x-1'>
@@ -200,6 +217,10 @@ const UserCompletedBookings = ({completedBookings}) => {
                     </div>
                 </div>
         </div>
+    </Modal>
+    {/* Rating Modal */}
+    <Modal  isOpen={rateModalIsOpen} style={ModalStyle}>
+        <Rate serviceToRate={serviceToRate} />
     </Modal>
     </>
   )

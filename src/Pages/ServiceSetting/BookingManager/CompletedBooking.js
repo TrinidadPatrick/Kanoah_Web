@@ -57,8 +57,16 @@ const CompletedBooking = ({ completedBookings, lazyLoad }) => {
 
   return (
     
-    <div className='w-full h-full max-h-full flex flex-col mt-5 gap-4 py-5'>
-    {
+    <div className='w-full h-full max-h-full flex flex-col gap-4 py-5 overflow-auto'>
+    {   
+    completed_Bookings_Orig?.length === 0 ?
+    <div className="flex items-center justify-center h-screen">
+    <div className="text-center">
+        <h2 className="text-3xl font-semibold mb-4">No Bookings Yet</h2>
+        <p className="text-gray-500">Sorry, there are no bookings yet.</p>
+    </div>
+    </div>
+    :
         completed_Bookings_Orig?.map((booking)=>{
             const dateObject = new Date(booking.createdAt)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
