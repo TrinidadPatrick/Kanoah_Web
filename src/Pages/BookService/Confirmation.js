@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import QRCode from "react-qr-code";
 import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined';
+import {io} from 'socket.io-client'
 import { selectService, selectSchedule, selectContactAndAddress, setService, setSchedule, setContactAndAddress } from '../../ReduxTK/BookingSlice'
 import http from '../../http';
 
@@ -14,6 +15,12 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     const contactAndAddress = useSelector(selectContactAndAddress)
     const schedule = useSelector(selectSchedule)
     const service = useSelector(selectService)
+    const [socket, setSocket] = useState(null)
+
+    useEffect(()=>{
+        setSocket(io("http://localhost:5000"))
+    
+      },[])
 
     const generateBookingId = () => {
         const variables = '1234567890'
@@ -144,28 +151,48 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
           }
     }
 
-    const submitBooking = async () => {
-        if(bookingInformation !== null)
-        {
-            setLoading(true)
-        }
+    const notifyUser = async (booking_id, receiver) => {
         try {
-            const result = await http.post('addBooking', bookingInformation)
-            if(result.status === 200)
-            {
-                dispatch(setService(null))
-                dispatch(setSchedule(null))
-                dispatch(setContactAndAddress(null))
-                handleStep("success")
-            }
+            const notify = await http.post('addNotification', {
+                notification_type : "New_Booking", 
+                createdAt : new Date(),
+                content : "You have a new Booking!", 
+                client : userContext._id,
+                notif_to : receiver,
+                reference_id : booking_id
+            })
+
+            console.log(notify.data)
         } catch (error) {
-            alert(error)
-        } finally {
-            setLoading(false)
+            console.error(error)
         }
     }
 
-    console.log(bookingInformation)
+    const submitBooking = async () => {
+        const receiver = serviceInfo.owner._id
+        if(bookingInformation !== null)
+        {   
+            try {
+                const result = await http.post('addBooking', bookingInformation)
+                if(result.status === 200)
+                {
+                    dispatch(setService(null))
+                    dispatch(setSchedule(null))
+                    dispatch(setContactAndAddress(null))
+                    handleStep("success")
+                    notifyUser(result.data._id, receiver) //insert notification in the database
+                    socket.emit('Booking_Notification', {notification : 'New_Booking', receiver : receiver}); //notify user theres a new booking
+                }
+            } catch (error) {
+                alert(error)
+            } finally {
+                setLoading(false)
+            }
+           
+
+        }
+    }
+
 
   return (
     <div className='w-[600px] bg-[#f9f9f9] flex  flex-col h-fit py-3 relative space-y-3 rounded-md '>
@@ -236,7 +263,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
                 <div className={`font-normal pl-2 text-semiMd text-red-500 border-t-1 border-gray-700 `}>₱{bookingInformation.net_Amount}</div>
         </ul>
         </div>
-        <button onClick={()=>{pay()}} className={`text-white ${loading ? "bg-slate-500" : "bg-themeBlue"} px-2 py-2 text-sm rounded-sm `}>
+        <button onClick={()=>{submitBooking()}} className={`text-white ${loading ? "bg-slate-500" : "bg-themeBlue"} px-2 py-2 text-sm rounded-sm `}>
         Submit
         </button>
     </div>

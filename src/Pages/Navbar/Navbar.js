@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, createContext, useContext, useEffect,} from 'react'
+import { useState, useEffect,} from 'react'
 import ForgotPassword from '../ForgotPasswordPage/ForgotPassword'
 import Login from '../LoginPage/Login'
 import Register from '../RegisterPage/Register'
@@ -10,45 +10,52 @@ import Modal from '@mui/material/Modal';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import { useNavigate } from 'react-router-dom'
+import PriorityHighOutlinedIcon from '@mui/icons-material/PriorityHighOutlined';
 import { categories } from '../MainPage/Components/Categories'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import OutsideClickHandler from 'react-outside-click-handler';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import http from '../../http'
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserId, selectUserId, selectLoggedIn, setLoggedIn, selectShowLoginModal, setShowLoginModal } from '../../ReduxTK/userSlice';
+import {selectShowLoginModal, setShowLoginModal } from '../../ReduxTK/userSlice';
 import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
 import UseInfo from '../../ClientCustomHook/UseInfo'
 import {io} from 'socket.io-client'
-import { selectNewMessage, setNewMessage, selectOnlineUsers, setOnlineUsers } from '../../ReduxTK/chatSlice'
+import { selectNewMessage} from '../../ReduxTK/chatSlice'
+import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
 import ChatProvider from '../../ClientCustomHook/ChatProvider'
+import UseNotif from '../../ClientCustomHook/NotificationProvider'
+import Book_Icon from '../MainPage/Components/UtilImage/Book_Icon2.png'
 export const Context = React.createContext()
 
 
 
 const Navbar = ({ onAboutUsClick }) => {
-const {authenticated, userInformation} = UseInfo()
-const [windowWidth, setWindowWdith] = useState(null)
-const dispatch = useDispatch();
-const newMessage = useSelector(selectNewMessage);
-const showLoginModal = useSelector(selectShowLoginModal);
-const navigate = useNavigate()
-const [accessToken, setAccessToken] = useState(null);
-const [open, setOpen] = React.useState(false);
-const [hasRegisteredService, setHasRegisteredService] = useState(null);
-const handleOpen = () => setOpen(true);
-const handleClose = (event, reason) => {
-if (reason !== 'backdropClick') {
-  setOpen(false)
-      dispatch(setShowLoginModal(false))
-    }
-  } 
+  const [newBooking, setNewBooking] = useState(false)
+  const {authenticated, userInformation} = UseInfo()
+  const [windowWidth, setWindowWdith] = useState(null)
+  const dispatch = useDispatch();
+  const newMessage = useSelector(selectNewMessage);
+  const showLoginModal = useSelector(selectShowLoginModal);
+  const navigate = useNavigate()
+  const [open, setOpen] = React.useState(false);
+  const [hasRegisteredService, setHasRegisteredService] = useState(null);
   const [showMenu, setShowMenu] = useState(false)
   const [showDropdownProfile, setShowDropDownProfile] = useState(false)
   const [showLogin, setShowLogin] = useState(false)
   const [showFP, setShowFP] = useState(false)
   const [showSignup, setShowSignup] = useState(false)
   const [socket, setSocket] = useState(null)
+  const [openNotif, setOpenNotif] = useState(false)
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = (event, reason) => {
+  if (reason !== 'backdropClick') {
+    setOpen(false)
+        dispatch(setShowLoginModal(false))
+      }
+    } 
+
     // Handles the showing oh menu on small screens
     const handleMenu = () => {
         if(showMenu){
@@ -71,8 +78,6 @@ if (reason !== 'backdropClick') {
 
       
     };
-
-
 
     const signout = () => {
       http.get('userLogout', {withCredentials : true}).then((res)=>{
@@ -130,13 +135,12 @@ if (reason !== 'backdropClick') {
       }
     },[showLoginModal])
 
-
     // initiate socket
     useEffect(()=>{
-      setSocket(io("https://kanoah.onrender.com"))
+      setSocket(io("http://localhost:5000"))
+      // setSocket(io("https://kanoah.onrender.com"))
       
     },[])
-
 
     useEffect(()=>{
       if(authenticated)
@@ -145,14 +149,14 @@ if (reason !== 'backdropClick') {
       }
     },[authenticated])
 
-
+    // console.log(notifications)
 
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
     <>
   <div className='fixed h-fit p-0 top-0 left-0 bg-transparent w-full z-50'>
           {/* NAV BAR */}
-  <ChatProvider socket={socket} />
+  <ChatProvider setNewBooking={setNewBooking} socket={socket} />
   <nav className=" bg-themeBlue relative w-full z-20 top-0 left-0  dark:border-gray-600">
   <div className="px-3 md:px-10 flex  items-center justify-between mx-auto py-5">
   <div className='flex items-center justify-evenly'>
@@ -221,7 +225,16 @@ if (reason !== 'backdropClick') {
         </div>
         
       </Link>
-      <NotificationsIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
+      {/* Notification */}
+      <div className='relative'>
+        <OutsideClickHandler onOutsideClick={()=>setOpenNotif(false)}>
+        <NotificationsIcon onClick={()=>setOpenNotif(!openNotif)} fontSize={windowWidth >= 400 ? 'medium' : 'small'} className={`${openNotif ? 'text-blue-400' : 'text-gray-50'}  cursor-pointer`} />
+        <div className={`w-3 h-3 ${newBooking ? 'block' : 'hidden'} rounded-full bg-red-500 top-0 flex items-center justify-center absolute right-0`}>
+        <PriorityHighOutlinedIcon fontSize='small' className='p-1 text-white' />
+        </div>
+        <NotificationContent openNotif={openNotif} setOpenNotif={setOpenNotif} />
+        </OutsideClickHandler>
+      </div>
       <div className='relative'>
         {/* PROFILE IMAGE */}
         <OutsideClickHandler onOutsideClick={() => {setShowDropDownProfile(false)}}>
@@ -350,6 +363,103 @@ if (reason !== 'backdropClick') {
 </Context.Provider>
 
   )
+}
+
+const NotificationContent = ({openNotif, setOpenNotif}) => {
+  const navigate = useNavigate()
+  const {notifications} = UseNotif()
+  const [openMoreOption, setOpenMoreOption] = useState(false)
+  const [selectedIndex, setSelectedIndex] = useState(null)
+  const [notificationList, setNotificationList] = useState(null)
+
+  useEffect(()=>{
+    if(notifications !== null)
+    {
+      setNotificationList(notifications)
+    }
+  },[notifications])
+
+  const markAsRead = async (notification_id, notif_to, notification_type) => {
+    const newNotifications = [...notificationList]
+    const index = newNotifications.findIndex((notif) => notif._id === notification_id)
+    newNotifications[index].isRead = true
+    setNotificationList(newNotifications)
+
+    setOpenMoreOption(false)
+    setSelectedIndex(null)
+    setOpenNotif(false)
+    navigate(notification_type === "New_Booking" ? "/serviceSettings/Bookings" : "")
+    try {
+      const result = await http.patch('markAsRead',{notification_id, notif_to}, {withCredentials : true})
+      console.log(result.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  
+  const MoreOptions = ({index}) => {
+    return (
+      <div className={`w-fit ${openMoreOption && index === selectedIndex ? "" : "hidden"} absolute z-20 h-fit flex flex-col justify-start bg-white right-6 shadow-md border rounded-md`}>
+        <button className='px-2 py-1 text-sm'>Mark as read</button>
+        <button className='px-2 py-1 text-sm'>Delete</button>
+      </div>
+    )
+  }
+
+
+  return (
+    <>
+    {
+      openNotif ? 
+        <div onClick={()=>{setOpenMoreOption(false);setSelectedIndex(null)}} className='w-[350px] h-[300px] flex flex-col justify-between -translate-x-80 top-7 px-1 bg-white rounded-md border shadow-md absolute'>
+        <div className='flex justify-between py-1 border-b-1'>
+        <h1 className='font-bold text-base px-1 text-gray-800 '>Notifications</h1>
+        <button className='text-xs text-gray-700 font-medium hover:text-gray-500'>Mark all as read</button>
+        </div>
+        <div className='h-full flex flex-col overflow-auto'>
+        {
+          notificationList?.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt)).map((notification, index)=>{
+            const date = new Date(notification.createdAt)
+            const formattedDate = date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: 'numeric',
+              minute: 'numeric',
+              hour12: true,
+          })
+            return (
+              <div key={notification._id} onClick={()=>{markAsRead(notification._id, notification.notif_to, notification.notification_type);}} className={`grid ${notification.isRead ? "" : "bg-gray-100"} cursor-pointer h-[50px] min-h-[50px] hover:bg-gray-200 grid-cols-12 rounded-md overflow-hidden my-1`}>
+                <MoreOptions index={index} />
+                <div className='row-span-2 col-span-2 flex justify-center items-center'>
+                  <div className='w-[70%] aspect-square border-2 border-[#a6a6a6] bg-gray-200 flex justify-center items-center rounded-full p-2'>
+                    <img className='object-cover' src={Book_Icon} />
+                  </div>
+                </div> 
+                <div className=' row-span-1 col-span-9 flex items-center  font-bold text-gray-800'>
+                  <p className='text-sm whitespace-nowrap'>{notification.content}</p>
+                    </div>
+                      <div onClick={(e)=>{e.stopPropagation();setOpenMoreOption(selectedIndex === index ? false : true);setSelectedIndex(selectedIndex === index ? null : index)}} className='relative cursor-pointer row-span-2 col-span-1 flex items-center justify-center '>
+                        <MoreVertOutlinedIcon className={`${index === selectedIndex ? "text-gray-400" : "text-gray-700"} cursor-pointer hover:bg-gray-300 rounded-full`} />
+                      </div>
+                    <div className=' row-span-1 col-span-9 flex items-center '>
+                  <p className='text-xs text-gray-500 whitespace-nowrap'>{formattedDate.replace('at', '|')}</p>
+                </div>
+              </div>
+            )
+          })
+        }
+        </div>
+        <div className=' border-t-1 w-full flex justify-center '>
+        <button className='  text-sm text-gray-600 py-1'>See More</button>
+        </div>
+      </div>
+      :
+      ""
+    }
+    </>
+  )
+
 }
 
 export default Navbar

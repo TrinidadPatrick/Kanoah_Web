@@ -7,7 +7,7 @@ import {io} from 'socket.io-client'
 import { selectNewMessage, setNewMessage, selectOnlineUsers, setOnlineUsers } from '../ReduxTK/chatSlice'
 import UseInfo from './UseInfo'
 
-const ChatProvider = ({socket}) => {
+const ChatProvider = ({socket, setNewBooking}) => {
 
 const dispatch = useDispatch()
   const {authenticated, userInformation} = UseInfo()
@@ -43,6 +43,7 @@ const dispatch = useDispatch()
         }
     }, [authenticated])
 
+    // Notify user if there is new message
     useEffect(()=>{
         socket?.on('message', (message)=>{
           if(message == 'newMessage')
@@ -54,6 +55,21 @@ const dispatch = useDispatch()
         return () => {
           // Clean up the socket event listeners when the component unmounts
           socket?.off('message');
+        };
+    },[socket])
+
+    // Notify user if there is new booking
+    useEffect(()=>{
+        socket?.on('Booking_Notification', (notification)=>{
+          if(notification == 'New_Booking')
+          {
+            setNewBooking(true)
+          }
+        })
+  
+        return () => {
+          // Clean up the socket event listeners when the component unmounts
+          socket?.off('Booking_Notification');
         };
     },[socket])
 
