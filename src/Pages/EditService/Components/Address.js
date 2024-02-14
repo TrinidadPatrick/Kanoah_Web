@@ -41,11 +41,50 @@ const [errors, setErrors] = useState({
 })
 
 // Handles the location seleced by the user
-const handleLocationSelect = (value, index) => {
-        const newData = [...locCodesSelected]
-        newData.splice(index, 1, value)
-        setLocCodesSelected(newData)
-        
+const handleLocationSelect = (value, index, optionChanges) => {
+  const newData = [...locCodesSelected]
+  switch (optionChanges) {
+      case 'region':
+      
+        setLocCodesSelected([
+          [value[0], value[1]],
+          ['', '-1'], // Province
+          ['', '-1'], // Municipality
+          ['', '-1']  // Barangay
+        ]);
+        break;
+      
+      case 'province':
+
+          setLocCodesSelected([
+              [newData[0][0], newData[0][1]],
+              [value[0], value[1]], // Province
+              ['', '-1'], // Municipality
+              ['', '-1']  // Barangay
+          ]);
+          break;
+      
+      case 'city':
+
+      setLocCodesSelected([
+          [newData[0][0], newData[0][1]],
+          [newData[1][0], newData[1][1]], // Province
+          [value[0], value[1]], // Municipality
+          ['', '-1']  // Barangay
+      ]);
+      break;
+
+      case 'barangay':
+
+      setLocCodesSelected([
+          [newData[0][0], newData[0][1]],
+          [newData[1][0], newData[1][1]], // Province
+          [newData[2][0], newData[2][1]], // Municipality
+          [value[0], value[1]]  // Barangay
+      ]);
+      break;
+    }
+    
 }
 
 // Submits the selected address
@@ -160,35 +199,35 @@ useEffect(()=>{
                 <div className='w-full grid xl:grid-cols-2 xl:gap-2'>
                 {/* Regions ***************************************/}
                 <div className="mb-4">
-                <label htmlFor="region" className="text-xs xl:text-sm text-gray-600">
-                  Region
-                </label>
+                <label htmlFor="region" className="text-sm text-gray-600">Region</label>
                 <select
-                  onChange={(e) => { handleLocationSelect(e.target.value.split(','), 0) }}
-                  id="region"
-                  name="region"
-                  value={locCodesSelected[0][0] + ',' + locCodesSelected[0][1]}
-                  className={`${errors.RegionError ? "border-red-500" : ""} block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}>
-                  {/* <option className='w-fit' value=""  >Select Region</option> */}
-                  {phil.regions.map((regions, index) => (
-                    <option key={index} value={[regions.name, regions.reg_code]}>
-                      {regions.name}
-                    </option>
-                  ))}
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 0, 'region');}}
+                id="region"
+                name="region"
+                value={locCodesSelected[0][0] + ',' + locCodesSelected[0][1]}
+                className="block w-full text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                >
+                <option className='w-fit' value=""  >Select Region</option>
+                {
+                phil.regions.map((regions, index)=>(
+                <option key={index} value={[regions.name , regions.reg_code]}>{regions.name}</option>
+                ))
+                }
                 </select>
-              </div>
+                </div>
 
                 {/* Provinces***************************************************************** */}
                 <div className="mb-4 w-full">
-                <label htmlFor="province" className="text-xs xl:text-sm text-gray-600">Province</label>
+                <label htmlFor="province" className="text-sm text-gray-600">Province</label>
                 <select
-                disabled={`${locCodesSelected[0][1] == "-1" ? "disabled" : ""}`}
-                onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1)}}
-                id="province"
-                name="province"
-                value={locCodesSelected[1][0] + ',' + locCodesSelected[1][1]}
-                className={`${errors.ProvinceError ? "border-red-500" : ""} block w-full text-xs xl:text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
+                 disabled={`${locCodesSelected[0][1] == "-1" ? "disabled" : ""}`}
+                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1, 'province')}}
+                 id="province"
+                 name="province"
+                 value={locCodesSelected[1][0] + ',' + locCodesSelected[1][1]}
+                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 >
+                <option value=""  >Select Province</option>
                 {
                 phil.getProvincesByRegion(locCodesSelected[0][1]).sort((a, b) => a.name.localeCompare(b.name)).map((province, index)=>(
                 <option key={index} value={[province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase() , province.prov_code]}>{province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase()}</option>
@@ -201,18 +240,19 @@ useEffect(()=>{
                 <div className='w-full grid xl:grid-cols-2 xl:gap-2'>
                 {/* Cities ***********************************************************/}
                 <div className="mb-4 w-full">
-                <label htmlFor="city" className="text-xs xl:text-sm text-gray-600">City</label>
+                <label htmlFor="city" className="text-sm text-gray-600">City</label>
                 <select
                 disabled={`${locCodesSelected[1][1] == "-1" ? "disabled" : ""}`}
-                onChange={(e)=>{handleLocationSelect(e.target.value.split(','),2)}}
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','),2, 'city')}}
                 id="city"
                 name="city"
                 value={locCodesSelected[2][0] + ',' + locCodesSelected[2][1]}
-                className={`${errors.CityError ? "border-red-500" : ""} block text-xs xl:text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
+                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 >
+                <option value=""  >Select City</option>
                 {
                 phil.getCityMunByProvince(locCodesSelected[1][1]).sort((a, b) => a.name.localeCompare(b.name)).map((city, index) => (
-                <option key={index} value={[city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase(), city.mun_code]}>
+                <option key={index} onClick={()=>{console.log("Hello")}}  value={[city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase(), city.mun_code]}>
                 {city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase()}
                 </option>
                 ))
@@ -224,15 +264,17 @@ useEffect(()=>{
 
                 {/* Barangays *****************************************************************8*/}
                 <div className="mb-4 w-full">
-                <label htmlFor="barangay" className="text-xs xl:text-sm text-gray-600">Barangay</label>
+                <label htmlFor="barangay" className="text-sm text-gray-600">Barangay</label>
                 <select
                 disabled={`${locCodesSelected[2][1] == "-1" ? "disabled" : ""}`}
-                onChange={(e)=>{handleLocationSelect(e.target.value.split(','),3)}}
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','),3, 'barangay')}}
                 id="barangay"
                 name="barangay"
                 value={locCodesSelected[3][0] + ',' + locCodesSelected[3][1]}
-                className={`${errors.BarangayError ? "border-red-500" : ""} block text-xs xl:text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200`}
+                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+
                 >
+                <option value=""   >Select Barangay</option>
                 {
                 phil.getBarangayByMun(locCodesSelected[2][1]).sort((a, b) => a.name.localeCompare(b.name)).map((barangay, index)=>(
                 <option key={index} value={[barangay.name , barangay.mun_code]}>{barangay.name}</option>

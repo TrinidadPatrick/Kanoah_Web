@@ -59,7 +59,7 @@ const [bookingHistory, setBookingHistory] = useState(null)
   return (
     <main className='w-full h-full flex flex-col px-5 '>
     <nav className=' top-[4.5rem] w-full bg-white pt-3'>
-    <h1 className='text-xl ml-3 md:ml-0 font-semibold text-themeOrange'>My service bookings</h1>
+    <h1 className='text-xl ml-3 md:ml-0 font-semibold text-themeOrange'>My bookings</h1>
         <ul className='flex space-x-3  border-gray-700 mt-3'>
            
             <li className=''>

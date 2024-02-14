@@ -108,15 +108,7 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
                         <div className='font-normal text-xs lg:text-semiMd flex items-center text-gray-600'>{inprogress.schedule.serviceOption}</div>
                     </div>
                     </div>
-                    {/* Rate button */}
-                    <div className=' absolute bottom-3 w-full hidden lg:flex justify-end pr-5 items-end h-full'>
-                        <button className='px-3 py-1 bg-themeOrange text-white text-sm rounded-sm'>Rate</button>
-                    </div>
                 </div>
-                {/* Rate button */}
-                <div className=' w-full flex lg:hidden border-t-1 pt-2 justify-end items-center h-full'>
-                        <button className=' w-36 py-1 bg-themeOrange text-white text-sm rounded-sm'>Rate</button>
-                    </div>
                 </div>
             )
         })

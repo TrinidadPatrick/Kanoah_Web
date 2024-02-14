@@ -1,17 +1,48 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Modal from 'react-modal'
 import { useState } from 'react';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import Rating from '@mui/material/Rating';
+import { styled } from '@mui/material/styles';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import Rate from './Rate';
+import http from '../../../http';
 
 const UserCompletedBookings = ({completedBookings}) => {
     const navigate = useNavigate()
     const [modalIsOpen, setIsOpen] = useState(false);
     const [rateModalIsOpen, setRateModalIsOpen] = useState(false);
+    const [viewRateModalIsOpen, setViewRateModalIsOpen] = useState(false);
     const [clientInformation, setClientInformation] = useState(null);
+    const [ratings, setRatings] = useState(null)
+    const [ratingInfo, setRatingInfo] = useState(null)
     const [serviceToRate, setServiceToRate] = useState(null)
+
+    const StyledRating = styled(Rating)({
+        '& .MuiRating-iconFilled': {
+          color: '#ffa534',
+          fontSize: "medium"
+        },
+        '& .MuiRating-iconHover': {
+          color: '#ffa534',
+          
+        },
+        '& .MuiRating-iconEmpty': {
+          color: '#ffa534',
+          fontSize: "large"
+          
+        },
+        overlay: {
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Adjust the opacity as needed
+          },
+        
+
+        
+    
+    });
+    
     const ModalStyle = {
         content: {
           top: '50%',
@@ -59,6 +90,27 @@ const UserCompletedBookings = ({completedBookings}) => {
         setRateModalIsOpen(true)
         setServiceToRate(booking)
     }
+
+    const getUserRatings = async () => {
+        try {
+            const result = await http.get('getUserRatings', {withCredentials : true})
+            setRatings(result.data)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    useEffect(()=>{
+        getUserRatings()
+    },[])
+
+    const viewRating = async (booking_id) => {
+        const rating = ratings?.find((rating) => rating.booking === booking_id)
+        setRatingInfo(rating)
+        setViewRateModalIsOpen(true)
+    }
+
+
   return (
     <>
     {
@@ -120,7 +172,7 @@ const UserCompletedBookings = ({completedBookings}) => {
                     <div className=' absolute bottom-3 w-full hidden lg:flex justify-end pr-5 items-end h-full'>
                         {
                             completedBookings.rated ? 
-                            <button className='px-3 py-1 bg-themeOrange hover:bg-orange-500 text-white text-sm rounded-sm'>View Rating</button>
+                            <button onClick={(e)=>{e.stopPropagation();viewRating(completedBookings._id)}} className='px-3 py-1 bg-themeOrange hover:bg-orange-500 text-white text-sm rounded-sm'>View Rating</button>
                             :
                             <button onClick={(e)=>{e.stopPropagation();rateService(completedBookings)}} className='px-3 py-1 bg-themeOrange text-white text-sm rounded-sm'>Rate</button>
                         }
@@ -220,7 +272,19 @@ const UserCompletedBookings = ({completedBookings}) => {
     </Modal>
     {/* Rating Modal */}
     <Modal  isOpen={rateModalIsOpen} style={ModalStyle}>
-        <Rate serviceToRate={serviceToRate} />
+        <Rate serviceToRate={serviceToRate} setRateModalIsOpen={setRateModalIsOpen} />
+    </Modal>
+    {/* View Rating Modal */}
+    <Modal onRequestClose={()=>setViewRateModalIsOpen(false)}  isOpen={viewRateModalIsOpen} style={ModalStyle}>
+        <div className='p-5'>
+        <span className='text-semiXs block text-gray-500'>Rating ({ratingInfo?.rating}/5)</span>
+        <StyledRating readOnly className='relative left-[0.1rem]' defaultValue={ratingInfo?.rating} precision={1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
+
+        <div className='w-full mt-5'>
+            <p className='text-center text-gray-700'>"{ratingInfo?.review}"</p>
+        </div>
+        
+        </div>
     </Modal>
     </>
   )

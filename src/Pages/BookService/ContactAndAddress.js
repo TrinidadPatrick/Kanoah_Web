@@ -17,8 +17,6 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
     })
     const dispatch = useDispatch()
     const contactAndAddress = useSelector(selectContactAndAddress)
-    const schedule = useSelector(selectSchedule)
-    const service = useSelector(selectService)
     const [userDetails, setUserDetails] = useState({
         firstname : "",
         lastname : "",
@@ -50,10 +48,14 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
     };
 
     const submitAddressInfo = (value) => {
+      const instance = {...userDetails, Address : value}
       setUserDetails((prevUserDetails) => ({
         ...prevUserDetails,
         Address: value
       }));
+
+      dispatch(setContactAndAddress(instance))
+
     }
     
     useEffect(()=>{
@@ -99,6 +101,7 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
        handleStep(4)
       }
     }
+
 
 
   return (

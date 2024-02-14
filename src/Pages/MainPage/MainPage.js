@@ -93,7 +93,7 @@ const MainPage = ({ scrollToAboutUs, setScrollToAboutUs }) => {
     </section>
 
      {/* How it works */}
-    <section ref={aboutUsSectionRef} id='AboutUs' className='about_us w-full h-full xl:h-[85vh] bg-[#f5f5f5] '>
+    <section ref={aboutUsSectionRef} id='AboutUs' className='about_us w-full h-fit lg:h-full xl:h-[85vh] bg-[#f5f5f5] '>
     <AboutUs />
     </section>
 

@@ -31,7 +31,8 @@ const BookingInformation = ({serviceInformation}) => {
     const [acceptBookingErrorModalOpen, setAcceptBookingErrorModalOpen] = useState(false);
     const [serviceOfferList, setServiceOfferList] = useState(null)
     const [selectedServices, setSelectedServices] = useState([])
-    // const [variantFieldEmpty, setVariantFieldError] = useState({})
+    const [selectedIndex, setSelectedIndex] = useState(null)
+    const [variantError, setVariantError] = useState(false)
     const [serviceOfferInfo, setServiceOfferInfo] = useState({
       uniqueId : '', 
       name : '',
@@ -146,11 +147,22 @@ const BookingInformation = ({serviceInformation}) => {
 
 
     const addVariation = () => {
+      if(serviceOfferInfo?.variants.length !== 0)
+      {
+        if(serviceOfferInfo?.variants[serviceOfferInfo?.variants.length - 1].type === ''
+        || serviceOfferInfo?.variants[serviceOfferInfo?.variants.length - 1].price === ''
+        || serviceOfferInfo?.variants[serviceOfferInfo?.variants.length - 1].duration === 0)
+        {
+          return
+        }
+
+      }
+      
         setServiceOfferInfo((prevServiceOfferInfo) => ({
           ...prevServiceOfferInfo,
           variants: [
             ...prevServiceOfferInfo.variants,
-              { type: '', price: '' }
+              { type: '', price: '', duration : 0 }
           ]
         }));
     }
@@ -161,6 +173,9 @@ const BookingInformation = ({serviceInformation}) => {
       }
       if (serviceOfferInfo.origPrice === '' && serviceOfferInfo.variants.length === 0) {
         setFieldError(prevState => ({ ...prevState, origPrice: true }));
+      }
+      if (serviceOfferInfo.variants.length === 0 && serviceOfferInfo.duration === '' ) {
+        setFieldError(prevState => ({ ...prevState, duration: true }));
       }
       else 
       {
@@ -193,9 +208,6 @@ const BookingInformation = ({serviceInformation}) => {
               clearFieldError()
               return ;
             }
-            else{
-
-            }
           } catch (error) {
             console.error(error)
           }
@@ -210,7 +222,7 @@ const BookingInformation = ({serviceInformation}) => {
     }
   
     const handleEditServiceOffer = (index) => {
-  
+        setSelectedIndex(index)
         const instance = [...serviceOfferList]     
         const dataToEdit = instance[index]
         const data = {
@@ -220,26 +232,8 @@ const BookingInformation = ({serviceInformation}) => {
           variants : dataToEdit.variants,
           duration : dataToEdit.duration,
           status : dataToEdit.status,
-          isEdit : true
         }
         setServiceOfferInfo(data)
-        instance.splice(index, 1, data)
-        setServiceOfferList(instance)
-        const checkExistingEditIndex = instance.findIndex(service => service.isEdit === true && service.uniqueId !== dataToEdit.uniqueId) // Check the array if there is an existing object with esEdit true
-        if(checkExistingEditIndex !== -1 ) //If there are, make the isEdit false of that filtered
-        { 
-          const dataToReplace = instance[checkExistingEditIndex]
-          const dataUp = {
-            uniqueId : dataToReplace.uniqueId,
-            name : dataToReplace.name,
-            origPrice : dataToReplace.origPrice,
-            variants : dataToReplace.variants,
-            isEdit : false,
-            status : dataToReplace.status
-          }
-          instance.splice(checkExistingEditIndex, 1, dataUp)
-          setServiceOfferList(instance)
-        }
     }
   
     const updateServiceOffer = async () => {
@@ -252,7 +246,6 @@ const BookingInformation = ({serviceInformation}) => {
       else
       {
         const instance = [...serviceOfferList]
-        const dataToUpdate = serviceOfferList.findIndex(service => service.isEdit === true)
         const data = {
           uniqueId : serviceOfferInfo.uniqueId,
           name : serviceOfferInfo.name,
@@ -261,17 +254,17 @@ const BookingInformation = ({serviceInformation}) => {
           duration : serviceOfferInfo.variants.length !== 0 ? '' : serviceOfferInfo.duration,
           status : serviceOfferInfo.status
         }
-        instance.splice(dataToUpdate, 1, data)
+        instance.splice(selectedIndex, 1, data)
         setServiceOfferList(instance)
         closeEditServiceModal()
         setServiceOfferInfo({
             uniqueId : '',
-          name : '',
-          origPrice : '',
-          duration : '',
-          variants : []
-        
+            name : '',
+            origPrice : '',
+            duration : '',
+            variants : []    
         })
+        setSelectedIndex(null)
         try {
             const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceOffers : instance},  {
               withCredentials : true
@@ -710,7 +703,7 @@ const BookingInformation = ({serviceInformation}) => {
         </div>
         {/* Duration */}
         <div className='flex flex-col relative'>
-          <input maxLength={9} pattern="[0-9]*" required disabled={serviceOfferInfo.variants?.length === 0 ? false : true} value={serviceOfferInfo.duration} onChange={(e)=>{const numericValue = e.target.value.replace(/\D/g, '');setServiceOfferInfo({...serviceOfferInfo, duration : numericValue})}} className={`border-2 ${fieldError.duration ? 'border-red-500' : ''} valid:border-themeBlue peer outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]`} placeholder={`${document.getElementById('serviceDUration')?.focus ? 'Duration in minutes' : ''}`}  id='serviceDUration' type='text' />
+          <input maxLength={9} pattern="[0-9]*" required disabled={serviceOfferInfo.variants?.length === 0 ? false : true} value={serviceOfferInfo.duration} onChange={(e)=>{const numericValue = e.target.value.replace(/\D/g, '');setServiceOfferInfo({...serviceOfferInfo, duration : numericValue})}} className={`border-2 ${fieldError.duration ? 'border-red-500' : ''} valid:border-themeBlue peer outline-themeBlue rounded-sm p-2 font-light text-[0.8rem]`} placeholder={`${document.getElementById('serviceDUration')?.focus ? 'Minutes' : ''}`}  id='serviceDUration' type='text' />
           <p style={{userSelect: 'none'}} className='text-[0.8rem] pointer-events-none absolute top-2 left-1 peer-focus:font-bold peer-valid:font-bold user-select-none peer-focus:-top-2 peer-focus:left-2 peer-valid:left-2 peer-focus:text-xs peer-focus:text-gray-800  peer-valid:text-gray-800 peer-valid:-top-2 peer-valid:text-xs ease-in-out transition-all bg-white px-1 text-gray-500' htmlFor='servicePrice'>Service Duration </p>
           <p className={`${fieldError.origPrice ? 'block' : 'hidden'} text-xs text-red-500`}>This field is required</p>
         </div>

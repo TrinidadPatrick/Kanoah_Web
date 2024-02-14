@@ -23,7 +23,7 @@ const Success = ({handleCloseModal}) => {
           </svg>
           <h2 className="text-2xl font-bold mb-4 text-green-600">Booking Successful!</h2>
           <p className="text-gray-600 mb-6">Thank you for choosing our service.</p>
-          <p className="text-gray-600 mb-6">To confirm and secure your reservation, please proceed to make the required booking fee payment. Once the payment is successful, your booking will be accepted, and you'll receive a confirmation.</p>
+          <p className="text-gray-600 mb-6">Your booking is being process</p>
           <button
           onClick={()=>{handleCloseModal();navigate('/myAccount/Bookings')}}
             className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"

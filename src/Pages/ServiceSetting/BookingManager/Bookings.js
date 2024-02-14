@@ -47,7 +47,7 @@ const Bookings = () => {
     
     {/* Navigation */}
     <nav className=' top-[4.5rem] w-full bg-white pt-3'>
-    <h1 className='text-xl font-semibold text-themeOrange'>My service bookings</h1>
+    <h1 className='text-base md:text-xl relative top-2 md:top-0 left-10 w-fit md:left-0 font-semibold text-themeOrange'>My service bookings</h1>
         <ul className='flex space-x-3  border-gray-700 mt-3'>
            
             <li className=''>

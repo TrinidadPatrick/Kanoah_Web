@@ -14,9 +14,11 @@ import EditService from '../EditService/EditService';
 import Bookings from './BookingManager/Bookings';
 import UseInfo from '../../ClientCustomHook/UseInfo';
 import MobileServiceSettingSidebar from './MobileServiceSettingSidebar';
+import RatingsAndReviews from './RatingsAndReviews/RatingsAndReviews';
 
 const ServiceSettings = () => {
   const {userInformation, authenticated} = UseInfo()
+  const [openMobileSidebar, setOpenMobileSidebar] = useState(false)
   const [notFound, setNotFound] = useState(false)
     const {option} = useParams()
     const navigate = useNavigate()
@@ -37,7 +39,7 @@ const ServiceSettings = () => {
 
   //Check if the url is valid
   useEffect(()=>{
-    if(option != "myService" && option != "Bookings" && option != "BookingHistory")
+    if(option != "myService" && option != "Bookings" && option != "Reviews")
     {
       setNotFound(true)
     }
@@ -45,7 +47,8 @@ const ServiceSettings = () => {
 
   return (
 
-        <div className='w-full h-full flex flex-col '>
+    <div className='w-full h-full flex flex-col relative '>
+    
       {
 
         notFound ? (<PageNotFound />)
@@ -61,7 +64,7 @@ const ServiceSettings = () => {
     </div>
 
     <div className='flex flex-col items-start mt-10 space-y-6'>
-    <div  onClick={()=>{handleSelectSettings("myService")}}  className={`${option == "myService" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><PersonOutlinedIcon fontSize='small' className='text-gray-600' /><Link to="" className={`${option == "myService" ? "text-blue-800" : "text-gray-700"} font-medium`}>My Service</Link></div>
+    <div  onClick={()=>{handleSelectSettings("myService")}}  className={`${option == "myService" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><span className="icon-[material-symbols--business-center-outline] text-gray-600 text-xl"></span><Link to="" className={`${option == "myService" ? "text-blue-800" : "text-gray-700"} font-medium`}>My Service</Link></div>
     <div  onClick={()=>{handleSelectSettings("Bookings")}}  className={`${option == "Bookings" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><BookOnlineOutlinedIcon fontSize='small' className='text-gray-600' /><Link to="" className={`${option == "Bookings" ? "text-blue-800" : "text-gray-700"} font-medium`}>Bookings</Link></div>
     <div  onClick={()=>{handleSelectSettings("Reviews")}}  className={`${option == "Reviews" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><GradeOutlinedIcon fontSize='small' className='text-gray-600' /><Link to="" className={`${option == "Reviews" ? "text-blue-800" : "text-gray-700"} font-medium`}>Reviews</Link></div>
     
@@ -71,12 +74,17 @@ const ServiceSettings = () => {
 
 
     {/* Right section */}
-    <section className='w-full h-full  flex flex-col '>
-      {option == "Bookings" ? <Bookings /> : option == "myService" ? <MyService /> : option == "myService" ?  <EditService /> : "" }
+    <section className='w-full h-full  flex flex-col relative '>
+    
+      <button onClick={()=>setOpenMobileSidebar(true)} className="absolute md:hidden top-4 bg-white shadow-md border rounded-md w-8 h-8 flex items-center justify-center left-2">
+      <span class="icon-[icon-park-outline--hamburger-button] bg-black  text-2xl"></span>
+      </button>
+      {option == "Bookings" ? <Bookings /> : option == "myService" ? <MyService /> : option == "Reviews" ?  <RatingsAndReviews /> : "" }
+      <div onClick={()=>setOpenMobileSidebar(false)} className={`${openMobileSidebar ? "" : "hidden"} w-full h-full bg-[#00000080] absolute`}></div>
     </section>
 
     {/* mobile Sidebar */}
-    {/* <MobileServiceSettingSidebar /> */}
+    <MobileServiceSettingSidebar openMobileSidebar={openMobileSidebar} setOpenMobileSidebar={setOpenMobileSidebar} />
     </div>
         )
       }

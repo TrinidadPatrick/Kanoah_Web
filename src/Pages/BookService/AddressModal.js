@@ -31,6 +31,12 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
         longitude : 122.5320,
         latitude : 13.4124
     })
+    const [error, setError] = useState({
+      region : false,
+      province : false,
+      municipality : false,
+      barangay : false,
+    })
 
     // Map Viewport
     const [viewport, setViewPort] = useState({    
@@ -104,7 +110,7 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
     }
 
     const submitAddress = () => {
-        
+        let hasError = false
         const address = {
           region : {name : locCodesSelected[0][0], reg_code : locCodesSelected[0][1]},
           province :  {name : locCodesSelected[1][0], prov_code : locCodesSelected[1][1]},
@@ -115,30 +121,45 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
           latitude : location.latitude
         }
 
-        submitAddressInfo(address)
+        Object.entries(address).map(([key, value])=>{
+          if(typeof value === "object" && (value.name === undefined || value.name === '')){
+            hasError = true
+            setError((prevError) => ({...prevError, [key] : true}))
+          }
+          else{
+            // console.log(`${key} has value`)
+            setError((prevError) => ({...prevError, [key] : false}))
+          }
+        })
+
+        if(!hasError)
+        {
+          submitAddressInfo(address)
+          closeAddressModal()
+        }
+        
         
     }
+
 
     useEffect(()=>{
         if(contactAndAddress === null)
         {
 
             setLocation({
-                longitude : userContext.Address.longitude,
-                latitude : userContext.Address.latitude
+                longitude : userContext.Address === null ? 120.8236601 : userContext.Address?.longitude ,
+                latitude : userContext.Address === null ? 14.5964466 : userContext.Address?.latitude
             })
-
-
-        setLocCodesSelected(
+            setLocCodesSelected(
           [
-            [userContext.Address.region.name, userContext.Address.region.reg_code],
-            [userContext.Address.province.name, userContext.Address.province.prov_code],
-            [userContext.Address.municipality.name, userContext.Address.municipality.mun_code],
-            [userContext.Address.barangay.name, userContext.Address.barangay.brgy_code]
+            [userContext.Address?.region.name, userContext.Address?.region.reg_code],
+            [userContext.Address?.province.name, userContext.Address?.province.prov_code],
+            [userContext.Address?.municipality.name, userContext.Address?.municipality.mun_code],
+            [userContext.Address?.barangay.name, userContext.Address?.barangay.brgy_code]
           ]
-        )
+            )
 
-        setStreet(userContext.Address.street)
+            setStreet(userContext.Address?.street)
       
         }
         else
@@ -160,18 +181,19 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
         }
     },[])
 
+  
   return (
-    <div className='p-4'>
+    <div className='p-4 w-[400px]'>
                 <h1 className='font-medium'>Address</h1>
                 {/* Regions ***************************************/}
                 <div className="mb-4">
-                <label htmlFor="region" className="text-sm text-gray-600">Region</label>
+                <label htmlFor="region" className="text-sm text-gray-600">Region <span className={`text-red-500 ${error.region ? "" : "hidden"} text-xs`}>*required</span></label>
                 <select
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 0, 'region');}}
                 id="region"
                 name="region"
                 value={locCodesSelected[0][0] + ',' + locCodesSelected[0][1]}
-                className="block w-full text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className={`block text-sm w-full mt-1 p-2 border ${error.region ? "border-red-500" : "border-gray-300"} rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 <option className='w-fit' value=""  >Select Region</option>
                 {
@@ -185,14 +207,14 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
 
                 {/* Provinces***************************************************************** */}
                 <div className="mb-4">
-                <label htmlFor="province" className="text-sm text-gray-600">Province</label>
+                <label htmlFor="province" className="text-sm text-gray-600">Province <span className={`text-red-500 ${error.province ? "" : "hidden"} text-xs`}>*required</span></label>
                 <select
                  disabled={`${locCodesSelected[0][1] == "-1" ? "disabled" : ""}`}
                  onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1, 'province')}}
                  id="province"
                  name="province"
                  value={locCodesSelected[1][0] + ',' + locCodesSelected[1][1]}
-                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className={`block text-sm w-full mt-1 p-2 border ${error.province ? "border-red-500" : "border-gray-300"} rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 <option value=""  >Select Province</option>
                 {
@@ -205,16 +227,16 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
 
 
                 {/* Cities ***********************************************************/}
-                <div className='flex gap-3'>
-                <div className="mb-4">
-                <label htmlFor="city" className="text-sm text-gray-600">City</label>
+                <div className='flex gap-3 w-full'>
+                <div className="mb-4 w-full">
+                <label htmlFor="city" className="text-sm text-gray-600">City <span className={`text-red-500 ${error.municipality ? "" : "hidden"} text-xs`}>*required</span></label>
                 <select
                 disabled={`${locCodesSelected[1][1] == "-1" ? "disabled" : ""}`}
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','),2, 'city')}}
                 id="city"
                 name="city"
                 value={locCodesSelected[2][0] + ',' + locCodesSelected[2][1]}
-                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className={` text-sm w-full mt-1 p-2 border ${error.municipality ? "border-red-500" : "border-gray-300"} rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 <option value=""  >Select City</option>
                 {
@@ -229,15 +251,15 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
 
 
                 {/* Barangays *****************************************************************8*/}
-                <div className="mb-4">
-                <label htmlFor="barangay" className="text-sm text-gray-600">Barangay</label>
+                <div className="mb-4 w-full">
+                <label htmlFor="barangay" className="text-sm text-gray-600">Barangay <span className={`text-red-500 ${error.barangay ? "" : "hidden"} text-xs`}>*required</span></label>
                 <select
                 disabled={`${locCodesSelected[2][1] == "-1" ? "disabled" : ""}`}
                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','),3, 'barangay')}}
                 id="barangay"
                 name="barangay"
                 value={locCodesSelected[3][0] + ',' + locCodesSelected[3][1]}
-                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className={` text-sm w-full mt-1 p-2 border ${error.barangay ? "border-red-500" : "border-gray-300"} rounded-md focus:ring focus:ring-indigo-200`}
 
                 >
                 <option value=""   >Select Barangay</option>
@@ -252,7 +274,7 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
 
             <div className='w-full'>
             <label htmlFor="barangay" className="text-sm text-gray-600">Street</label>
-                <textarea value={street} onChange={(e)=>{setStreet(e.target.value)}} className='w-full border resize-none text-sm' row={3} />
+                <textarea value={street} onChange={(e)=>{setStreet(e.target.value)}} className='w-full p-1 rounded-md border resize-none text-sm' row={3} />
             </div>
 
                 {/* MAP******************************************************************* */}
@@ -298,11 +320,7 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
                   latitude: evt.lngLat.lat / sensitivityFactor,
                 };
                 setLocation(newLocation);
-                setViewPort((prevViewport) => ({
-                  ...prevViewport,
-                  latitude: newLocation.latitude,
-                  longitude: newLocation.longitude ,
-                }));
+                
               }}
             onDragEnd={()=>[setIsDragging(false)]}
             >
@@ -362,7 +380,7 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
             </div>
             </div>
             <div className=' flex justify-end space-x-2'>
-            <button onClick={()=>{submitAddress();closeAddressModal()}} className='px-3 text-semiSm py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-4'>Save</button>
+            <button onClick={()=>{submitAddress()}} className='px-3 text-semiSm py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-4'>Save</button>
             </div>
             
     </div>

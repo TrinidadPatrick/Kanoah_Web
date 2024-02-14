@@ -50,7 +50,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
 
     const computeDistance = () => {
         const providerPlace = {longitude : serviceInfo.address.longitude, latitude : serviceInfo.address.latitude}
-        const clientPlace = {longitude : userContext.Address.longitude, latitude : userContext.Address.latitude}
+        const clientPlace = {longitude : contactAndAddress.Address.longitude, latitude : contactAndAddress.Address.latitude}
 
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
         const earthRadius = 6371;
@@ -181,7 +181,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
                     dispatch(setContactAndAddress(null))
                     handleStep("success")
                     notifyUser(result.data._id, receiver) //insert notification in the database
-                    socket.emit('Booking_Notification', {notification : 'New_Booking', receiver : receiver}); //notify user theres a new booking
+                    socket.emit('New_Notification', {notification : 'New_Booking', receiver : receiver}); //notify user theres a new booking
                 }
             } catch (error) {
                 alert(error)
@@ -263,7 +263,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
                 <div className={`font-normal pl-2 text-semiMd text-red-500 border-t-1 border-gray-700 `}>₱{bookingInformation.net_Amount}</div>
         </ul>
         </div>
-        <button onClick={()=>{submitBooking()}} className={`text-white ${loading ? "bg-slate-500" : "bg-themeBlue"} px-2 py-2 text-sm rounded-sm `}>
+        <button onClick={()=>{pay()}} className={`text-white ${loading ? "bg-slate-500" : "bg-themeBlue"} px-2 py-2 text-sm rounded-sm `}>
         Submit
         </button>
     </div>

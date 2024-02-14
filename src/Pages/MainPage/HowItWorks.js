@@ -18,7 +18,7 @@ const HowItWorks = () => {
 },[])
 
   return (
-    <div className='w-full p-1 mt-10 bg-black h-full'>
+    <div className='w-full p-1 mt-10 h-full pt-10 sm:pt-0'>
     <div data-aos='fade-right' className='border-l-4 mx-7 border-x-themeGray pl-3 mt-10'>
       <h1 className='text-sm md:text-sm text-gray-400 font-bold'>How it Works</h1>
       <p className='text-gray-700 text-3xl md:text-4xl font-medium'>Get Started with 4 Easy Steps</p>

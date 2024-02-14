@@ -129,7 +129,7 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
             </table>
 
             {/* Address */}
-            <button className='text-[0.55rem] sm:text-semiSm semiMd:hidden mt-2 px-2 py-1 bg-gray-100 shadow-sm border rounded-sm' onClick={()=>{OpenClientInformation(booking.booking_id)}}>Open booking details</button>
+            <button className='text-[0.55rem] sm:text-semiSm semiMd:hidden mt-2 px-2 py-1 bg-gray-100 shadow-sm border rounded-sm' onClick={()=>{OpenClientInformation(booking._id)}}>Open booking details</button>
             <div className=' hidden semiMd:flex flex-col mt-3'>
                 <h1 className='text-[1rem] font-medium'>Address</h1>
                 <p className='text-sm'>{booking.contactAndAddress.Address.barangay.name + ", " + booking.contactAndAddress.Address.province.name + ", " + booking.contactAndAddress.Address.region.name}</p>
@@ -217,7 +217,7 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
                 </div>
                 <div className='w-full mt-4 grid grid-cols-2 gap-0 gap-x-5 bg-white rounded-md border shadow-sm p-2'>
                     <div className='text-semiMd font-semibold whitespace-nowrap'>BOOKING ID</div>
-                    <div className='font-medium text-right text-semiMd text-gray-600'>{clientInformation?.Booking_id}</div>
+                    <div className='font-medium text-right text-semiMd text-gray-600'>{clientInformation?.booking_id}</div>
 
                     <div className='text-semiMd font-semibold whitespace-nowrap'>Book Date</div>
                     <div className='font-medium text-right text-semiMd text-gray-600'>{clientInformation?.issuedDate}</div>

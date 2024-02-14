@@ -1,12 +1,8 @@
 import React, { useEffect } from 'react'
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { useState } from 'react';
-import StarRatings from 'react-star-ratings';
-import { services } from './Components/Services/Services';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
-import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import PlaceOutlinedIcon from '@mui/icons-material/PlaceOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -16,7 +12,6 @@ import ReportIcon from '@mui/icons-material/Report';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-import { Swiper, SwiperSlide } from 'swiper/react';
 import UseInfo from '../../ClientCustomHook/UseInfo';
 import UseDNS from '../../ClientCustomHook/DNSProvider';
 import useAllRatings from '../../ClientCustomHook/AllRatingsProvider';

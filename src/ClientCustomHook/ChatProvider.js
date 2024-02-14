@@ -5,11 +5,13 @@ import { useDispatch } from 'react-redux'
 // import { useNavigate } from 'react-router-dom'
 import {io} from 'socket.io-client'
 import { selectNewMessage, setNewMessage, selectOnlineUsers, setOnlineUsers } from '../ReduxTK/chatSlice'
+import UseNotif from './NotificationProvider'
 import UseInfo from './UseInfo'
 
-const ChatProvider = ({socket, setNewBooking}) => {
+const ChatProvider = ({socket, setnewNotification}) => {
 
 const dispatch = useDispatch()
+  const {getNotifications} = UseNotif()
   const {authenticated, userInformation} = UseInfo()
 
     // Check for unread Messages
@@ -60,16 +62,13 @@ const dispatch = useDispatch()
 
     // Notify user if there is new booking
     useEffect(()=>{
-        socket?.on('Booking_Notification', (notification)=>{
-          if(notification == 'New_Booking')
-          {
-            setNewBooking(true)
-          }
+        socket?.on('New_Notification', ()=>{
+            setnewNotification(true)
         })
   
         return () => {
           // Clean up the socket event listeners when the component unmounts
-          socket?.off('Booking_Notification');
+          socket?.off('New_Notification');
         };
     },[socket])
 

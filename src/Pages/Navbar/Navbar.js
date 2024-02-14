@@ -25,13 +25,17 @@ import { selectNewMessage} from '../../ReduxTK/chatSlice'
 import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
 import ChatProvider from '../../ClientCustomHook/ChatProvider'
 import UseNotif from '../../ClientCustomHook/NotificationProvider'
-import Book_Icon from '../MainPage/Components/UtilImage/Book_Icon2.png'
+import Book_Icon from '../MainPage/Components/UtilImage/Book_Icon4.png'
+import Rating_Icon from '../MainPage/Components/UtilImage/Rating_Icon.png'
+import Rating from '@mui/material/Rating';
+import { styled } from '@mui/material/styles';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
 export const Context = React.createContext()
 
 
 
 const Navbar = ({ onAboutUsClick }) => {
-  const [newBooking, setNewBooking] = useState(false)
+  const [newNotification, setnewNotification] = useState(false)
   const {authenticated, userInformation} = UseInfo()
   const [windowWidth, setWindowWdith] = useState(null)
   const dispatch = useDispatch();
@@ -47,6 +51,7 @@ const Navbar = ({ onAboutUsClick }) => {
   const [showSignup, setShowSignup] = useState(false)
   const [socket, setSocket] = useState(null)
   const [openNotif, setOpenNotif] = useState(false)
+  const [notifCount, setNotifCount] = useState(null)
 
   const handleOpen = () => setOpen(true);
   const handleClose = (event, reason) => {
@@ -156,7 +161,7 @@ const Navbar = ({ onAboutUsClick }) => {
     <>
   <div className='fixed h-fit p-0 top-0 left-0 bg-transparent w-full z-50'>
           {/* NAV BAR */}
-  <ChatProvider setNewBooking={setNewBooking} socket={socket} />
+  <ChatProvider setnewNotification={setnewNotification} socket={socket} />
   <nav className=" bg-themeBlue relative w-full z-20 top-0 left-0  dark:border-gray-600">
   <div className="px-3 md:px-10 flex  items-center justify-between mx-auto py-5">
   <div className='flex items-center justify-evenly'>
@@ -219,20 +224,25 @@ const Navbar = ({ onAboutUsClick }) => {
     <div className='flex items-center justify-evenly space-x-2 sm:space-x-5 mr-4'>
       {/* Chat */}
       <Link to="chatP">
-        <div className='relative'>
-          <div className={`w-3 h-3 ${newMessage ? 'block' : 'hidden'} rounded-full bg-red-500 top-0 absolute right-0`}></div>
-          <ForumRoundedIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' />
+        <div className='relative flex items-center aspect-square p-0.5 w-8 h-8 bg-[#e2e1e15f] rounded-full'>
+          <div className={`w-3.5 h-3.5 ${newMessage ? 'block' : 'hidden'} rounded-full flex items-center justify-center bg-red-500 -top-1 absolute -right-1`}>
+          <PriorityHighOutlinedIcon fontSize='small' className='p-1 text-white' />
+          </div>
+          {/* <ForumRoundedIcon fontSize={windowWidth >= 400 ? 'medium' : 'small'} className='text-white' /> */}
+          <span className="icon-[ic--baseline-wechat] text-white text-3xl"></span>
         </div>
         
       </Link>
       {/* Notification */}
-      <div className='relative'>
+      <div className='relative flex items-center justify-center aspect-square p-0.5 w-8 h-8 bg-[#e2e1e15f] rounded-full'>
         <OutsideClickHandler onOutsideClick={()=>setOpenNotif(false)}>
-        <NotificationsIcon onClick={()=>setOpenNotif(!openNotif)} fontSize={windowWidth >= 400 ? 'medium' : 'small'} className={`${openNotif ? 'text-blue-400' : 'text-gray-50'}  cursor-pointer`} />
-        <div className={`w-3 h-3 ${newBooking ? 'block' : 'hidden'} rounded-full bg-red-500 top-0 flex items-center justify-center absolute right-0`}>
-        <PriorityHighOutlinedIcon fontSize='small' className='p-1 text-white' />
+        <NotificationsIcon onClick={()=>setOpenNotif(!openNotif)} fontSize={windowWidth >= 400 ? 'medium' : 'small'} className={`${openNotif ? 'text-blue-400' : 'text-gray-50'} bottom-0.5 relative  cursor-pointer`} />
+        {/* Notification Count */}
+        <div className={`w-3 h-3 ${notifCount >= 1 ? 'block' : 'hidden'} rounded-full bg-red-500 -top-1 flex items-center justify-center absolute p-2 -right-1`}>
+        {/* <PriorityHighOutlinedIcon fontSize='small' className='p-1 text-white' /> */}
+        <span className='text-white text-xs'>{notifCount}</span>
         </div>
-        <NotificationContent openNotif={openNotif} setOpenNotif={setOpenNotif} />
+        <NotificationContent setNotifCount={setNotifCount} openNotif={openNotif} setOpenNotif={setOpenNotif} newNotification={newNotification} />
         </OutsideClickHandler>
       </div>
       <div className='relative'>
@@ -360,17 +370,36 @@ const Navbar = ({ onAboutUsClick }) => {
 </div>
 </>
 
-</Context.Provider>
+    </Context.Provider>
 
   )
 }
 
-const NotificationContent = ({openNotif, setOpenNotif}) => {
+  const NotificationContent = ({openNotif, setOpenNotif, newNotification, setNotifCount}) => {
+  const {authenticated} = UseInfo()
   const navigate = useNavigate()
-  const {notifications} = UseNotif()
+  const {notifications, getNotifications, countUnreadNotifs} = UseNotif()
   const [openMoreOption, setOpenMoreOption] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(null)
   const [notificationList, setNotificationList] = useState(null)
+  const [page, setPage] = useState(1);
+
+  const StyledRating = styled(Rating)({
+    '& .MuiRating-iconFilled': {
+      color: '#ffa534',
+      fontSize: "medium"
+    },
+    '& .MuiRating-iconHover': {
+      color: '#ffa534',
+      
+    },
+    '& .MuiRating-iconEmpty': {
+      color: '#ffa534',
+      fontSize: "large"
+      
+    },
+
+  });
 
   useEffect(()=>{
     if(notifications !== null)
@@ -378,6 +407,29 @@ const NotificationContent = ({openNotif, setOpenNotif}) => {
       setNotificationList(notifications)
     }
   },[notifications])
+
+  useEffect(()=>{
+    if(newNotification)
+    {
+      getNotifications()
+    }
+  },[newNotification])
+
+  useEffect(()=>{
+    if(authenticated)
+    {
+      countNotifs()
+    }
+  },[newNotification, authenticated])
+  
+  const countNotifs = async () => {
+    try {
+      const counts = await countUnreadNotifs()
+      setNotifCount(counts)
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   const markAsRead = async (notification_id, notif_to, notification_type) => {
     const newNotifications = [...notificationList]
@@ -391,7 +443,6 @@ const NotificationContent = ({openNotif, setOpenNotif}) => {
     navigate(notification_type === "New_Booking" ? "/serviceSettings/Bookings" : "")
     try {
       const result = await http.patch('markAsRead',{notification_id, notif_to}, {withCredentials : true})
-      console.log(result.data)
     } catch (error) {
       console.error(error)
     }
@@ -406,15 +457,43 @@ const NotificationContent = ({openNotif, setOpenNotif}) => {
     )
   }
 
+  const markAllAsRead = async () => {
+   const instance = [...notificationList]
+    instance.map((notifs) => {
+      notifs.isRead = true
+    })
+    setNotificationList(instance)
+
+    try {
+      const result = await http.patch('markAllAsRead',"",  {withCredentials : true})
+      countNotifs()
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const seeMore = async () => {
+    const nextPage = page + 1
+
+    try {
+      const response = await http.get(`getNotifications?page=${nextPage}`, {withCredentials : true});
+      setNotificationList([...notificationList, ...response.data]);
+      setPage(nextPage);
+    } catch (error) {
+      console.error('Error loading more notifications:', error);
+    }
+  }
+
+
 
   return (
     <>
     {
       openNotif ? 
-        <div onClick={()=>{setOpenMoreOption(false);setSelectedIndex(null)}} className='w-[350px] h-[300px] flex flex-col justify-between -translate-x-80 top-7 px-1 bg-white rounded-md border shadow-md absolute'>
+        <div onClick={()=>{setOpenMoreOption(false);setSelectedIndex(null)}} className='w-[350px] h-[500px] flex flex-col justify-between -translate-x-80 top-7 px-1 bg-white rounded-md border shadow-md absolute'>
         <div className='flex justify-between py-1 border-b-1'>
         <h1 className='font-bold text-base px-1 text-gray-800 '>Notifications</h1>
-        <button className='text-xs text-gray-700 font-medium hover:text-gray-500'>Mark all as read</button>
+        <button onClick={()=>{markAllAsRead()}} className='text-xs text-gray-700 font-medium hover:text-gray-500'>Mark all as read</button>
         </div>
         <div className='h-full flex flex-col overflow-auto'>
         {
@@ -429,29 +508,73 @@ const NotificationContent = ({openNotif, setOpenNotif}) => {
               hour12: true,
           })
             return (
-              <div key={notification._id} onClick={()=>{markAsRead(notification._id, notification.notif_to, notification.notification_type);}} className={`grid ${notification.isRead ? "" : "bg-gray-100"} cursor-pointer h-[50px] min-h-[50px] hover:bg-gray-200 grid-cols-12 rounded-md overflow-hidden my-1`}>
+
+              <div key={notification._id} onClick={()=>{markAsRead(notification._id, notification.notif_to, notification.notification_type);}} className={`grid ${notification.isRead ? "" : "bg-[#dce4f951]"} cursor-pointer py-2  grid-cols-12 rounded-md my-1`}>
                 <MoreOptions index={index} />
-                <div className='row-span-2 col-span-2 flex justify-center items-center'>
-                  <div className='w-[70%] aspect-square border-2 border-[#a6a6a6] bg-gray-200 flex justify-center items-center rounded-full p-2'>
+                {
+                  notification.notification_type === "New_Rating" ? 
+                  (
+                    <>
+                    <div className='row-span-3 col-span-2 flex justify-center items-start'>
+                    <div className='w-[70%] aspect-square border-2 border-orange-500 bg-orange-100 flex justify-center items-center rounded-full p-1'>
+                    <img className='object-cover' src={Rating_Icon} />
+                    </div>
+                    </div> 
+                    <div className=' row-span-1 col-span-9 flex items-center justify-start gap-3 h-fit  font-medium text-gray-700'>
+                    <p className='text-sm whitespace-nowrap'>{notification.content.subject}</p>
+                    <span className={`w-2 h-2 ${notification.isRead ? "hidden" : ""} bg-blue-600 rounded-full`}></span>
+                    </div>
+                    <div onClick={(e)=>{e.stopPropagation();setOpenMoreOption(selectedIndex === index ? false : true);setSelectedIndex(selectedIndex === index ? null : index)}} className='relative cursor-pointer row-span-2 col-span-1 flex items-center justify-center '>
+                        <MoreVertOutlinedIcon className={`${index === selectedIndex ? "text-gray-400" : "text-gray-700"} cursor-pointer hover:bg-gray-300 rounded-full`} />
+                    </div>
+                    <div className=' row-span-1 col-span-9 flex items-center '>
+                      <p className='text-xs text-gray-500 whitespace-nowrap'>{formattedDate.replace('at', '|')}</p>
+                    </div>
+                    {/* Content */}
+                    <div className='col-span-10 h-[100px] border border-[#dadada] rounded-md flex flex-col justify-between mr-1 mt-1 p-1'>
+                      <div className='w-full flex items-center'>
+                        <p className='text-[0.8rem] font-medium text-orange-500'>Service: </p>
+                        <p className='px-1 text-gray-600 text-[0.8rem] font-medium'> {notification.content.service}</p>
+                      </div>
+                      <div className='w-full flex items-center'>
+                        <p className='text-[0.8rem] font-medium text-orange-500'>Rating:</p>
+                        <StyledRating readOnly className='relative left-[0.1rem]' defaultValue={notification.content.rating} precision={1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
+                      </div>
+                      <div className='w-full flex items-start '>
+                        <p className='text-[0.8rem] font-medium text-orange-500'>Review: </p>
+                        <p className='px-1 line-clamp-2 text-gray-600 text-[0.8rem] font-medium'>{notification.content.review}</p>
+                      </div>
+                    </div>
+                    </>
+                  )
+                  :
+                  <>
+                  <div className='row-span-2 col-span-2 flex justify-center items-center'>
+                  <div className='w-[70%] aspect-square border-2 border-[#2344bc] bg-sky-200 flex justify-center items-center rounded-full p-2'>
                     <img className='object-cover' src={Book_Icon} />
                   </div>
                 </div> 
-                <div className=' row-span-1 col-span-9 flex items-center  font-bold text-gray-800'>
+                
+                <div className=' row-span-1 col-span-9 flex items-center justify-start gap-2  font-medium text-gray-700'>
                   <p className='text-sm whitespace-nowrap'>{notification.content}</p>
-                    </div>
+                  <span className={`w-2 h-2 ${notification.isRead ? "hidden" : ""} bg-red-600 rounded-full`}></span>
+                </div>
                       <div onClick={(e)=>{e.stopPropagation();setOpenMoreOption(selectedIndex === index ? false : true);setSelectedIndex(selectedIndex === index ? null : index)}} className='relative cursor-pointer row-span-2 col-span-1 flex items-center justify-center '>
                         <MoreVertOutlinedIcon className={`${index === selectedIndex ? "text-gray-400" : "text-gray-700"} cursor-pointer hover:bg-gray-300 rounded-full`} />
                       </div>
                     <div className=' row-span-1 col-span-9 flex items-center '>
                   <p className='text-xs text-gray-500 whitespace-nowrap'>{formattedDate.replace('at', '|')}</p>
                 </div>
+                </>
+                }
+                
               </div>
             )
           })
         }
         </div>
         <div className=' border-t-1 w-full flex justify-center '>
-        <button className='  text-sm text-gray-600 py-1'>See More</button>
+        <button onClick={()=>seeMore()} className='  text-sm text-gray-600 py-1'>See More</button>
         </div>
       </div>
       :

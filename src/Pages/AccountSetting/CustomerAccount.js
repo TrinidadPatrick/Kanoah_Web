@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import UserBookings from './UserBookings/UserBookings';
 import UserFavorites from './Favorites/UserFavorites';
 import BlockedServices from './BlockedServices/BlockedServices';
-import MobileServiceSettingSidebar from '../ServiceSetting/MobileServiceSettingSidebar';
+import MobileAccountSettingSidebar from './MobileAccountSettingSidebar';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 
 const CustomerAccount = () => {
@@ -53,7 +53,7 @@ const CustomerAccount = () => {
     <div className='flex flex-col items-start mt-10 space-y-6'>
     <Link to="/myAccount/Profile" onClick={()=>{setSelectedSettings('Profile')}} className={`${selectedSettings == "Profile" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><PersonOutlinedIcon fontSize='small' /><div className={`${selectedSettings == "Profile" ? "text-blue-800" : "text-gray-800"}`}>Profile</div></Link>
     <Link to="/myAccount/Bookings" onClick={()=>{setSelectedSettings('Bookings')}} className={`${selectedSettings == "Bookings" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><BookOnlineOutlinedIcon fontSize='small' /><div className={`${selectedSettings == "Bookings" ? "text-blue-800" : "text-gray-800"}`}>Bookings</div></Link>
-    <Link to="/myAccount/BlockedServices" onClick={()=>{setSelectedSettings('BlockedServices')}} className={`${selectedSettings == "BlockedServices" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><UpdateOutlinedIcon fontSize='small' /><div className={`${selectedSettings == "BlockedServices" ? "text-blue-800" : "text-gray-800"}`}>Blocked Services</div></Link>
+    <Link to="/myAccount/BlockedServices" onClick={()=>{setSelectedSettings('BlockedServices')}} className={`${selectedSettings == "BlockedServices" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><span className="icon-[material-symbols--block] text-xl"></span><div className={`${selectedSettings == "BlockedServices" ? "text-blue-800" : "text-gray-800"}`}>Blocked Services</div></Link>
     <Link to="/myAccount/Favorites" onClick={()=>{setSelectedSettings('Favorites')}} className={`${selectedSettings == "Favorites" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><FavoriteOutlinedIcon fontSize='small' /><div className={`${selectedSettings == "Favorites" ? "text-blue-800" : "text-gray-800"}`}>Favorite</div></Link>
     
     </div>
@@ -68,7 +68,7 @@ const CustomerAccount = () => {
     <div className={`absolute ${openMobileSidebar ? "hidden" : ""}  ease-in-out duration-300 h-[30px] flex items-center justify-center top-3 left-1  text-black `}>
       <button className='flex items-center ' onClick={()=>setOpenMobileSidebar(!openMobileSidebar)}><MenuOpenIcon  /></button>
     </div>
-    <MobileServiceSettingSidebar setSelectedSettings={setSelectedSettings} selectedSettings={selectedSettings} openMobileSidebar={openMobileSidebar} setOpenMobileSidebar={setOpenMobileSidebar} />
+    <MobileAccountSettingSidebar setSelectedSettings={setSelectedSettings} selectedSettings={selectedSettings} openMobileSidebar={openMobileSidebar} setOpenMobileSidebar={setOpenMobileSidebar} />
     </div>
     <div onClick={()=>setOpenMobileSidebar(false)} className={`w-full cursor-pointer ${openMobileSidebar ? "" : "hidden"} h-full absolute bg-[#00000080] z-10`}></div>
     {selectedSettings == "Profile" ? <UserInformation /> : selectedSettings == "Bookings" ? <UserBookings /> : selectedSettings == "Favorites" ? <UserFavorites authenticated={authenticated} /> : <BlockedServices authenticated={authenticated} />}

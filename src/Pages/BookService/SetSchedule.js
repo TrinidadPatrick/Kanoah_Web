@@ -143,18 +143,6 @@ import dayjs from 'dayjs';
       return closedTime.some((closed) => dayName === closed.day);
     };
 
-    const convertTo24 = (time) => {
-      const timeObject = new Date('2000-01-01 ' + time);
-
-      // Extract hours and minutes
-      const hours = timeObject.getHours();
-      const minutes = timeObject.getMinutes();
-
-      // Format the result in 24-hour format
-      const time24Hour = `${hours}:${minutes < 10 ? `0${minutes}` :minutes}`;
-
-      return timeObject;
-    }
 
     useEffect(()=>{
       const getSchedules = (bookings) => {
@@ -170,8 +158,11 @@ import dayjs from 'dayjs';
     // set the times to match the schedule of the day of the service
     useEffect(()=>{
       const schedule = serviceInfo?.serviceHour.find((serviceHour) => serviceHour.day === currentDay)
+      
       const fromDate = new Date(`2000-01-01T${schedule?.fromTime}:00`);
       const toDate = new Date(`2000-01-01T${schedule?.toTime}:00`);
+
+      console.log(fromDate)
 
       const timeArray = [];
 

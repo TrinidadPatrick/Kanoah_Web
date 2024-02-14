@@ -186,7 +186,7 @@ const CancelledBooking = ({ cancelledBookings, lazyLoad }) => {
                 </div>
                 <div className='w-full mt-4 grid grid-cols-2 gap-0 gap-x-5 bg-white rounded-md border shadow-sm p-2'>
                     <div className='text-semiMd font-semibold whitespace-nowrap'>BOOKING ID</div>
-                    <div className='font-medium text-right text-semiMd text-gray-600'>{clientInformation?.Booking_id}</div>
+                    <div className='font-medium text-right text-semiMd text-gray-600'>{clientInformation?.booking_id}</div>
 
                     <div className='text-semiMd font-semibold whitespace-nowrap'>Book Date</div>
                     <div className='font-medium text-right text-semiMd text-gray-600'>{clientInformation?.issuedDate}</div>

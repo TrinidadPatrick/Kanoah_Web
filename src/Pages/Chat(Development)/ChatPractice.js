@@ -178,7 +178,7 @@ import {io} from 'socket.io-client'
 
     // Gets the information of receiver and service
     useEffect(()=>{
-      if(receiver.username == undefined && serviceInquired.basicInformation == undefined && service !== null)
+      if(receiver.username == undefined && serviceInquired?.basicInformation == undefined && service !== null)
       {
         (async ()=>{ 
           await getReceiver()
@@ -648,7 +648,7 @@ import {io} from 'socket.io-client'
             
             {/* Service Image */}
             <div className=' p-1 flex justify-center items-center'>
-            <div style={{backgroundImage : `url(${contact.virtualServiceInquired.serviceProfileImage})`}} className='w-[40px] h-[40px]  rounded-full bg-cover bg-center bg-black'></div>
+            <div style={{backgroundImage : `url(${contact.virtualServiceInquired?.serviceProfileImage})`}} className='w-[40px] h-[40px]  rounded-full bg-cover bg-center bg-black'></div>
             </div>
 
             {/* Title and message and time */}
@@ -656,7 +656,7 @@ import {io} from 'socket.io-client'
               {/* Title */}
               <div className='flex justify-start'>
             
-              <p className={`${contact.readBy.includes((userInformation?._id)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium overflow-hidden max-w-[200px] sm:max-w-[130px] xl:max-w-[200px] text-ellipsis pe-2`}>{contact.virtualServiceInquired.basicInformation.ServiceTitle}</p>
+              <p className={`${contact.readBy.includes((userInformation?._id)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium overflow-hidden max-w-[200px] sm:max-w-[130px] xl:max-w-[200px] text-ellipsis pe-2`}>{contact.virtualServiceInquired?.basicInformation.ServiceTitle}</p>
               {/* <input readOnly className={`${contact.readBy.includes((userInformation?._id)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium text-ellipsis pointer-events-none bg-transparent`} type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} /> */}
               <div className={` ${contact.serviceInquired === userInformation?._id ? 'block' : 'hidden'} flex items-center`}>
               <StorefrontOutlinedIcon className=' text-blue-500 p-0.5' fontSize='small' />
@@ -707,10 +707,10 @@ import {io} from 'socket.io-client'
         </button>     
         <div className='h-12 w-12 flex'>
         
-        <img className='rounded-full w-full h-full object-cover max-h-16 max-w-16' src={serviceInquired.serviceProfileImage} alt='profile' />
+        <img className='rounded-full w-full h-full object-cover max-h-16 max-w-16' src={serviceInquired?.serviceProfileImage} alt='profile' />
         </div>
         <div className=' flex flex-col justify-around'>     
-          <input className={`text-ellipsis text-lg font-medium text-gray-800 bg-transparent`} value={serviceInquired.basicInformation !== undefined ? serviceInquired.basicInformation.ServiceTitle : ''} type='text' disabled />
+          <input className={`text-ellipsis text-lg font-medium text-gray-800 bg-transparent`} value={serviceInquired?.basicInformation !== undefined ? serviceInquired?.basicInformation.ServiceTitle : ''} type='text' disabled />
           {
             currentChats[0] == undefined ? ("") :    
             (     

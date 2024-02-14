@@ -705,20 +705,20 @@ const UserInformation = () => {
                 <div className='p-4 w-[400px]'>
                 <h1 className='font-medium'>Address</h1>
                 {/* Regions ***************************************/}
+                {/* Regions ***************************************/}
                 <div className="mb-4">
-                <label htmlFor="province" className="text-sm text-gray-600">Province</label>
+                <label htmlFor="region" className="text-sm text-gray-600">Region</label>
                 <select
-                 disabled={`${locCodesSelected[0][1] == "-1" ? "disabled" : ""}`}
-                 onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 1, 'province')}}
-                 id="province"
-                 name="province"
-                 value={locCodesSelected[1][0] + ',' + locCodesSelected[1][1]}
-                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                onChange={(e)=>{handleLocationSelect(e.target.value.split(','), 0, 'region');}}
+                id="region"
+                name="region"
+                value={locCodesSelected[0][0] + ',' + locCodesSelected[0][1]}
+                className="block w-full text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
                 >
-                <option value=""  >Select Province</option>
+                <option className='w-fit' value=""  >Select Region</option>
                 {
-                phil.getProvincesByRegion(locCodesSelected[0][1]).sort((a, b) => a.name.localeCompare(b.name)).map((province, index)=>(
-                <option key={index} value={[province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase() , province.prov_code]}>{province.name.charAt(0).toUpperCase() + province.name.slice(1).toLowerCase()}</option>
+                phil.regions.map((regions, index)=>(
+                <option key={index} value={[regions.name , regions.reg_code]}>{regions.name}</option>
                 ))
                 }
                 </select>
@@ -726,8 +726,7 @@ const UserInformation = () => {
 
 
                 {/* Provinces***************************************************************** */}
-                <div className='w-full flex items-center gap-3  justify-evenly'>
-                <div className="mb-4 w-full">
+                <div className="mb-4">
                 <label htmlFor="province" className="text-sm text-gray-600">Province</label>
                 <select
                  disabled={`${locCodesSelected[0][1] == "-1" ? "disabled" : ""}`}
@@ -748,7 +747,7 @@ const UserInformation = () => {
 
 
                 {/* Cities ***********************************************************/}
-                <div className='flex gap-3 w-full'>
+                <div className='flex gap-3'>
                 <div className="mb-4">
                 <label htmlFor="city" className="text-sm text-gray-600">City</label>
                 <select
@@ -769,8 +768,7 @@ const UserInformation = () => {
                 }
                 </select>
                 </div>
-                </div>
-                </div>
+
 
                 {/* Barangays *****************************************************************8*/}
                 <div className="mb-4">
@@ -792,10 +790,11 @@ const UserInformation = () => {
                 }
                 </select>
                 </div>
+                </div>
 
                 <div className='w-full'>
                 <label htmlFor="barangay" className="text-sm text-gray-600">Street</label>
-                <textarea value={street} onChange={(e)=>{setStreet(e.target.value)}} className='w-full border p-2 rounded-md resize-none text-sm' row={3} />
+                <textarea value={street} onChange={(e)=>{setStreet(e.target.value)}} className='w-full border p-1 resize-none text-sm' row={3} />
                 </div>
 
 

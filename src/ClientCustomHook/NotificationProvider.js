@@ -15,6 +15,15 @@ const UseNotif = () => {
     }
   }
 
+  const countUnreadNotifs = async () => {
+    try {
+      const result = await http.get('countUnreadNotifs', {withCredentials : true})
+      return Promise.resolve(result.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(()=>{
     if(authenticated)
     {
@@ -22,7 +31,7 @@ const UseNotif = () => {
     }
   },[authenticated])
   return {
-    notifications
+    notifications, getNotifications, countUnreadNotifs
   }
 }
 
