@@ -182,15 +182,15 @@ const Navbar = ({ onAboutUsClick }) => {
   <div className="items-center justify-between w-screen transition ease-in-out hidden top-14 md:relative md:top-0 md:flex md:w-auto md:order-1" id="navbar-sticky">
     <ul className="navbarLink flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg  md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-themeBlue dark:bg-themeBlue md:dark:bg-themeBlue dark:border-gray-700">
       <li>
-        <Link to="explore" className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
+        <Link to="explore" className="explore block py-2 pl-3 pr-4 md:text-[0.8rem] lg:text-md">Explore</Link>
       </li>
       <li>
         {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}
-        <div className="flex items-center mt-[0.17rem]">
+        <div className="flex items-center mt-[0.05rem]">
           <div className="group inline-block relative">
-            <button className="text-white text-sm font-normal px-2 rounded inline-flex items-center">
+            <button className="text-white md:text-[0.8rem] lg:text-md font-normal px-2 rounded inline-flex items-center">
               Categories
-              <ExpandMoreIcon />
+              <ExpandMoreIcon fontSize='small' />
             </button>
             <ul className="categoryDropdown absolute hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
               {categories.map((category, index) => (
@@ -203,10 +203,10 @@ const Navbar = ({ onAboutUsClick }) => {
         </div>
       </li>
       <li>
-        <a onClick={()=>{onAboutUsClick();navigate("/")}} className="about block py-2 pl-3 pr-4 md:text-sm lg:text-md cursor-pointer">About Us</a>
+        <a onClick={()=>{onAboutUsClick();navigate("/")}} className="about block py-2 pl-3 pr-4 md:text-[0.8rem] lg:text-md cursor-pointer">About Us</a>
       </li>
       <li>
-        <a href="#" className="contact block py-2 pl-3 pr-4 md:text-sm lg:text-md">Contact</a>
+        <a href="#" className="contact block py-2 pl-3 pr-4 md:text-[0.8rem] lg:text-md lg:text-md">Contact</a>
       </li>
     </ul>
   </div>

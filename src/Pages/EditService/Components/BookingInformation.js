@@ -181,7 +181,7 @@ const BookingInformation = ({serviceInformation}) => {
       {
         const Instance = [...serviceOfferList]
         const tempData = {
-          uniqueId : Math.floor(Math.random() * 1000 + 1),
+          uniqueId : Math.floor(1000000000 + Math.random() * 9000000000),
           name : serviceOfferInfo.name,
           origPrice : serviceOfferInfo.variants.length !== 0 ? '' : serviceOfferInfo.origPrice,
           duration : serviceOfferInfo.variants.length !== 0 ? '' : serviceOfferInfo.duration,
@@ -247,7 +247,8 @@ const BookingInformation = ({serviceInformation}) => {
       {
         const instance = [...serviceOfferList]
         const data = {
-          uniqueId : serviceOfferInfo.uniqueId,
+          // uniqueId : serviceOfferInfo.uniqueId,
+          uniqueId : Math.floor(1000000000 + Math.random() * 9000000000),
           name : serviceOfferInfo.name,
           origPrice : serviceOfferInfo.variants.length !== 0 ? '' : serviceOfferInfo.origPrice,
           variants : serviceOfferInfo.variants.filter(variant => variant.type !== '' && variant.price !== '') ,

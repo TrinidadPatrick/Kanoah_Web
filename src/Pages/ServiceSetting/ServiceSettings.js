@@ -15,6 +15,7 @@ import Bookings from './BookingManager/Bookings';
 import UseInfo from '../../ClientCustomHook/UseInfo';
 import MobileServiceSettingSidebar from './MobileServiceSettingSidebar';
 import RatingsAndReviews from './RatingsAndReviews/RatingsAndReviews';
+import ServiceDashboard from './ServiceDashboard/ServiceDashboard';
 
 const ServiceSettings = () => {
   const {userInformation, authenticated} = UseInfo()
@@ -39,7 +40,7 @@ const ServiceSettings = () => {
 
   //Check if the url is valid
   useEffect(()=>{
-    if(option != "myService" && option != "Bookings" && option != "Reviews")
+    if(option != "myService" && option != "Bookings" && option != "Reviews" && option != "Dashboard")
     {
       setNotFound(true)
     }
@@ -57,16 +58,17 @@ const ServiceSettings = () => {
           // Main Container
     <div className='flex w-full h-full'>
     {/* Left section */}
-    <section className='w-[370px] h-full bg-white hidden md:flex flex-col'>
+    <section className='w-[310px] lg:w-[370px] h-full bg-white hidden md:flex flex-col'>
     <div className='border-l-4 ps-2 ml-5 border-l-themeBlue mt-5'>
-    <h1 className='text-xl lg:text-3xl font-bold text-themeBlue '>Service Setting</h1>
-    <p className='text-[0.79rem]'>Manage or edit your service here</p>
+    <h1 className='text-lg lg:text-3xl font-bold text-themeBlue '>Service Setting</h1>
+    <p className='text-xs lg:text-[0.79rem]'>Manage or edit your service here</p>
     </div>
 
     <div className='flex flex-col items-start mt-10 space-y-6'>
-    <div  onClick={()=>{handleSelectSettings("myService")}}  className={`${option == "myService" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><span className="icon-[material-symbols--business-center-outline] text-gray-600 text-xl"></span><Link to="" className={`${option == "myService" ? "text-blue-800" : "text-gray-700"} font-medium`}>My Service</Link></div>
-    <div  onClick={()=>{handleSelectSettings("Bookings")}}  className={`${option == "Bookings" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><BookOnlineOutlinedIcon fontSize='small' className='text-gray-600' /><Link to="" className={`${option == "Bookings" ? "text-blue-800" : "text-gray-700"} font-medium`}>Bookings</Link></div>
-    <div  onClick={()=>{handleSelectSettings("Reviews")}}  className={`${option == "Reviews" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><GradeOutlinedIcon fontSize='small' className='text-gray-600' /><Link to="" className={`${option == "Reviews" ? "text-blue-800" : "text-gray-700"} font-medium`}>Reviews</Link></div>
+    <div  onClick={()=>{handleSelectSettings("Dashboard")}}  className={`${option == "Dashboard" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><span className="icon-[material-symbols--dashboard-outline-rounded] text-gray-700 text-xl"></span><Link to="" className={`${option == "Dashboard" ? "text-blue-800" : "text-gray-700"} text-sm font-medium`}>Dashboard</Link></div>
+    <div  onClick={()=>{handleSelectSettings("myService")}}  className={`${option == "myService" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><span className="icon-[material-symbols--business-center-outline] text-gray-600 text-xl"></span><Link to="" className={`${option == "myService" ? "text-blue-800" : "text-gray-700"} text-sm font-medium`}>My Service</Link></div>
+    <div  onClick={()=>{handleSelectSettings("Bookings")}}  className={`${option == "Bookings" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><BookOnlineOutlinedIcon fontSize='small' className='text-gray-600' /><Link to="" className={`${option == "Bookings" ? "text-blue-800" : "text-gray-700"} font-medium text-sm`}>Bookings</Link></div>
+    <div  onClick={()=>{handleSelectSettings("Reviews")}}  className={`${option == "Reviews" ? "text-blue-800 bg-blue-100 border-r-4 border-r-blue-800 font-semibold" : ""} flex items-center space-x-2 hover:bg-blue-300 w-full py-4 px-5 cursor-pointer`}><GradeOutlinedIcon fontSize='small' className='text-gray-600' /><Link to="" className={`${option == "Reviews" ? "text-blue-800" : "text-gray-700"} font-medium text-sm`}>Reviews</Link></div>
     
     </div>
 
@@ -74,12 +76,12 @@ const ServiceSettings = () => {
 
 
     {/* Right section */}
-    <section className='w-full h-full  flex flex-col relative '>
+    <section className='w-full h-full flex flex-col relative overflow-auto '>
     
       <button onClick={()=>setOpenMobileSidebar(true)} className="absolute md:hidden top-4 bg-white shadow-md border rounded-md w-8 h-8 flex items-center justify-center left-2">
-      <span class="icon-[icon-park-outline--hamburger-button] bg-black  text-2xl"></span>
+      <span className="icon-[icon-park-outline--hamburger-button] bg-black  text-2xl"></span>
       </button>
-      {option == "Bookings" ? <Bookings /> : option == "myService" ? <MyService /> : option == "Reviews" ?  <RatingsAndReviews /> : "" }
+      {option == "Bookings" ? <Bookings /> : option == "myService" ? <MyService /> : option == "Reviews" ?  <RatingsAndReviews /> : option == "Dashboard" ?  <ServiceDashboard /> : <PageNotFound /> }
       <div onClick={()=>setOpenMobileSidebar(false)} className={`${openMobileSidebar ? "" : "hidden"} w-full h-full bg-[#00000080] absolute`}></div>
     </section>
 
