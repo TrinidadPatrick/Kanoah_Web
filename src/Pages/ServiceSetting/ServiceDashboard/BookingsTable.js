@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import OutsideClickHandler from 'react-outside-click-handler'
 import http from '../../../http'
+import './DashBoardStyle.css'
 
-const BookingsTable = ({serviceInformation}) => {
+const BookingsTable = ({serviceInformation, dateSelected}) => {
     const [selectedFilter, setSelectedFilter] = useState('Completed')
     const [bookings, setBookings] = useState(null)
+
+
     useEffect(() => {
         const getDBBookings = async () => {
             try {
-                const result = await http.get(`getDBBookings?service=${serviceInformation._id}&filter=${selectedFilter}`, {withCredentials : true})
+                const result = await http.get(`getDBBookings?service=${serviceInformation._id}&filter=${selectedFilter}&dateFilter=${dateSelected}`, {withCredentials : true})
                 setBookings(result.data)
             } catch (error) {
                 console.error(error)
@@ -16,18 +19,18 @@ const BookingsTable = ({serviceInformation}) => {
         }
 
         serviceInformation !== null && getDBBookings()
-    },[serviceInformation, selectedFilter])
+    },[serviceInformation, selectedFilter, dateSelected])
 
   return (
     <div  className='flex flex-col w-full h-full max-h-full'>
         {/* Nav */}
         <nav className='w-full flex items-center px-3 py-3 justify-between border-b-1'>
-            <h1 className='text-lg  text-gray-700 font-semibold'>Recent Bookings</h1>
+            <h1 className='text-base md:text-lg  text-gray-700 font-semibold'>Recent Bookings</h1>
             <Dropdown selectedFilter={selectedFilter} setSelectedFilter={setSelectedFilter} />
         </nav>
 
         {/* Table */}
-        <div className='w-full max-w-full h-full max-h-full overflow-auto overflow-x-scroll'>
+        <div className='DBBookingTable w-full max-w-full h-full max-h-full overflow-auto overflow-x-scroll'>
             <table className='w-full '>
                 <thead className='font-normal text-center text-sm text-gray-500'>
                     <tr className='sticky top-0'>
@@ -85,9 +88,9 @@ const Dropdown = ({selectedFilter, setSelectedFilter}) => {
     const [openFilter, setOpenFilter] = useState(false)
     return(
         <OutsideClickHandler onOutsideClick={()=>setOpenFilter(false)}>
-        <div className='w-[110px] h-[30px] bg-gray-100 rounded-md relative z-10'>
+        <div className='w-[90px] md:w-[110px] h-[25px] md:h-[30px] bg-gray-100 rounded-sm md:rounded-md relative z-10'>
             
-            <button onClick={()=>setOpenFilter(!openFilter)} className='w-full h-full flex justify-center items-center text-gray-600 font-medium text-sm'>
+            <button onClick={()=>setOpenFilter(!openFilter)} className='w-full h-full flex justify-center items-center text-gray-600 font-medium text-xs md:text-sm'>
                 {selectedFilter}
                 <span className="icon-[iconamoon--arrow-down-2] text-lg text-gray-600"></span>
             </button>

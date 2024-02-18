@@ -103,7 +103,7 @@ const SummaryDetails = ({serviceInformation, dateSelected}) => {
             <span className={`${totalBookings.percentIncrease < 0 ? "text-red-500" : "text-green-500 before:content-['+'] "} rounded-sm text-semiSm`}>{totalBookings.percentIncrease}%</span> this month</h2>
         </div>
     </div>
-    <div className='border rounded-se-md lg:rounded-se-none lg:border-b-0 py-2 px-5 flex flex-col justify-between'>
+    <div className='border rounded-se-md sm:rounded-se-none lg:rounded-se-none lg:border-b-0 py-2 px-5 flex flex-col justify-between'>
     <h1 className='text-[0.8rem] semiMd:text-sm font-medium text-gray-800'>Total Reviews</h1>
         <div className='w-full flex items-center'>
             <h2 className='text-xl lg:text-2xl font-semibold text-gray-700'>{totalReview.reviews}</h2>
@@ -114,7 +114,7 @@ const SummaryDetails = ({serviceInformation, dateSelected}) => {
             this month</h2>
         </div>
     </div>
-    <div className='border lg:rounded-es-md border-t-0 sm:border-t-1 border-l-1 sm:border-l-0 lg:border-l-1 border-r-0 p-2 flex flex-col justify-between'>
+    <div className='border rounded-es-md sm:rounded-es-none lg:rounded-es-md border-t-0 sm:border-t-1 border-l-1 sm:border-l-0 lg:border-l-1 border-r-0 p-2 flex flex-col justify-between'>
     <h1 className='text-[0.8rem] semiMd:text-sm font-medium text-gray-800'>Rating Average</h1>
         <div className='w-full flex items-center'>
             <h2 className='text-xl lg:text-2xl font-semibold text-gray-700'>{ratingAverage.average}</h2>

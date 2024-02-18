@@ -61,15 +61,7 @@ const BookingAndSalesChart = ({serviceInformation}) => {
         xaxis: {
           categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         },
-        fill: {
-            type: 'gradient',
-            gradient: {
-              shadeIntensity: 1,
-              opacityFrom: 0.7,
-              opacityTo: 0.5,
-              stops: [0, 100],
-            },
-        },
+        
         dataLabels: {
             enabled: false,
             
@@ -81,6 +73,19 @@ const BookingAndSalesChart = ({serviceInformation}) => {
           stroke: {
             curve: 'smooth'
           },
+          yaxis: [
+            {
+              title: {
+                // text: 'Bookings',
+              },
+            },
+            {
+              opposite: true,
+              title: {
+                // text: 'Sales',
+              },
+            },
+          ],
           legend: {
             position: 'top',
             offsetY: 3, // Adjust the offset as needed
@@ -195,7 +200,7 @@ const BookingAndSalesChart = ({serviceInformation}) => {
     },[serviceInformation])
 
   return (
-    <div className='w-full h-full flex flex-col max-h-[200px] border lg:border-l-0 rounded-s-md lg:rounded-s-none rounded-e-md'>
+    <div className='w-full h-full flex flex-col max-h-[200px] border lg:border-l-0 rounded-e-md'>
      <Chart
       options={chartOptions}
       series={chartSeries}

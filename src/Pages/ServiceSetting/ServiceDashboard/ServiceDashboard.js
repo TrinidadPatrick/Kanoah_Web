@@ -30,40 +30,14 @@ const ServiceDashboard = () => {
             </div>
         </section>
 
-        <section className='w-full min-h-[600px] lg:min-h-fit lg:h-fit flex gap-3 flex-col lg:flex-row justify-evenly  overflow-auto'>
+        <section className='w-full min-h-[600px] lg:min-h-fit lg:h-full flex gap-3 flex-col lg:flex-row justify-evenly  overflow-auto'>
             <div className='w-full overflow-auto h-full max-h-full border rounded-md'>
-                <BookingsTable serviceInformation={serviceInformation} />
+                <BookingsTable dateSelected={dateSelected} serviceInformation={serviceInformation} />
             </div>
             <div className='w-full h-full col-span-5 overflow-auto max-h-full border rounded-md'>
-                <RatingTable serviceInformation={serviceInformation} />
+                <RatingTable dateSelected={dateSelected} serviceInformation={serviceInformation} />
             </div>
         </section>
-
-
-        {/* Details summary and booking chart */}
-        {/* <section className='w-full h-[200px] gap-4 min-h-[200px] max-h-[300px]'> */}
-            {/* Details summary */}
-            {/* <div className=' col-span-12 lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2'>
-                <SummaryDetails dateSelected={dateSelected} serviceInformation={serviceInformation} />
-            </div> */}
-            {/* booking chart */}
-            {/* <div className=' col-span-12 lg:col-span-7'>
-                <BookingAndSalesChart dateSelected={dateSelected} serviceInformation={serviceInformation} />
-            </div> */}
-        {/* </section> */}
-        
-        {/* Tables */}
-        {/* <section className='w-full h-[500px] min-h-[500px] border '>
-
-        </section> */}
-        {/* <section className='w-full h-full overflow-auto  grid grid-cols-12 gap-2 '>
-            <div className='w-full col-span-7 h-full overflow-auto max-h-full border rounded-md'>
-                <BookingsTable serviceInformation={serviceInformation} />
-            </div>
-            <div className='w-full h-full col-span-5 overflow-auto max-h-full border rounded-md'>
-                <RatingTable serviceInformation={serviceInformation} />
-            </div>
-        </section> */}
     </main>
   )
 }

@@ -17,6 +17,10 @@ const MobileServiceSettingSidebar = ({openMobileSidebar, setOpenMobileSidebar}) 
 
     {/* Options */}
     <div className='flex flex-col items-start mt-10 space-y-6 p-3'>
+    <Link to="/serviceSettings/Dashboard" onClick={()=>{setOpenMobileSidebar(false)}} className={`${option == "Dashboard" ? " bg-blue-500 font-semibold" : ""} flex items-center space-x-2 rounded-md w-full py-4 px-5 cursor-pointer`}>
+    <span className="icon-[material-symbols--dashboard-outline-rounded] text-gray-50 text-xl"></span>
+        <div className={`${option == "Dashboard" ? "text-gray-50" : "text-gray-50"} text-semiSm`}>Dashboard</div>
+    </Link>
     <Link to="/serviceSettings/myService" onClick={()=>{setOpenMobileSidebar(false)}} className={`${option == "myService" ? " bg-blue-500 font-semibold" : ""} flex items-center space-x-2 rounded-md w-full py-4 px-5 cursor-pointer`}>
         <PersonOutlinedIcon className='text-gray-50' fontSize='small' />
         <div className={`${option == "myService" ? "text-gray-50" : "text-gray-50"} text-semiSm`}>My Service</div>
