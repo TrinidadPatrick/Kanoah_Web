@@ -242,7 +242,7 @@ const RecentServices = ({services}) => {
                 {/* Rating */}
                 <div className='flex relative items-center ml-3 space-x-1'>
                 <StyledRating className='relative -left-1'  readOnly defaultValue={service.ratingRounded} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
-                <p className='text-gray-400 text-sm font-medium'>{service.ratings}</p> 
+                <p className='text-gray-400 text-sm font-medium'>{service.ratings.toFixed(1)}</p> 
                 <p className='text-gray-300'>|</p>
                 <p className='text-gray-700 text-sm pt-[2.5px] font-medium'>{service.totalReviews + " Reviews"}</p> 
                 </div>
