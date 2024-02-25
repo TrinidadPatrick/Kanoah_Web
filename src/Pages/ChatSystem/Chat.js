@@ -1,667 +1,919 @@
-import React, { useEffect } from 'react'
-import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
-import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
-import { Link, useSearchParams } from 'react-router-dom';
+import React from 'react'
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useSearchParams } from 'react-router-dom';
+import http from '../../http';
+import { useNavigate } from 'react-router-dom';
+import { selectNewMessage, setNewMessage, selectOnlineUsers } from '../../ReduxTK/chatSlice';
 import SendOutlinedIcon from '@mui/icons-material/SendOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import ScrollToBottom from 'react-scroll-to-bottom';
-import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import cloudinaryCore from '../../CloudinaryConfig';
+import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
+import EmojiPicker from 'emoji-picker-react';
+import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
-import http from '../../http'
+import MyLocationOutlinedIcon from '@mui/icons-material/MyLocationOutlined';
+import MailOutlineRoundedIcon from '@mui/icons-material/MailOutlineRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import ContactPhoneRoundedIcon from '@mui/icons-material/ContactPhoneRounded';
+import './chat.css'
+import UseInfo from '../../ClientCustomHook/UseInfo';
+import {io} from 'socket.io-client'
 
-
-    const Chat = () => {
+  const ChatPractice = () => {
+    const dispatch = useDispatch()
+    const {authenticated, userInformation} = UseInfo()
+    const newMessage = useSelector(selectNewMessage)
     const navigate = useNavigate()
-    const dispatch = useDispatch();
-    const userId = useSelector(selectUserId);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [openViewer, setOpenViewer] = useState(false)
+    const convoId = searchParams.get('convoId')
+    const service = searchParams.get('service')
+    const [loadingHeader, setLoadingHeader] = useState(true)
+    const [loadingChats, setLoadingChats] = useState(true)
     const [noChats, setNoChats] = useState(false)
-    const [moreOptionClass, setMoreOptionClass] = useState(false)
-    const [showLoadMore, setShowLoadMore] = useState(false)
     const [windowWidth, setWindowWdith] = useState(null)
     const [windowHeight, setWindowHeight] = useState(null)
-    const [sendingMessage, setSendingMessage] = useState(false) 
-    const [activeConversation, setActiveConversation] = useState('')
-    const [searchParams, setSearchParams] = useSearchParams();
-    const convoId = searchParams.get('convoId')
-    const to = searchParams.get('to')
-    const service = searchParams.get('service')
-    const t = searchParams.get('t')
-    const [serviceFromParam, setServiceFromParam] = useState('')
-
-    const [loading, setLoading] = useState(true)
-    const [serverError, setServerError] = useState(false)
 
     const currentDate = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-    const currentDay = currentDate.getDate().toString().padStart(2, '0');
-    const thisDate = currentYear + "-" + currentMonth + "-" + currentDay
+    const thisDate = new Date().toLocaleDateString('en-CA');
     let hours = currentDate.getHours();
     const minutes = currentDate.getMinutes();
-    const seconds = currentDate.getSeconds();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
-    const timeSent = `${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds} ${ampm}`;
+    const timeSent = `${hours}:${minutes < 10 ? '0' : ''}${minutes} ${ampm}`;
 
-    const [recipient, setRecipient] = useState({
-        _id : "",
-        username : "",
-        profileImage : ""
-    })
-    const [sender, setSender] = useState('')
-    const [typingMessage, setTypingMessage] = useState('')
-    const [allChats, setAllChats] = useState([])
-    // All contacts that the user have communicated with
+    // For messages
+    const [receiver, setReceiver] = useState({})
+    const [receiverInformation, setReceiverInformation] = useState({})
+    const [showProfileInformation, setShowProfileInformation] = useState(false)
+    const [serviceInquired, setServiceInquired] = useState({})
     const [allContacts, setAllContacts] = useState([])
-    const [conversationId, setConversationId] = useState('')
-    const [isFetching, setIsFetching] = useState(false);
-    const [messageContentBoxClass, setMessageContentBoxClass] = useState('w-full overflow-hidden hidden absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 md:pb-2');
+    const [origAllContacts, setOrigAllContacts] = useState([])
+    const [currentChatsCount, setCurrentChatsCount] = useState(0)
+    const [currentChats, setCurrentChats] = useState([])
+    const [messageInput, setMessageInput] = useState('')
+    const [returnLimit, setReturnLimit] = useState(10)
+    const [openEmojiPicker, setOpenEmojiPicker] = useState(false)
 
-    const [displayedMessages, setDisplayedMessages] = useState(-10);
+    const [socket, setSocket] = useState(null)
+    const [fetching, setFetching] = useState(false)
+    const [allChats, setAllChats] = useState([])
+    const [sendingMessages, setSendingMessages] = useState([])
+    const [loadingMore, setLoadingMore] = useState(false)
+    const [openMoreOptions, setOpenMoreOptions] = useState(false)
+    const [imageSelected, setImageSelected] = useState('')
+    const onlineUsers = useSelector(selectOnlineUsers)
+    const [chatClass, setChatClass] = useState('w-full hidden sm:flex h-full flex-col bg-white shadow-sm py-2 px-5 space-y-3')
+    const [contactClass, setContactClass] = useState('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full border-r-1 bg-white shadow-sm')
 
-   // Get the userId asynchronously
-   const setUserId = ()=>{
-  return new Promise((resolve, reject)=>{
-        if(userId != null){
-                resolve(userId)
-            
-        }
-    })
-   }  
-
-  //Gets all users
-  const getUsers = async () => {
-    const myId = await setUserId()
-    fetchUsers(myId) 
+    const handleResize = () => {
+      const windowWidth = window.innerWidth;
+      const windowHeight = window.innerHeight;
     
-  }
-
-    // Get user Chats
-    async function getUserChats(){
-        try {
-          setIsFetching(true)
-          const myId = await setUserId()
-          const result = await http.get(`getUserChats/${myId}`)
-          const groupedData = () =>{
-              return new Promise((resolve, reject)=>{
-                  const groupedData = result.data.reduce((result, obj) => {
-                      const existingGroup = result.find(group => group[0]?.conversationId === obj.conversationId);            
-                      if (existingGroup) {
-                        existingGroup.push(obj);
-                      } else {
-                        result.push([obj]);
-                      }            
-                      return result;
-                    }, []);
-                 resolve(groupedData)           
-              })
-              
-          }
-          
-          const allChat = await groupedData()
-          //Set all contacts by setting the receiver and setting conversation id
-          const allContacts = allChat.map((chats) => {
-            if (!chats || !chats[0] || !chats[0].participants || !chats[chats.length - 1]) {
-              // Handle cases where essential properties are undefined
-              return null;
-            }
-          
-            const receiver = chats[0].participants.filter((chat) => chat._id != myId);
-            const sentBy = chats[chats.length - 1].message.sender;
-            const conversationId = chats[0].conversationId;
-            const serviceInquired = chats[0].serviceInquired;
-            const latestChat = chats[chats.length - 1].message.content;
-            const latestChatTime = chats[chats.length - 1].message.timestamp;
-            const dateSent = chats[chats.length - 1].message.date;
-            const readBy = chats[chats.length - 1].readBy;
-          
-            // Ensure that essential properties are not undefined before returning the object
-            if (receiver && sentBy && conversationId && serviceInquired && latestChat && latestChatTime && dateSent && readBy) {
-              return {
-                receiver,
-                sentBy,
-                conversationId,
-                serviceInquired,
-                latestChat,
-                latestChatTime,
-                dateSent,
-                readBy,
-              };
-            }
-          
-            return null; // Handle cases where essential properties are undefined
-          });
-            setAllContacts(allContacts)
-            setAllChats(allChat)
-            //So if the conversation is a first chat, automatically retreive that message
-            if(conversationId === "")
-            {
-              const find = allContacts.find(contact => contact.receiver[0]._id == recipient._id)
-              if(find != undefined || find != null)
-              {
-              setConversationId(find.conversationId)
-              }
-              
-            }
-  
-            return {allChats, allContacts}
-        } catch (error) {
-            console.error(error)
-        } finally{
-          setIsFetching(false)
-        }
-       
-    }
+      // Update your code or perform actions based on the new size
+      setWindowWdith(windowWidth)
+      setWindowHeight(windowHeight)
+}
+    // Attach the event listener to the window resize event
+    window.addEventListener('resize', handleResize);
     
-  //Sets the users except the active user, set my username
-    async function fetchUsers(myId){ 
-    const token = localStorage.getItem('accessToken')
-    if(!token)
+    // Call the function once to get the initial size
+    useEffect(()=>{
+      handleResize();
+    },[])
+
+  useEffect(()=>{
+    if(authenticated === false)
     {
       navigate('/')
     }
-    else{
+  },[authenticated])
+
+  useEffect(()=>{
+    setSocket(io("https://kanoah.onrender.com"))
+
+  },[])
+
+  useEffect(()=>{
+    if(newMessage === true)
+      {
+        (async () => {
+          try {
+
+            const messages = await http.get(`getMessages/${convoId}/${returnLimit}`, {
+              withCredentials: true,
+            });
+            // console.log(messages.data)
+            if (currentChats && currentChats.length > 0 && currentChats[0]?.conversationId === convoId) {
+              setCurrentChats(messages.data.result);
+            }          
+            const contact = await getContacts()
+            // Corrected the function call below
+            dispatch(setNewMessage(false))
+          } catch (error) {
+            console.error(error);
+          }  
+          getAllChats()   
+        })();
+
+      }
+
+      
+  },[newMessage, userInformation, currentChats])
+
+
+    useEffect(()=>{
+      if(service == "")
+      {
+        navigate('/notFound')
+      }
+    },[])
+
+    
+    // load first chat upon load when there is no service or convoId
+    useEffect(()=>{
+      if(userInformation !== null && service == null)
+      {
+        (async()=>{
+          try {
+            
+            const contacts = await http.get(`retrieveContacts/${userInformation?._id}`, {
+              withCredentials: true,
+            })
+            const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            
+            if(contacts.data.length == 0)
+            {
+              setNoChats(true)
+            }
+            const firstContact = sortedContacts[0]
+            setSearchParams({service : firstContact.serviceInquired, convoId : firstContact.conversationId})
+            setAllContacts(sortedContacts)
+            setOrigAllContacts(sortedContacts)
+            setReceiver(firstContact.participants.filter(receiver => receiver._id !== userInformation?._id)[0])
+            setServiceInquired(firstContact.virtualServiceInquired)
+            getChats(firstContact.conversationId)
+            setLoadingHeader(false)
+            
+           } catch (error) {
+            console.error(error)
+           }
+        })()
+      
+      }
+      else if(service != null && convoId !== null && currentChats.length == 0)
+      {
+        getChats(convoId)
+      }
+      
+    },[userInformation, allContacts])
+
+
+    // Gets the information of receiver and service
+    useEffect(()=>{
+      if(receiver.username == undefined && serviceInquired?.basicInformation == undefined && service !== null)
+      {
+        (async ()=>{ 
+          await getReceiver()
+          
+        })()
+        // getContacts()
+      }
+    },[userInformation, allContacts])
+
+    //Get all Contacts related to current users
+    const getContacts = async () => {
+      if(userInformation?._id !== undefined && convoId !== undefined)
+      {
+        try {
+          const contacts = await http.get(`retrieveContacts/${userInformation?._id}`, {
+            withCredentials: true,
+          })
+          const sortedContacts = contacts.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          setAllContacts(sortedContacts)
+          setOrigAllContacts(sortedContacts)
+          return sortedContacts;
+        } catch (error) {
+          console.error(error)
+        }
+      }
+
+    }
+
+    // get the receiver when clicked chat from view service because there is no convoID
+    const getReceiver = async () => {
+      // If there is no conversation ID find that conversation using the service id
+      let conversation_id = ''
+      const contacts = await getContacts()
+      if(contacts !== undefined){
+        const selectedChat = contacts.find(contact => contact.serviceInquired === service)
+        if(selectedChat)
+        {
+        conversation_id = selectedChat.conversationId
+        getChats(conversation_id)
+        setSearchParams({service : service, convoId : conversation_id})
+        }
+        
+      }
+      if(convoId == null)
+      {
+        try {
+          const receiver = await http.get(`getReceiver/${service}`)
+          setReceiver(receiver.data)
+          } catch (error) {
+          console.error(error)
+          }
+          try {
+            const serviceInquired = await http.get(`getServiceFromChat/${service}`)
+            setServiceInquired(serviceInquired.data)
+            setLoadingHeader(false)
+            setLoadingChats(false)
+          } catch (error) {
+            console.error(error)
+          }  
+      }
+      
+    }
+    // Get the reciever information and service 
+    const selectReceiver = async ( conversationId, receiver, serviceInqId, serviceName) => {
+      setSearchParams({service : serviceInqId, convoId : conversationId})
+      setReceiver(receiver)
+      setServiceInquired(serviceName)
+    }
+
+    //Handle the sending of message
+    const handleSendMessage = async (message, type) => {
+      const data = {
+        sendingId : Math.floor(Math.random() * 1000),
+        conversationId : convoId,
+        participants : [userInformation?._id, receiver._id],
+        readBy : [userInformation?._id],
+        serviceInquired : service,
+        createdAt : currentDate,
+        messageType : type,
+        messageContent : 
+        {
+          sender : userInformation?._id,
+          receiver: receiver._id,
+          content: message,
+          date : thisDate,
+          timestamp : timeSent
+        }
+      }
+
+      if(message !== '')
+      {
+      setSendingMessages((prevSendingMessages)=> [...prevSendingMessages, data])
+      if(type !== 'image'){setCurrentChats((prevChats) => [...prevChats, data]);}
+      
+      setMessageInput('')
+      const notificationMessage = 'newMessage'
       try {
-        const myInfo = await http.get(`getUser`,{
-          headers : {Authorization: `Bearer ${token}`},
-        })
-      const me = myInfo.data
-      setSender({username : me.username, _id : me._id, profileImage : me.profileImage})
+        const sendMessage = await http.post('sendMessage', data)
+        getAllChats()
+        setSendingMessages([...sendingMessages.filter(message => message.sendingId !== data.sendingId)])
+        getContacts()
+
+        setSearchParams({service : service, convoId : sendMessage.data.result.conversationId})   
+        socket.emit('message', {notificationMessage, receiverName : receiver._id});
       } catch (error) {
-        navigate('/')
+        console.error(error)
+      }
+      }
+      
+      
+      
+    }
+
+    //Handle the sending of message
+    const handleImageSend = async (message, type) => {
+          const data = {
+            sendingId : Math.floor(Math.random() * 1000),
+            conversationId : convoId,
+            participants : [userInformation._id, receiver._id],
+            readBy : [userInformation._id],
+            serviceInquired : service,
+            createdAt : currentDate,
+            messageType : type,
+            messageContent : 
+            {
+              sender : userInformation._id,
+              receiver: receiver._id,
+              content: message,
+              date : thisDate,
+              timestamp : timeSent
+            }
+          }
+          if(message !== '')
+          {
+          setSendingMessages((prevSendingMessages)=> [...prevSendingMessages, data])
+          setCurrentChats((prevChats) => [...prevChats, data]);
+          setMessageInput('')
+          
+          }
+          
+          
+          
+    }
+
+    // Handle the pagination of chats
+    const handlePagination = () => {
+      setLoadingMore(true)
+      setReturnLimit((...prevReturnLimit)=> Number(prevReturnLimit) + 10)
+    }
+
+    //Get chats from selected conversation
+    const getChats = async (conversationId) => {
+      
+    if(conversationId !== "" && userInformation?._id !== undefined && fetching == false && allChats.length == 0)
+    {
+      setFetching(true)
+      try {
+        const messages = await http.get(`getMessages/${conversationId}/${returnLimit}`, {
+          withCredentials: true,
+        })
+        const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation?._id)
+        setReceiver(receiver)
+        setServiceInquired(messages.data.result[0].virtualServiceInquired)
+        setCurrentChats(messages.data.result)
+        setCurrentChatsCount(messages.data.documentCount)
+
+     } catch (error) {
+      console.error(error)
+     }finally {
+        setFetching(false)
+        setLoadingHeader(false)
+        setLoadingChats(false)
+        setTimeout(()=>{
+          getChatsAync()
+        }, 2000)
+       
+
+     
+     }
+    }
+
+    else if(conversationId !== "" && userInformation?._id !== undefined && fetching == false && allChats.length !== 0)
+    {
+      
+      const selectedChats = allChats.find(chats => chats.result[0].conversationId === conversationId)
+      setCurrentChatsCount(selectedChats.documentCount)
+      setCurrentChats(selectedChats.result)
+    }
+    }
+    // When clicked loadmore
+    useEffect(()=>{
+      if(returnLimit > 10)
+      {
+        
+        (async () => {
+          try {
+            const messages = await http.get(`getMessages/${convoId}/${returnLimit}`, {
+              withCredentials: true,
+            });
+            const receiver = messages.data.result[0].participants.find(user => user._id !== userInformation?._id);
+            setReceiver(receiver);
+            setServiceInquired(messages.data.result[0].virtualServiceInquired);
+            setCurrentChats(messages.data.result);
+            setCurrentChatsCount(messages.data.documentCount);
+            setLoadingMore(false)
+          } catch (error) {
+            console.error(error);
+          }
+        })();
+      }
+      
+    },[returnLimit])
+
+    //Handle the sending of Image
+    const handleFileInputChange = async (event) => {
+      const file = event.target.files[0];
+
+      const getImageDataUrl = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const dataURL = reader.result;
+            // Now 'dataURL' contains the base64-encoded image data
+            resolve(dataURL);
+            // You can use 'dataURL' to upload to Cloudinary or store in your database
+          };
+          reader.onerror = (error) => {
+            reject(error);
+          };
+          reader.readAsDataURL(file);
+        });
+      };
+
+      // Function to resize an image using a canvas
+      const resizeImage = (dataUrl, maxWidth, maxHeight) => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.src = dataUrl;
+
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = img.width;
+            let height = img.height;
+
+            // Calculate new dimensions while maintaining the aspect ratio
+            if (width > maxWidth) {
+              height *= maxWidth / width;
+              width = maxWidth;
+            }
+
+            if (height > maxHeight) {
+              width *= maxHeight / height;
+              height = maxHeight;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const resizedDataUrl = canvas.toDataURL('image/jpeg'); // Change the format if needed (e.g., 'image/png')
+
+            resolve(resizedDataUrl);
+          };
+        });
+      };
+
+      // Function to convert data URL to Blob
+      const dataURLtoBlob = (dataUrl) => {
+        const arr = dataUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+
+        return new Blob([u8arr], { type: mime });
+      };
+
+      if (file) {
+        try {
+          const test = await getImageDataUrl(file);
+          const resizedImageDataUrl = await resizeImage(test, 800, 600);
+          handleImageSend(resizedImageDataUrl, 'image' )
+
+          const formData = new FormData();
+          formData.append('file', dataURLtoBlob(resizedImageDataUrl));
+          formData.append('upload_preset', "kanoah_chat_image");
+          const response = await axios.post(
+            `https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`,
+            formData,
+          );
+          const imageUrl = response.data.secure_url;
+          if(response.status === 200)
+          {
+            (()=>{handleSendMessage(imageUrl, 'image' )})()
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      
+      
+    };
+
+    // opens and close the emoji picker
+    const handleEmojiPicker = () => {
+      setOpenEmojiPicker(!openEmojiPicker)
+    } 
+
+    const handleReadMessage = async (conversationId) => {
+      const readMessage = await http.put('handleReadMessage', {conversationId, myId : userInformation?._id})
+      await getContacts()
+      
+    }
+
+    async function getChatsAync() {
+      if (allContacts.length !== 0) {
+        try {
+          const messagesPromises = allContacts.map(async (contact) => {
+            const messages = await http.get(`getMessages/${contact.conversationId}/${returnLimit}`, {
+              withCredentials: true,
+          });
+            return messages.data;
+          });
+    
+          const allMessages = await Promise.all(messagesPromises);
+    
+          // Now allMessages is an array containing the results of all the http.get calls
+          setAllChats(allMessages)
+          // Do something with the updated 'chats' array
+        } catch (error) {
+          console.error(error);
+        }
       }
     }
+
+    async function getAllChats() {
+
+        try {
+          const messagesPromises = allContacts.map(async (contact) => {
+            const messages = await http.get(`getMessages/${contact.conversationId}/${returnLimit}`, {
+              withCredentials: true,
+            });
+            return messages.data;
+          });
     
-}
-
-
-    // Handles the messages send
-    const handleMessage = async (message) => {
-
-    const messageData = {
-        conversationId : conversationId,
-        participants: [sender._id, recipient._id],
-        serviceInquired : service,
-        readBy : [sender._id],
-        message: 
-            {
-                sender: {_id : sender._id, profileImage : sender.profileImage},
-              receiver : {_id : recipient._id},
-                content: message,
-                timestamp : timeSent,
-                date : thisDate
-            } 
+          const allMessages = await Promise.all(messagesPromises);
+    
+          // Now allMessages is an array containing the results of all the http.get calls
+          setAllChats(allMessages)
+          // Do something with the updated 'chats' array
+        } catch (error) {
+          console.error(error);
+        }
+      
     }
 
-      
-    if(typingMessage != "")
+    async function handleViewInformation(participants)
     {
-      setTypingMessage("")
-      setSendingMessage(true)
-      const test = allChats.findIndex(chats => chats[0].conversationId == activeConversation); 
-      if(test != -1)
-      {
+     
+      const profileToView = participants.find(user => user._id !== userInformation?._id)
+      const profileToView2 = participants.find(user => user !== userInformation?._id)
+      const profile = await http.get(`viewChatMemberProfile/${profileToView._id == undefined ? profileToView2 : profileToView._id}`)
+      setReceiverInformation(profile.data)
+    }
+
+    async function handleDeleteConversation(conversationId)
+    {
+      try {
+        const result = await http.delete(`handleDeleteConversation/${conversationId}`, {
+          withCredentials: true,
+        })
+
+        setSearchParams({})
+        window.location.reload()
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+    function handleSearchMessage(searchInput){
+      const newContact = [...allContacts]
+      if (searchInput.trim() !== "") {
+        const search = allContacts.filter(contact => contact.virtualServiceInquired.basicInformation.ServiceTitle.toLowerCase().includes(searchInput.toLowerCase()))
+        setAllContacts(search);
+      } else {
+        setAllContacts(origAllContacts);
+      }
+    }
+
+    function openVIewerContent(image){
+      setOpenViewer(true)
+      setImageSelected(image)
+    }
+
+    
+
+    useEffect(()=>{
       
-      const updatedChats = [...allChats];
-      updatedChats[test].push(messageData);
-      setAllChats(updatedChats);
-      await http.post('sendChat', messageData).then((res)=>{
-      }).catch((err)=>console.log(err)).finally(()=>{setSendingMessage(false)})
+      if(convoId === null && service === null && windowWidth < 640)
+      {
+        setChatClass('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
+        setContactClass('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md')
       }
       else
       {
-        const updatedChats = [...allChats];
-        updatedChats.push([messageData]);
-        setAllChats(updatedChats);
-        await http.post('sendChat', messageData).then((res)=>{
-        }).catch((err)=>console.log(err)).finally(()=>{setSendingMessage(false);getUserChats()})
-      }
-     
-      
-    }
-
-    }
-
-    // Handle the reading of message
-    const handleReadMessage = async (conversationIdParam) => {
-          let updatedReadBy = []
-          const convo = allChats.find(chats => chats[0].conversationId == conversationIdParam)
-          const unReadMessages = convo.filter(chat => !chat.readBy.includes(sender._id))
-
-          unReadMessages.forEach((message)=>{
-              const newMessage = [...unReadMessages]
-              message.readBy.push(sender._id)
-              updatedReadBy = newMessage[0].readBy
-          })
-
-          if(updatedReadBy.length !== 0)
-          {
-              await http.post('readChat', {updatedReadBy, conversationIdParam}).then((res)=>console.log(res.data)).catch((err)=>console.error(err))
-          }
-  
-  
-}
-
-    useEffect(()=>{ 
-      const token = localStorage.getItem('accessToken')
-        http.get(`getServiceInfo/${service}`).then((res)=>{
-            setServiceFromParam(res.data.service.basicInformation.ServiceTitle)
-        }).catch((err)=>{console.log(err)})
-
-        setActiveConversation(convoId)
-    },[])
-
-
-    // Go back page
-    const goBack = () => {
-        window.history.back();
-      };
-
-    //Use effect to set data to state
-    useEffect(()=>{
-    getUsers()
-    getUserChats()
-    // If convoId parameter is not specified, get the conversation id of the first conversation in the allChats
-    if(convoId == '' || convoId == null)
-    {
-        // if to is not specified in parameter
-        if(to == null || to == "")
-        {
-            const setInitialConversationId = async () => {
-                const contacts =  await (await getUserChats()).allContacts
-                if(contacts.length == 0)
-                {
-                  setNoChats(true)
-                  setLoading(false)
-                  return;
-                }
-                setConversationId(contacts[0].conversationId)
-                setSearchParams({convoId : contacts[0].conversationId, to : contacts[0].receiver[0].username, service : contacts[0].serviceInquired._id})
-                if(contacts[0].receiver[0]._id != sender._id)
-                {
-                    setRecipient({_id : contacts[0].receiver[0]._id, username : contacts[0].receiver[0].username, profileImage : contacts[0].receiver[0].profileImage, serviceInquired : contacts[0].serviceInquired, fullname : contacts[0].receiver[0].firstname + ' ' + contacts[0].receiver[0].lastname })
-                }
-                else
-                {   
-                    
-                    setRecipient({_id : contacts[0].sender[0]._id, username : contacts[0].sender[0].username, profileImage : contacts[0].sender[0].profileImage, serviceInquired : contacts[0].serviceInquired, fullname : contacts[0].receiver[0].firstname + ' ' + contacts[0].receiver[0].lastname })
-                }
-               }
-              setInitialConversationId()  
-        
-            }
-        else
-        {   
-
-            // If there is no convoId in url but there is a "To"
-            getUserChats().then((res)=>{ 
-                const token = localStorage.getItem('accessToken')
-                const test = res.allContacts.find(contact => contact.receiver[0].username === to)
-                if(test == undefined)
-                {    
-                    http.get('getUsers',{
-                      headers : {Authorization: `Bearer ${token}`},
-                    }).then((res)=>{
-                        const users = res.data
-                        const receiver = users.find(user => user.username == to)
-                        setRecipient({_id : receiver._id, username : receiver.username, profileImage : receiver.profileImage, fullname : receiver.firstname + ' ' + receiver.lastname})
-                        setConversationId('')
-                    })
-                   
-                }
-                else
-                {
-                console.log(test)
-                setRecipient({_id : test.receiver[0]._id, username :test.receiver[0].username, profileImage :test.receiver[0].profileImage, fullname : test.receiver[0].firstname + ' ' + test.receiver[0].lastname, serviceInquired : test.serviceInquired })
-                setConversationId(test.conversationId)
-                setSearchParams({convoId : test.conversationId, to, service : service})
-                }
-                
-            })
-            
-        }
-        
-    }
-    else
-    {   
-         //if there is a convoId and to
-        if((convoId !== "" && convoId !== null) && (to !== "" && to !== null))
-        {
-            getUserChats().then((res)=>{
-                const filtered = res.allContacts.find(contact => contact.conversationId == convoId)
-                // If there is not result
-                if(filtered == undefined)
-                {
-                    setLoading(false)
-                    setServerError(true)
-                }
-                else{
-                    setServerError(false)
-                    setSearchParams({convoId : filtered.conversationId, to : filtered.receiver[0].username, service : filtered.serviceInquired._id})
-                    setRecipient({_id: filtered.receiver[0]._id, username : filtered.receiver[0].username, profileImage : filtered.receiver[0].profileImage, serviceInquired : filtered.serviceInquired, fullname : filtered.receiver[0].firstname + ' ' + filtered.receiver[0].lastname})
-                }
-                
-            })
-            setConversationId(convoId)
-        }
-        // If there is a convoId but no to
-        else if((convoId !== "" && convoId !== null) && (to === "" || to === null))
-        {
-            getUserChats().then((res)=>{
-                const filtered = res.allContacts.find(contact => contact.conversationId == convoId)
-                
-                setSearchParams({convoId : convoId, to : filtered.receiver[0].username, service : service})
-                setRecipient({_id: filtered.receiver[0]._id, username : filtered.receiver[0].username, profileImage : filtered.receiver[0].profileImage, serviceInquired : filtered.serviceInquired, fullname : filtered.receiver[0].firstname + ' ' + filtered.receiver[0].lastname})
-            })
-            setConversationId(convoId)
-        }
-       
-       
-    }
-    
-
-    },[userId])
-    
-
-    useEffect(()=>{
-        if(recipient._id !== "")
-        {
-            setLoading(false)
-            setActiveConversation(convoId)
-        }
-    }, [recipient])
-
-
-      // Function to be executed every 4 seconds
-      const myFunction = () => {
-        if(isFetching)
-        {
-
-          return ;
-        }
-        getUserChats()
-      };
-      
-    // Retrieves message
-      useEffect(()=>{
-        
-        const interval = setInterval(myFunction, 2500);
-
-        return () => clearInterval(interval);
-      },[isFetching])
-      
-
-        // Function to handle window resize
-    const handleResize = () => {
-          const windowWidth = window.innerWidth;
-          const windowHeight = window.innerHeight;
-        
-          // Update your code or perform actions based on the new size
-          setWindowWdith(windowWidth)
-          setWindowHeight(windowHeight)
-    }
-        
-    // Attach the event listener to the window resize event
-    window.addEventListener('resize', handleResize);
-        
-    // Call the function once to get the initial size
-    useEffect(()=>{
-          handleResize();
-    },[])
-
-    // For mobile view, if the converstaion is new, automatically open that conversation
-    useEffect(()=>{
-      if (allContacts.length !== 0) {
-        const checkChat = allContacts.find(contact => contact.conversationId === convoId);
-        if (checkChat) {
-        } else if(checkChat == null && (t == 'new')) {
-          if (windowWidth <= 639) {
-            setMessageContentBoxClass('-translate-x-[50%] left-[50%] -full overflow-hidden w-full absolute sm:relative sm:flex flex-col h-screen sm:px-2 pt-20 transition duration-500 ease-out');
-          }
-        }
+        if(windowWidth < 640 && windowWidth !== null){setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')}
+        if(windowWidth < 640 && windowWidth !== null){setContactClass('hidden')}
       }
       
-    },[allContacts])
-
-    // Delete conversation
-    const deleteConvo = () => {
-      if(convoId != null || convoId != "")
-      {
-        http.delete(`deleteConvo/${convoId}`).then((res)=>{
-          setSearchParams({})
-          window.location.reload()
-        }).catch((err)=>{
-          console.log(err)
-        })
-      }
-    }
-
-    const loadMore = () => {
-      setDisplayedMessages(displayedMessages - 10)
-    }
-
-    useEffect(()=>{
-      if(t == 'new'){
-       setShowLoadMore(false)
-      }
-    },[allContacts])
+    },[windowWidth])
 
 
   return (
-    <div className='w-full h-screen grid place-items-center'>
-    {
-        loading ? (<div className="lds-dual-ring w-full mt-20 h-screen"></div>) :
-
-        serverError ?
-        (
-            <div className="flex items-center justify-center w-full h-screen bg-gray-100">
+        <main className=' w-full bg-[#f9f9f9] h-[100dvh] overflow-hidden relative flex justify-evenly'>
+          {/* Image Viewer */}
+        <div  className={`${openViewer ? "" : "hidden"} w-full h-full bg-[#000000ED] absolute z-50 flex justify-center items-center`}>
+          <div className='absolute top-2 right-2 flex flex-row-reverse gap-4'>
+          <CloseOutlinedIcon onClick={()=>{setOpenViewer(false);setImageSelected('')}}  className='text-white cursor-pointer' fontSize='large'/>
+          </div>
+          
+          {/* Image container */}
+          <div className='h-[500px] aspect-video'>
+            <img className='w-full h-full aspect-video object-contain' src={imageSelected} alt='image' />
+          </div>
+        </div>
+        {
+          noChats ? 
+          (
+          <div className="flex items-center w-full h-full justify-center ">
             <div className="text-center">
-              <h1 className="text-6xl font-bold text-red-500 mb-4">500</h1>
-              <p className="text-2xl font-semibold mb-4">Internal Server Error</p>
-              <p className="text-gray-700 mb-8">
-                Oops! Something went wrong on our end. We are working to fix it.
-              </p>
-              <div className="flex justify-center">
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mr-4"
-                  onClick={goBack}
-                >
-                  Go Back
-                </button>
-              </div>
+              <p className="text-2xl font-bold mb-4">No Chats</p>
+              <p className="text-gray-500">There are currently no chats.</p>
             </div>
           </div>
-        )
-        
-        :
-
-        noChats
-        ?
-        (
-          <div className="flex items-center justify-center h-screen">
-          <div className="text-center">
-            <p className="text-2xl font-bold mb-4">No Chats</p>
-            <p className="text-gray-500">Start a new conversation to see chats here.</p>
+          )
+          :
+          (
+            <>
+        {/* Contacts Windowwss_________________________________________________________________________________________________________ */}
+        <section className={contactClass}>
+        <div className='flex w-full flex-col space-y-3 py-3'>
+          <div className='p-3  w-full relative'>
+            <SearchOutlinedIcon fontSize='small' className='absolute top-[1.2rem] text-gray-500 left-5' />
+            <input onChange={(e)=>{handleSearchMessage(e.target.value)}} id='searchField' className='rounded-full outline-none border-2 p-1 ps-9 text-sm text-gray-600 w-full' type="text" placeholder='Search..'/>
           </div>
-        </div>
-        )
-        :
-        (
-            <div className='w-full h-screen flex gap-4 bg-[#f9f9f9]'>
-    
-             {/* Contacts and Messages */}
-            <section className='w-full h-screen sm:w-[400px] sm:max-w-[400px] overflow-hidden md:w-[350px] relative lg:w-[500px] lg:max-w-[400px] flex flex-col sm:p-2  '>
-            
-            <div className='w-full mt-[73px] bg-white sm:rounded-lg shadow-md h-full'>
-            {/* Search Input */}
-            <div className='p-3 w-full relative'>
-            <SearchOutlinedIcon className='absolute top-[1.35rem] text-gray-500 left-6' />
-            <input id='searchField' className='rounded-full outline-none border-2 p-2 ps-10 w-full' type="text" placeholder='Search..'/>
-            </div>
-            {
-            allContacts.sort((a,b)=>{
-            const timeA = new Date(`${a.dateSent} ${a.latestChatTime}`);
-            const timeB = new Date(`${b.dateSent} ${b.latestChatTime}`);
-            return timeB - timeA
-            }).map((contact,index)=>{
-            const ampm = contact.latestChatTime.split(' ')
-            const splitted = contact.latestChatTime.split(':').slice(0,-1).join(':') + " " + ampm[ampm.length - 1]
+        {
+          allContacts.map((contact)=>{
+            const receiver = contact.participants.find(user => user._id !== userInformation._id)
             return (
-            <div className={`${contact.conversationId === activeConversation ? "bg-gray-200" : ""} mt-5 p-3 w-full overflow-hidden flex items-center space-x-2 cursor-pointer`} 
-            onClick={()=>{setActiveConversation(contact.conversationId)
-            setRecipient({_id : contact.receiver[0]._id, username : contact.receiver[0].username, profileImage : contact.receiver[0].profileImage, serviceInquired : contact.serviceInquired, fullname : contact.receiver[0].firstname + " " + contact.receiver[0].lastname})
-            setConversationId(contact.conversationId);setSearchParams({convoId : contact.conversationId, to : contact.receiver[0].username, service : contact.serviceInquired._id})
-            handleReadMessage(contact.conversationId)
-            if(windowWidth <= 639){document.getElementById('messageContentBox').className = "-translate-x-[50%] left-[50%] -full overflow-hidden w-full absolute sm:relative sm:flex flex-col h-screen  sm:px-2 pt-20 transition duration-500 ease-out"}}}  key={index} >
+
+            <div className={`${contact.conversationId === convoId ? 'bg-gray-100 border-l-4 border-l-blue-600' : 'bg-transparent'} w-full p-2 cursor-pointer flex`} key={contact._id} 
+            onClick={()=>{handleReadMessage(contact.conversationId);
+            if(windowWidth < 640){setChatClass('w-full flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')}
+            if(windowWidth < 640){setContactClass('hidden')}
+            setShowProfileInformation(false)
+            setReturnLimit(10);
+            selectReceiver(contact.conversationId, receiver, contact.serviceInquired, contact.virtualServiceInquired);
+            getChats(contact.conversationId)}}>
             
-            <div className='w-full max-w-full flex items-center p-1 h-fit  overflow-hidden'>
-            {/* Profile Image */}
-            <div className='w[40px] min-w-[40px] mr-1 lg:w-[60px] lg:min-w-[60px] h-full flex justify-center items-center'>
-            <img className='w-8 h-8 md:w-9 md:h-9 lg:w-11 lg:h-11 min-w-11 rounded-full object-cover' src={contact.receiver[0].profileImage} alt="Profile" />
+            {/* Service Image */}
+            <div className=' p-1 flex justify-center items-center'>
+            <div style={{backgroundImage : `url(${contact.virtualServiceInquired?.serviceProfileImage})`}} className='w-[40px] h-[40px]  rounded-full bg-cover bg-center bg-black'></div>
             </div>
-            {/* Name and time */}
-            <div className='flex flex-col w-full overflow-hidden  justify-center  space-y-1 md:pb-0'>
-            <div className='flex justify-between h-fit  w-full items-center'>
-            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold text-blue-600" : "font-normal"}  cursor-pointer text-xs md:text-md whitespace-nowrap lg:text-[0.97rem] block  `}>{contact.receiver[0].firstname + " " + contact.receiver[0].lastname}</span>
-            <span className='cursor-pointer text-semiXs md:text-xs font-medium text-gray-600'>{splitted}</span>
-            </div>
-            {/* Message content */}
-            <div className='flex'>
-            <div className='flex justify-start w-[200px] semiXs:w-full semiXs:max-w-[340px] md:w-[400px] overflow-clip items-center '>
-            <span className={`${!contact.readBy.includes(sender._id) ? "font-semibold " : "font-normal text-gray-600"} cursor-pointer text-semiXs md:text-xs `}>{contact.sentBy._id == sender._id ? "You: " : ""}</span>
-            <span className={` text-ellipsis ${!contact.readBy.includes(sender._id) ? "font-semibold " : "font-normal text-gray-600"} cursor-pointer overflow-hidden ml-1 text-semiXs md:text-xs whitespace-nowrap `}>{contact.latestChat}</span>
-            </div>
-            </div>
-            </div>
-            </div>
-            </div>
-            )               
-            })
-            }
-            </div>    
-            </section>
+
+            {/* Title and message and time */}
+            <div className=' w-full flex flex-col ps-1'>
+              {/* Title */}
+              <div className='flex justify-start'>
+            
+              <p className={`${contact.readBy.includes((userInformation?._id)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium overflow-hidden max-w-[200px] sm:max-w-[130px] xl:max-w-[200px] text-ellipsis pe-2`}>{contact.virtualServiceInquired?.basicInformation.ServiceTitle}</p>
+              {/* <input readOnly className={`${contact.readBy.includes((userInformation?._id)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium text-ellipsis pointer-events-none bg-transparent`} type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} /> */}
+              <div className={` ${contact.serviceInquired === userInformation?._id ? 'block' : 'hidden'} flex items-center`}>
+              <StorefrontOutlinedIcon className=' text-blue-500 p-0.5' fontSize='small' />
+              </div>
+              </div>
+                <div className=' flex justify-start items-center'>
+                  {
+                  contact.messageType === 'image' ?
+                  <input type='text' readOnly value='Photo' className='font-light w-full pointer-events-none text-ellipsis bg-transparent text-xs text-gray-700' />
+                  :
+                  <input type='text' readOnly value={contact.messageContent.sender === userInformation?._id ? 'You: ' + contact.messageContent.content : contact.messageContent.content} className='font-light w-[100%]  bg-transparent pointer-events-none text-ellipsis  text-semiXs text-gray-700' />
+                  }
+                  <div className=' whitespace-nowrap text-[0.5rem]'>{contact.messageContent.timestamp}</div>
+                </div>
+            </div>     
+            </div>     
+            )
+          })
+        }
+        </div>
+        </section>
+
+        {/* Messages Windowwss_________________________________________________________________________________________________________ */}
+        <section className={chatClass}>
+        {/* Headers */}
+        <div className='w-full flex space-x-2 p-1 sticky top-[0.6rem] z-30 bg-white border-b-[1.5px] shadow-sm pb-2'>
+        {
+          loadingHeader ? (
+          <div className="relative flex w-64 animate-pulse gap-2 p-4">
+              <div className="h-12 w-12 rounded-full bg-slate-400"></div>
+                <div className="flex-1">
+                  <div className="mb-1 h-5 w-3/5 rounded-lg bg-slate-400 text-lg"></div>
+                  <div className="h-5 w-[90%] rounded-lg bg-slate-400 text-sm"></div>
+                </div>
+              <div className="absolute bottom-5 right-0 h-4 w-4 rounded-full bg-slate-400"></div>
+          </div>
+          )
+          :
+          (
+        <div className='flex space-x-2 items-center'>  
+        {/* Back Icon */}
+        <button className='sm:hidden' onClick={()=>{
+        setChatClass('w-full hidden sm:flex h-full flex-col bg-white shadow-md rounded-md py-1 px-5 space-y-3')
+        setContactClass('w-full sm:w-[290px]  md:w-[320px] lg:w-[400px] h-full bg-white rounded-md shadow-md')
+        setSearchParams({})
+        }}>
+        <ArrowBackOutlinedIcon />
+        </button>     
+        <div className='h-12 w-12 flex'>
         
-            {/* Chats and message contents^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */}
-            <section id='messageContentBox' className={messageContentBoxClass}>
-            <div className='w-full h-full bg-white justify-start flex flex-col shadow-md sm:rounded-lg px-2'>
-            <div className='w-full py-3  bg-white relative border-b-2 shadow-sm flex space-x-2 items-center object-contain'>
-              <button className='sm:hidden' onClick={()=>{document.getElementById('messageContentBox').className = "w-full  -translate-x-[100%] absolute sm:relative sm:flex flex-col pt-20 h-screen p-2 transition duration-500 ease-out"}}><ArrowBackOutlinedIcon /></button>
-                <img className='w-10 h-10 object-cover origin-center rounded-full' src={recipient.profileImage} />
-                
-                <div className='flex flex-col lg:flex-row lg:space-x-3 items-start '>
-                {/* Name */}
-                <p className='text-themeBlue text-ellipsis whitespace-nowrap max-w-[200px] md:max-w-[300px] lg:max-w-[230px] xl:max-w-[400px] overflow-hidden text-sm md:text-[0.975rem] font-semibold'>{recipient.fullname}</p>
-                <span className='w-1 h-1 hidden lg:block rounded-full bg-themeBlue self-center'></span>
-                {
-                    recipient.serviceInquired == undefined ? (<p className='text-gray-500 text-sm md:text-[0.975rem] text-ellipsis font-semibold max-w-[200px] md:max-w-[300px] lg:max-w-[350px] xl:max-w-[400px] overflow-hidden whitespace-nowrap'>{serviceFromParam}</p>)
-                    :
-                    <p className='text-gray-500 text-sm md:text-[0.975rem] text-ellipsis font-semibold max-w-[200px] md:max-w-[300px] lg:max-w-[350px] xl:max-w-[400px] overflow-hidden whitespace-nowrap '>{recipient.serviceInquired.basicInformation.ServiceTitle}</p>
-                }
-                </div>
-                <button onClick={()=>{setMoreOptionClass(!moreOptionClass)}} >
-                <MoreHorizOutlinedIcon className='absolute top-5 right-1' />
-                </button> 
-                {/* More options */}
-                <div className={`w-fit ${moreOptionClass ? "flex" : "hidden"} px-3 flex-col items-start absolute top-[2.5rem] border z-20 bg-white shadow-md right-1`}>
-                <Link to={`/explore/viewService/${service}`} className=' my-1 right-0 text-semiXs md:text-sm text-black'>View Service</Link>
-                <button onClick={()=>{deleteConvo()}} className=' text-semiXs md:text-sm text-black my-1 '>Delete Conversation</button>
-                </div>
-                
+        <img className='rounded-full w-full h-full object-cover max-h-16 max-w-16' src={serviceInquired?.serviceProfileImage} alt='profile' />
+        </div>
+        <div className=' flex flex-col justify-around'>     
+          <input className={`text-ellipsis text-lg font-medium text-gray-800 bg-transparent`} value={serviceInquired?.basicInformation !== undefined ? serviceInquired?.basicInformation.ServiceTitle : ''} type='text' disabled />
+          {
+            currentChats[0] == undefined ? ("") :    
+            (     
+            <div className='flex space-x-2'>     
+            <p className='text-gray-600 text-sm'>{currentChats[0].participants.length} members</p>
+            {     
+              onlineUsers.some(item => item.username === currentChats[0].participants.find(par => par._id !== userInformation._id)._id) ?
+              <p className='text-sm text-green-500'>2 online</p>
+              :
+              <p className='text-sm text-blue-500'>1 online</p>
+              
+            }
             </div>
-            {/* Messages Content */}
-            <ScrollToBottom
-            style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }}
-            scrollViewClassName='messageBox'
-            className='h-screen w-full flex flex-col bg-[#f9f9f9] overflow-auto '
->
-            <div  className={`top-0 w-full text-center `}>
-              <button id='loadMore' className={`${showLoadMore ? 'block' : 'hidden'}  `} onClick={() => {loadMore() }}>Load More</button>
-            </div>
+            
+            )
+          }
+        </div>
+        {/* More Options button */}
+        <button onClick={()=>{setOpenMoreOptions(!openMoreOptions);handleViewInformation(currentChats[0].participants)}} className='absolute right-0'>
+          <MoreHorizOutlinedIcon />
+        </button>
+        {/* More option */}
+        <div className={`w-[150px] ${openMoreOptions ? 'block' : 'hidden'} h-fit border absolute right-6 top-6 bg-white shadow-md rounded-md`}>
+          <ul className='flex flex-col space-y-3'>
+            <li onClick={()=>{navigate(`/explore/viewService/${currentChats[0].virtualServiceInquired._id}`)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View Service</li>
+            <li onClick={()=>{setShowProfileInformation(true);setOpenMoreOptions(false)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View User</li>
+            <li className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>Report</li>
+            <li onClick={()=>{handleDeleteConversation(currentChats[0].conversationId)}} className='text-sm cursor-pointer p-2 text-red-500 hover:bg-gray-200'>Delete conversation</li>
+          </ul>
+        </div>
+        </div> 
+        )
+        }
+        </div>
 
-  {/* Recipient Message */}
-  {allChats
-    .filter((chat) => chat[0].conversationId === conversationId)
-    .map((chats, index) => {
-      const formatDate = (dateString) => {
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const date = new Date(dateString);
-        return date.toLocaleDateString(undefined, options);
-      };
-
-      // Group messages by date
-      const groupedMessages = chats.reduce((acc, message) => {
-        const dateKey = message.message.date.split('T')[0]; // Use date part as key
-        acc[dateKey] = acc[dateKey] || [];
-        acc[dateKey].push(message);
-        return acc;
-      }, {});
-
-      return (
-        <div className='' key={chats[0].conversationId}>
-          {/* <h2>Chat with {serviceProviderName}</h2> */}
-          {/* Display messages grouped by date */}
-          {Object.keys(groupedMessages).map((dateKey) => (
-            <div key={dateKey}>
-              <div className="flex items-center">
+        {/* Message Content_________________________________________________________________________________________________________ */}
+        
+        <div onClick={()=>{setOpenMoreOptions(false);setOpenEmojiPicker(false)}} id='MessageContainer' className='h-full overflow-auto w-full max-w-full rounded-md p-2 flex flex-col bg-white'>
+        <ScrollToBottom  style={{ minHeight: `${windowHeight}px`, boxSizing: 'border-box' }} scrollViewClassName='messageBox' className='h-screen w-full flex flex-col bg-white overflow-auto '>
+          <div className='w-full text-centerflex justify-center'>
+            <button className={`${currentChatsCount < 10 ? 'hidden' : 'flex'} ${loadingMore ? 'hidden' : 'flex'} w-fit  mx-auto`} onClick={()=>{handlePagination()}}>Load more</button>
+            <div className={`w-full justify-center ${loadingMore ? 'flex' : 'hidden'}`}>
+            <div className="loadMoreLoder"></div>
+            </div>  
+          </div>
+        {
+        loadingChats ? 
+        (
+          <>
+          <div role="status" className=" animate-pulse w-full h-full rotate-180 flex flex-col justify-evenly">
+          <div className="h-2.5 bg-slate-400 rounded-full  w-48 mb-4"></div>
+          <div className="h-2 bg-slate-400 rounded-full  max-w-[60%] "></div>
+          <div className="h-2 bg-slate-400 rounded-full   max-w-[80%]"></div>
+          <div className="h-2 bg-slate-400 rounded-full  max-w-[70%] "></div>
+          <div className="h-2 bg-slate-400 rounded-full  max-w-[50%] "></div>
+          <div className="h-2 bg-slate-400 rounded-full  max-w-[360px] "></div>
+          <div className="h-2 bg-slate-400 rounded-full  max-w-[65%]"></div>
+          <span className="sr-only">Loading...</span>
+          </div>
+          <div role="status" className=" animate-pulse w-full h-full flex flex-col justify-evenly">
+          <div className="h-2.5 bg-slate-400 rounded-full  w-48 mb-4"></div>
+          <div className="h-2 bg-slate-400 rounded-full  max-w-[60%] mb-2.5"></div>
+          <div className="h-2 bg-slate-400 rounded-full  mb-2.5 max-w-[80%]"></div>
+          <div className="h-2 bg-slate-400 rounded-full  max-w-[70%] mb-2.5"></div>
+          <div className="h-2 bg-slate-400 rounded-full  max-w-[50%] mb-2.5"></div>
+          <div className="h-2 bg-slate-400 rounded-full  max-w-[360px] mb-2.5"></div>
+          <div className="h-2 bg-slate-400 rounded-full  max-w-[65%]"></div>
+          <span className="sr-only">Loading...</span>
+          </div>
+          </>
+        )
+        :
+        currentChats.reduce((result, chats) => {
+          const date = new Date(chats.createdAt).toDateString();
+          const existingGroup = result.find((group) => group.date === date);
+          if (existingGroup) {
+            existingGroup.chats.push(chats);
+          } else {
+            result.push({ date, chats: [chats] });
+          }     
+          return result;
+        }, []).map((chatGroup, index)=>(
+          <div key={index}>
+            <div className="flex items-center">
                 <div className="flex-1 border-t border-gray-400"></div>
-                <div className="mx-4 text-sm text-center my-2 text-gray-400">
-                  {formatDate(dateKey)}
+                <div className="mx-4 text-sm text-center my-2 text-gray-500 font-medium">
+                  {chatGroup.date}
                 </div>
                 <div className="flex-1 border-t border-gray-400"></div>
                 
               </div>
             {
-            document.getElementById('loadMore') !== null ?
-            Number(displayedMessages.toString().split('').slice(1).join('')) >= groupedMessages[dateKey].length ? document.getElementById('loadMore').innerHTML = "" : document.getElementById('loadMore').innerText = "Loadmore"
-            :
-            
-            ""
-            }
-              {/* {document.getElementById('loadMore').className = Number(displayedMessages.toString().split('').slice(1).join('')) >= groupedMessages[dateKey].length ? "hidden" : "block"} */}
-              {groupedMessages[dateKey].slice(displayedMessages).map((message, index) => {
-                const ampm = message.message.timestamp.split(' ')
-                const splitted = message.message.timestamp.split(':').slice(0, -1).join(':') + " " + ampm[ampm.length - 1]
-
-                return (
-                  <div className={`${message.message.sender._id == sender._id ? "justify-end" : "justify-start"} items-center flex w-full p-1 my-2`} key={index}>
-                    <div className={` flex items-end ${message.message.sender._id == sender._id ? "flex-row" : "flex-row-reverse"}  space-x-2`}>
-                      <p className='text-semiXs mx-2 self-center'>{splitted}</p>
-                      <div className='flex items-end'>
-                        <div className={`max-w-[150px] md:max-w-[200px] lg:max-w-[300px] text-xs lg:text-sm break-words ${message.message.sender._id == sender._id ? "bg-blue-500 text-white rounded-md rounded-ee-sm px-3 py-3" : "bg-gray-100 text-gray-700 relative rounded-md rounded-se-sm px-3 py-3"} shadow-md`}>
-                          {message.message.content}
-                        </div>
-                        {sendingMessage && message._id == undefined ? (<div className="Sendingloader ml-1"></div>) : ""}
-                      </div>
-                      {/* Profile Image */}
-                      <img className='w-7 h-7 rounded-full object-cover' src={message.message.sender._id == sender._id ? message.message.sender.profileImage : message.message.sender.profileImage} />
-                    </div>
+              chatGroup.chats.map((chat, index)=>(
+                <div key={index} className={`w-full p-1 flex flex-col ${chat.messageContent.sender === userInformation._id ? 'items-end' : 'items-start'}`}>
+                {
+                  chat.messageType === "image" ?
+                  <div className=' w-56 max-w-[14rem] rounded-lg'>
+                  <img onClick={()=>{openVIewerContent(chat.messageContent.content)}} className='rounded-lg cursor-pointer' src={chat.messageContent.content} />
+                  <p className={`text-[0.55rem] ${chat.messageContent.sender === userInformation._id ? 'text-end' : 'text-start'} text-gray-500 mt-1 ml-0.5`}>{chat.messageContent.timestamp}</p>
                   </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-      );
-    })}
-</ScrollToBottom>
+                  :
+                  <div className='flex items-end space-x-2'>
+                  <img className={`${chat.messageContent.sender === userInformation?._id ? 'hidden' : 'block'} w-6 h-6 rounded-full mb-4`} src={chat.participants.filter(user => user._id !== userInformation?._id)[0].profileImage} />
+                  <div>
+                  <p className={`py-2 px-4 w-fit whitespace-pre-wrap max-w-[300px] break-words rounded-md ${chat.messageContent.sender !== userInformation ._id ? 'bg-gray-100 text-gray-700 text-sm shadow-sm rounded-es-none' : 'bg-blue-500 text-white text-sm rounded-ee-none shadow-md'}`}>  
+                    {chat.messageContent.content}
+                  </p>
+                  <p className='text-[0.55rem] text-gray-500 mt-1 ml-0.5'>{chat.messageContent.timestamp}</p>
+                  </div>
+                  </div>
+                }
 
-            {/* Message input */}
-            <div className='w-full p-2 flex items-center justify-between sticky bottom-0'>
-            <input id='textField' className='p-2 w-full outline-none border rounded-lg bg-slate-100 ' value={typingMessage} onChange={(e)=>{setTypingMessage(e.target.value)}} onKeyDown={(e)=>{if(e.key === "Enter"){handleMessage(e.target.value)}}} type='text' placeholder='Enter message'  />
-            <button className='p-2 px-4'>
-            <SendOutlinedIcon onClick={()=>{handleMessage(typingMessage)}} />
-            </button>   
-            </div>     
+                <p className={`${sendingMessages.some(message => message.messageContent.content === chat?.messageContent.content) ? 'block' : 'hidden'} text-semiXs`}>Sending</p>
+              </div>
+              ))
+            }
+          </div>
+        ))
+        }
+        </ScrollToBottom>
+        </div>
+        
+
+        {/* Message Input Box */}
+        <div className='w-full flex items-center space-x-3 border p-1 rounded-3xl '>
+          <textarea value={messageInput} onChange={(e)=>{setMessageInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter" && !e.shiftKey){handleSendMessage(e.target.value, 'text');e.preventDefault()}}} rows={1}  placeholder='Enter message' maxLength={1000} className='messageInput rounded-4xl w-full resize-none py-2 px-1 outline-none' />
+        {/* <input value={messageInput} onChange={(e)=>{setMessageInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSendMessage(e.target.value, 'text')}}} className='w-full py-2 px-1 rounded-lg outline-none' type='text' placeholder='Enter message' /> */}
+        
+        {/* Emoji picker */}
+        {/* <div className={`${openEmojiPicker ? 'block' : 'hidden'} absolute bottom-[5.3rem] right-[10rem] shadow-md`}>
+        <EmojiPicker emojiStyle='facebook' onEmojiClick={(emoji)=>{setMessageInput((prevMessageInput) => prevMessageInput + emoji.emoji)}} autoFocusSearch={false} searchDisabled={true} height={400} width={300} />
+        </div> */}
+
+        {/* Emoji Picker button */}
+        {/* <button onClick={()=>{handleEmojiPicker()}} className={`${openEmojiPicker ? 'text-blue-500' : 'text-gray-600'}`}>
+          <EmojiEmotionsOutlinedIcon />
+        </button> */}
+
+
+        {/* Image send Input */}
+        <div className={`  h-full text-[0.85rem]  py-2 flex items-center relative px-2 text-white font-medium text-center rounded cursor-pointer`}>
+        <button className='cursor-pointer'>
+          <ImageOutlinedIcon className='text-gray-600 cursor-pointer' />
+        </button>
+        <input type="file" onChange={handleFileInputChange} accept="image/*" id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
+        </div>
+        
+        {/* Send Button */}
+        <button onClick={()=>{handleSendMessage(messageInput, 'text');setOpenEmojiPicker(false)}} className='bg-blue-500 p-2 rounded-full hover:bg-blue-700 text-white flex items-center justify-center'>
+          <SendOutlinedIcon  />
+        </button>
+        
+        </div>
+        </section>
+            </>
+          )
+        }
+        {/* PROFILE INFORMATION CARD */}
+        <div className={`w-[300px] ${showProfileInformation ? 'block' : 'hidden'} h-[406px] bg-white shadow-xl rounded-md absolute top-[25%]`} >
+        <button onClick={()=>{setShowProfileInformation(false)}} className='absolute p-0 hover:bg-blue-100 rounded-full m-1'> <CloseRoundedIcon /></button>
+       
+        <h1 className='text-lg font-bold text-gray-800 text-center mt-4'>Client Information</h1>
+        <div>
+          {/* Profile Image */}
+          <div className='w-full flex justify-center mt-3'>
+            <img className='w-16 h-16 border-[3px] border-themeBlue rounded-full shadow-md relative z-10 object-cover' src={receiverInformation.profileImage} />
+          </div>
+          {/* Additional Information */}
+          <div className='flex flex-col rounded-xl pb-3 pt-8 top-20 w-[90%] absolute bg-themeBlue space-y-3 mt-3 font-medium text-gray-700 left-1/2 transform -translate-x-1/2'>
+            {/* Full Name */}
+            <p className='text-center text-white'>{receiverInformation.firstname + receiverInformation.lastname}</p>
+            {/* Email */}
+            <div className='w-[200px] border mx-auto p-2 rounded-md flex flex-col items-center'>
+            <MailOutlineRoundedIcon fontSize='small' className='text-white' />
+            <p className='text-white font-light text-sm'>{receiverInformation.email}</p>
             </div>
-            </section>
+           
+            {/* contact */}
+            <div className='w-[200px] border mx-auto p-2 rounded-md flex flex-col items-center'>
+            <ContactPhoneRoundedIcon fontSize='small' className='text-white' />
+            <p className='text-white font-light text-sm'>+63{receiverInformation.contact}</p>
             </div>
-        )
-    }
-    </div>
-  )
+
+            {/* Address */}
+            <div className='w-[200px] border mx-auto p-2 rounded-md flex flex-col items-center'>
+            <MyLocationOutlinedIcon fontSize='small' className='text-white' />
+            <p className='text-white text-center font-light text-sm'>
+            {receiverInformation?.Address?.barangay.name ?? ''}{' '}
+            {receiverInformation?.Address?.municipality.name ?? ''}{' '}
+            {receiverInformation?.Address?.province.name ?? ''}
+            </p>
+            </div>
+            
+          </div>
+        </div>
+        </div>
   
+        </main>
+    
+  
+  )
 }
 
-export default Chat
+
+
+export default ChatPractice

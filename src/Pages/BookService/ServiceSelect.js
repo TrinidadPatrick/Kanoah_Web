@@ -15,6 +15,7 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
     const [duration, setDuration] = useState(null)
     const [variants, setVariants] = useState([])
     const [price, setPrice] = useState('')
+    const [selectedServiceId, setSelectedServiceId] = useState('')
     
 
     const handleSelectService = (service) => {
@@ -25,11 +26,13 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
             setSelectedService(service.name)
             setSelectedVariant("")
             setVariants(variantList)
+            setSelectedServiceId(service.uniqueId)
             return
         }
         setSelectedService(service.name)
         setPrice(service.origPrice)
         setDuration(Number(service.duration))
+        setSelectedServiceId(service.uniqueId)
         return
        
     }
@@ -45,7 +48,8 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
             selectedService,
             selectedVariant,
             price,
-            duration
+            duration,
+            selectedServiceId
         }
         if(selectService === "" || price === "")
         {
@@ -65,6 +69,7 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
             setSelectedService(serviceContext.selectedService)
             setSelectedVariant(serviceContext.selectedVariant)
             setPrice(serviceContext.price)
+            setSelectedServiceId(serviceContext.selectedServiceId)
         }
     },[])
 

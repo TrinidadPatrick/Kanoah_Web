@@ -13,10 +13,9 @@ import CustomerAccount from './Pages/AccountSetting/CustomerAccount';
 import ServiceRegistrationPage from './Pages/ServiceRegistration/ServiceRegistrationPage';
 import ServiceSettings from './Pages/ServiceSetting/ServiceSettings';
 import Explore from './Pages/ExplorePage/Explore';
-import Chat from './Pages/ChatSystem/Chat';
 import PageNotFound from './Pages/NotFoundPage/PageNotFound';
 import EditService from './Pages/EditService/EditService';
-import ChatPractice from './Pages/Chat(Development)/ChatPractice';
+import Chat from './Pages/ChatSystem/Chat';
 import BookService from './Pages/BookService/BookService';
 import AdminMainPage from './AdminPage/AdminManagement';
 import SideBar from './AdminPage/SideBar';
@@ -59,7 +58,7 @@ const App = () => {
       
       <Routes>
         
-        <Route element={<div className="App w-full h-screen  flex flex-col pt-[4.5rem]">
+        <Route element={<div className="App w-full h-[100svh]  flex flex-col pt-[4.5rem]">
         
           {NavbarLayout}
 
@@ -68,7 +67,6 @@ const App = () => {
         <Route path='/register' element={<Register />} />
         <Route path='/explore/' element={
         <Explore services={services} />} />
-        <Route path='/chat' element={<Chat />} />
         <Route path='explore/viewService/:serviceId' element={<ViewService />} />
         <Route path='/myAccount/:optn' element={<CustomerAccount />} />
         <Route path='/serviceRegistration' element={<ServiceRegistrationPage />} />
@@ -80,7 +78,7 @@ const App = () => {
         <Route path='/BookService' element={<BookService />} />
         <Route path='/Gcash' element={<GcashPay />} />
         <Route path='/Paypal' element={<PaypalPay />} />
-        <Route path='/chatP' element={<ChatPractice />} />    
+        <Route path='/chat' element={<Chat />} />    
         </Route>
 
         {/* Admin route */}

@@ -80,7 +80,7 @@ const ServiceSettings = () => {
       <span className="icon-[icon-park-outline--hamburger-button] bg-black  text-2xl"></span>
       </button>
       {option == "Bookings" ? <Bookings /> : option == "myService" ? <MyService /> : option == "Reviews" ?  <RatingsAndReviews /> : option == "Dashboard" ?  <ServiceDashboard /> : <PageNotFound /> }
-      <div onClick={()=>setOpenMobileSidebar(false)} className={`${openMobileSidebar ? "" : "hidden"} w-full h-full bg-[#00000080] absolute`}></div>
+      <div onClick={()=>setOpenMobileSidebar(false)} className={`${openMobileSidebar ? "" : "hidden"} w-full h-full bg-[#00000080] z-20 absolute`}></div>
     </section>
 
     {/* mobile Sidebar */}

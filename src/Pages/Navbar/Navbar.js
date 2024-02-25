@@ -223,20 +223,20 @@ const Navbar = ({ onAboutUsClick }) => {
   authenticated ? (
     <div className='flex items-center justify-evenly space-x-2 sm:space-x-5 mr-4'>
       {/* Chat */}
-      <Link to="chatP">
-        <div className='relative flex items-center justify-center aspect-square p-0.5 w-[32px] h-[32px] bg-[#e2e1e15f] rounded-full'>
+      <Link to="chat">
+        <div className='relative flex items-center justify-center aspect-square p-0.5 w-7 h-7 md:w-8 md:h-8 bg-[#e2e1e15f] rounded-full'>
           <div className={`w-3.5 h-3.5 ${newMessage ? 'block' : 'hidden'} rounded-full flex items-center justify-center bg-red-500 -top-1 absolute -right-1`}>
           <PriorityHighOutlinedIcon fontSize='small' className='p-1 text-white' />
           </div>
           {/* <span className="icon-[ic--baseline-wechat] text-white text-2xl lg:text-3xl"></span> */}
-          <span className="icon-[f7--chat-bubble-fill] text-white text-xl"></span>
+          <span className="icon-[f7--chat-bubble-fill] text-white text-lg md:text-xl"></span>
         </div>
         
       </Link>
       {/* Notification */}
-      <div className='relative flex items-center justify-center aspect-square p-0.5 w-8 h-8 bg-[#e2e1e15f] rounded-full'>
+      <div className='relative flex items-center justify-center aspect-square p-0.5 w-7 h-7 md:w-8 md:h-8 bg-[#e2e1e15f] rounded-full'>
         <OutsideClickHandler onOutsideClick={()=>setOpenNotif(false)}>
-        <NotificationsIcon onClick={()=>setOpenNotif(!openNotif)} fontSize={windowWidth >= 400 ? 'medium' : 'small'} className={`${openNotif ? 'text-blue-400' : 'text-gray-50'} bottom-0.5 relative p-0.5 lg:p-0 cursor-pointer`} />
+        <NotificationsIcon onClick={()=>setOpenNotif(!openNotif)} fontSize={windowWidth >= 400 ? 'medium' : 'medium'} className={`${openNotif ? 'text-blue-400' : 'text-gray-50'} bottom-[1px] relative p-0.5 lg:p-0 cursor-pointer`} />
         {/* Notification Count */}
         <div className={`w-3 h-3 ${notifCount >= 1 ? 'block' : 'hidden'} rounded-full bg-red-500 -top-1 flex items-center justify-center absolute p-2 -right-1`}>
         <span className='text-white text-xs'>{notifCount}</span>

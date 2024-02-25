@@ -35,7 +35,10 @@ const BookingsTable = ({serviceInformation, dateSelected}) => {
                 <thead className='font-normal text-center text-sm text-gray-500'>
                     <tr className='sticky top-0'>
                     <td className=''>
-                        <div className='border-b-1 py-2 bg-gray-50 w-[120px] whitespace-nowrap'>Booking ID</div>
+                        <div className='border-b-1 py-2 bg-gray-50 w-[120px] whitespace-nowrap'>Reference ID</div>
+                    </td>
+                    <td className=''>
+                        <div className='border-b-1 py-2 bg-gray-50 w-[120px] whitespace-nowrap'>Status</div>
                     </td>
                     <td className=''>
                         <div className='border-b-1 py-2 bg-gray-50 w-[120px] whitespace-nowrap'>Client</div>
@@ -53,13 +56,16 @@ const BookingsTable = ({serviceInformation, dateSelected}) => {
                 </thead>
                 <tbody className=' h-full'>
                     {
-                        bookings?.map((booking)=>{
+                        bookings?.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map((booking)=>{
                             const objDate = new Date(booking.createdAt)
                             const date = objDate.toLocaleDateString()
                             return (
-                                <tr key={booking._id} className={`text-semiSm text-center ${booking.status === "COMPLETED" ? "text-gray-600" : "text-red-500"} font-medium`}>
+                                <tr key={booking._id} className={`text-semiSm text-center ${booking.status === "COMPLETED" || booking.status === "INPROGRESS" ? "text-gray-600" : "text-red-500"} font-medium`}>
                                     <td>
                                         <div className='py-2'>#{booking.booking_id}</div>
+                                    </td>
+                                    <td>
+                                        <div className='py-2'>{booking.status.slice(0, 1)+booking.status.toLowerCase().slice(1)}</div>
                                     </td>
                                     <td>
                                         <div className='py-2 whitespace-nowrap '>{booking.client.firstname}</div>
@@ -90,7 +96,7 @@ const Dropdown = ({selectedFilter, setSelectedFilter}) => {
         <OutsideClickHandler onOutsideClick={()=>setOpenFilter(false)}>
         <div className='w-[90px] md:w-[110px] h-[25px] md:h-[30px] bg-gray-100 rounded-sm md:rounded-md relative z-10'>
             
-            <button onClick={()=>setOpenFilter(!openFilter)} className='w-full h-full flex justify-center items-center text-gray-600 font-medium text-xs md:text-sm'>
+            <button onClick={()=>setOpenFilter(!openFilter)} className='w-full h-full flex justify-center items-center text-gray-600 font-medium text-xs md:text-[0.81rem]'>
                 {selectedFilter}
                 <span className="icon-[iconamoon--arrow-down-2] text-lg text-gray-600"></span>
             </button>
