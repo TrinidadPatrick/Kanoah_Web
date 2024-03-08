@@ -142,10 +142,9 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
             description : `Payment of ${bookingInformation.net_Amount} for ${bookingInformation.service.selectedService}`
 
             });
-            console.log(response)
             setInvoiceId(response.data.id)
             console.log(response.data)
-            window.open( response.data.invoiceUrl, '_blank');
+            // window.open( response.data.invoiceUrl, '_blank');
             // window.location.href = response.data.invoiceUrl
           } catch (error) {
             console.error(error);

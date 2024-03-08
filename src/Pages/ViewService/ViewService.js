@@ -59,6 +59,7 @@ const ViewService = () => {
   const [currentDay, setCurrentDay] = useState('')
   const hd = new holidays('PH')
   const holiday = hd.getHolidays()
+  const [reviews, setReviews] = useState([])
   
 
   const [location, setLocation] = useState({
@@ -89,7 +90,7 @@ const ViewService = () => {
 
   // Generated format for featured Images
   const generatedFeaturedImages = (featuredImages) => {
-    return featuredImages.map((image,index)=>(
+    return featuredImages?.map((image,index)=>(
       {
         key : index,
         original : image.src,
@@ -160,40 +161,12 @@ const ViewService = () => {
     setCurrentDay(daysOfWeek[currentDay])
   },[])
 
-    // Computes the rating Average
-    const ratingAverage = (service) => {
-
-        const ratings = service.ratings
-        const totalRatings = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
-        const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / totalRatings;
-        const rounded = Math.round(ratingAverage * 100) / 100;
-        const average = rounded.toFixed(1)
-        return ({
-          _id : service._id,
-          key : service._id,
-          basicInformation: service.basicInformation,
-          advanceInformation: service.advanceInformation,
-          address: service.address,
-          serviceHour: service.serviceHour,
-          tags: service.tags,
-          owner : service.owner,
-          galleryImages: service.galleryImages,
-          featuredImages: service.featuredImages,
-          serviceProfileImage: service.serviceProfileImage,
-          ratings : average,
-          ratingRounded : Math.floor(average),
-          totalReviews : totalRatings,
-          createdAt : service.createdAt,
-          serviceOffers : service.serviceOffers,
-          acceptBooking : service.acceptBooking
-        });
- 
-    };
 
   // Get the service information
   const getService = async () => {
     await http.get(`getServiceInfo/${serviceId}`).then((res)=>{
-      setServiceInfo(ratingAverage(res.data.service))
+      setServiceInfo(res.data.service)
+      setReviews(res.data.ratings)
     }).catch((err)=>{
       console.log(err)
     })
@@ -251,6 +224,7 @@ const handleBook = () => {
 }
 
 
+
   return (
 
     
@@ -279,7 +253,7 @@ const handleBook = () => {
 
         <div className='flex  relative ml-0 space-x-1 justify-between items-center mt-5 w-full'>
         <div className='flex space-x-2'>
-        <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={Number(serviceInfo.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} />  } emptyIcon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} className='text-gray-300' />} />
+        <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={3.7} precision={0.1} icon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} />  } emptyIcon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} className='text-gray-300' />} />
         <div className='flex items-center space-x-2 '>
         <p className='text-gray-400 text-xs md:text-sm font-medium'>({serviceInfo.ratings})</p> 
         <p className='text-gray-300'>|</p>
@@ -447,7 +421,7 @@ const handleBook = () => {
           </div>
           {/* Description container */}
           <article className='w-full py-2 px-5'>
-          {selectedOptions == "Description" ? (<Description description={serviceInfo.basicInformation.Description} />) : selectedOptions == "Reviews" ? (<Reviews />) : ""}
+          {selectedOptions == "Description" ? (<Description description={serviceInfo.basicInformation.Description} />) : selectedOptions == "Reviews" ? (<Reviews reviews={reviews} />) : ""}
           
           </article>
           </div>
@@ -461,7 +435,7 @@ const handleBook = () => {
           <h1 className='text-xl md:text-3xl font-semibold mt-4 mb-5'>Service Schedule</h1>
           <div className='grid semiXs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 py-1 w-full'>
           {
-            serviceInfo.serviceHour.map((sched, index)=>{
+            serviceInfo?.serviceHour.map((sched, index)=>{
               const [hours, minutes] = sched.toTime.split(':');
               const [fromHours, fromMinutes] = sched.fromTime.split(':');
               const toDateTime = new Date(0, 0, 0, hours, minutes);

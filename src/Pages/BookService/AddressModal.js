@@ -241,7 +241,7 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
                 <option value=""  >Select City</option>
                 {
                 phil.getCityMunByProvince(locCodesSelected[1][1]).sort((a, b) => a.name.localeCompare(b.name)).map((city, index) => (
-                <option key={index} onClick={()=>{console.log("Hello")}}  value={[city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase(), city.mun_code]}>
+                <option key={index}  value={[city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase(), city.mun_code]}>
                 {city.name.charAt(0).toUpperCase() + city.name.slice(1).toLowerCase()}
                 </option>
                 ))

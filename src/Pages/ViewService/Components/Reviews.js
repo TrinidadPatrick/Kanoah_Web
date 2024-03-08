@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import Rating from '@mui/material/Rating';
 
-const Reviews = () => {
+const Reviews = ({reviews}) => {
     // Rating stars
   const StyledRating = styled(Rating)({
     '& .MuiRating-iconFilled': {
@@ -25,54 +25,34 @@ const Reviews = () => {
 
   });
 
+  console.log(reviews)
+
     return (
         <div className='flex flex-col space-y-5 p-5'>
         {/* Card */}
-        <div>
-            {/* Header */}
-            <div className='flex'>
-            <img className='w-12 h-12 object-cover rounded-full' src={profile1} alt="profile picture" />
-            <div className='ml-2'>
-            <p className='font-medium text-gray-700'>John Patrick Trinidad</p>
-            <StyledRating className='relative'  readOnly defaultValue={4.1} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
-            </div>
-            </div>
-            {/* Comment */}
-            <div className='mt-2'>
-            <p className='text-sm'>It was wonderful, the staff and workers are very hardworking</p>
-            </div>
-            
-        </div>
-        <div>
-            {/* Header */}
-            <div className='flex'>
-            <img className='w-12 h-12 object-cover rounded-full' src={profile2} alt="profile picture" />
-            <div className='ml-2'>
-            <p className='font-medium text-gray-700'>Kyla Austria</p>
-            <StyledRating className='relative'  readOnly defaultValue={4.1} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
-            </div>
-            </div>
-            {/* Comment */}
-            <div className='mt-2'>
-            <p className='text-sm'>It was wonderful, the staff and workers are very hardworking</p>
-            </div>
-            
-        </div>
-        <div>
-            {/* Header */}
-            <div className='flex'>
-            <img className='w-12 h-12 object-cover rounded-full' src={profile3} alt="profile picture" />
-            <div className='ml-2'>
-            <p className='font-medium text-gray-700'>Diane G Rivera</p>
-            <StyledRating className='relative'  readOnly defaultValue={4.1} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
-            </div>
-            </div>
-            {/* Comment */}
-            <div className='mt-2'>
-            <p className='text-sm'>It was wonderful, the staff and workers are very hardworking</p>
-            </div>
-            
-        </div>
+        {
+          reviews?.map((review)=>{
+            return (
+              <div>
+              {/* Header */}
+              <div className='flex'>
+              <img className='w-12 h-12 object-cover rounded-full' src={review.user.profileImage} alt="profile picture" />
+              <div className='ml-2'>
+              <p className='font-medium text-gray-700'>{review.user.firstname} {review.user.lastname}</p>
+              <StyledRating className='relative'  readOnly defaultValue={Number(review.rating)} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
+              </div>
+              </div>
+              {/* Comment */}
+              <div className='mt-2'>
+              <p className='text-sm'>{review.review}</p>
+              </div>
+              
+          </div>
+            )
+          })
+        }
+
+
     </div>
     )
 }
