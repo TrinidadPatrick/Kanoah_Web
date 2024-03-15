@@ -17,6 +17,7 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Download from "yet-another-react-lightbox/plugins/download";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import BlockIcon from "./Images/Block.png"
 
 const AdminViewService = () => {
     const [service, setService] = useState(null)
@@ -87,6 +88,32 @@ const AdminViewService = () => {
 
   return (
     <main className='w-full h-full flex flex-col px-5 lg:px-20 '>
+
+    {/* Popup for disabled service */}
+    <div className={`w-fit rounded-sm h-fit bg-red-500 mx-auto ${service?.status.status === "Disabled" ? "flex" : "hidden"} mt-4 p-2 gap-2`}>
+    <div>
+    <div className=' w-full h-full flex items-center'>
+      <img className='w-24 aspect-square brightness-0 invert-[1]' src={BlockIcon} alt="Block" />
+    </div>
+    </div>
+    <div className='w-fit rounded-sm h-fit bg-red-500 mx-auto flex flex-col'>
+    <h1 className='text-center font-medium text-white'>This service is currently disabled. Please see details below.</h1>
+    <p className='font-normal text-gray-50'>Date Issued : {new Date(service?.status.dateDisabled).toLocaleDateString('EN-US', {
+      month : 'long', day : '2-digit', year : 'numeric'
+    })}</p>
+    <p className='font-normal text-gray-50'>Reasons: </p>
+    <div className='flex flex-wrap gap-2'>
+    {
+      service?.status?.reasons.map((reason, index)=>{
+        return (
+          <p key={index} className="text-gray-50 text-sm">{reason},</p>
+        )
+      })
+    }
+    </div>
+    </div>
+    </div>
+
     <nav className='w-full'>
     </nav>
     {

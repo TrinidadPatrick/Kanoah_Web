@@ -5,12 +5,14 @@ import Modal from 'react-modal';
 import http from '../http';
 
 const AdminUsersList = () => {
-    const {users} = useUsers()
+    Modal.setAppElement('#root');
+    const {users, getUsers} = useUsers()
     const [userList, setUserList] = useState(null)
     const [openViewUserModal, setOpenViewUserModal] = useState(false)
     const [selectedUser, setSelectedUser] = useState(null)
     const [openDisableModal, setOpenDisableModal] = useState(false)
     const [search, setSearch] = useState('')
+    const [selectedFilter, setSelectedFilter] = useState('All')
     const [disableUserObject, setDisableUserObject] = useState({
         user : {},
         reason : []
@@ -57,7 +59,12 @@ const AdminUsersList = () => {
     const disableUser = async () => {
         try {
             const result = await http.patch(`Admin_DisableUser/${disableUserObject.user._id}`, disableUserObject, {withCredentials : true})
-            window.location.reload()
+            getUsers()
+            setDisableUserObject({
+                user : {},
+                reason : []
+            })
+            setOpenDisableModal(false)
         } catch (error) {
             console.log(error)
         }
@@ -66,9 +73,55 @@ const AdminUsersList = () => {
     const enableUser = async (userId) => {
         try {
             const result = await http.patch(`Admin_EnableUser/${userId}`, {}, {withCredentials : true})
-            window.location.reload()
+            getUsers()
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    const handleFilter = (option) => {
+        switch (option) {
+            case "All":
+                setUserList(users)
+                break;
+            case "Active":
+                const activeUsers = users.filter((user)=>user.status.status === "Active")
+                setUserList(activeUsers)
+                break;
+            case "Disabled":
+                const disabledUsers = users.filter((user)=>user.status.status === "Disabled")
+                setUserList(disabledUsers)
+                break;
+            default:
+                break;
+        }
+    }
+
+    const handleSearch = () => {
+        if(search !== ''){
+            const result = users.filter((user) => user.firstname.toLowerCase().includes(search.toLowerCase())
+            || user.lastname.toLowerCase().includes(search.toLowerCase())
+            || user.username.toLowerCase().includes(search.toLowerCase())
+            || user.contact.includes(search)
+            || user.email.toLowerCase().includes(search.toLowerCase())
+            )
+
+            switch (selectedFilter) {
+                case "All":
+                    setUserList(result)
+                    break;
+                case "Active":
+                    const activeUsers = result.filter((user)=>user.status.status === "Active")
+                    setUserList(activeUsers)
+                    break;
+                case "Disabled":
+                    const disabledUsers = result.filter((user)=>user.status.status === "Disabled")
+                    setUserList(disabledUsers)
+                    break;
+                default:
+                    break;
+            }
+
         }
     }
 
@@ -79,25 +132,23 @@ const AdminUsersList = () => {
         <h1 className='text-xl font-medium text-gray-700 px-5'>List of Users</h1>
     </header>
     {/* Navigation */}
-    <div className='w-full flex items-center justify-between space-x-2 mt-3 px-5'>
+    <div className='w-full flex items-center justify-start space-x-2 mt-3 px-5'>
             <div className='w-fit h-full flex items-center space-x-2 relative'>
                 <input onKeyDown={(e)=>{if(e.key === "Enter"){}}} value={search} onChange={(e)=>setSearch(e.target.value)} className='border text-sm h-full px-2 py-2 rounded-md' type='search' placeholder='Search...' />
-                <button  className='text-sm bg-themeOrange h-full px-3 text-white rounded-md'>Search</button>
+                <button onClick={()=>handleSearch()} className='text-sm bg-themeOrange h-full px-3 text-white rounded-md'>Search</button>
             </div>
+             {/* Filters */}
+    <div className="w-full lg:w-fit grid grid-cols-2 lg:grid-cols-4 gap-2">   
+        <select onChange={(e)=>{handleFilter(e.target.value);setSelectedFilter(e.target.value)}} className="bg-gray-50 w-full lg:w-[100px] border border-gray-300 text-gray-900 text-semiSm md:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 "
+        >
+        <option value="All">All</option>
+        <option value="Active">Active</option>
+        <option value="Disabled">Disabled</option>
+        </select>
+    </div>
     </div>
 
-    {/* Filters */}
-    <div className="w-full lg:w-fit grid grid-cols-2 lg:grid-cols-4 gap-2 px-5 mt-5">   
-        <select className="bg-gray-50 w-full lg:w-[170px] border border-gray-300 text-gray-900 text-semiSm md:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 "
-        >
-        <option value="">Select Category</option>
-
-        <option>Test</option>
-        </select>
-        <button className='h-fit py-2  text-semiSm md:text-sm w-full lg:w-[170px] bg-themeBlue text-white rounded-md'>
-            Submit
-        </button>
-        </div>
+   
     
     <div className="flex flex-col w-full h-full overflow-auto overflow-x-scroll px-5 mt-5">
     <table className='w-full overflow-x-auto'>
@@ -164,9 +215,9 @@ const AdminUsersList = () => {
     {/* View User Modal */}
     <Modal isOpen={openViewUserModal} style={modalStyle} onRequestClose={()=>setOpenViewUserModal(false)} contentLabel="disable service Modal">
         {
-            selectedUser === null ? ""
-            :
-            <div className='w-fit h-fit bg-white flex flex-col p-3'>
+        selectedUser === null ? ""
+        :
+        <div className='w-fit h-fit bg-white flex flex-col p-3'>
         <div className='flex items-center gap-1 border-b-1 pb-1'>
         <button onClick={()=>setOpenViewUserModal(false)}>
         <ArrowBackIosNewOutlinedIcon fontSize='small' className='p-0.5 text-gray-500' />
@@ -184,6 +235,26 @@ const AdminUsersList = () => {
                     <p className='font-normal text-sm text-gray-500'>#{selectedUser.username}</p>
                 </div>
                 
+        </div>
+
+        {/* Status */}
+        <div className='w-full flex flex-col mt-3'>
+            <p className='text-sm font-medium text-gray-500'>Status : <span className={`${selectedUser.status.status === "Active" ? "text-green-500" : "text-red-500"} `}>{selectedUser.status.status}</span></p>
+            <p className={`text-sm ${selectedUser.status.status === "Disabled" ? "" : "hidden"} font-medium text-gray-500`}>Date issued : 
+            <span className='text-gray-700 ml-1'>
+            {new Date(selectedUser.status.dateDisabled).toLocaleDateString('En-Us',{
+            month : 'short', day : '2-digit', year : 'numeric'
+            })}
+            </span>
+            </p>
+            <p className={`text-sm ${selectedUser.status.status === "Disabled" ? "" : "hidden"} font-medium text-gray-500`}>Reasons:</p>
+            <div className='w-ful flex flex-wrap gap-2'>
+            {
+                selectedUser.status.reasons?.map((reason)=>(
+                    <p className='text-gray-700  text-sm'>{reason},</p>
+                ))
+            }
+            </div>
         </div>
         {/* Additional Information */}
         <div className='grid grid-cols-2 mt-5 gap-3'>

@@ -34,8 +34,8 @@ import AdminUsersList from './AdminPage/AdminUsersList';
 
 
 const App = () => {
-  // const { services } = UseServiceHook();
-  const {services} = ''
+  const { services } = UseServiceHook();
+  // const {services} = ''
   const [scrollToAboutUs, setScrollToAboutUs] = useState(false);
 
   const handleScrollToAboutUs = () => {

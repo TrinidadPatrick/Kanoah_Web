@@ -11,7 +11,7 @@ import http from '../../../http';
 const AdminServices = () => {
     Modal.setAppElement('#root');
     const navigate = useNavigate()
-    const {services} = useAdminServices()
+    const {services, getServices} = useAdminServices()
     const {categories, subCategories} = useAdminCategories()
     const [serviceList, setServiceList] = useState([])
     const [selectedCategory, setSelectedCategory] = useState('')
@@ -103,7 +103,7 @@ const AdminServices = () => {
                 setOpenDisableModal(false)
                 setDisableServiceObject({service : {},
                     reason : []})
-                window.location.reload()
+                getServices()
             }
         } catch (error) {
             console.log(error)
@@ -113,7 +113,7 @@ const AdminServices = () => {
     const enableService = async (serviceId) => {
         try {
             const result = await http.patch(`Admin_EnableService/${serviceId}`, {}, {withCredentials : true})
-            window.location.reload()
+            getServices()
         } catch (error) {
             console.log(error)
         }
