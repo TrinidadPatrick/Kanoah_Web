@@ -1,6 +1,5 @@
 import React from 'react'
 import Rating from '@mui/material/Rating';
-import profile from './img/Profile3.jpg'
 import { styled } from '@mui/material/styles';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
@@ -35,6 +34,7 @@ import Footer from '../MainPage/Footer';
 import Modal from 'react-modal';
 import BookService from '../BookService/BookService';
 import UseInfo from '../../ClientCustomHook/UseInfo';
+import ServiceOffers from './Components/ServiceOffers';
 
 
 
@@ -48,9 +48,7 @@ const ViewService = () => {
   const dispatch = useDispatch();
   const [windowWidth, setWindowWdith] = useState(null)
   const [windowHeight, setWindowHeight] = useState(null)
-  const isLoggedIn = useSelector(selectLoggedIn); 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [loading, setLoading] = useState(true)
   const [serviceInfo, setServiceInfo] = useState(null)
   const { serviceId } = useParams();
   const [open, setOpen] =useState(false);
@@ -100,6 +98,27 @@ const ViewService = () => {
       }
     ))
   }
+
+  const CustomSlide = ({ item }) => {
+    const originalStyle = {
+      backgroundImage: `url(${item.original})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      height: '100%',
+      width: '100%',
+      position: 'absolute',
+      filter: 'blur(4px) brightness(0.7)', // Apply blur effect to the background
+      zIndex: -1,
+    };
+    
+  
+    return (
+      <div className="image-gallery-image" style={{ position: 'relative' }}>
+        <div style={originalStyle}></div>
+        <img className='' src={item.original} alt={item.description} />
+      </div>
+    );
+  };
 
   const handleImageClick = (imageSrc) => {
     const index = serviceInfo.galleryImages.findIndex(image => image.src == imageSrc)
@@ -176,7 +195,7 @@ const ViewService = () => {
   const handleChatNow = () => {
     if(authenticated)
     {
-      navigate(`/chatP?service=${serviceInfo.owner._id}`)
+      navigate(`/chat?service=${serviceInfo.owner._id}`)
       // navigate(`/chatP?to=${serviceInfo.owner._id}&service=${serviceInfo.owner._id}`)
     }
     else{
@@ -253,7 +272,7 @@ const handleBook = () => {
 
         <div className='flex  relative ml-0 space-x-1 justify-between items-center mt-5 w-full'>
         <div className='flex space-x-2'>
-        <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={3.7} precision={0.1} icon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} />  } emptyIcon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} className='text-gray-300' />} />
+        <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={serviceInfo.ratings} precision={0.1} icon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} />  } emptyIcon={<StarRoundedIcon fontSize={windowWidth <= 450 ? "small" : "medium"} className='text-gray-300' />} />
         <div className='flex items-center space-x-2 '>
         <p className='text-gray-400 text-xs md:text-sm font-medium'>({serviceInfo.ratings})</p> 
         <p className='text-gray-300'>|</p>
@@ -276,8 +295,6 @@ const handleBook = () => {
         active:border-b-[2px] disabled:cursor-not-allowed active:brightness-90 active:translate-y-[2px]">
           Book Service
         </button>
-        {/* <button onClick={()=>{handleChatNow()}} className='text-xs md:text-lg font-semibold bg-green-500 h-full text-white w-24 md:w-36 rounded-[0.150rem]'>Chat now</button> */}
-        {/* <button className='text-xs md:text-lg font-semibold bg-themeOrange h-full text-white w-24 md:w-36 rounded-[0.150rem]'>Book Service</button> */}
         </div>
         </div>
 
@@ -290,12 +307,12 @@ const handleBook = () => {
           slideInterval={6000} 
           showFullscreenButton={false} 
           showPlayButton={false} 
+          renderItem={(item) => <CustomSlide item={item} />}
           items={generatedFeaturedImages(serviceInfo.featuredImages)}
           
           />
           </div>
         
-        {/* <Carousel hasThumbnails={false} shouldLazyLoad={true} hasTransition={true} hasIndexBoard={false } playIcon={false} thumbnailHeight="80px" thumbnailclassName="tmb" thumbnailWidth='150px'  images={images} style={{ height: "", width: "80%", display: "flex" }} /> */}
         </div>
         </div>
 
@@ -420,8 +437,8 @@ const handleBook = () => {
             <button className='border w-full'></button>
           </div>
           {/* Description container */}
-          <article className='w-full py-2 px-5'>
-          {selectedOptions == "Description" ? (<Description description={serviceInfo.basicInformation.Description} />) : selectedOptions == "Reviews" ? (<Reviews reviews={reviews} />) : ""}
+          <article className='w-full'>
+          {selectedOptions == "Description" ? (<Description description={serviceInfo.basicInformation.Description} />) : selectedOptions == "Reviews" ? (<Reviews reviews={reviews} />) : (<ServiceOffers serviceOffers={serviceInfo.serviceOffers} />)}
           
           </article>
           </div>

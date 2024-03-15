@@ -3,33 +3,32 @@ import { styled } from '@mui/material/styles';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import Rating from '@mui/material/Rating';
 
-const Reviews = ({reviews}) => {
-    // Rating stars
-  const StyledRating = styled(Rating)({
-    '& .MuiRating-iconFilled': {
-      color: '#ffa534',
-      fontSize: "medium"
-    },
-    '& .MuiRating-iconHover': {
-      color: '#ffa534',
-      
-    },
-    '& .MuiRating-iconEmpty': {
-      color: '#ffa534',
-      fontSize: "large"
-      
-    },
+const AdminServiceReviews = ({reviews}) => {
 
-  });
+    const StyledRating = styled(Rating)({
+        '& .MuiRating-iconFilled': {
+          color: '#ffa534',
+          fontSize: "medium"
+        },
+        '& .MuiRating-iconHover': {
+          color: '#ffa534',
+          
+        },
+        '& .MuiRating-iconEmpty': {
+          color: '#ffa534',
+          fontSize: "large"
+          
+        },
+    
+      });
 
-
-    return (
-        <div className='flex flex-col space-y-5 p-5'>
+  return (
+    <div className='flex flex-col space-y-5 p-5 h-[300px] overflow-auto'>
         {/* Card */}
         {
           reviews?.map((review)=>{
             return (
-              <div>
+              <div key={review._id} className='w-full'>
               {/* Header */}
               <div className='flex'>
               <img className='w-12 h-12 object-cover rounded-full' src={review.user.profileImage} alt="profile picture" />
@@ -50,9 +49,7 @@ const Reviews = ({reviews}) => {
 
 
     </div>
-    )
+  )
 }
-    
 
-
-export default Reviews
+export default AdminServiceReviews

@@ -7,14 +7,14 @@ import Users from "./Utilities/SVG_Icons/Users.svg"
 import Admins from "./Utilities/SVG_Icons/Admins.svg"
 import Logout from "./Utilities/SVG_Icons/Logout.svg"
 import { Link, useParams, useNavigate, useResolvedPath, useMatch } from 'react-router-dom'
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import { useAuth } from './CustomHooks/AuthProvider'
 import useAdminInfo from './CustomHooks/useAdminInfo';
 import http from '../http'
 
 const SideBar = () => {
     const profile = useAdminInfo()
-    const {authenticated, logout, checkStatus} = useAuth()
-    const [rerender, setRerender] = useState(0)
+    const {logout} = useAuth()
 
 
     const handleLogout = async () => {
@@ -22,14 +22,15 @@ const SideBar = () => {
     }
 
   return (
-    <div className='w-[250px] bg-themeBlue xl:w-[300px] flex flex-col space-y-10 h-full absolute md:relative p-7'>
+    <div className='min-w-[250px] bg-themeBlue xl:w-[300px] hidden md:flex flex-col space-y-10 h-full absolute md:relative p-7'>
         <div className={`${profile?.loading ? 'hidden' : 'block'}`}>
-        <h1 className='text-lg font-semibold text-white px-2'>{profile.adminInformation?.firstname + " " + profile.adminInformation?.lastname}</h1>
-        <h1 className='text-sm font-semibold text-white px-2'>{profile.adminInformation?.Role}</h1>
+        <h1 className='text-base lg:text-lg font-semibold text-white px-2'>{profile.adminInformation?.firstname + " " + profile.adminInformation?.lastname}</h1>
+        <h1 className='text-xs lg:text-sm font-semibold text-white px-2'>{profile.adminInformation?.Role}</h1>
         </div>
         
         {/* Container */}
-        <div className=' w-full flex flex-col space-y-10 h-full py-2'>
+        <div className=' w-full flex flex-col space-y-5 justify-between h-full py-2'>
+            <div className='flex flex-col space-y-5'>
             {/* DashBoard */}
             <CustomSidebar to="admin/Dashboard" imageValue={Dashboard}>Dashboard</CustomSidebar>
             {/* Users */}
@@ -43,10 +44,12 @@ const SideBar = () => {
            
             {/* Admins */}
             <CustomSidebar to="admin/Admins" imageValue={Admins}>Admins</CustomSidebar>
+            </div>
 
-            <div onClick={()=>{handleLogout()}}  className={`flex  justify-start cursor-pointer items-center  pt-7  px-2 border-t-1 space-x-3 opacity-70 text-white`}>
-            <img className='w-6 ' src={Logout} alt='Logout' />
-                <h2>Logout</h2>
+            <div onClick={()=>{handleLogout()}}  className={`flex  justify-start cursor-pointer items-center  pt-3  px-2 space-x-1 text-white`}>
+            {/* <img className='w-6 ' src={Logout} alt='Logout' /> */}
+            <LogoutOutlinedIcon className='text-red-500' />
+                <h2 className='text-red-500'>Logout</h2>
             </div>
         </div>
     </div>

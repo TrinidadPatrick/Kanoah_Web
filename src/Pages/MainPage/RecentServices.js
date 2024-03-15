@@ -12,20 +12,12 @@ import HideSourceIcon from '@mui/icons-material/HideSource';
 import ReportIcon from '@mui/icons-material/Report';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Carousel from 'react-multi-carousel';
-import UseInfo from '../../ClientCustomHook/UseInfo';
-import UseDNS from '../../ClientCustomHook/DNSProvider';
-import useAllRatings from '../../ClientCustomHook/AllRatingsProvider';
 import 'react-multi-carousel/lib/styles.css';
 import { Link } from 'react-router-dom';
 
 
 
-const RecentServices = ({services}) => {
-  const {authenticated, userInformation} = UseInfo()
-  const {DNS} = UseDNS()
-  const {ratings, getRatings} = useAllRatings()
-  const [newServices, setNewServices] = useState(null)
-  const [showMoreOption, setShowMoreOption] = useState(false)
+  const RecentServices = ({services}) => {
   const [activeId, setActiveId] = useState(0)
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -90,56 +82,42 @@ const RecentServices = ({services}) => {
   };
 
   // Computes the rating Average
-  const ratingAverage = async (services, ratings, dns) => {
-    const processedServices = await Promise.all(
-      services.map((service, index) => {
-        const serviceRatings = ratings.filter((rating)=> rating.service === service._id)
-        const totalRatings = serviceRatings.length
-        const sumOfRatings = serviceRatings.reduce((sum, rating) => sum + rating.rating, 0);
-        const average = totalRatings === 0 ? 0 : sumOfRatings / totalRatings
-        const from = new Date(service.createdAt);
-        const to = new Date(thisDate);
-        const years = to.getFullYear() - from.getFullYear();
-        const months = to.getMonth() - from.getMonth();
-        const days = to.getDate() - from.getDate();
-        const createdAgo = years > 0 ? `${years} ${years <= 1 ? "year" : "years"} ago` : months > 0 ? `${months} ${months <= 1 ? "month" : "months"} ago` : days > 0 ? `${days} ${days <= 1 ? "day" : "days"} ago` : "Less than a day ago";
-        return ({
-          _id : service._id,
-          key : index,
-          basicInformation: service.basicInformation,
-          advanceInformation: service.advanceInformation,
-          address: service.address,
-          tags: service.tags,
-          owner : service.owner,
-          serviceProfileImage: service.serviceProfileImage,
-          ratings : average,
-          ratingRounded : Math.floor(average),
-          totalReviews : totalRatings,
-          createdAgo : createdAgo,
-          createdAt : service.createdAt
-        });
-      })
-      )
-      return authenticated ? processedServices.filter(service => (
-          !dns.some(dnsService => service._id === dnsService.service._id) &&
-          service.owner && userInformation &&
-          service.owner._id !== userInformation._id
-        )) : authenticated === false ? processedServices : ""
-  };
-
-    const getRecentServices = async () => {
-      const computed = await ratingAverage(services, ratings, DNS)
-      const sorted = computed.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      setNewServices(sorted)
-    }
-  
-    useEffect(()=>{
-      if(services !== null && ratings !== null && DNS !== null)
-      {
-        getRecentServices()
-      }
-  
-    }, [services, ratings, DNS])
+  // const ratingAverage = async (services, ratings, dns) => {
+  //   const processedServices = await Promise.all(
+  //     services.map((service, index) => {
+  //       const serviceRatings = ratings.filter((rating)=> rating.service === service._id)
+  //       const totalRatings = serviceRatings.length
+  //       const sumOfRatings = serviceRatings.reduce((sum, rating) => sum + rating.rating, 0);
+  //       const average = totalRatings === 0 ? 0 : sumOfRatings / totalRatings
+  //       const from = new Date(service.createdAt);
+  //       const to = new Date(thisDate);
+  //       const years = to.getFullYear() - from.getFullYear();
+  //       const months = to.getMonth() - from.getMonth();
+  //       const days = to.getDate() - from.getDate();
+  //       const createdAgo = years > 0 ? `${years} ${years <= 1 ? "year" : "years"} ago` : months > 0 ? `${months} ${months <= 1 ? "month" : "months"} ago` : days > 0 ? `${days} ${days <= 1 ? "day" : "days"} ago` : "Less than a day ago";
+  //       return ({
+  //         _id : service._id,
+  //         key : index,
+  //         basicInformation: service.basicInformation,
+  //         advanceInformation: service.advanceInformation,
+  //         address: service.address,
+  //         tags: service.tags,
+  //         owner : service.owner,
+  //         serviceProfileImage: service.serviceProfileImage,
+  //         ratings : average,
+  //         ratingRounded : Math.floor(average),
+  //         totalReviews : totalRatings,
+  //         createdAgo : createdAgo,
+  //         createdAt : service.createdAt
+  //       });
+  //     })
+  //     )
+  //     return authenticated ? processedServices.filter(service => (
+  //         !dns.some(dnsService => service._id === dnsService.service._id) &&
+  //         service.owner && userInformation &&
+  //         service.owner._id !== userInformation._id
+  //       )) : authenticated === false ? processedServices : ""
+  // };
 
   
 
@@ -173,7 +151,7 @@ const RecentServices = ({services}) => {
     <section className='TRS_Container flex justify-center   mt-5 w-[100%] md:w-[100%] xl:w-[90vw] max-w-[100vw] mx-auto h-fit overflow-hidden'>
 
     {
-      newServices == null
+      services == null || services == ""
       ?
       <div className="lds-dual-ring w-full  mx-auto h-screen"></div>
       :
@@ -198,7 +176,7 @@ const RecentServices = ({services}) => {
   
 
   {
-    newServices.slice(0,10).map((service)=>{
+    services?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0,10).map((service)=>{
       return (
         <div key={service._id} className='w-full h-fit sm:h-[400px] flex items-center justify-center  py-4'>
               {/* Cards */}
@@ -242,7 +220,7 @@ const RecentServices = ({services}) => {
                 {/* Rating */}
                 <div className='flex relative items-center ml-3 space-x-1'>
                 <StyledRating className='relative -left-1'  readOnly defaultValue={service.ratingRounded} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
-                <p className='text-gray-400 text-sm font-medium'>{service.ratings.toFixed(1)}</p> 
+                <p className='text-gray-400 text-sm font-medium'>{service.ratings}</p> 
                 <p className='text-gray-300'>|</p>
                 <p className='text-gray-700 text-sm pt-[2.5px] font-medium'>{service.totalReviews + " Reviews"}</p> 
                 </div>

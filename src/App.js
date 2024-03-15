@@ -28,11 +28,14 @@ import UserAllServices from './ClientCustomHook/AllServiceProvider';
 import { UseServiceHook } from './ClientCustomHook/AllServiceContext';
 import GcashPay from './Pages/GcashPayment/GcashPay';
 import PaypalPay from './Pages/GcashPayment/PaypalPay';
+import AdminServices from './AdminPage/Components/Services/AdminServices';
+import AdminViewService from './AdminPage/Components/Services/AdminViewService';
+import AdminUsersList from './AdminPage/AdminUsersList';
 
 
 const App = () => {
-  // const {services} = UserAllServices()
-  const { services } = UseServiceHook();
+  // const { services } = UseServiceHook();
+  const {services} = ''
   const [scrollToAboutUs, setScrollToAboutUs] = useState(false);
 
   const handleScrollToAboutUs = () => {
@@ -51,8 +54,6 @@ const App = () => {
       <Outlet />
     </>
   );
-
-    
 
   return (
       
@@ -73,7 +74,7 @@ const App = () => {
         <Route path='/serviceSettings/:option' element={<ServiceSettings />} />
         <Route path=':setting/editService/:option' element={<EditService />} />
         <Route path="*" element={<PageNotFound />} />
-        <Route path='/' element={<MainPage scrollToAboutUs={scrollToAboutUs} setScrollToAboutUs={setScrollToAboutUs} />} />
+        <Route path='/' element={<MainPage services={services} scrollToAboutUs={scrollToAboutUs} setScrollToAboutUs={setScrollToAboutUs} />} />
         <Route path='/login' element={<Login />} />
         <Route path='/BookService' element={<BookService />} />
         <Route path='/Gcash' element={<GcashPay />} />
@@ -93,7 +94,11 @@ const App = () => {
         <Route path='admin/Admins' element={<AuthProvider><AdminList /></AuthProvider>} />
         <Route path='admin/Dashboard' element={<AuthProvider><AdminDashboard /></AuthProvider>} />
         <Route path='admin/Management' element={<AuthProvider><AdminManagement /></AuthProvider>} />
+        <Route path='admin/Services' element={<AuthProvider><AdminServices /></AuthProvider>} />
+        <Route path='admin/Users' element={<AuthProvider><AdminUsersList /></AuthProvider>} />
         </Route>
+
+        <Route path='admin/Services/AdminViewService/:_id' element={<AuthProvider><AdminViewService /></AuthProvider>} />
         
         <Route path='adminLogin' element={
         <div className='w-full h-screen flex'>

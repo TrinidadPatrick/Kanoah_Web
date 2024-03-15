@@ -222,12 +222,12 @@
 
 /* Image gallery */
 .image-gallery-original{
-  margin-top: 25px;
+  /* margin-top: 25px;
   max-width: 100%;
   max-height: 100%;
-  width: auto;
-  background-color: rgb(232, 232, 232);
-  border-radius: 0.3rem;
+  width: auto; */
+  /* background-color: rgb(232, 232, 232); */
+  /* border-radius: 0.3rem; */
   /* height: 460px; */
 }
 
@@ -235,7 +235,7 @@
   height: 450px ;
   width: 100%;
   object-fit: contain !important;
-  border-radius: 6px;
+  /* border-radius: 6px; */
 }
 
 .image-gallery-thumbnail img{

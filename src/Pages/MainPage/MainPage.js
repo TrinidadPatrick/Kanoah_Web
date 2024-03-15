@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import CoverPhoto2 from '../MainPage/Components/UtilImage/business2.jpg'
-import { categories } from './Components/Categories'
+// import { categories } from './Components/Categories'
 import Tag from '../MainPage/Components/CategoryImage/Tag.png'
 import TopRatedServices from './TopRatedServices'
 import RecentServices from './RecentServices'
@@ -14,11 +14,12 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import AboutUs from './AboutUs';
 import WhyChooseUs from './WhyChooseUs'
+import useCategory from '../../ClientCustomHook/CategoryProvider'
 
 
-const MainPage = ({ scrollToAboutUs, setScrollToAboutUs }) => {
+const MainPage = ({ scrollToAboutUs, setScrollToAboutUs, services }) => {
+  const {categories} = useCategory()
   const aboutUsSectionRef = useRef(null);
-  const {services} = UserAllServices()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const MainPage = ({ scrollToAboutUs, setScrollToAboutUs }) => {
         duration : 700,
         easing : "ease-in-out-cubic"
     })
-},[])
+  },[])
 
   return (
     <div className='h-full w-full relative'>
@@ -66,9 +67,9 @@ const MainPage = ({ scrollToAboutUs, setScrollToAboutUs }) => {
       {
         categories.filter(category => category.featured == true).map((category, index)=>{
           return (
-          <div onClick={()=>{navigate(`explore?${"category="+category.category_name}&page=1`)}} key={index} className="categoryContainerBox cursor-pointer origin-center w-full xl:w-full hover:shadow-2xl relative rounded-lg  border-2 border-white h-80 sm:h-44 md:h-56 xl:h-64 " style={{backgroundImage : `url(${category.category_image})`,backgroundSize: "cover",boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}>
+          <div onClick={()=>{navigate(`explore?${"category="+category.name}&page=1`)}} key={index} className="categoryContainerBox cursor-pointer origin-center w-full xl:w-full hover:shadow-2xl relative rounded-lg  border-2 border-white h-80 sm:h-44 md:h-56 xl:h-64 " style={{backgroundImage : `url(${category.image})`,backgroundSize: "cover",boxShadow: "rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px"}}>
           <div className='tag bg-themeOrange absolute right-0 top-5 flex  items-center'>
-          <div className='font-medium  text-white'>{category.category_name}</div>
+          <div className='font-medium  text-white'>{category.name}</div>
           </div>
           {/* <div className='absolute brightness-90 top-3 w-31 py-0 h-9 -right-[1px] pl-6 pr-4 flex items-center ' style={{backgroundImage : `url(${Tag})`,backgroundSize: "100% 35.9px",backgroundRepeat : "no-repeat"}}> */}
           {/* <img className='w-full h-full brightness-75' src={Tag} alt="tag" /> */}
