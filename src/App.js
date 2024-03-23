@@ -17,20 +17,22 @@ import PageNotFound from './Pages/NotFoundPage/PageNotFound';
 import EditService from './Pages/EditService/EditService';
 import Chat from './Pages/ChatSystem/Chat';
 import BookService from './Pages/BookService/BookService';
-import AdminMainPage from './AdminPage/AdminManagement';
+import AdminMainPage from './AdminPage/AdminCategoryManagement/AdminManagement';
 import SideBar from './AdminPage/SideBar';
 import AdminLogin from './AdminPage/AdminLogin';
 import { AuthProvider } from './AdminPage/CustomHooks/AuthProvider';
-import AdminList from './AdminPage/AdminList';
-import AdminDashboard from './AdminPage/AdminDashboard';
-import AdminManagement from './AdminPage/AdminManagement';
+import AdminList from './AdminPage/AdminList/AdminList';
+import AdminDashboard from './AdminPage/AdminDashboard/AdminDashboard';
+import AdminManagement from './AdminPage/AdminCategoryManagement/AdminManagement';
 import UserAllServices from './ClientCustomHook/AllServiceProvider';
 import { UseServiceHook } from './ClientCustomHook/AllServiceContext';
 import GcashPay from './Pages/GcashPayment/GcashPay';
 import PaypalPay from './Pages/GcashPayment/PaypalPay';
-import AdminServices from './AdminPage/Components/Services/AdminServices';
-import AdminViewService from './AdminPage/Components/Services/AdminViewService';
-import AdminUsersList from './AdminPage/AdminUsersList';
+import AdminServices from './AdminPage/AdminServices/AdminServices';
+import AdminViewService from './AdminPage/AdminServices/AdminViewService';
+import AdminUsersList from './AdminPage/AdminUserList/AdminUsersList';
+import AdminReportList from './AdminPage/AdminReports/AdminReportList';
+import AdminReportHistory from './AdminPage/AdminReports/AdminReportHistory';
 
 
 const App = () => {
@@ -96,6 +98,8 @@ const App = () => {
         <Route path='admin/Management' element={<AuthProvider><AdminManagement /></AuthProvider>} />
         <Route path='admin/Services' element={<AuthProvider><AdminServices /></AuthProvider>} />
         <Route path='admin/Users' element={<AuthProvider><AdminUsersList /></AuthProvider>} />
+        <Route path='admin/Reports/Pending' element={<AuthProvider><AdminReportList /></AuthProvider>} />
+        <Route path='admin/Reports/History' element={<AuthProvider><AdminReportHistory /></AuthProvider>} />
         </Route>
 
         <Route path='admin/Services/AdminViewService/:_id' element={<AuthProvider><AdminViewService /></AuthProvider>} />

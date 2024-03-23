@@ -4,6 +4,7 @@ import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tool
 import Chart from 'react-apexcharts'
 import http from '../../../http';
 
+
 const BookingAndSalesChart = ({serviceInformation}) => {
     const [SalesData, setSalesData] = useState([
         { name: 'Jan', Sales: 0, },
@@ -91,9 +92,9 @@ const BookingAndSalesChart = ({serviceInformation}) => {
             offsetY: 3, // Adjust the offset as needed
             height: 18, // Adjust the height as needed
           },
-      };
+    };
     
-      const chartSeries = [
+    const chartSeries = [
         {
             name: 'Bookings',
             type: 'line',
@@ -106,28 +107,12 @@ const BookingAndSalesChart = ({serviceInformation}) => {
             data: SalesData.map(entry => entry.Sales),
             yAxisIndex: 1,
           },
-      ];
+    ];
 
 
     // Get Monthly Sales
     useEffect(()=>{
         const getTotalSales = async () => {
-            function formatNumberShort(number) {
-                const SI_SYMBOL = ["", "k", "M", "G", "T", "P", "E"];
-              
-                // what tier? (determines SI symbol)
-                const tier = (Math.log10(Math.abs(number)) / 3) | 0;
-              
-                // if zero, we don't need a suffix
-                if (tier === 0) return number;
-              
-                // scale the number
-                const scaled = number / Math.pow(10, tier * 3);
-              
-                // format number and add suffix
-                return scaled.toFixed(1) + SI_SYMBOL[tier];
-              }
-              
             try {
                 const result = await http.get(`getMonthlySales?service=${serviceInformation._id}`, {withCredentials : true})
                 const resultData = result.data

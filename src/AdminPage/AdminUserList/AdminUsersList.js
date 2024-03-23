@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import useUsers from './CustomHooks/useUsers'
+import useUsers from '../CustomHooks/useUsers'
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
+import OutsideClickHandler from 'react-outside-click-handler';
 import Modal from 'react-modal';
-import http from '../http';
+import http from '../../http';
 
 const AdminUsersList = () => {
     Modal.setAppElement('#root');
@@ -127,19 +128,149 @@ const AdminUsersList = () => {
 
 
   return (
-    <main className='w-full h-full flex flex-col p-2 overflow-auto'>
+    <main className='w-full overflow-hidden h-full flex flex-col relative p-3'>
+
+    {/* Disable Modal */}
+    <div style={{backgroundColor: 'rgba(0, 0, 0, 0.5)'}} className={`w-full z-30 h-full ${openDisableModal ? "flex" : "hidden"} items-center justify-center absolute top-0 left-0`}>
+    <OutsideClickHandler onOutsideClick={()=>setOpenDisableModal(false)}>
+    <div className='flex flex-col p-3 items-center bg-white w-[100%] semiSm:w-[350px]'>
+                {/* Header */}
+                <div className='w-full '>
+                    <h1 className='flex  text-lg text-red-500 font-medium overflow-hidden text-ellipsis'>You are about to disable {disableUserObject.user.firstname} {disableUserObject.user.lastname}</h1>
+                </div>
+
+                {/* Reasons */}
+                <div className='w-full flex flex-col mt-5'>
+                    <h2 className='text-sm whitespace-nowrap font-medium'>What's wrong with the User?</h2>
+                    <div className='w-full flex gap-3 flex-wrap mt-3'>
+                    {
+                        reasons.map((reason, index)=>{
+                            return (
+                                <button key={index} onClick={()=>handleSelectReason(reason)} className={`whitespace-nowrap ${disableUserObject.reason.includes(reason) ? "bg-blue-500 text-white" : "bg-gray-200"} border rounded-md px-3 py-1 text-sm`}>{reason}</button>
+                            )
+                        })
+                    }
+                    </div>
+                </div>
+                <div className='w-full flex flex-col mt-5'>
+                <button disabled={disableUserObject.reason.length === 0} onClick={()=>{disableUser()}} className='py-2 px-3 text-sm disabled:bg-gray-200 disabled:text-gray-400 bg-red-100 text-red-500 rounded-sm hover:bg-red-200'>Confirm</button>
+                </div>
+    </div>
+    </OutsideClickHandler>
+    </div>
+
+    {/* View Modal */}
+    <div style={{backgroundColor: 'rgba(0, 0, 0, 0.5)'}} className={`w-full z-30 h-full ${openViewUserModal ? "flex" : "hidden"} items-center justify-center absolute top-0 left-0`}>
+    <OutsideClickHandler onOutsideClick={()=>setOpenDisableModal(false)}>
+    {
+        selectedUser === null ? ""
+        :
+        <div className='w-[350px] sm:w-[500px] h-fit bg-white flex flex-col p-3'>
+        <div className='flex items-center gap-1 border-b-1 pb-1'>
+        <button onClick={()=>setOpenViewUserModal(false)}>
+        <ArrowBackIosNewOutlinedIcon fontSize='small' className='p-0.5 text-gray-500' />
+        </button>
+        <h1 className='text-lg font-medium text-gray-700 '>User Details</h1>
+        </div>
+        
+        {/* Profile Picture */}
+        <div className='w-full flex justify-start gap-2 mt-3'>
+                <div className='flex-none'>
+                <img className='w-14 aspect-square rounded-full object-cover' src={selectedUser.profileImage} />
+                </div>
+                <div className='w-full h-full flex flex-col items-start justify-evenly'>
+                    <p className='font-medium text-gray-600'>{selectedUser.firstname} {selectedUser.lastname}</p>
+                    <p className='font-normal text-sm text-gray-500'>#{selectedUser.username}</p>
+                </div>
+                
+        </div>
+
+        {/* Status */}
+        <div className='w-full flex flex-col mt-3'>
+            <p className='text-sm font-medium text-gray-500'>Status : <span className={`${selectedUser.status.status === "Active" ? "text-green-500" : "text-red-500"} `}>{selectedUser.status.status}</span></p>
+            <p className={`text-sm ${selectedUser.status.status === "Disabled" ? "" : "hidden"} font-medium text-gray-500`}>Date issued : 
+            <span className='text-gray-700 ml-1'>
+            {new Date(selectedUser.status.dateDisabled).toLocaleDateString('En-Us',{
+            month : 'short', day : '2-digit', year : 'numeric'
+            })}
+            </span>
+            </p>
+            <p className={`text-sm ${selectedUser.status.status === "Disabled" ? "" : "hidden"} font-medium text-gray-500`}>Reasons:</p>
+            <div className='w-ful flex flex-wrap gap-2'>
+            {
+                selectedUser.status.reasons?.map((reason)=>(
+                    <p className='text-gray-700  text-sm'>{reason},</p>
+                ))
+            }
+            </div>
+        </div>
+        {/* Additional Information */}
+        <div className='grid grid-cols-1 sm:grid-cols-2 mt-5 gap-3'>
+            {/* Email */}
+            <div className='w-full flex flex-col'>
+            <div className='w-full'>
+                <p className='font-medium text-semiSm'>Email</p>
+                <div className='p-2 border rounded-sm w-full'>
+                <p className='text-sm text-gray-600'>{selectedUser.email}</p>
+                </div>
+            </div>
+            {/* Contact */}
+            <div className='w-full'>
+                <p className='font-medium text-semiSm'>Contact</p>
+                <div className='p-2 border rounded-sm w-full'>
+                <p className='text-sm text-gray-600'>+63{selectedUser.contact}</p>
+                </div>
+            </div>
+            </div>
+            {/* Bday */}
+            <div className='w-full flex flex-col '>
+            <div className='w-full'>
+                <p className='font-medium text-semiSm'>Birthdate</p>
+                <div className='p-2 border rounded-sm w-full'>
+                <p className='text-sm text-gray-600'>{selectedUser.birthDate.month} {selectedUser.birthDate.day}, {selectedUser.birthDate.year}</p>
+                </div>
+            </div>
+            {/* Date Registerd */}
+            <div className='w-full'>
+                <p className='font-medium text-semiSm'>Date of registration</p>
+                <div className='p-2 border rounded-sm w-full'>
+                <p className='text-sm text-gray-600'>{selectedUser.createdAt}</p>
+                </div>
+            </div>
+        </div>
+        </div>
+        {/* Address */}
+        <div className='mt-3 w-full'>
+        <p className='font-medium text-semiSm'>Address</p>
+        <div className='p-2 border rounded-sm'>
+        {
+            selectedUser.Address === null ? 
+            <p className='text-sm text-gray-600'>No Address</p>
+            :
+            <>
+            <p className='text-sm text-gray-600'>{selectedUser.Address?.barangay.name}, {selectedUser.Address?.municipality.name.charAt(0) + selectedUser.Address?.municipality.name.slice(1).toLowerCase()}, {selectedUser.Address?.province.name.charAt(0) + selectedUser.Address?.province.name.slice(1).toLowerCase()}</p>
+            <p className='text-sm text-gray-600'>{selectedUser.Address?.street}</p>
+            </>
+        }
+        </div>
+        </div>
+        </div>
+        }
+    </OutsideClickHandler>
+    </div>
+    
     <header>
         <h1 className='text-xl font-medium text-gray-700 px-5'>List of Users</h1>
     </header>
     {/* Navigation */}
-    <div className='w-full flex items-center justify-start space-x-2 mt-3 px-5'>
-            <div className='w-fit h-full flex items-center space-x-2 relative'>
-                <input onKeyDown={(e)=>{if(e.key === "Enter"){}}} value={search} onChange={(e)=>setSearch(e.target.value)} className='border text-sm h-full px-2 py-2 rounded-md' type='search' placeholder='Search...' />
-                <button onClick={()=>handleSearch()} className='text-sm bg-themeOrange h-full px-3 text-white rounded-md'>Search</button>
-            </div>
-             {/* Filters */}
-    <div className="w-full lg:w-fit grid grid-cols-2 lg:grid-cols-4 gap-2">   
-        <select onChange={(e)=>{handleFilter(e.target.value);setSelectedFilter(e.target.value)}} className="bg-gray-50 w-full lg:w-[100px] border border-gray-300 text-gray-900 text-semiSm md:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 "
+    <div className='w-full flex flex-col semiSm:flex-row items-center justify-start gap-2 mt-3 sm:px-5'>
+        <div className='w-full h-full flex items-center space-x-2 relative'>
+            <input onKeyDown={(e)=>{if(e.key === "Enter"){}}} value={search} onChange={(e)=>setSearch(e.target.value)} className='border w-full text-sm h-full px-2 py-2 rounded-md' type='search' placeholder='Search...' />
+            <button onClick={()=>handleSearch()} className='text-sm bg-themeOrange h-full px-3 text-white rounded-md'>Search</button>
+        </div>
+    {/* Filters */}
+    <div className="w-full  lg:w-[150px] ">   
+        <select onChange={(e)=>{handleFilter(e.target.value);setSelectedFilter(e.target.value)}} className="bg-gray-50 w-full semiSm:w-[80px] border border-gray-300 text-gray-900 text-semiSm md:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 "
         >
         <option value="All">All</option>
         <option value="Active">Active</option>
@@ -212,126 +343,7 @@ const AdminUsersList = () => {
     </table>
     </div>
 
-    {/* View User Modal */}
-    <Modal isOpen={openViewUserModal} style={modalStyle} onRequestClose={()=>setOpenViewUserModal(false)} contentLabel="disable service Modal">
-        {
-        selectedUser === null ? ""
-        :
-        <div className='w-fit h-fit bg-white flex flex-col p-3'>
-        <div className='flex items-center gap-1 border-b-1 pb-1'>
-        <button onClick={()=>setOpenViewUserModal(false)}>
-        <ArrowBackIosNewOutlinedIcon fontSize='small' className='p-0.5 text-gray-500' />
-        </button>
-        <h1 className='text-lg font-medium text-gray-700 '>User Details</h1>
-        </div>
-        
-        {/* Profile Picture */}
-        <div className='w-full flex justify-start gap-2 mt-3'>
-                <div className='flex-none'>
-                <img className='w-14 aspect-square rounded-full object-cover' src={selectedUser.profileImage} />
-                </div>
-                <div className='w-full h-full flex flex-col items-start justify-evenly'>
-                    <p className='font-medium text-gray-600'>{selectedUser.firstname} {selectedUser.lastname}</p>
-                    <p className='font-normal text-sm text-gray-500'>#{selectedUser.username}</p>
-                </div>
-                
-        </div>
 
-        {/* Status */}
-        <div className='w-full flex flex-col mt-3'>
-            <p className='text-sm font-medium text-gray-500'>Status : <span className={`${selectedUser.status.status === "Active" ? "text-green-500" : "text-red-500"} `}>{selectedUser.status.status}</span></p>
-            <p className={`text-sm ${selectedUser.status.status === "Disabled" ? "" : "hidden"} font-medium text-gray-500`}>Date issued : 
-            <span className='text-gray-700 ml-1'>
-            {new Date(selectedUser.status.dateDisabled).toLocaleDateString('En-Us',{
-            month : 'short', day : '2-digit', year : 'numeric'
-            })}
-            </span>
-            </p>
-            <p className={`text-sm ${selectedUser.status.status === "Disabled" ? "" : "hidden"} font-medium text-gray-500`}>Reasons:</p>
-            <div className='w-ful flex flex-wrap gap-2'>
-            {
-                selectedUser.status.reasons?.map((reason)=>(
-                    <p className='text-gray-700  text-sm'>{reason},</p>
-                ))
-            }
-            </div>
-        </div>
-        {/* Additional Information */}
-        <div className='grid grid-cols-2 mt-5 gap-3'>
-            {/* Email */}
-            <div className='w-full'>
-                <p className='font-medium text-semiSm'>Email</p>
-                <div className='p-2 border rounded-sm w-full'>
-                <p className='text-sm text-gray-600'>{selectedUser.email}</p>
-                </div>
-            </div>
-            {/* Email */}
-            <div className='w-full'>
-                <p className='font-medium text-semiSm'>Contact</p>
-                <div className='p-2 border rounded-sm w-full'>
-                <p className='text-sm text-gray-600'>+63{selectedUser.contact}</p>
-                </div>
-            </div>
-            {/* Email */}
-            <div className='w-full'>
-                <p className='font-medium text-semiSm'>Birthdate</p>
-                <div className='p-2 border rounded-sm w-full'>
-                <p className='text-sm text-gray-600'>{selectedUser.birthDate.month} {selectedUser.birthDate.day}, {selectedUser.birthDate.year}</p>
-                </div>
-            </div>
-            {/* Date Registerd */}
-            <div className='w-full'>
-                <p className='font-medium text-semiSm'>Date of registration</p>
-                <div className='p-2 border rounded-sm w-full'>
-                <p className='text-sm text-gray-600'>{selectedUser.createdAt}</p>
-                </div>
-            </div>
-        </div>
-        {/* Address */}
-        <div className='mt-3'>
-        <p className='font-medium text-semiSm'>Address</p>
-        <div className='p-2 border rounded-sm'>
-        {
-            selectedUser.Address === null ? 
-            <p className='text-sm text-gray-600'>No Address</p>
-            :
-            <>
-            <p className='text-sm text-gray-600'>{selectedUser.Address?.barangay.name}, {selectedUser.Address?.municipality.name.charAt(0) + selectedUser.Address?.municipality.name.slice(1).toLowerCase()}, {selectedUser.Address?.province.name.charAt(0) + selectedUser.Address?.province.name.slice(1).toLowerCase()}</p>
-            <p className='text-sm text-gray-600'>{selectedUser.Address?.street}</p>
-            </>
-        }
-        </div>
-        </div>
-        </div>
-        }
-    </Modal>
-
-    {/* Disable User Modal */}
-    <Modal isOpen={openDisableModal} style={modalStyle} onRequestClose={()=>setOpenDisableModal(false)} contentLabel="disable service Modal">
-            <div className='w-[400px] flex flex-col p-3 items-center'>
-                {/* Header */}
-                <div className='w-full '>
-                    <h1 className='flex  text-lg text-red-500 font-medium overflow-hidden text-ellipsis'>You are about to disable {disableUserObject.user.firstname} {disableUserObject.user.lastname}</h1>
-                </div>
-
-                {/* Reasons */}
-                <div className='w-full flex flex-col mt-5'>
-                    <h2 className='text-sm whitespace-nowrap font-medium'>What's wrong with the User?</h2>
-                    <div className='w-full flex gap-3 flex-wrap mt-3'>
-                    {
-                        reasons.map((reason, index)=>{
-                            return (
-                                <button key={index} onClick={()=>handleSelectReason(reason)} className={`whitespace-nowrap ${disableUserObject.reason.includes(reason) ? "bg-blue-500 text-white" : "bg-gray-200"} border rounded-md px-3 py-1 text-sm`}>{reason}</button>
-                            )
-                        })
-                    }
-                    </div>
-                </div>
-                <div className='w-full flex flex-col mt-5'>
-                <button onClick={()=>{disableUser()}} className='py-2 px-3 text-sm bg-red-100 text-red-500 rounded-sm hover:bg-red-300'>Confirm</button>
-                </div>
-            </div>
-        </Modal>
     </main>
   )
 }

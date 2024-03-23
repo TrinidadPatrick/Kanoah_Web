@@ -1,14 +1,11 @@
 import React, { useEffect } from 'react'
-import { useState } from 'react';
+import { useState, } from 'react';
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Download from "yet-another-react-lightbox/plugins/download";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
-import { galleryImage } from '../ViewService/Components/ForGallery';
 import axios from 'axios';
 import cloudinaryCore from '../../CloudinaryConfig';
-import { useDispatch, useSelector } from 'react-redux';
-import { setUserId, selectUserId } from '../../ReduxTK/userSlice';
 import TableRowsOutlinedIcon from '@mui/icons-material/TableRowsOutlined'
 import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';

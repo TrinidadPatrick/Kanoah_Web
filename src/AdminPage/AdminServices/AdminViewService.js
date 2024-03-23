@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
-import http from '../../../http'
+import http from '../../http'
 import AdminViewServicesFeaturePhotos from './AdminViewServicesFeaturePhotos';
 import ServiceAndOwnerInformation from './ServiceAndOwnerInformation';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';

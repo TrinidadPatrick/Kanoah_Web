@@ -1,6 +1,6 @@
 import React from 'react'
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext, useRef, useId } from 'react';
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
@@ -27,9 +27,10 @@ import Filters from './Filters';
 import MobileFilter from './MobileFilter';
 import Searchbar from './Searchbar';
 import UseFavorite from '../../ClientCustomHook/FavoriteProvider';
-import UseDNS from '../../ClientCustomHook/DNSProvider';
 import UseInfo from '../../ClientCustomHook/UseInfo';
-import { UseServiceHook } from '../../ClientCustomHook/AllServiceContext';
+import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
+import cloudinaryCore from '../../CloudinaryConfig';
+import Alert from '@mui/material/Alert';
 export const FilterContext = createContext()
 
 
@@ -95,6 +96,9 @@ const Explore = ({services}) => {
   const [filterLocationLongLat, setFilterLocationLongLat] = useState({longitude : 0, latitude : 0})
 
   const [radius, setRadius] = useState(1)
+  const [serviceToReport, setServiceToReport] = useState({})
+  const [openReportModal, setOpenReportModal] = useState(false)
+  const [openSuccessReportModal, setOpenSuccessReportModal] = useState(false)
 
   
   const StyledRating = styled(Rating)({
@@ -418,8 +422,6 @@ const Explore = ({services}) => {
       }
     }, [currentPage]);
 
-    
-
     return (
       <FilterContext.Provider value={[sortFilter, setSortFilter, donotApplyFilter, setDonotApplyFilter, selectedCategory, setSelectedCategory,
       selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,places, setPlaces,
@@ -427,9 +429,53 @@ const Explore = ({services}) => {
       searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList, rerender, setRerender, selectedCategoryCode, setSelectedCategoryCode, selectedSubCategory, setSelectedSubCategory,
       categories, subCategories
       ]} >
-        <div className=' w-full flex h-full overflow-hidden relative'>
+        <div className='w-full flex h-full overflow-hidden relative'>
+        {/* Report Modal */}
+        <div style={{backgroundColor : 'rgba(0,0,0,0.5)'}} className={`w-full ${openReportModal ? "flex" : "hidden"} items-center justify-center h-full absolute bg-black z-50`}>
+        <ReportModal setOpenReportModal={setOpenReportModal} setOpenSuccessReportModal={setOpenSuccessReportModal} serviceToReport={serviceToReport} setServiceToReport={setServiceToReport} />
+        </div>
+        {/* Success Report Modal */}
+        <div style={{backgroundColor : 'rgba(0,0,0,0.5)'}} className={`w-full ${openSuccessReportModal ? "flex" : "hidden"} items-center justify-center h-full absolute bg-black z-50`}>
+        <div className="card overflow-hidden relative text-left border rounded-md w-[300px] pb-4 shadow-lg bg-white">
+        <div className="header py-5 px-4">
+        <div className="image flex mx-auto bg-green-200 flex-shrink-0 justify-center items-center w-12 h-12 rounded-full animate-pulse">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            className="w-8 h-8 text-green-500"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="1.5"
+              stroke="#000000"
+              d="M20 7L9.00004 18L3.99994 13"
+            ></path>
+          </svg>
+        </div>
+        <div className="content mt-3 text-center">
+          <span className="title text-green-900 text-lg font-semibold">
+            Report Submitted
+          </span>
+          <p className="message text-gray-600 text-sm mt-2">
+            Thank you for your concern. We promise to get back to you as soon as possible. Mwuah
+          </p>
+        </div>
+        </div>
+        <div className="actions mt-3 px-4">
+        <button
+        onClick={()=>setOpenSuccessReportModal(false)}
+          type="button"
+          className="history inline-flex justify-center items-center p-2 bg-green-600 text-white text-lg font-medium w-full rounded-md border-none shadow-sm transition duration-300 ease-in-out hover:bg-green-700"
+        >
+          Confirm
+        </button>
+        </div>
+        </div>
+        </div>
         
-            <>
+        <>
         {/* Left Section */}
         <section className='filterSideBar w-[500px] hidden lg:flex h-full overflow-y-scroll relative flex-col space-y-3 pb-5 lg:ps-20 pe-5 bg-[#F9F9F9]'>
         <Filters />
@@ -549,10 +595,10 @@ const Explore = ({services}) => {
                     <p onClick={()=>{addToDNS(service._id)}} className=' px-2 text-sm text-gray-600 rounded-md cursor-pointer py-1'>Do not show</p>
                     </div>
                     
-                    <div id='optionMenu' className='flex  hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
+                    <button onClick={()=>{setOpenReportModal(true);setServiceToReport({name : service.basicInformation.ServiceTitle, _id : service._id, owner : service.owner})}} id='optionMenu' className='flex w-full hover:bg-gray-300 cursor-pointer items-center px-2 py-2'>
                     <ReportGmailerrorredOutlinedIcon className='p-0.5' fontSize='small' />
                     <p className=' px-2 text-sm text-gray-600 rounded-md cursor-pointer py-1'>Report</p>
-                    </div>
+                    </button>
                     </div>
                     
                     
@@ -584,8 +630,7 @@ const Explore = ({services}) => {
           </div>
         }
         </section>
-            </>
-          
+        </>        
         
         
         {/* Mobile Sidebar */}
@@ -598,6 +643,177 @@ const Explore = ({services}) => {
       </FilterContext.Provider>
   )
 }
+
+const ReportModal = ({serviceToReport, setServiceToReport, setOpenSuccessReportModal, setOpenReportModal}) => {
+  const [reportObject, setReportObject] = useState({
+    service : serviceToReport,
+    reasons : [],
+    textDetails : '',
+    photos : [],
+    createdAt : new Date()
+  })
+
+  const submitReport = async () => {
+    try {
+      const result = await http.post('AddReport', reportObject, {withCredentials : true})
+      if(result.data.message === "Reported successfull")
+      {
+        setOpenSuccessReportModal(true)
+        setOpenReportModal(false)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(()=>{
+    setReportObject({...reportObject, service : serviceToReport})
+  },[serviceToReport])
+
+  return (
+    <section className='w-[500px] h-fit relative bg-white flex flex-col p-3 rounded-md overflow-auto'>
+        <header>
+          <h1 className='text-lg font-medium text-gray-600'>Service Report</h1>
+        </header>
+
+        {/* Name of Service */}
+        <div className='flex items-center mt-2'>
+          <h1 className='text-red-500'>{reportObject.service.name}</h1>
+          <WarningAmberRoundedIcon className='text-red-500' fontSize='small' />
+        </div>
+
+        {/* Reason */}
+        <div className='w-full flex flex-col mt-3'>
+        <label className='text-sm font-medium text-gray-700'>Reason for reporting this service?</label>
+        <ReportReasonsButton setReportObject={setReportObject} reportObject={reportObject} />
+        </div>
+
+        {/* Text Area */}
+        <div className='w-full flex flex-col mt-5'>
+        <label className='text-sm font-medium text-gray-700'>Can you provide a detailed explanation about the issue?</label>
+        <p className='text-[0.69rem] text-gray-400'>Provide a detailed description of your encounter with the service, it will
+        greatly help us to process your request faster.
+        </p>
+        <textarea maxLength={5000} value={reportObject.textDetails} onChange={(e)=>setReportObject({...reportObject, textDetails : e.target.value})} rows={4} className='border resize-none p-1 text-sm text-gray-600 mt-2' />
+        </div>
+
+        {/* Report Pictures */}
+        <div className='w-full flex flex-col mt-5'>
+        <label className='text-sm font-medium text-gray-700'>Attach Photos</label>
+        <ReportPictures setReportObject={setReportObject} reportObject={reportObject} />
+        </div>
+
+        <button onClick={()=>submitReport()} className='px-3 mt-2 hover:bg-orange-300 rounded-md py-2 text-white bg-themeOrange w-fit text-sm'>Submit report</button>
+
+        </section>
+  )
+}
+
+const ReportReasonsButton = ({setReportObject, reportObject}) => {
+  const [selectedReasons, setSelectedReasons] = useState([])
+  const reasons = ['Explicit Content', 'Fake Information/False Claims', 'Hate Speech/Bullying', 'Violence/Threats', 
+                    'Spam/Scams', 'Non-Compliance with Terms of Service', 'Terrorism', 'Involves a child', 'Nudity']
+
+  const handleSelectReason = (value) => {
+    const newSelectedReasons = [...reportObject.reasons]
+    const checkIndex = newSelectedReasons.findIndex((reason)=>reason === value)
+    if(checkIndex == -1)
+    {
+      newSelectedReasons.push(value)
+      setReportObject({...reportObject, reasons : newSelectedReasons})
+      return
+    }
+    newSelectedReasons.splice(checkIndex, 1)
+    setReportObject({...reportObject, reasons : newSelectedReasons})
+    
+  }
+  return (
+    <div className='w-full flex flex-wrap gap-2 mt-2'>
+                      {
+                        reasons.map((reason, index) => {
+                          return (
+                            <button onClick={(e)=>handleSelectReason(e.target.value)} key={index} value={reason} className={`text-xs px-3 py-1 ${reportObject.reasons.includes(reason) ? " bg-teal-600 text-white" : "bg-gray-100"}`}>{reason}</button>
+                          )
+                        })
+                      }
+    </div>
+  )
+}
+
+const ReportPictures = ({setReportObject, reportObject}) => {
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const generateId = (length) => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let randomString = '';
+  
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      randomString += characters.charAt(randomIndex);
+    }
+  
+    return randomString;
+  };
+
+  const handleAddImage = async (files) => {
+    let imageToAdd = []
+    const totalFiles = files.length;
+
+    if(files){
+      // Loop through selected files
+  for (const file of files) {
+    try {
+      // Upload each file to Cloudinary
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', "Kanoah_ReportImages");
+
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`,
+        formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            const progress = Math.min(
+              100,
+              Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            );
+            setUploadProgress((prevProgress) =>
+              Math.round((prevProgress + progress / totalFiles) * 10) / 10
+            );
+          },
+        }
+      );
+      const imageUrl = response.data.secure_url;
+      const id = generateId(20)
+      imageToAdd.push({imageId : id, src : imageUrl, TimeStamp : new Date()})
+      setReportObject({...reportObject, photos : imageToAdd})
+      // Save the imageUrl or perform further actions
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  }
+  }
+
+  }
+  return (
+    <div className='w-full pt-1'>   
+    <input onChange={(e)=>{handleAddImage(e.target.files)}} className="block w-full text-sm text-gray-900  overflow-hidden cursor-pointer bg-gray-50  focus:outline-none " id="multiple_files" type="file" multiple />
+    <p>{uploadProgress}</p>
+    <div className='w-full h-[70px] object-contain flex flex-row gap-3 border rounded-sm p-1.5 overflow-auto mt-2'>
+    {
+      reportObject?.photos.map((photo, index)=>{
+        return (
+          <div className='w-14 aspect-square object-contain'>
+            <img key={index} src={photo.src} className='w-full' />
+          </div>
+        )
+      })
+    }
+    </div>
+    </div>
+  )
+}
+  
 
 export default Explore
 

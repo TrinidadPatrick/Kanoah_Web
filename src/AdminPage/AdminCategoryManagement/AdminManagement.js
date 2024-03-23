@@ -10,7 +10,7 @@ import Modal from 'react-modal';
 import http from '../../http';
 import axios from 'axios';
 
-const CategoryManagement = () => {
+const AdminManagement = () => {
     Modal.setAppElement('#root');
     const [category, setCategory] = useState({
         category_code : "",
@@ -30,6 +30,7 @@ const CategoryManagement = () => {
     const [transactionLoading, setTransactionLoading] = useState(false)
     const [showDropdownFilter, setShowDropdownFilter] = useState(false)
     const [image, setImage] = useState('https://placehold.co/400x400')
+    const [search, setSearch] = useState('')
 
     const modalStyle = {
         content: {
@@ -319,129 +320,11 @@ const CategoryManagement = () => {
     }
 
   return (
-    <div className='w-full flex flex-col space-y-4 h-full bg-white rounded-md p-2'>
-
-        <div className='flex space-x-2 relative justify-between'>
-            <div className='flex space-x-2'>
-            <button onClick={()=>setAddCategoryModalIsOpen(true)} className=' bg-themeOrange w-fit py-1 text-white px-2 rounded-sm'>Add Category</button>
-            <button onClick={()=>setShowDropdownFilter(!showDropdownFilter)} className=' bg-gray-100 w-fit py-1 text-gray-600 px-2 rounded-sm'>
-                <SortOutlinedIcon />
-            </button>
-            </div>
-
-            {/* Search */}
-            <div className=' h-full shadow-sm'>
-                <input onChange={(e)=>handleSearch(e.target.value)} className='border h-full px-2 rounded-sm' type='search' placeholder='Search...' />
-            </div>
-
-            {/* Dropdown */}
-            <div className={`w-[200px] h-fit ${showDropdownFilter ? 'flex' : 'hidden'} flex-col space-y-3 bg-[#f9f9f9] shadow-sm rounded-sm absolute z-20 top-10 left-28`}>
-                <button onClick={()=>{handleSort('A-z')}} className='py-1 text-start px-2 text-sm'>
-                    Alphabetical (A-z)
-                </button>
-                <button onClick={()=>{handleSort('Z-a')}} className='py-1 text-start px-2 text-sm'>
-                    Alphabetical (Z-a)
-                </button>
-                <button onClick={()=>{handleSort('Recent')}} className='py-1 text-start px-2 text-sm'>
-                    Most Recent
-                </button>
-                <button onClick={()=>{handleSort('Oldest')}} className='py-1 text-start px-2 text-sm'>
-                    Oldest
-                </button>
-            </div>
-        </div>
-
-    {/* Lists of category */}
-    <div className='w-full h-full relative max-h-full overflow-auto flex flex-col border-2 rounded-sm'>
-    <table className='w-full'>
-        <thead>
-            <tr>
-            <th >
-                No.
-            </th>
-            <th>
-                Category
-            </th>
-            <th>
-                Image
-            </th>
-            <th>
-                Date
-            </th>
-            <th>
-                Featured
-            </th>
-            <th>
-                Action
-            </th>
-            </tr>
-        </thead>
-
-        <tbody>
-            {
-                categoryList?.map((category, index)=>{
-                    const createdAt = category.createdAt
-                    const date = new Date(createdAt).toLocaleDateString('EN-us', {
-                        month : 'short',
-                        day : '2-digit',
-                        year : 'numeric'
-                        
-                    })
-                    return (
-                        <tr key={index}>
-                            <td className=' text-center'>
-                                <p className='py-2 text-sm'>{index + 1}</p>
-                            </td>
-                            <td className=' text-center'>
-                            <p className='py-2 text-sm'>{category.name}</p>
-                            </td>
-                            <td className=' text-center'>
-                            <div>
-                                <img className='w-14' src={category.image} />
-                            </div>
-                            </td>
-                            <td className=' text-center'>
-                            <p className='py-2 text-sm'>{date}</p>
-                            </td>
-                            <td className='text-center'>
-                            <div className='w-full flex justify-center'>
-                            <label className='flex cursor-pointer select-none items-center'>
-                            <div className='relative'>
-                            <input
-                                type='checkbox'
-                                checked={category.featured}
-                                onChange={()=>editFeatured(index)}
-                                className='sr-only'
-                            />
-                            <div className={` ${category.featured ? "bg-blue-500" : "bg-[#E5E7EB]"} h-[17px] w-9 flex items-center rounded-full`}>
-                            <div className={`dot ${category.featured ? " translate-x-[20px]" : "translate-x-[2px]"} h-3.5  w-3.5 rounded-full bg-white transition`}></div>
-                            </div>
-                            </div>
-                            </label>
-                            </div>
-                            </td>
-                            <td className=' text-center'>
-                            {/* <div className='hidden '>
-                            <ModeEditOutlineOutlinedIcon className='text-gray-800' fontSize='small' />
-                            <DeleteOutlineOutlinedIcon className='text-red-500' fontSize='small' />
-                            </div> */}
-                            <div className=' flex space-x-2  justify-center'>
-                            <button onClick={()=>{setEditCategoryModalIsOpen(true);handleEdit(category.category_code)}} className=' bg-green-100 hover:bg-green-400 text-green-600 px-3 py-1 rounded-sm text-semiSm'>Edit</button>
-                            <button onClick={()=>{removeCategory(category)}} className=' bg-red-100 hover:bg-red-400 text-red-500 px-3 py-1 rounded-sm text-semiSm'>Remove</button>
-                            </div>
-                            </td>
-                        </tr>
-                    )
-                })
-            }
-        </tbody>
-    </table>
+    <div className='w-full overflow-hidden h-full flex flex-col relative p-3'>
     
-    </div>
-
-    {/* Add category Modal */}
-    <Modal isOpen={addCategoryModalIsOpen} style={modalStyle} contentLabel="Category Modal">
-    <div className='flex flex-col p-2 space-y-5 w-[350px]'>
+        {/* Add Category */}
+        <div style={{backgroundColor: 'rgba(0, 0, 0, 0.5)'}} className={`w-full z-30 h-full ${addCategoryModalIsOpen ? "flex" : "hidden"} items-center justify-center absolute top-0 left-0`}>
+    <div className='flex bg-white flex-col p-2 space-y-5 w-[350px]'>
         <div className='flex items-center justify-between'>
             <h1 className='text-lg font-medium text-gray-700'>Add Category</h1>
             <CloseOutlinedIcon onClick={()=>{setAddCategoryModalIsOpen(false);setImage('https://placehold.co/400x400')}} className=' cursor-pointer' />
@@ -479,7 +362,7 @@ const CategoryManagement = () => {
             ))
         }
         </div>
-        <button onClick={()=>handleAddCategory()} className='w-full mt-2 p-2 bg-themeOrange text-sm text-white rounded-sm'>
+        <button disabled={category.name === ""} onClick={()=>handleAddCategory()} className='w-full disabled:bg-orange-200 mt-2 p-2 bg-themeOrange text-sm text-white rounded-sm'>
         {
             transactionLoading ?
             <div className="typing-indicator mx-auto">
@@ -492,11 +375,11 @@ const CategoryManagement = () => {
         }
         </button>
     </div>
-    </Modal>
+        </div>
 
-    {/* Edit category Modal */}
-    <Modal isOpen={editCategoryModalIsOpen} style={modalStyle} contentLabel="Category Modal">
-    <div className='flex flex-col p-2 space-y-5 w-[350px]'>
+        {/* Edit Category */}
+        <div style={{backgroundColor: 'rgba(0, 0, 0, 0.5)'}} className={`w-full z-30 h-full ${editCategoryModalIsOpen ? "flex" : "hidden"} items-center justify-center absolute top-0 left-0`}>
+        <div className='flex flex-col h-full md:h-fit p-2 space-y-5 w-[350px] bg-white'>
         <div className='flex items-center justify-between'>
             <h1 className='text-lg font-medium text-gray-700'>Edit Category</h1>
             <CloseOutlinedIcon onClick={()=>{setEditCategoryModalIsOpen(false);clearCategory();setImage('https://placehold.co/400x400')}} className=' cursor-pointer' />
@@ -508,8 +391,8 @@ const CategoryManagement = () => {
         </div>
         <div>
         {/* Name */}
-        <label htmlFor='category' className='text-semiSm font-medium text-gray-600' >Category</label>
-        <input id='category' value={category.name} onChange={(e)=>{setCategory({...category, name : e.target.value})}} className='p-1.5 border text-sm w-full rounded-sm' type='text' />
+        <label htmlFor='category' className='text-xs md:text-semiSm font-medium text-gray-600' >Category</label>
+        <input id='category' value={category.name} onChange={(e)=>{setCategory({...category, name : e.target.value})}} className='p-1.5 border text-xs md:text-sm w-full rounded-sm' type='text' />
         </div>
         <div>
 
@@ -520,8 +403,8 @@ const CategoryManagement = () => {
         
 
         {/* Sub categories */}
-        <label htmlFor='subCategory' className='text-semiSm font-medium text-gray-600' >Sub Category (seperated by comma)</label>
-        <input id='subCategory' value={subCategory} onChange={(e)=>{setSubcategory(e.target.value)}} className='p-1.5 border text-sm w-full rounded-sm' type='text' />
+        <label htmlFor='subCategory' className='text-xs md:text-semiSm font-medium text-gray-600' >Sub Category (seperated by comma)</label>
+        <input id='subCategory' value={subCategory} onChange={(e)=>{setSubcategory(e.target.value)}} className='p-1.5 border text-xs md:text-sm w-full rounded-sm' type='text' />
         </div>
         </div>
 
@@ -550,9 +433,119 @@ const CategoryManagement = () => {
         }
         </button>
     </div>
-    </Modal>
+        </div>
+
+    <h1 className='text-lg semiSmtext-2xl font-bold text-gray-800 ml-2 md:ml-5'>Categories</h1>
+    <div className='w-full flex flex-col semiSm:flex-row gap-2 relative justify-between'>
+            <div className='w-full semiSm:w-fit flex space-x-2'>
+            <button onClick={()=>setAddCategoryModalIsOpen(true)} className=' bg-themeOrange w-full semiSm:w-fit py-1 text-white px-2 rounded-sm'>Add Category</button>
+            </div>
+
+            {/* Search */}
+            <div className='flex w-full semiSm:w-fit items-stretch h-full'>
+            <button onClick={()=>setShowDropdownFilter(!showDropdownFilter)} className=' bg-gray-100 w-fit mr-1 py-1 text-gray-600 px-2 rounded-sm'>
+                <SortOutlinedIcon />
+            </button>
+            <input value={search} onChange={(e)=>{setSearch(e.target.value)}} type='text' 
+            className='border text-sm w-full border-gray-200 rounded-s-sm border-e-0 px-2 h-full' placeholder='Search...' />
+            <button className='px-2 h-full rounded-e-sm border-gray-200 border border-l-0 bg-themeOrange'>
+            <SearchOutlinedIcon className='text-white' />
+            </button>
+            </div>
+
+            {/* Dropdown */}
+            <div className={`w-[200px] h-fit ${showDropdownFilter ? 'flex' : 'hidden'} flex-col space-y-3 bg-[#f9f9f9] shadow-sm rounded-sm absolute z-20 top-10 left-28`}>
+                <button onClick={()=>{handleSort('A-z')}} className='py-1 text-start px-2 text-sm'>
+                    Alphabetical (A-z)
+                </button>
+                <button onClick={()=>{handleSort('Z-a')}} className='py-1 text-start px-2 text-sm'>
+                    Alphabetical (Z-a)
+                </button>
+                <button onClick={()=>{handleSort('Recent')}} className='py-1 text-start px-2 text-sm'>
+                    Most Recent
+                </button>
+                <button onClick={()=>{handleSort('Oldest')}} className='py-1 text-start px-2 text-sm'>
+                    Oldest
+                </button>
+            </div>
+    </div>
+
+
+    {/* Lists of category */}
+    <div className='w-full h-full relative max-h-full overflow-auto flex flex-col  rounded-sm'>
+    <table className='w-full'>
+        <thead>
+            <tr className='border-b-1'>
+            <th className='text-xs md:text-sm text-gray-700 font-medium text-start'><p className='py-2'>No.</p></th>
+            <th className='text-xs md:text-sm text-gray-700 font-medium text-start'><p className='py-2'>Category</p></th>
+            <th className='text-xs md:text-sm text-gray-700 font-medium text-start'><p className='py-2'>Image</p></th>
+            <th className='text-xs md:text-sm text-gray-700 font-medium text-start'><p className='py-2'>Date</p></th>
+            <th className='text-xs md:text-sm text-gray-700 font-medium text-start'><p className='py-2'>Featured</p></th>
+            <th className='text-xs md:text-sm text-gray-700 font-medium text-center'><p className='py-2'>Action</p></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {
+                categoryList?.map((category, index)=>{
+                    const createdAt = category.createdAt
+                    const date = new Date(createdAt).toLocaleDateString('EN-us', {
+                        month : 'short',
+                        day : '2-digit',
+                        year : 'numeric'
+                        
+                    })
+                    return (
+                        <tr key={index} className='border-b-1'>
+                            <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                            <p className='py-6 whitespace-nowrap text-ellipsis overflow-hidden'>{index + 1}</p>
+                            </td>
+                            <td className='text-start text-xs md:text-sm min-w-[100px] overflow-hidden md:min-w-[200px] max-w-[100px] pr-2 md:max-w-[200px] '>
+                            <p className='py-6 whitespace-nowrap text-ellipsis overflow-hidden'>{category.name}</p>
+                            </td>
+                            <td className='text-start text-xs md:text-sm min-w-[100px] overflow-hidden md:min-w-[100px] max-w-[100px] pr-2 md:max-w-[100px] '>
+                            <div>
+                                <img className='w-14' src={category.image} />
+                            </div>
+                            </td>                            
+                            <td className='text-start text-xs md:text-sm min-w-[100px] overflow-hidden md:min-w-[100px] max-w-[100px] pr-2 md:max-w-[100px] '>
+                            <p className='py-6 whitespace-nowrap text-ellipsis overflow-hidden'>{date}</p>
+                            </td>
+                            <td className='text-start'>
+                            <div className='w-full flex justify-start'>
+                            <label className='flex cursor-pointer select-none items-center'>
+                            <div className='relative'>
+                            <input
+                                type='checkbox'
+                                checked={category.featured}
+                                onChange={()=>editFeatured(index)}
+                                className='sr-only'
+                            />
+                            <div className={` ${category.featured ? "bg-blue-500" : "bg-[#E5E7EB]"} h-[17px] w-9 flex items-center rounded-full`}>
+                            <div className={`dot ${category.featured ? " translate-x-[20px]" : "translate-x-[2px]"} h-3.5  w-3.5 rounded-full bg-white transition`}></div>
+                            </div>
+                            </div>
+                            </label>
+                            </div>
+                            </td>
+                            <td className='text-start text-xs md:text-sm min-w-[200px] overflow-hidden md:min-w-[230px] max-w-[200px] pr-2 md:max-w-[230px] '>
+                            <div className=' flex space-x-2  justify-center'>
+                            <button onClick={()=>{setEditCategoryModalIsOpen(true);handleEdit(category.category_code)}} className=' bg-green-100 hover:bg-green-400 text-green-600 px-3 py-1 rounded-sm text-semiSm'>Edit</button>
+                            <button onClick={()=>{removeCategory(category)}} className=' bg-red-100 hover:bg-red-400 text-red-500 px-3 py-1 rounded-sm text-semiSm'>Remove</button>
+                            </div>
+                            </td>
+                            
+                        </tr>
+                    )
+                })
+            }
+        </tbody>
+    </table>
+    
+    </div>
+
     </div>
   )
 }
 
-export default CategoryManagement
+export default AdminManagement

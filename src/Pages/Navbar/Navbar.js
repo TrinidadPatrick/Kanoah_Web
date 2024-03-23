@@ -26,6 +26,7 @@ import MoreVertOutlinedIcon from '@mui/icons-material/MoreVertOutlined';
 import ChatProvider from '../../ClientCustomHook/ChatProvider'
 import UseNotif from '../../ClientCustomHook/NotificationProvider'
 import Book_Icon from '../MainPage/Components/UtilImage/Book_Icon4.png'
+import Flag from '../MainPage/Components/UtilImage/Flag.png'
 import Rating_Icon from '../MainPage/Components/UtilImage/Rating_Icon.png'
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
@@ -142,8 +143,8 @@ const Navbar = ({ onAboutUsClick }) => {
 
     // initiate socket
     useEffect(()=>{
-      setSocket(io("http://localhost:5000"))
-      // setSocket(io("https://kanoah.onrender.com"))
+      // setSocket(io("http://localhost:5000"))
+      setSocket(io("https://kanoah.onrender.com"))
       
     },[])
 
@@ -364,12 +365,10 @@ const Navbar = ({ onAboutUsClick }) => {
 }  
 </Box>
 </Modal>
-
-{/* <ViewService /> */}
 </div>
 </>
 
-    </Context.Provider>
+</Context.Provider>
 
   )
 }
@@ -439,7 +438,7 @@ const Navbar = ({ onAboutUsClick }) => {
     setOpenMoreOption(false)
     setSelectedIndex(null)
     setOpenNotif(false)
-    navigate(notification_type === "New_Booking" ? "/serviceSettings/Bookings" : "")
+    navigate(notification_type === "New_Booking" ? "/serviceSettings/Bookings" : notification_type === "New_Rating" ? "/serviceSettings/Reviews" : "")
     try {
       const result = await http.patch('markAsRead',{notification_id, notif_to}, {withCredentials : true})
     } catch (error) {
@@ -547,6 +546,7 @@ const Navbar = ({ onAboutUsClick }) => {
                     </>
                   )
                   :
+                  notification.notification_type === "New_Booking" ? 
                   <>
                   <div className='row-span-2 col-span-2 flex justify-center items-center'>
                   <div className='w-[70%] aspect-square border-2 border-[#2344bc] bg-sky-200 flex justify-center items-center rounded-full p-2'>
@@ -557,6 +557,27 @@ const Navbar = ({ onAboutUsClick }) => {
                 <div className=' row-span-1 col-span-9 flex items-center justify-start gap-2  font-medium text-gray-700'>
                   <p className='text-sm whitespace-nowrap'>{notification.content}</p>
                   <span className={`w-2 h-2 ${notification.isRead ? "hidden" : ""} bg-red-600 rounded-full`}></span>
+                </div>
+                      <div onClick={(e)=>{e.stopPropagation();setOpenMoreOption(selectedIndex === index ? false : true);setSelectedIndex(selectedIndex === index ? null : index)}} className='relative cursor-pointer row-span-2 col-span-1 flex items-center justify-center '>
+                        <MoreVertOutlinedIcon className={`${index === selectedIndex ? "text-gray-400" : "text-gray-700"} cursor-pointer hover:bg-gray-300 rounded-full`} />
+                      </div>
+                    <div className=' row-span-1 col-span-9 flex items-center '>
+                  <p className='text-xs text-gray-500 whitespace-nowrap'>{formattedDate.replace('at', '|')}</p>
+                </div>
+                </>
+                :
+                 <>
+                  <div className='row-span-2 col-span-2 flex justify-center items-start'>
+                  <div className='w-[70%] aspect-square border-2  border-[#4c4c4c] bg-gray-100 flex justify-center items-center rounded-full p-2'>
+                    <img className='object-contain w-full aspect-square brightness-50' src={Flag} />
+                  </div>
+                </div> 
+                
+                <div className=' row-span-1 col-span-9 flex flex-col items-center justify-start gap-2  font-medium text-gray-700'>
+                  <p className='text-sm flex items-center gap-2 whitespace-nowrap text-start w-full'>{notification.content.title}
+                  <span className={`w-2 h-2 ${notification.isRead ? "hidden" : ""} bg-red-600 rounded-full`}></span>
+                  </p>
+                  <p className='text-xs font-normal '>{notification.content.body}</p>
                 </div>
                       <div onClick={(e)=>{e.stopPropagation();setOpenMoreOption(selectedIndex === index ? false : true);setSelectedIndex(selectedIndex === index ? null : index)}} className='relative cursor-pointer row-span-2 col-span-1 flex items-center justify-center '>
                         <MoreVertOutlinedIcon className={`${index === selectedIndex ? "text-gray-400" : "text-gray-700"} cursor-pointer hover:bg-gray-300 rounded-full`} />

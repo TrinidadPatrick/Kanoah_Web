@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import useAdminServices from '../../CustomHooks/useAdminServices'
+import useAdminServices from '../CustomHooks/useAdminServices'
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import SortOutlinedIcon from '@mui/icons-material/SortOutlined';
-import useAdminCategories from '../../CustomHooks/useAdminCategories';
+import useAdminCategories from '../CustomHooks/useAdminCategories';
 import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
-import { width } from '@mui/system';
-import http from '../../../http';
+import OutsideClickHandler from 'react-outside-click-handler';
+import http from '../../http';
 
 const AdminServices = () => {
     Modal.setAppElement('#root');
     const navigate = useNavigate()
-    const {services, getServices} = useAdminServices()
+    const {services, getServices, loading} = useAdminServices()
     const {categories, subCategories} = useAdminCategories()
     const [serviceList, setServiceList] = useState([])
     const [selectedCategory, setSelectedCategory] = useState('')
@@ -23,24 +23,9 @@ const AdminServices = () => {
         service : {},
         reason : []
     })
-    const reasons = ['Explicit Content', 'Fake Information/False Claims', 'Hate Speech/Bullying', 'Violence/Threats', 'Spam/Scams', 'Non-Compliance with Terms of Service']
+    const reasons = ['Explicit Content', 'Fake Information/False Claims', 'Hate Speech/Bullying', 'Violence/Threats', 
+                    'Spam/Scams', 'Non-Compliance with Terms of Service', 'Terrorism', 'Involves a child', 'Nudity']
     
-
-    const modalStyle = {
-        content: {
-          top: '50%',
-          left: '50%',
-          right: 'auto',
-          bottom: 'auto',
-          marginRight: '-50%',
-          transform: 'translate(-50%, -50%)',
-          padding : '0',
-          width : '30%'
-        },
-        overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Change the color and opacity as needed
-          },
-    };
 
     useEffect(()=>{
         setServiceList(services)
@@ -122,10 +107,39 @@ const AdminServices = () => {
 
 
   return (
-    <main className='w-full h-full flex flex-col p-2 overflow-auto'>
+    <main className='w-full overflow-hidden h-full flex flex-col relative p-3'>
         <header>
             <h1 className='text-xl font-medium text-gray-700 px-5'>Services</h1>
         </header>
+
+        {/* Disable Service */}
+        <div style={{backgroundColor: 'rgba(0, 0, 0, 0.5)'}} className={`w-full z-30 h-full ${openDisableModal ? "flex" : "hidden"} items-center justify-center absolute top-0 left-0`}>
+        <OutsideClickHandler onOutsideClick={()=>setOpenDisableModal(false)}>
+        <div className=' flex flex-col p-3 items-center bg-white w-[95%] semiSm:w-[350px]'>
+                {/* Header */}
+                <div>
+                    <h1 className='flex text-lg text-red-500 font-medium'>You are about to disable {disableServiceObject?.service?.basicInformation?.ServiceTitle}</h1>
+                </div>
+
+                {/* Reasons */}
+                <div className='w-full flex flex-col mt-5'>
+                    <h2 className='text-sm whitespace-nowrap font-medium'>What's wrong with the service?</h2>
+                    <div className='w-full flex gap-3 flex-wrap mt-3'>
+                    {
+                        reasons.map((reason, index)=>{
+                            return (
+                                <button key={index} onClick={()=>handleSelectReason(reason)} className={`whitespace-nowrap ${disableServiceObject.reason.includes(reason) ? "bg-blue-500 text-white" : "bg-gray-200"} border rounded-md px-3 py-1 text-sm`}>{reason}</button>
+                            )
+                        })
+                    }
+                    </div>
+                </div>
+                <div className='w-full flex flex-col mt-5'>
+                <button disabled={disableServiceObject.reason.length === 0} onClick={()=>disableService()} className='py-2 px-3 disabled:bg-gray-100 disabled:text-gray-300 text-sm bg-red-100 text-red-500 rounded-sm hover:bg-red-300'>Confirm</button>
+                </div>
+        </div>
+        </OutsideClickHandler>
+        </div>
 
         {/* Navigation */}
         <div className='w-full flex items-center justify-between space-x-2 mt-3 px-5'>
@@ -230,31 +244,6 @@ const AdminServices = () => {
             </table>
         </div>
 
-        <Modal isOpen={openDisableModal} style={modalStyle} onRequestClose={()=>setOpenDisableModal(false)} contentLabel="disable service Modal">
-            <div className='w-full flex flex-col p-3 items-center'>
-                {/* Header */}
-                <div>
-                    <h1 className='flex whitespace-nowrap text-lg text-red-500 font-medium'>You are about to disable {disableServiceObject?.service?.basicInformation?.ServiceTitle}</h1>
-                </div>
-
-                {/* Reasons */}
-                <div className='w-full flex flex-col mt-5'>
-                    <h2 className='text-sm whitespace-nowrap font-medium'>What's wrong with the service?</h2>
-                    <div className='w-full flex gap-3 flex-wrap mt-3'>
-                    {
-                        reasons.map((reason, index)=>{
-                            return (
-                                <button key={index} onClick={()=>handleSelectReason(reason)} className={`whitespace-nowrap ${disableServiceObject.reason.includes(reason) ? "bg-blue-500 text-white" : "bg-gray-200"} border rounded-md px-3 py-1 text-sm`}>{reason}</button>
-                            )
-                        })
-                    }
-                    </div>
-                </div>
-                <div className='w-full flex flex-col mt-5'>
-                <button onClick={()=>disableService()} className='py-2 px-3 text-sm bg-red-100 text-red-500 rounded-sm hover:bg-red-300'>Confirm</button>
-                </div>
-            </div>
-        </Modal>
     </main>
 
   )}
