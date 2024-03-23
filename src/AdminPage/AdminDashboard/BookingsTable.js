@@ -9,10 +9,13 @@ const BookingsTable = ({bookings}) => {
         {
             setAllBookings(bookings.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)))
         }
+        else
+        {
+            setAllBookings([])
+        }
        
     },[bookings])
 
-    // console.log(allBookings)
 
     const DataBody = () => {
         return (
@@ -63,7 +66,7 @@ const BookingsTable = ({bookings}) => {
   return (
     <div className='w-full h-full overflow-auto flex flex-col bg-white shadow-sm border rounded-md '>
         <div className='w-full py-2'>
-        <h1 className='text-gray-700 font-medium text-lg px-5'>Latest Bookings</h1>
+        <h1 className='text-base md:text-base px-5 text-gray-700 font-semibold'>Latest Bookings</h1>
         </div>
         <div className='AdminBookingTable w-full h-full overflow-auto '>
         <table className='w-full '>

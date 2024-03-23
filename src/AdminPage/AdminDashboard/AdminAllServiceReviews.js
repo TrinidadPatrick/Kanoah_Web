@@ -9,9 +9,11 @@ const AdminAllServiceReviews = ({reviews}) => {
       setAllReviews(reviews.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)))
       return
     }
+    else{
+        setAllReviews([])
+    }
   },[reviews])
 
-  console.log(allreviews)
 
   const DataBody = () => {
     return (
@@ -60,7 +62,7 @@ const AdminAllServiceReviews = ({reviews}) => {
   return (
         <div className='w-full h-full overflow-auto flex flex-col bg-white shadow-sm border rounded-md '>
         <div className='w-full py-2'>
-        <h1 className='text-gray-700 font-medium text-lg px-5'>Recent Reviews</h1>
+        <h1 className='text-base md:text-base  text-gray-700 font-semibold px-5'>Recent Reviews</h1>
         </div>
         <div className='AdminBookingTable w-full h-full overflow-auto '>
         <table className='w-full '>

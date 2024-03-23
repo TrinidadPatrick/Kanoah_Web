@@ -112,6 +112,20 @@ const AdminSummaryGrap = ({data}) => {
     useEffect(()=>{
     if(users !== null)
         {
+          setUsersData([
+            { name: 'Jan', Users: 0, },
+            { name: 'Feb', Users: 0, },
+            { name: 'Mar', Users: 0, },
+            { name: 'Apr', Users: 0, },
+            { name: 'May', Users: 0, },
+            { name: 'Jun', Users: 0, },
+            { name: 'Jul', Users: 0, },
+            { name: 'Aug', Users: 0, },
+            { name: 'Sep', Users: 0, },
+            { name: 'Oct', Users: 0, },
+            { name: 'Nov', Users: 0, },
+            { name: 'Dec', Users: 0, },
+        ])
             const groupedData = users.reduce((acc, obj) => {
                 const monthYear = obj.createdAt.slice(0, 7)
                 if(!acc[monthYear]){
@@ -142,7 +156,21 @@ const AdminSummaryGrap = ({data}) => {
     // Get Monthly Services
     useEffect(()=>{
         if(services !== null)
-            {
+            { 
+                setServiceData([
+                  { name: 'Jan', services: 0, },
+                  { name: 'Feb', services: 0, },
+                  { name: 'Mar', services: 0, },
+                  { name: 'Apr', services: 0, },
+                  { name: 'May', services: 0, },
+                  { name: 'Jun', services: 0, },
+                  { name: 'Jul', services: 0, },
+                  { name: 'Aug', services: 0, },
+                  { name: 'Sep', services: 0, },
+                  { name: 'Oct', services: 0, },
+                  { name: 'Nov', services: 0, },
+                  { name: 'Dec', services: 0, },
+              ])
                 const groupedData = services.reduce((acc, obj) => {
                     const monthYear = obj.createdAt.slice(0, 7)
                     if(!acc[monthYear]){
@@ -167,9 +195,9 @@ const AdminSummaryGrap = ({data}) => {
                 })
         }
     
-        },[services])
+    },[services])
 
-        // console.log(usersData)
+        
 
   return (
     <div className='w-full h-full bg-white'>

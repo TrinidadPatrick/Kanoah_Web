@@ -84,7 +84,20 @@ const RevenueChart = ({bookings}) => {
     ];
 
     useEffect(()=>{
-    //    const totalRevenue = bookings.reduce((accumulator, currentValue) => accumulator + currentValue.booking_fee, 0)
+    setRevenueData([
+      { name: 'Jan', revenue: 0, },
+      { name: 'Feb', revenue: 0, },
+      { name: 'Mar', revenue: 0, },
+      { name: 'Apr', revenue: 0, },
+      { name: 'May', revenue: 0, },
+      { name: 'Jun', revenue: 0, },
+      { name: 'Jul', revenue: 0, },
+      { name: 'Aug', revenue: 0, },
+      { name: 'Sep', revenue: 0, },
+      { name: 'Oct', revenue: 0, },
+      { name: 'Nov', revenue: 0, },
+      { name: 'Dec', revenue: 0, },
+  ])
     const groupedData = bookings.reduce((acc, obj) => {
         const monthYear = obj.createdAt.slice(0, 7)
         if(!acc[monthYear]){
@@ -109,6 +122,7 @@ const RevenueChart = ({bookings}) => {
         ])
     })
     },[bookings])
+
 
   return (
     <div className='w-full bg-white'>
