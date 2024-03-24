@@ -121,17 +121,19 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     },[invoiceId])
 
     const checkPayment = async () => {
-        if(invoiceId !== '')
-        {
-            try {
-                const result = await http.get(`checkPaymentStatus/${invoiceId}`)
-                if(result.data.status === "PAID")
-                {
-                    submitBooking()
-                }
-            } catch (error) {
-                console.error(error)
-            }
+        const YOUR_SECRET_KEY = 'xnd_development_POyuz5jRjC6pmt45msNOB126rIexa4MjXNSAFO2kz2t0FKOyiw9zDXBhDHbrgS';
+
+        const xendit = new Xendit({ secretKey: YOUR_SECRET_KEY });
+
+        const { Invoice } = xendit
+
+
+
+        const response= await Invoice.getInvoiceById({
+        invoiceId: invoiceId
+        })
+        if(response.status === "PAID") {
+            submitBooking()
         }
     }
 
@@ -142,10 +144,10 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         const { Invoice } = xendit
 
         const data = {
-            "amount" : 100,
+            "amount" : bookingInformation.net_Amount,
             "invoiceDuration" : 1800,
-            "externalId" : "adklakdnklsadnasld",
-            "description" : "req.body.description",
+            "externalId" : generateExternalId(),
+            "description" : `Payment of ${bookingInformation.net_Amount} for ${bookingInformation.service.selectedService}`,
             "currency" : "PHP",
             "reminderTime" : 1
           }
@@ -154,28 +156,12 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
             const response= await Invoice.createInvoice({
               data
           })
-          
-          console.log(response.invoiceUrl)
+          setInvoiceId(response.id)
           window.open( response.invoiceUrl, '_blank');
           } catch (error) {
             console.log(error)
-            // return res.status(500).json(error)
           }
-        // try {
-        //     const response = await http.post('payGcash', {
-        //     email : bookingInformation.contactAndAddress.email,
-        //     amount : bookingInformation.net_Amount,
-        //     externalId : generateExternalId(),
-        //     description : `Payment of ${bookingInformation.net_Amount} for ${bookingInformation.service.selectedService}`
 
-        //     });
-        //     setInvoiceId(response.data.id)
-        //     console.log(response.data)
-        //     // window.open( response.data.invoiceUrl, '_blank');
-        //     // window.location.href = response.data.invoiceUrl
-        //   } catch (error) {
-        //     console.error(error);
-        //   }
     }
 
     const notifyUser = async (booking_id, receiver) => {
