@@ -840,11 +840,6 @@ const UserInformation = () => {
                   latitude: evt.lngLat.lat / sensitivityFactor,
                 };
                 setLocation(newLocation);
-                // setViewPort((prevViewport) => ({
-                //   ...prevViewport,
-                //   latitude: newLocation.latitude,
-                //   longitude: newLocation.longitude ,
-                // }));
               }}
             onDragEnd={()=>[setIsDragging(false)]}
             >

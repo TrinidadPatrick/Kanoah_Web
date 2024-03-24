@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import Modal from 'react-modal'
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
+import OpenInFullOutlinedIcon from '@mui/icons-material/OpenInFullOutlined';
 import http from '../../../http';
 
 const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
@@ -130,11 +131,13 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
 
             {/* Address */}
             <button className='text-[0.55rem] sm:text-semiSm semiMd:hidden mt-2 px-2 py-1 bg-gray-100 shadow-sm border rounded-sm' onClick={()=>{OpenClientInformation(booking._id)}}>Open booking details</button>
-            <div className=' hidden semiMd:flex flex-col mt-3'>
+            <button onClick={()=>{{window.open(`https://www.google.com/maps/dir/?api=1&destination=${booking.contactAndAddress.Address.latitude},${booking.contactAndAddress.Address.longitude}`, '_black')}}} className='hidden semiMd:flex flex-col mt-3'>
                 <h1 className='text-[1rem] font-medium'>Address</h1>
-                <p className='text-sm'>{booking.contactAndAddress.Address.barangay.name + ", " + booking.contactAndAddress.Address.province.name + ", " + booking.contactAndAddress.Address.region.name}</p>
-                <p className='text-sm'>{booking.contactAndAddress.Address.street}</p>
-            </div>
+                <div className='hover:text-gray-400 flex flex-col items-start'>
+                <p className='text-sm '>{booking.contactAndAddress.Address.barangay.name + ", " + booking.contactAndAddress.Address.province.name + ", " + booking.contactAndAddress.Address.region.name}</p>
+                <p className='text-sm '>{booking.contactAndAddress.Address.street}</p>
+                </div>
+            </button>
             </div>
             {/* Right side */}
             <div className='w-full h-full hidden semiMd:flex flex-col justify-between  pt-12'>
@@ -212,7 +215,9 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
                     <span className='text-gray-600 font-normal text-sm'>{clientInformation?.contactAndAddress.firstname + " " + clientInformation?.contactAndAddress.lastname}</span>
                     <span className='text-gray-600 font-normal text-sm'>{clientInformation?.contactAndAddress.email}</span>
                     <span className='text-gray-600 font-normal text-sm'>+63{clientInformation?.contactAndAddress.contact}</span>
-                    <span className='text-gray-600 font-normal text-sm'>{clientInformation?.contactAndAddress.Address.barangay.name + ", " + clientInformation?.contactAndAddress.Address.province.name + ", " + clientInformation?.contactAndAddress.Address.region.name}</span>
+                    <span 
+                    className='text-gray-600 flex items-center font-normal cursor-pointer text-sm'>{clientInformation?.contactAndAddress.Address.barangay.name + ", " + clientInformation?.contactAndAddress.Address.province.name + ", " + clientInformation?.contactAndAddress.Address.region.name}
+                    </span>
                     <span className='text-gray-600 font-normal text-sm'>{clientInformation?.contactAndAddress.Address.street}</span>
                 </div>
                 <div className='w-full mt-4 grid grid-cols-2 gap-0 gap-x-5 bg-white rounded-md border shadow-sm p-2'>

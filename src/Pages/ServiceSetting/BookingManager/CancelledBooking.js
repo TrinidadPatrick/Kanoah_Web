@@ -103,11 +103,13 @@ const CancelledBooking = ({ cancelledBookings, lazyLoad }) => {
 
             {/* Address */}
             <button className='text-[0.55rem] sm:text-semiSm semiMd:hidden mt-2 px-2 py-1 bg-gray-100 shadow-sm border rounded-sm' onClick={()=>{OpenClientInformation(booking._id)}}>Open booking details</button>
-            <div className=' hidden semiMd:flex flex-col mt-3'>
+            <button onClick={()=>{{window.open(`https://www.google.com/maps/dir/?api=1&destination=${booking.contactAndAddress.Address.latitude},${booking.contactAndAddress.Address.longitude}`, '_black')}}} className='hidden semiMd:flex flex-col mt-3'>
                 <h1 className='text-[1rem] font-medium'>Address</h1>
-                <p className='text-sm'>{booking.contactAndAddress.Address.barangay.name + ", " + booking.contactAndAddress.Address.province.name + ", " + booking.contactAndAddress.Address.region.name}</p>
-                <p className='text-sm'>{booking.contactAndAddress.Address.street}</p>
-            </div>
+                <div className='hover:text-gray-400 flex flex-col items-start'>
+                <p className='text-sm '>{booking.contactAndAddress.Address.barangay.name + ", " + booking.contactAndAddress.Address.province.name + ", " + booking.contactAndAddress.Address.region.name}</p>
+                <p className='text-sm '>{booking.contactAndAddress.Address.street}</p>
+                </div>
+            </button>
             </div>
             {/* Right side */}
             <div className='w-full h-full hidden semiMd:flex flex-col justify-between  pt-12'>
