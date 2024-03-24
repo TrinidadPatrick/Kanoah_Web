@@ -6,6 +6,8 @@ import ArrowBackIosOutlinedIcon from '@mui/icons-material/ArrowBackIosOutlined';
 import {io} from 'socket.io-client'
 import { selectService, selectSchedule, selectContactAndAddress, setService, setSchedule, setContactAndAddress } from '../../ReduxTK/BookingSlice'
 import http from '../../http';
+import axios from 'axios';
+import Xendit from 'xendit-node'
 
 const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     const dispatch = useDispatch()
@@ -134,21 +136,46 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     }
 
     const pay = async () => {
-        try {
-            const response = await http.post('payGcash', {
-            email : bookingInformation.contactAndAddress.email,
-            amount : bookingInformation.net_Amount,
-            externalId : generateExternalId(),
-            description : `Payment of ${bookingInformation.net_Amount} for ${bookingInformation.service.selectedService}`
+        const YOUR_SECRET_KEY = 'xnd_development_POyuz5jRjC6pmt45msNOB126rIexa4MjXNSAFO2kz2t0FKOyiw9zDXBhDHbrgS';
 
-            });
-            setInvoiceId(response.data.id)
-            console.log(response.data)
-            // window.open( response.data.invoiceUrl, '_blank');
-            // window.location.href = response.data.invoiceUrl
-          } catch (error) {
-            console.error(error);
+        const xendit = new Xendit({ secretKey: YOUR_SECRET_KEY });
+        const { Invoice } = xendit
+
+        const data = {
+            "amount" : 100,
+            "invoiceDuration" : 1800,
+            "externalId" : "adklakdnklsadnasld",
+            "description" : "req.body.description",
+            "currency" : "PHP",
+            "reminderTime" : 1
           }
+        
+          try {
+            const response= await Invoice.createInvoice({
+              data
+          })
+          
+          console.log(response.invoiceUrl)
+          window.open( response.invoiceUrl, '_blank');
+          } catch (error) {
+            console.log(error)
+            // return res.status(500).json(error)
+          }
+        // try {
+        //     const response = await http.post('payGcash', {
+        //     email : bookingInformation.contactAndAddress.email,
+        //     amount : bookingInformation.net_Amount,
+        //     externalId : generateExternalId(),
+        //     description : `Payment of ${bookingInformation.net_Amount} for ${bookingInformation.service.selectedService}`
+
+        //     });
+        //     setInvoiceId(response.data.id)
+        //     console.log(response.data)
+        //     // window.open( response.data.invoiceUrl, '_blank');
+        //     // window.location.href = response.data.invoiceUrl
+        //   } catch (error) {
+        //     console.error(error);
+        //   }
     }
 
     const notifyUser = async (booking_id, receiver) => {
