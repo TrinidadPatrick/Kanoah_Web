@@ -51,7 +51,7 @@ const BookService = ({handleCloseModal, serviceId}) => {
     
 
   return (
-    <main className='w-fit h-full max-h-full overflow-auto bg-[#f9f9f9] flex flex-col justify-center items-start px-5 pb-2'>
+    <main className='w-fit h-full max-h-full  bg-[#f9f9f9] flex flex-col justify-center items-start px-5 pb-2'>
          <div className={`${step === 4 || step === "success" ? "hidden" : ""} py-2 flex justify-between w-full items-center`}>
             <div>
             <h1 className='text-2xl font-bold text-gray-800'>Book Service</h1>

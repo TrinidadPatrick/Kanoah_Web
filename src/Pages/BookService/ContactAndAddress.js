@@ -105,9 +105,9 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
 
 
   return (
-    <div className='w-[550px]'>
+    <div className='w-[100%] sm:w-[550px]'>
     <div className="w-full mx-auto px-6 py-3 bg-white rounded-md shadow-md">
-      <h2 className="text-xl text-gray-800 font-semibold mb-4">Contact and Address Confirmation</h2>
+      <h2 className="text-sm md:text-xl text-gray-800 font-semibold mb-4">Contact and Address Confirmation</h2>
 
       <div className='flex flex-col space-y-7'>
         {/* Full Name */}
@@ -115,7 +115,7 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
         <input id="firstname"
          maxLength={60} 
          required 
-         className={`border-1  valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-md p-2 font-normal text-[0.9rem]`} type='text'
+         className={`border-1  valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-md p-2 font-normal text-xs md:text-[0.9rem]`} type='text'
          value={userDetails.firstname}
          onChange={(e)=>setUserDetails({...userDetails, firstname : e.target.value})}
          />  
@@ -127,7 +127,7 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
         <input id="lastname"
          maxLength={60} 
          required 
-         className={`border-1  valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-md p-2 font-normal text-[0.9rem]`} type='text'
+         className={`border-1  valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-md p-2 font-normal text-xs md:text-[0.9rem]`} type='text'
          value={userDetails.lastname}
          onChange={(e)=>setUserDetails({...userDetails, lastname : e.target.value})}
          />  
@@ -141,11 +141,11 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
         <input id="email"
          maxLength={60} 
          required 
-         className={`border-1  valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-md p-2 font-normal text-[0.9rem]`} type='text'
+         className={`border-1  valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-md p-2 font-normal text-xs md:text-[0.9rem]`} type='text'
          value={userDetails.email}
          onChange={(e)=>setUserDetails({...userDetails, email : e.target.value})}
          />  
-        <div className='text-[0.9rem] absolute top-2 left-1 peer-focus:-top-2 pointer-events-none peer-focus:font-bold peer-valid:font-bold peer-focus:left-2 peer-valid:left-2 peer-focus:text-xs peer-focus:text-gray-800  peer-valid:text-gray-800 peer-valid:-top-2 peer-valid:text-xs ease-in-out transition-all bg-white px-1 text-gray-500' htmlFor='serviceName'>Email</div>
+        <div className='text-xs md:text-[0.9rem] absolute top-2 left-1 peer-focus:-top-2 pointer-events-none peer-focus:font-bold peer-valid:font-bold peer-focus:left-2 peer-valid:left-2 peer-focus:text-xs peer-focus:text-gray-800  peer-valid:text-gray-800 peer-valid:-top-2 peer-valid:text-xs ease-in-out transition-all bg-white px-1 text-gray-500' htmlFor='serviceName'>Email</div>
         <p className={`${error.email ? "" : "hidden"} text-xs text-red-500`}>This field is required</p>
         </div>
 
@@ -154,7 +154,7 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
         <input id="contact"
          maxLength={60} 
          required 
-         className={`border-1  valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-md p-2 font-normal text-[0.9rem]`} type='text'
+         className={`border-1  valid:border-themeBlue peer outline-[0.5px] outline-themeBlue rounded-md p-2 font-normal text-xs md:text-[0.9rem]`} type='text'
          value={`${userDetails.contact}`}
          onChange={(e)=>setUserDetails({...userDetails, contact : e.target.value})}
          />  
@@ -163,13 +163,13 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
         </div>
 
         {/* Address */}
-        <div className="mb-4">
+        <div className="mb-4 overflow-hidden max-w-full">
           <label htmlFor="address" className="block text-sm font-medium text-gray-600">
             Address
           </label>
-          <div  className="mt-1 outline-none p-2 flex justify-between text-left w-full border rounded-md">
-            <div>
-            <p className='font-semibold text-gray-800'>{userDetails.Address?.barangay?.name}, {userDetails.Address?.municipality?.name}, {userDetails.Address?.province?.name}</p>
+          <div  className="mt-1 outline-none p-2 flex overflow-hidden justify-between text-left w-full border rounded-md">
+            <div className=' overflow-hidden'>
+            <p className='font-semibold text-gray-800 line-clamp-1'>{userDetails.Address?.barangay?.name}, {userDetails.Address?.municipality?.name}, {userDetails.Address?.province?.name}</p>
             <p className='font-normal line-clamp-2  whitespace-normal break-all text-sm  text-gray-700'>{userDetails.Address?.street}</p>
             </div>
             <button onClick={()=>{setIsOpen(true)}} className=''>

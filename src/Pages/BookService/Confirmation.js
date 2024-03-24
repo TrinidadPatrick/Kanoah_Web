@@ -19,8 +19,12 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     const service = useSelector(selectService)
     const [socket, setSocket] = useState(null)
 
+
+    console.log(socket)
+
     useEffect(()=>{
-        setSocket(io("http://localhost:5000"))
+        setSocket(io("https://kanoah.onrender.com"))
+        // setSocket(io("http://localhost:5000"))
     
       },[])
 
@@ -138,6 +142,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     }
 
     const pay = async () => {
+        setLoading(true)
         const YOUR_SECRET_KEY = 'xnd_development_POyuz5jRjC6pmt45msNOB126rIexa4MjXNSAFO2kz2t0FKOyiw9zDXBhDHbrgS';
 
         const xendit = new Xendit({ secretKey: YOUR_SECRET_KEY });
@@ -156,6 +161,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
             const response= await Invoice.createInvoice({
               data
           })
+          setLoading(false)
           setInvoiceId(response.id)
           window.open( response.invoiceUrl, '_blank');
           } catch (error) {
@@ -174,8 +180,6 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
                 notif_to : receiver,
                 reference_id : booking_id
             })
-
-            console.log(notify.data)
         } catch (error) {
             console.error(error)
         }
@@ -208,8 +212,8 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
 
 
   return (
-    <div className='w-[600px] bg-[#f9f9f9] flex  flex-col h-fit py-3 relative space-y-3 rounded-md '>
-        <h1 className='text-center font-semibold text-2xl text-gray-800'>Booking Confirmation</h1>
+    <div className='w-full md:w-[600px] bg-[#f9f9f9] flex overflow-auto flex-col h-fit py-3 relative space-y-2 rounded-md '>
+        <h1 className='text-center font-semibold text-lg md:text-lg text-gray-800'>Booking Confirmation</h1>
         <button onClick={()=>{handleStep(3)}} className='absolute top-1'>
             <ArrowBackIosOutlinedIcon className=' hover:text-gray-400' fontSize='small left-0' />
         </button>
@@ -220,10 +224,10 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
                 <img src={serviceInfo.serviceProfileImage} alt="service image" />
             </div>
             <div className='w-full'>
-                <h1 className='font-medium text-[1rem]'>{serviceInfo.basicInformation?.ServiceTitle}</h1>
-                <h2 className='font-normal text-sm'>Service: {bookingInformation.service?.selectedService}</h2>
-                <h2 className='font-normal text-sm'>Variant: {bookingInformation.service?.selectedVariant.type}</h2>
-                <h2 className='font-normal text-sm'>Service Option: {bookingInformation.schedule?.serviceOption}</h2>
+                <h1 className='font-medium text-sm md:text-base'>{serviceInfo.basicInformation?.ServiceTitle}</h1>
+                <h2 className='font-normal text-xs md:text-sm'>Service: {bookingInformation.service?.selectedService}</h2>
+                <h2 className='font-normal text-xs md:text-sm'>Variant: {bookingInformation.service?.selectedVariant.type}</h2>
+                <h2 className='font-normal text-xs md:text-sm'>Service Option: {bookingInformation.schedule?.serviceOption}</h2>
             </div>
             <div className='relative justify-self-end w-fit font-semibold'>
                 ₱{bookingInformation.service?.price}
@@ -237,46 +241,44 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         {/* Customer Information */}
         <div className='p-3 bg-white w-full border rounded-sm shadow-sm'>
            
-            <div className='flex h-fit items-stretch justify-between flex-row-reverse'>
+            <div className='flex h-fit items-stretch justify-between gap-2 flex-col md:flex-row-reverse'>
             {/* Schedule */}
             <ul className=' w-full max-w-full text-ellipsis overflow-hidden'>
                 <h1 className='font-semibold'>Client Details</h1>
-                <li className='text-sm text-gray-700'>{bookingInformation.contactAndAddress?.firstname + " " + bookingInformation.contactAndAddress?.lastname}</li>
-                <li className='text-sm text-gray-700'>{bookingInformation.contactAndAddress?.email}</li>
-                <li className='text-sm text-gray-700'>+63{bookingInformation.contactAndAddress?.contact}</li>
+                <li className='text-xs md:text-sm text-gray-700'>{bookingInformation.contactAndAddress?.firstname + " " + bookingInformation.contactAndAddress?.lastname}</li>
+                <li className='text-xs md:text-sm text-gray-700'>{bookingInformation.contactAndAddress?.email}</li>
+                <li className='text-xs md:text-sm text-gray-700'>+63{bookingInformation.contactAndAddress?.contact}</li>
             </ul>
             {/* CLient */}
             <ul className='w-full '>
             <h1 className='font-semibold'>Schedule</h1>
-                <li className='text-semiSm text-gray-700'>{bookingInformation.schedule?.bookingDate}</li >
-                <li className='text-semiSm text-gray-700'>{bookingInformation.schedule?.timeSpan[0]} - {bookingInformation.schedule?.timeSpan[1]}</li >
+                <li className='text-xs md:text-sm text-gray-700'>{bookingInformation.schedule?.bookingDate}</li >
+                <li className='text-xs md:text-sm text-gray-700'>{bookingInformation.schedule?.timeSpan[0]} - {bookingInformation.schedule?.timeSpan[1]}</li >
             </ul>
             </div>
             {/* Address */}
             <div className='mt-2'>
             <h2 className='font-semibold'>Address</h2>
             <ul className='flex items-start '>
-                <li className='text-sm font-medium mx-0.5 text-gray-700'>{bookingInformation.contactAndAddress?.Address.barangay.name}, </li>
-                <li className='text-sm font-medium mx-0.5 text-gray-700'>{bookingInformation.contactAndAddress?.Address.municipality.name}, </li>
-                <li className='text-sm font-medium mx-0.5 text-gray-700'>{bookingInformation.contactAndAddress?.Address.province.name}, </li>
-                <li className='text-sm font-medium mx-0.5 text-gray-700'>{bookingInformation.contactAndAddress?.Address.region.name}</li>
+                <li className='text-xs md:text-sm font-medium mx-0.5 text-gray-700'>{bookingInformation.contactAndAddress?.Address.barangay.name}, 
+                {bookingInformation.contactAndAddress?.Address.municipality.name}, {bookingInformation.contactAndAddress?.Address.province.name}, {bookingInformation.contactAndAddress?.Address.region.name}</li>
             </ul>
-            <span className='text-sm text-gray-700'>{bookingInformation.contactAndAddress?.Address.street}</span>
+            <span className='text-xs md:text-sm text-gray-700'>{bookingInformation.contactAndAddress?.Address.street}</span>
             </div>
         </div>
         <div className='p-3 bg-white w-full border rounded-sm shadow-sm'>
         <ul className=' grid grid-cols-2 gap-0 gap-x-5'>
-                <div className={`font-medium text-semiMd text-gray-600 `}>Total Service Amount:</div>
-                <div className={`font-normal pl-2 text-semiMd text-gray-600 `}>₱{bookingInformation.service?.price}</div>
-                <div className={`font-medium text-semiMd text-gray-600 `}>Service Fee:</div>
-                <div className={`font-normal pl-2 text-semiMd text-gray-600 `}>₱{bookingInformation.service_fee}</div>
-                <div className={`font-medium text-semiMd text-gray-600 `}>Booking Fee:</div>
-                <div className={`font-normal pl-2 text-semiMd text-gray-600 `}>₱{bookingInformation.booking_fee}</div>
-                <div className={`font-medium text-semiMd text-gray-600 `}>Total amount to pay:</div>
-                <div className={`font-normal pl-2 text-semiMd text-red-500 border-t-1 border-gray-700 `}>₱{bookingInformation.net_Amount}</div>
+                <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Total Service Amount:</div>
+                <div className={`font-normal pl-2 text-xs md:text-sm text-gray-600 `}>₱{bookingInformation.service?.price}</div>
+                <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Service Fee:</div>
+                <div className={`font-normal pl-2 text-xs md:text-sm text-gray-600 `}>₱{bookingInformation.service_fee}</div>
+                <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Booking Fee:</div>
+                <div className={`font-normal pl-2 text-xs md:text-sm text-gray-600 `}>₱{bookingInformation.booking_fee}</div>
+                <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Total amount to pay:</div>
+                <div className={`font-normal pl-2 text-xs md:text-sm text-red-500 border-t-1 border-gray-700 `}>₱{bookingInformation.net_Amount}</div>
         </ul>
         </div>
-        <button onClick={()=>{pay()}} className={`text-white ${loading ? "bg-slate-500" : "bg-themeBlue"} px-2 py-2 text-sm rounded-sm `}>
+        <button onClick={()=>{pay()}} className={`text-white ${loading ? "bg-slate-500" : "bg-themeBlue"} hover:bg-slate-500 px-2 py-2 text-xs md:text-sm rounded-sm `}>
         Submit
         </button>
     </div>

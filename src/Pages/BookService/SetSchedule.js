@@ -162,8 +162,6 @@ import dayjs from 'dayjs';
       const fromDate = new Date(`2000-01-01T${schedule?.fromTime}:00`);
       const toDate = new Date(`2000-01-01T${schedule?.toTime}:00`);
 
-      console.log(fromDate)
-
       const timeArray = [];
 
       let currentTime = fromDate;
@@ -226,10 +224,9 @@ import dayjs from 'dayjs';
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
         {/* <ThemeProvider theme={newTheme}> */}
-    <div className='w-full'>
-    <div className='w-full flex items-stretch h-full space-x-3'>
-    {/* <StaticDateTimePicker defaultValue={dayjs('2022-04-17T15:30')} /> */}
-    <StaticDatePicker  shouldDisableDate={disableDate} value={dayjs(`${dateSelected}`)} onChange={(value)=>handleDateChange(value)} className='shadow-md h-[370px] rounded-md'  orientation="landscape" slotProps={{
+    <div className='w-full overflow-auto h-[400px] lg:h-[470px] flex flex-col'>
+    <div className='w-full pb-1 flex flex-col min-h-[630px] md:min-h-[330px]  md:flex-row gap-2 items-stretch h-[320px]'>
+    <StaticDatePicker  shouldDisableDate={disableDate} value={dayjs(`${dateSelected}`)} onChange={(value)=>handleDateChange(value)} className=' h-[320px] min-h-[330px] rounded-md border'  orientation="landscape" slotProps={{
     actionBar: {
       actions: [],
     },
@@ -238,7 +235,7 @@ import dayjs from 'dayjs';
       },
     }} />
 
-    <div id='booked' className='w-[300px] h-[372px] bg-white  flex flex-col justify-start pb-3 rounded-md relative shadow-md px-2'>
+    <div id='booked' className='w-full h-[330px] bg-white  flex flex-col justify-start pb-3 rounded-md relative border px-2'>
       <span className={`${error.timeSelected ? "" : "hidden"} text-xs text-red-500`}>*Please select a time below</span>
     <div className='grid grid-cols-3 gap-2 mt-3'>
     {
@@ -252,8 +249,16 @@ import dayjs from 'dayjs';
     </div>
    
     </div>
-    {/* Service Options */}
-    <div className='w-full shadow-md rounded-md bg-white p-2 mt-3'>
+
+    {/* <div className='w-full h-[500px] min-h-[500px] bg-red-200'>
+
+    </div>
+
+    <div className='w-full h-[600px] min-h-[500px] bg-black'>
+
+    </div> */}
+
+    <div className='w-full border  rounded-md bg-white p-2 mt-2'>
       <h1 className='font-semibold text-gray-800 mb-2 ml-1'>Select option <span className={`text-xs ${error.serviceOption ? "" : "hidden"} font-normal text-red-500`}>*Required</span></h1>
     {
       serviceInfo.advanceInformation.ServiceOptions.map((service, index)=>(
@@ -261,14 +266,13 @@ import dayjs from 'dayjs';
         <div className={`${serviceOption === service ? "bg-themeBlue" : "hidden"} absolute -top-2 text-themeBlue bg-white rounded-full -right-2`}>
         <CheckCircleOutlineOutlinedIcon fontSize='small' />
         </div>
-        
         {service}
         </button>
       ))
     }
     </div>
     
-    <div className='w-full flex justify-end space-x-2 mt-3'>
+    <div className='w-full flex justify-end  space-x-2 mt-3'>
     <button onClick={()=>{handleStep(1)}} className='bg-gray-400 text-white px-2 py-1 rounded-sm text-sm'>Back</button>
     <button onClick={()=>{submitSchedule()}} className='bg-themeBlue text-white px-2 py-1 rounded-sm text-sm'>Next</button>
     </div>

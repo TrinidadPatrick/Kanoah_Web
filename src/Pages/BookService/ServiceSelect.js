@@ -75,7 +75,7 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
 
 
   return (
-    <section id='step1' className='w-[600px] h-fit flex flex-col space-y-4 p-3 rounded-md shadow-md bg-white'>
+    <section id='step1' className='w-full sm:w-[600px] h-fit flex flex-col space-y-4 p-3 rounded-md shadow-md bg-white'>
             {/* Title */}
             <div className='w-full h-full flex flex-col p-1 space-y-3'>
                       
@@ -86,7 +86,7 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
                 <p className='text-xs text-gray-500 '>Choose service to book</p>
                 <p className={`${error ? "" : "hidden"} text-semiSm text-red-500`}>Please select an option first</p>
                 {/* Service List */}
-            <div className='booking_ServiceList  grid grid-cols-3 gap-2 max-h-[210px] overflow-y-auto'>
+            <div className='booking_ServiceList  grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[210px] overflow-y-auto'>
                     {
                         serviceInfo?.serviceOffers.map((service, index)=>{
                             return (
