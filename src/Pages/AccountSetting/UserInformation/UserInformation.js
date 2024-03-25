@@ -168,7 +168,7 @@ const UserInformation = () => {
           bottom: 'auto',
           marginRight: '-50%',
           transform: 'translate(-50%, -50%)',
-          padding : "10px"
+          padding : "0px"
         },
         overlay: {
           backgroundColor: 'rgba(0, 0, 0, 0.7)', // Change the color and opacity as needed
@@ -902,8 +902,8 @@ const UserInformation = () => {
             </div> */}
             </div>
             <div className=' flex justify-end space-x-2'>
-            <button onClick={()=>{submitAddress()}} className='px-3 py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-4'>Save</button>
-            <button onClick={()=>{handleClose()}} className='px-3 py-1 bg-gray-200 text-black rounded-sm mt-4'>Cancel</button>
+            <button onClick={()=>{submitAddress()}} className='px-3 py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-2 text-sm'>Save</button>
+            <button onClick={()=>{handleClose()}} className='px-3 py-1 bg-gray-200 text-black rounded-sm mt-2 text-sm'>Cancel</button>
             </div>
             
             </div>
