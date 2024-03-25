@@ -19,6 +19,7 @@ import getCroppedImg from '../../ServiceSetting/ForCropping/CreateImage';
 import Cropper from 'react-easy-crop'
 import UseInfo from '../../../ClientCustomHook/UseInfo'
 import { useNavigate } from 'react-router-dom'
+import GoogleMap from './GoogleMap'
 
 
 
@@ -159,7 +160,7 @@ const UserInformation = () => {
           }
         } 
 
-      const ModalStyle = {
+    const ModalStyle = {
         content: {
           top: '50%',
           left: '50%',
@@ -173,7 +174,7 @@ const UserInformation = () => {
           backgroundColor: 'rgba(0, 0, 0, 0.7)', // Change the color and opacity as needed
           zIndex: 998,
         },
-      };
+    };
 
       const CropperModalStyle = {
         content: {
@@ -532,6 +533,8 @@ const UserInformation = () => {
       }
     }, [croppedAreaPixels, image]);
 
+      // console.log(location)
+
       return (
     
     <div className='w-full h-full overflow-auto flex flex-col '>
@@ -705,7 +708,6 @@ const UserInformation = () => {
                 <div className='p-4 w-[400px]'>
                 <h1 className='font-medium'>Address</h1>
                 {/* Regions ***************************************/}
-                {/* Regions ***************************************/}
                 <div className="mb-4">
                 <label htmlFor="region" className="text-sm text-gray-600">Region</label>
                 <select
@@ -800,7 +802,8 @@ const UserInformation = () => {
 
                 {/* MAP******************************************************************* */}
             <div className='relative'>
-            <ReactMapGL
+              <GoogleMap location={location} setLocation={setLocation} />
+            {/* <ReactMapGL
             {...viewport}
             onViewportChange={(newViewport) => setViewPort(newViewport)}
             // onClick={()=>{window.open(`https://www.google.com/maps?q=${location.latitude},${location.longitude}`, '_black')}}
@@ -847,9 +850,9 @@ const UserInformation = () => {
             </Marker>
             <GeolocateControl />
             
-            </ReactMapGL>
+            </ReactMapGL> */}
             {/* Location Filter Search*/}
-            <div className='flex flex-col w-1/2 space-y-1 absolute top-4 left-2'>
+            {/* <div className='flex flex-col w-1/2 space-y-1 absolute top-4 left-2'>
             <div className="w-full shadow-sm mx-auto rounded-lg overflow-hidden md:max-w-xl">
             <div className="md:flex">
             <div className="w-full">
@@ -896,7 +899,7 @@ const UserInformation = () => {
             })
                 }
             </div>
-            </div>
+            </div> */}
             </div>
             <div className=' flex justify-end space-x-2'>
             <button onClick={()=>{submitAddress()}} className='px-3 py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-4'>Save</button>

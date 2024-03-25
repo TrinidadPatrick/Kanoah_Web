@@ -3,9 +3,11 @@ import { useEffect } from 'react'
 import SortOutlinedIcon from '@mui/icons-material/SortOutlined';
 import UseReportHistory from '../CustomHooks/UseReportHistory';
 import OutsideClickHandler from 'react-outside-click-handler';
+import { useNavigate } from 'react-router-dom';
 import http from '../../http';
 
 const AdminReportHistory = () => {
+  const navigate = useNavigate()
   const {reportsHistory} = UseReportHistory()
   const [allReports, setAllReports] = useState(null)
   const reasons = ['Explicit Content', 'Fake Information/False Claims', 'Hate Speech/Bullying', 'Violence/Threats', 

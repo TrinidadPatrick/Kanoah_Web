@@ -3,9 +3,11 @@ import { useEffect } from 'react'
 import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
 import usePendingReport from '../CustomHooks/usePendingReport';
 import OutsideClickHandler from 'react-outside-click-handler';
+import { useNavigate } from 'react-router-dom';
 import http from '../../http';
 
 const AdminReportList = () => {
+    const navigate = useNavigate()
     const {pendingReports} = usePendingReport()
     const [reportList, setReportList] = useState(null)
     const [showActionDropDown, setShowActionDropdown] = useState('')
@@ -229,7 +231,7 @@ const AdminReportList = () => {
             <h1 className='font-medium text-red-500 px-2 py-1 bg-red-100 rounded-sm'>{report.service.name}</h1>
             {/* Buttons */}
             <div className='flex items-center relative gap-2'>
-                <button className='px-2 py-1 bg-gray-100 border border-[#8f8f8f] rounded-sm text-sm'>View Service</button>
+                <button onClick={()=>navigate(`/admin/Services/AdminViewService/${report.service._id}`)} className='px-2 py-1 bg-gray-100 border border-[#8f8f8f] rounded-sm text-sm'>View Service</button>
                 <button onClick={()=>handleShowDropDown(report._id)} className='flex items-center'>Action <ArrowDropDownOutlinedIcon /></button>
                 {/* Dropdown */}
                 <div className={`${showActionDropDown === report._id ? "flex" : "hidden"} flex-col border items-start absolute bg-white shadow-md rounded-sm top-7 right-1`}>
