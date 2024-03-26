@@ -16,7 +16,7 @@ const ServiceRegistrationPage = () => {
   const navigate = useNavigate()
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Holidays'] 
   
-    const [step, setStep] = useState(3)
+    const [step, setStep] = useState(1)
     // const [userId, setUserId] = useState(null)
     const [serviceInformation, setServiceInformation] = useState(
       {

@@ -549,6 +549,7 @@ const Explore = ({services}) => {
                     
                   </div>
                   {/* Reviews */}
+                  {console.log(service)}
                   <div className='flex flex-col w- whitespace-nowrap relative ml-0  xl:ml-3 mr-2 space-x-1'>
                   <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={Number(service.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
                   <div className='flex items-center space-x-2 pl-1'>
@@ -574,7 +575,7 @@ const Explore = ({services}) => {
                     </div>
                     {/* More Options Button */}
                     <OutsideClickHandler onOutsideClick={(e)=>{setActiveId(null);e.stopPropagation()}}>
-                    <div onClick={(e)=>{openMoreOptions(service._id);e.stopPropagation()}} className='w-fit p-0  absolute right-2 cursor-pointer'>
+                    <div onClick={(e)=>{openMoreOptions(service._id);e.stopPropagation()}} className={`w-fit p-0 ${authenticated ? "" : "hidden"}  absolute right-2 cursor-pointer`}>
                     <MoreVertIcon  className={` ${service._id == activeId ? "text-gray-300" : "text-gray-600"}  cursor-pointer hover:text-gray-300`} />
                     </div>
                     </OutsideClickHandler>
@@ -671,7 +672,7 @@ const ReportModal = ({serviceToReport, setServiceToReport, setOpenSuccessReportM
   },[serviceToReport])
 
   return (
-    <section className='w-[500px] h-fit relative bg-white flex flex-col p-3 rounded-md overflow-auto'>
+    <section className='w-[500px] h-[85vh] relative bg-white flex flex-col p-3 rounded-md overflow-auto'>
         <header>
           <h1 className='text-lg font-medium text-gray-600'>Service Report</h1>
         </header>
