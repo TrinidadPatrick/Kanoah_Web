@@ -348,16 +348,6 @@ const handleBook = () => {
           </div>
           {/* Information */}
           <h1 className='text-xl font-semibold mb-3 mt-3'>Service Information</h1>
-          {/* Payment methods */}
-          <p className='font-medium'>Payment methods</p>
-          <div className='flex mt-2 mb-2'>
-            {
-              serviceInfo.advanceInformation.PaymentMethod.filter(payment => payment.enabled == true).map((payment, index)=>(
-                <p key={index} className='w-20 text-gray-700 bg-gray-50 border shadow-sm py-1 rounded-sm font-semibold mx-1 disabled cursor-text flex justify-center items-center gap-2 text-sm'>{payment.method}</p>
-              ))
-            }
-          
-          </div>
 
           <p className='font-medium'>Service Options</p>
           <div className='flex my-2'>
@@ -516,7 +506,7 @@ const handleBook = () => {
     {
       serviceInfo == null ? ("") :
       (
-        <footer className='w-full pb-10 bg-[#071B22] py-[1rem] sm:px-10 md:px-16 lg:px-36'>
+        <footer className='w-full pb-10 bg-[#0E2F41] py-[1rem] sm:px-10 md:px-16 lg:px-36'>
         <Footer />
         </footer>
       )
