@@ -100,7 +100,7 @@ const SummaryDetails = ({serviceInformation, dateSelected}) => {
         </div>
         <div className='w-full flex items-center'>
         <h2 className='text-[0.8rem] semiMd:text-sm whitespace-nowrap text-ellipsis overflow-hidden font-medium text-gray-500'>
-            <span className={`${totalBookings.percentIncrease < 0 ? "text-red-500" : "text-green-500 before:content-['+'] "} rounded-sm text-semiSm`}>{totalBookings.percentIncrease}%</span> this month</h2>
+            <span className={`${totalBookings.percentIncrease < 0 ? "text-red-500" : "text-green-500 before:content-['+'] "} rounded-sm text-semiSm`}>{totalBookings.percentIncrease === null ? 0.0 : totalBookings.percentIncrease.toFixed(1)}%</span> this month</h2>
         </div>
     </div>
     <div className='border rounded-se-md sm:rounded-se-none lg:rounded-se-none lg:border-b-0 py-2 px-5 flex flex-col justify-between'>
@@ -110,7 +110,7 @@ const SummaryDetails = ({serviceInformation, dateSelected}) => {
         </div>
         <div className='w-full flex items-center'>
             <h2 className='text-[0.8rem] semiMd:text-sm whitespace-nowrap text-ellipsis overflow-hidden font-medium text-gray-500'>
-            <span className={`${totalReview.percentIncrease < 0 ? "text-red-500" : "text-green-500 before:content-['+'] "} rounded-sm text-semiSm`}>{totalReview.percentIncrease}% </span> 
+            <span className={`${totalReview.percentIncrease < 0 ? "text-red-500" : "text-green-500 before:content-['+'] "} rounded-sm text-semiSm`}>{totalReview.percentIncrease === null ? 0.0 : totalReview.percentIncrease.toFixed(1)}% </span> 
             this month</h2>
         </div>
     </div>
@@ -121,7 +121,7 @@ const SummaryDetails = ({serviceInformation, dateSelected}) => {
         </div>
         <div className='w-full flex items-center'>
         <h2 className='text-[0.8rem] semiMd:text-sm whitespace-nowrap text-ellipsis overflow-hidden font-medium text-gray-500'>
-            <span className={`${ratingAverage.percentIncrease < 0 ? "text-red-500" : "text-green-500 before:content-['+'] "} rounded-sm text-semiSm`}>{ratingAverage.percentIncrease}%</span> this month</h2>
+            <span className={`${ratingAverage.percentIncrease < 0 ? "text-red-500" : "text-green-500 before:content-['+'] "} rounded-sm text-semiSm`}>{ratingAverage.percentIncrease === null ? 0.0 : ratingAverage.percentIncrease.toFixed(1)}%</span> this month</h2>
         </div>
     </div>
     <div className='border rounded-ee-md  rounded-se-none sm:rounded-se-md lg:rounded-se-none sm:rounded-ee-md lg:rounded-ee-none border-t-0 sm:border-t-1 p-2 flex flex-col justify-between'>
@@ -131,7 +131,7 @@ const SummaryDetails = ({serviceInformation, dateSelected}) => {
         </div>
         <div className='w-full flex items-center'>
         <h2 className='text-[0.8rem] semiMd:text-sm whitespace-nowrap text-ellipsis overflow-hidden font-medium text-gray-500'>
-            <span className={`${totalSales.percentIncrease < 0 ? "text-red-500" : "text-green-500 before:content-['+'] "} rounded-sm text-semiSm`}>{totalSales.percentIncrease}%</span> this month</h2>
+            <span className={`${totalSales.percentIncrease < 0 ? "text-red-500" : "text-green-500 before:content-['+'] "} rounded-sm text-semiSm`}>{Number(totalSales.percentIncrease).toFixed(1)}%</span> this month</h2>
         </div>
     </div>
 
