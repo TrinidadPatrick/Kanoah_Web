@@ -8,10 +8,8 @@ import { Link } from 'react-router-dom'
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import { useNavigate } from 'react-router-dom'
 import PriorityHighOutlinedIcon from '@mui/icons-material/PriorityHighOutlined';
-import { categories } from '../MainPage/Components/Categories'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import OutsideClickHandler from 'react-outside-click-handler';
 import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
@@ -31,11 +29,13 @@ import Rating_Icon from '../MainPage/Components/UtilImage/Rating_Icon.png'
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import useCategory from '../../ClientCustomHook/CategoryProvider'
 export const Context = React.createContext()
 
 
 
 const Navbar = ({ onAboutUsClick }) => {
+  const {categories} = useCategory()
   const [newNotification, setnewNotification] = useState(false)
   const {authenticated, userInformation} = UseInfo()
   const [windowWidth, setWindowWdith] = useState(null)
@@ -194,9 +194,9 @@ const Navbar = ({ onAboutUsClick }) => {
               <ExpandMoreIcon fontSize='small' />
             </button>
             <ul className="categoryDropdown absolute hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
-              {categories.map((category, index) => (
+              {categories.sort((a, b) => a.name.localeCompare(b.name)).map((category, index) => (
                 <li key={index} className="">
-                  <button onClick={() => {navigate(`explore?${"category=" + category.category_name}&page=1`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
+                  <button onClick={() => {navigate(`explore?${"category=" + category.name}&page=1`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.name}</button>
                 </li>
               ))}
             </ul>

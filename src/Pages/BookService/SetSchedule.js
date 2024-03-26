@@ -207,7 +207,7 @@ import dayjs from 'dayjs';
   
         bookingTimeSlot.map((slot) => {
           const slotNumber = check(slot)
-          if(slotNumber == 3)
+          if(slotNumber == serviceInfo.booking_limit)
           {
             unavailableTimes.push(slot)
           }
@@ -249,14 +249,6 @@ import dayjs from 'dayjs';
     </div>
    
     </div>
-
-    {/* <div className='w-full h-[500px] min-h-[500px] bg-red-200'>
-
-    </div>
-
-    <div className='w-full h-[600px] min-h-[500px] bg-black'>
-
-    </div> */}
 
     <div className='w-full border  rounded-md bg-white p-2 mt-2'>
       <h1 className='font-semibold text-gray-800 mb-2 ml-1'>Select option <span className={`text-xs ${error.serviceOption ? "" : "hidden"} font-normal text-red-500`}>*Required</span></h1>

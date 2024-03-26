@@ -18,6 +18,7 @@ import useCategory from '../../ClientCustomHook/CategoryProvider'
 
 
 const MainPage = ({ scrollToAboutUs, setScrollToAboutUs, services }) => {
+  const [featuredCategories, setFeaturedCategories] = useState([])
   const {categories} = useCategory()
   const aboutUsSectionRef = useRef(null);
   const navigate = useNavigate()
@@ -37,6 +38,14 @@ const MainPage = ({ scrollToAboutUs, setScrollToAboutUs, services }) => {
         easing : "ease-in-out-cubic"
     })
   },[])
+
+  useEffect(()=>{
+    if(categories.length !== 0)
+    {
+      const featured =  categories.filter(category => category.featured == true)
+      setFeaturedCategories(featured)
+    }
+  },[categories])
 
   return (
     <div className='h-full w-full relative'>
@@ -110,7 +119,7 @@ const MainPage = ({ scrollToAboutUs, setScrollToAboutUs, services }) => {
 
     {/* Footer */}
     <section className='top_rated_service w-full pb-10 bg-themeBlue py-[1rem] sm:px-10 md:px-16 lg:px-36' >
-    <Footer />
+    <Footer setScrollToAboutUs={setScrollToAboutUs} featuredCategories={featuredCategories} />
     </section>
 
     

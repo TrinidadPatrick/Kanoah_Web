@@ -12,6 +12,7 @@ import http from '../../http';
 import Cropper from 'react-easy-crop'
 import Modal from 'react-modal';
 import getCroppedImg from './ForCropping/CreateImage';
+import emptyImages from '../../Utilities/emptyImage.jpg'
 
 
 const MyService = () => {
@@ -153,7 +154,13 @@ const MyService = () => {
     <div className=' relative group hover:brightness-50 cursor-pointer h-fit rounded-lg border-2 overflow-hidden'>
     <div className={`loaderImage ${uploading ? "block" : "hidden"} absolute top-[40%] left-[42%]  `}></div>
     <label htmlFor="fileInput" className='cursor-pointer'>
-        <img id='profile' className='h-[70px] semiXs:h-[100px] md:h-[120px] aspect-video object-cover ' src={serviceInformation.serviceProfileImage == null ? "" : serviceInformation.serviceProfileImage} alt="service profile" />
+      {
+        serviceInformation.serviceProfileImage === null ? 
+        <img id='profile' className='h-[70px] semiXs:h-[100px] md:h-[120px] aspect-video object-cover ' src={emptyImages} alt="service profile" />
+        :
+        <img id='profile' className='h-[70px] semiXs:h-[100px] md:h-[120px] aspect-video object-cover ' src={serviceInformation.serviceProfileImage} alt="service profile" />
+
+      }
     </label>
     
     <input onChange={(e)=>{cropImage(e.target.files)}} type="file" id="fileInput" className='hidden'/>

@@ -9,7 +9,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import { Link } from 'react-router-dom'
 
 
-const Footer = () => {
+const Footer = ({featuredCategories, setScrollToAboutUs }) => {
     const year = new Date().getFullYear()
   return (
     <footer>
@@ -48,21 +48,19 @@ const Footer = () => {
             {/* Section 3 */}
             <section className=' p-1 text-left flex flex-col space-y-5'>
             <h1 className='text-2xl text-white font-semibold'>Useful Links</h1>
-            <Link className='text-white text-[0.8rem] hover:underline' to="#" >About us</Link>
-            <Link className='text-white text-[0.8rem] hover:underline' to="#" >Contact us</Link>
-            <Link className='text-white text-[0.8rem] hover:underline' to="#" >Sign in</Link>
+            <button onClick={()=>setScrollToAboutUs(true)} className='text-white text-[0.8rem] text-start hover:underline' >About us</button>
+            <button onClick={()=>{window.location.href = `mailto:kanoahsf@gmail.com}`}} className='text-white text-[0.8rem] text-start hover:underline' to="#" >Contact us</button>
             <Link className='text-white text-[0.8rem] hover:underline' to="#" >Explore</Link>
                 
             </section>
             {/* Section 4 */}
             <section className=' p-1 text-left flex flex-col space-y-5'>
-            <h1 className='text-2xl text-white font-semibold'>Categories</h1> 
-            {/* explore?${"category="+category.category_name}&page=1 */}
-            <Link className='text-white text-[0.8rem] hover:underline' to="explore?category=Automotive Services&page=1" >Automotive Services</Link>
-            <Link className='text-white text-[0.8rem] hover:underline' to="explore?category=Cleaning&page=1" >Cleaning</Link>
-            <Link className='text-white text-[0.8rem] hover:underline' to="explore?category=Plumbing&page=1" >Plumbing</Link>
-            <Link className='text-white text-[0.8rem] hover:underline' to="explore?category=Appliance&page=1" >Appliance</Link>
-            <Link className='text-white text-[0.8rem] hover:underline' to="explore?category=Transportation&page=1" >Transportation</Link>
+            <h1 className='text-2xl text-white font-semibold'>Categories</h1>
+            {
+                featuredCategories?.map((categ)=>(
+                    <Link className='text-white text-[0.8rem] hover:underline' to={`explore?category=${categ.name}&page=1`} >{categ.name}</Link>
+                ))
+            }
             </section>
         </div>
 

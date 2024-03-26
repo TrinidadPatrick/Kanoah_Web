@@ -17,12 +17,12 @@ import Modal from 'react-modal';
 
 const BookingInformation = ({serviceInformation}) => {
     Modal.setAppElement('#root');
+    const limits = Array.from({ length: 1000 }, (_, index) => index + 1);
     const [isEdit, setIsEdit] = useState(false)
     const [fieldError, setFieldError] = useState({name : false, origPrice : false, type : false, price : false})
     const [acceptBooking, setAcceptBooking] = useState(false)
     const [noServices, setNoServices] = useState(false)
     const [isSelectAll, setIsSelectAll] = useState(false)
-
     const [serviceModalOpen, setServiceModalIsOpen] = useState(false);
     const [openFilter, setOpenFilter] = useState(false);
     const [showMoreOption, setShowMoreOption] = useState(false);
@@ -40,6 +40,7 @@ const BookingInformation = ({serviceInformation}) => {
       duration : 0,
       variants : []
     })
+    const [booking_limit, setBooking_limit] = useState(1) 
 
     const notify = (message) => {
         toast.success(message, {
@@ -85,6 +86,7 @@ const BookingInformation = ({serviceInformation}) => {
         {
             setServiceOfferList(serviceInformation?.serviceOffers)
             setAcceptBooking(serviceInformation?.acceptBooking)
+            setBooking_limit(serviceInformation?.booking_limit)
         }
     }, [serviceInformation])
 
@@ -523,12 +525,34 @@ const BookingInformation = ({serviceInformation}) => {
       })
     }
 
+    const handleBookingLimit = async (value) => {
+
+      {
+          const instance = acceptBooking  
+          setAcceptBooking(!instance) 
+          try {
+              const result = await http.patch(`updateService/${serviceInformation.userId}`, {booking_limit : value},  {
+                withCredentials : true
+              })
+      
+              if(result.data.status == "Success")
+              {
+                  notify('Update successfull')
+              }
+            } catch (error) {
+              console.error(error)
+            }
+      }
+    }
+
   return (
     <main className='flex justify-center items-center bg-[#f9f9f9] flex-col h-full w-full bg-na max-h-full xl:p-3 '>
     <div className="w-[100%] sm:w-[90%] md:w-[80%] xl:w-[60%] shadow-md rounded-md h-full sm:h-[90%] xl:h-[70vh] p-5 flex flex-col bg-white space-y-5">
         <div className='w-full flex items-center justify-between'>
             <h1 className='text-gray-700 font-medium text-lg md:text-2xl'>Services from business</h1>
             <div className='flex items-center space-x-2'>
+            {/* Accept booking Button */}
+            <div className='flex items-center gap-2'>
             <div className='flex items-center space-x-2 bg-gray-50 shadow-sm p-1 rounded-[0.12rem] border'>
             <p className='text-[0.7rem] md:text-sm text-gray-500 font-semibold sm:mb-1'>Accept Booking</p>
             <div className='flex items-center space-x-2'>
@@ -538,7 +562,18 @@ const BookingInformation = ({serviceInformation}) => {
             </label>
             </div>
             </div>
-            {/* <button onClick={()=>{openServiceModal()}} className={`w-fit flex gap-0.5 items-center px-1 py-0.5 sm:px-2 sm:py-2 text-white bg-red-500 hover:bg-red-500 text-xs sm:text-sm font-medium rounded-sm`}>Disable Booking</button> */}
+            {/* Booking Limit */}
+            <div className='flex items-center justify-end gap-2'>
+              <label className='text-sm text-gray-500'>Booking Limit</label>
+              <select value={booking_limit} onChange={(e)=>{setBooking_limit(e.target.value);handleBookingLimit(e.target.value)}} className='border rounded-sm py-1.5 text-gray-600 w-[50px]'>
+                {
+                 limits.map((limit)=>(
+                  <option key={limit} value={limit}>{limit}</option>
+                 ))
+                }
+              </select>
+            </div>
+            </div>
             </div>
         </div>
 
