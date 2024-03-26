@@ -1,20 +1,16 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
 import phil from 'phil-reg-prov-mun-brgy';
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import EditLocationOutlinedIcon from '@mui/icons-material/EditLocationOutlined';
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useSelector } from 'react-redux';
 import { selectContactAndAddress } from '../../ReduxTK/BookingSlice';
+import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import { geocodeByPlaceId } from 'react-google-places-autocomplete';
 import axios from 'axios';
 
 const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
-    const [isDragging, setIsDragging] = useState(false);
     const contactAndAddress = useSelector(selectContactAndAddress)
-    const [closeAutofill, setCloseAutofill] = useState(false)
-    const [places, setPlaces] = useState([])
     const [street, setStreet] = useState('')
     const [locCodesSelected, setLocCodesSelected] = useState([
         ['', '-1'], //Region
@@ -22,11 +18,6 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
         ['','-1'], //Municipality
         ['','-1'] //Barangay
     ])
-    const [locationFilterValue, setLocationFilterValue] = useState({
-        location : '',
-        longitude : '',
-        latitude : ''
-    })
     const [location, setLocation] = useState({
         longitude : 122.5320,
         latitude : 13.4124
@@ -38,30 +29,27 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
       barangay : false,
     })
 
-    // Map Viewport
-    const [viewport, setViewPort] = useState({    
-        width: "100%",
-        height: "100%",
-        zoom : 16,
-        latitude : location.latitude,
-        longitude : location.longitude
-    })
+    const [center, setCenter] = useState({ lat:  location.latitude, lng:  location.longitude});
+    const [value, setValue] = useState(null);
+    const position = {lat: location.latitude, lng: location.longitude};
+    const key = process.env.REACT_APP_MAP_API_KEY
 
-        // For autofill location search
-        useEffect(() => {
-          const accessToken = 'pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ydzQ2YzYwNWhvMmtyeTNwNDl3ejNvIn0.9n7wjqLZye4DtZcFneM3vw'; // Replace with your actual Mapbox access token
-          const location = locationFilterValue.location; // Replace with your desired location
-        
-          axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${location}.json?access_token=pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ydzQ2YzYwNWhvMmtyeTNwNDl3ejNvIn0.9n7wjqLZye4DtZcFneM3vw`)
-            .then((res) => {
-             setPlaces(res.data.features) // Logging the response data
-             
-  
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        }, [locationFilterValue]);
+    const handleMapDrag = (map) => {
+      // Update the center coordinates when the map is dragged
+      setCenter("");
+    };
+
+  useEffect(()=>{
+      if(value !== null)
+      {
+          geocodeByPlaceId(value.value.place_id)
+          .then(results => {
+          setLocation({latitude : results[0].geometry.location.lat(), longitude : results[0].geometry.location.lng()})
+          setCenter({lat : results[0].geometry.location.lat(), lng : results[0].geometry.location.lng()})
+          })
+          .catch(error => console.error(error));
+      }
+  },[value])
 
     // Handles the location seleced by the user
     const handleLocationSelect = (value, index, optionChanges) => {
@@ -279,106 +267,20 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
 
                 {/* MAP******************************************************************* */}
             <div className='relative'>
-            <ReactMapGL
-            {...viewport}
-            onViewportChange={(newViewport) => setViewPort(newViewport)}
-            // onClick={()=>{window.open(`https://www.google.com/maps?q=${location.latitude},${location.longitude}`, '_black')}}
-            draggable={true}
-            onMove={evt => setViewPort(evt.viewport)}
-            mapboxAccessToken="pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ybWJhb2MwMmR4MnFyeWRjMWtuZDVwIn0.mJug0iHxD8aq8ZdT29B-fg"
-            mapStyle="mapbox://styles/patrick021/clo2m5s7f006a01rf9mtv318u"
-            style={{
-              width: "100%",
-              height: "230px",
-              backgroundColor : "none",
-              position: "relative",
-              borderRadius: "10px",
-              marginBottom: "7px",
-              top: "10px", // Use top instead of marginTop
-              transition: "width 0.5s, height 0.5s, top 0.5s",
-            }}
-            onLoad={() => {
-                const newViewport = {
-                  ...viewport,
-                  latitude: location.latitude,
-                  longitude: location.longitude,
-                };
-                setViewPort(newViewport);
-              }}
-
-            >
-            <Marker
-            latitude={location.latitude}
-            longitude={location.longitude}
-            draggable={true}
-            onDragStart={()=>{setIsDragging(true)}}
-            // onDrag={(evt) => {setLocation({longitude : evt.lngLat.lng, latitude : evt.lngLat.lat});setViewPort({longitude : evt.lngLat.lng, latitude : evt.lngLat.lng})}}
-            onDrag={(evt) => {
-                const sensitivityFactor = 1;
-                const newLocation = {
-                  longitude: evt.lngLat.lng / sensitivityFactor,
-                  latitude: evt.lngLat.lat / sensitivityFactor,
-                };
-                setLocation(newLocation);
-                
-              }}
-            onDragEnd={()=>[setIsDragging(false)]}
-            >
-        
-            </Marker>
-            <GeolocateControl />
-            
-            </ReactMapGL>
-            {/* Location Filter Search*/}
-            <div className='flex flex-col w-1/2 space-y-1 absolute top-4 left-2'>
-            <div className="w-full shadow-sm mx-auto rounded-lg overflow-hidden md:max-w-xl">
-            <div className="md:flex">
-            <div className="w-full">
-            <div className="relative">
-            <SearchOutlinedIcon fontSize='small' className="absolute text-gray-400 top-[0.69rem] left-2"/>
-            <input value={locationFilterValue.location} onChange={(e)=>{setLocationFilterValue({location : e.target.value});setCloseAutofill(false)}} placeholder="Enter location" type="text" className="bg-white h-10 w-full ps-8 pe-2 text-semiXs border rounded-lg focus:outline-none hover:cursor-arrow" />
-            </div> 
-            </div>
-            </div>
-            </div>
-
-            <div className={`${closeAutofill == true && locationFilterValue.location != "" ? "hidden" : locationFilterValue.location != "" && !closeAutofill ? "relative"  : "hidden"} bg-white h-44 overflow-auto flex flex-col shadow-sm border rounded-sm`}>
-            {
-            places.map((place, index) => {
-                return (
-                <div
-                    key={index}
-                    onClick={() => {
-                    setLocationFilterValue({
-                        location: place.place_name,
-                        longitude: place.center[0],
-                        latitude: place.center[1],
-                    });
-                    setLocation({
-                        longitude: place.center[0],
-                        latitude: place.center[1],
-                    });
-
-                    // Update the location first and then set the viewport
-                    const newViewport = {
-                        ...viewport,
-                        latitude: place.center[1],  // Use the new latitude
-                        longitude: place.center[0], // Use the new longitude
-                    };
-                    setViewPort(newViewport);
-                    setCloseAutofill(true)
-                    }}
-                    className='m-3 flex flex-col items-start cursor-pointer '
-                >
-                    <h1 className=' text-sm font-semibold'>{place.text}</h1>
-                    <p className=' text-[0.72rem]'>{place.place_name}</p>
+              <div className='w-full h-[250px] relative'>
+                <div className='absolute z-20 w-[250px] top-2 left-2'>
+                  <GooglePlacesAutocomplete
+                  selectProps={{value, onChange: setValue,}}
+                  place apiKey={key} />
                 </div>
-                );
-            })
-                }
+                <APIProvider apiKey={key}>
+                <Map  mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false} onDragstart={(map) => handleMapDrag(map)}
+                defaultCenter={position} center={position} defaultZoom={15}>
+                <Marker draggable onDragEnd={(e)=>{setLocation({longitude : e.latLng.lng(), latitude : e.latLng.lat()});setCenter({lat : e.latLng.lat(), lng : e.latLng.lng()})}} position={position} />
+                </Map>
+            </APIProvider>
             </div>
-            </div>
-            </div>
+          </div>
             <div className=' flex justify-end space-x-2'>
             <button onClick={()=>{submitAddress()}} className='px-3 text-semiSm py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-4'>Save</button>
             </div>

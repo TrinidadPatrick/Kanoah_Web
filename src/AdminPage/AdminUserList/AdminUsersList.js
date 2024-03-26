@@ -132,7 +132,7 @@ const AdminUsersList = () => {
 
     {/* Disable Modal */}
     <div style={{backgroundColor: 'rgba(0, 0, 0, 0.5)'}} className={`w-full z-30 h-full ${openDisableModal ? "flex" : "hidden"} items-center justify-center absolute top-0 left-0`}>
-    <OutsideClickHandler onOutsideClick={()=>setOpenDisableModal(false)}>
+    {/* <OutsideClickHandler > */}
     <div className='flex flex-col p-3 items-center bg-white w-[100%] semiSm:w-[350px]'>
                 {/* Header */}
                 <div className='w-full '>
@@ -156,12 +156,12 @@ const AdminUsersList = () => {
                 <button disabled={disableUserObject.reason.length === 0} onClick={()=>{disableUser()}} className='py-2 px-3 text-sm disabled:bg-gray-200 disabled:text-gray-400 bg-red-100 text-red-500 rounded-sm hover:bg-red-200'>Confirm</button>
                 </div>
     </div>
-    </OutsideClickHandler>
+    {/* </OutsideClickHandler> */}
     </div>
 
     {/* View Modal */}
     <div style={{backgroundColor: 'rgba(0, 0, 0, 0.5)'}} className={`w-full z-30 h-full ${openViewUserModal ? "flex" : "hidden"} items-center justify-center absolute top-0 left-0`}>
-    <OutsideClickHandler onOutsideClick={()=>setOpenDisableModal(false)}>
+    {/* <OutsideClickHandler onOutsideClick={()=>setOpenDisableModal(false)}> */}
     {
         selectedUser === null ? ""
         :
@@ -256,7 +256,7 @@ const AdminUsersList = () => {
         </div>
         </div>
         }
-    </OutsideClickHandler>
+    {/* </OutsideClickHandler> */}
     </div>
     
     <header>

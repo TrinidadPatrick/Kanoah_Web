@@ -35,8 +35,7 @@ const UserInformation = () => {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [loading, setLoading] = useState(true)
     const [loadingBtn, setLoadingBtn] = useState(false)
-    const [isDragging, setIsDragging] = useState(false);
-    const [closeAutofill, setCloseAutofill] = useState(false)
+    const [loadingDeac, setLoadingDeac] = useState(false)
     const [places, setPlaces] = useState([])
     const [locationFilterValue, setLocationFilterValue] = useState({
         location : '',
@@ -328,15 +327,6 @@ const UserInformation = () => {
         }
       }, [userInformation]);
 
-    // Map Viewport
-    const [viewport, setViewPort] = useState({    
-        width: "100%",
-        height: "100%",
-        zoom : 16,
-        latitude : location.latitude,
-        longitude : location.longitude
-      })
-
       // For autofill location search
       useEffect(() => {
         const accessToken = 'pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ydzQ2YzYwNWhvMmtyeTNwNDl3ejNvIn0.9n7wjqLZye4DtZcFneM3vw'; // Replace with your actual Mapbox access token
@@ -463,6 +453,7 @@ const UserInformation = () => {
     }
 
     const deactivateAccount = async () => {
+      setLoadingDeac(true)
         if(password != "")
         {
             const id = userInformation._id
@@ -472,7 +463,12 @@ const UserInformation = () => {
             }
 
             http.patch('deactivateAccount', data).then((res)=>{
-            if(res.data.status == "Deactivated"){handleCloseADModal();localStorage.clear();window.location.reload()
+              console.log(res.data)
+            if(res.data.status == "Deactivated"){
+              http.get('userLogout', {withCredentials : true}).then((res)=>{
+                setLoadingDeac(false)
+                window.location.reload()
+              })
             }
             else if (res.data.status == "invalid"){setErrors({passwordError : 0})}
             }).catch((err)=>{
@@ -533,7 +529,7 @@ const UserInformation = () => {
       }
     }, [croppedAreaPixels, image]);
 
-      // console.log(location)
+
 
       return (
     
@@ -803,103 +799,7 @@ const UserInformation = () => {
                 {/* MAP******************************************************************* */}
             <div className='relative'>
               <GoogleMap location={location} setLocation={setLocation} />
-            {/* <ReactMapGL
-            {...viewport}
-            onViewportChange={(newViewport) => setViewPort(newViewport)}
-            // onClick={()=>{window.open(`https://www.google.com/maps?q=${location.latitude},${location.longitude}`, '_black')}}
-            draggable={true}
-            onMove={evt => setViewPort(evt.viewport)}
-            mapboxAccessToken="pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ybWJhb2MwMmR4MnFyeWRjMWtuZDVwIn0.mJug0iHxD8aq8ZdT29B-fg"
-            mapStyle="mapbox://styles/patrick021/clo2m5s7f006a01rf9mtv318u"
-            style={{
-              width: "100%",
-              height: "250px",
-              backgroundColor : "none",
-              position: "relative",
-              borderRadius: "10px",
-              marginBottom: "7px",
-              top: "10px", // Use top instead of marginTop
-              transition: "width 0.5s, height 0.5s, top 0.5s",
-            }}
-            onLoad={() => {
-                const newViewport = {
-                  ...viewport,
-                  latitude: location.latitude,
-                  longitude: location.longitude,
-                };
-                setViewPort(newViewport);
-              }}
-
-            >
-            <Marker
-            latitude={location.latitude}
-            longitude={location.longitude}
-            draggable={true}
-            onDragStart={()=>{setIsDragging(true)}}
-            onDrag={(evt) => {
-                const sensitivityFactor = 1;
-                const newLocation = {
-                  longitude: evt.lngLat.lng / sensitivityFactor,
-                  latitude: evt.lngLat.lat / sensitivityFactor,
-                };
-                setLocation(newLocation);
-              }}
-            onDragEnd={()=>[setIsDragging(false)]}
-            >
-              
-            </Marker>
-            <GeolocateControl />
             
-            </ReactMapGL> */}
-            {/* Location Filter Search*/}
-            {/* <div className='flex flex-col w-1/2 space-y-1 absolute top-4 left-2'>
-            <div className="w-full shadow-sm mx-auto rounded-lg overflow-hidden md:max-w-xl">
-            <div className="md:flex">
-            <div className="w-full">
-            <div className="relative">
-            <SearchOutlinedIcon fontSize='small' className="absolute text-gray-400 top-[0.69rem] left-2"/>
-            <input value={locationFilterValue.location} onChange={(e)=>{setLocationFilterValue({location : e.target.value});setCloseAutofill(false)}} placeholder="Enter location" type="text" className="bg-white h-10 w-full ps-8 pe-2 text-semiXs border rounded-lg focus:outline-none hover:cursor-arrow" />
-            </div> 
-            </div>
-            </div>
-            </div>
-
-            <div className={`${closeAutofill == true && locationFilterValue.location != "" ? "hidden" : locationFilterValue.location != "" && !closeAutofill ? "relative"  : "hidden"} bg-white h-44 overflow-auto flex flex-col shadow-sm border rounded-sm`}>
-            {
-            places.map((place, index) => {
-                return (
-                <div
-                    key={index}
-                    onClick={() => {
-                    setLocationFilterValue({
-                        location: place.place_name,
-                        longitude: place.center[0],
-                        latitude: place.center[1],
-                    });
-                    setLocation({
-                        longitude: place.center[0],
-                        latitude: place.center[1],
-                    });
-
-                    // Update the location first and then set the viewport
-                    const newViewport = {
-                        ...viewport,
-                        latitude: place.center[1],  // Use the new latitude
-                        longitude: place.center[0], // Use the new longitude
-                    };
-                    setViewPort(newViewport);
-                    setCloseAutofill(true)
-                    }}
-                    className='m-3 flex flex-col items-start cursor-pointer '
-                >
-                    <h1 className=' text-sm font-semibold'>{place.text}</h1>
-                    <p className=' text-[0.72rem]'>{place.place_name}</p>
-                </div>
-                );
-            })
-                }
-            </div>
-            </div> */}
             </div>
             <div className=' flex justify-end space-x-2'>
             <button onClick={()=>{submitAddress()}} className='px-3 py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-2 text-sm'>Save</button>
@@ -994,7 +894,7 @@ const UserInformation = () => {
 
         {/* Modal for Account deletion */}
         <Modal isOpen={openADModal} onClose={handleCloseADModal} style={ModalStyle} > 
-   
+                <div className='p-3'>
                 <p className="text-lg font-semibold mb-4 text-center">Confirm Account Deactivate</p>
                 <p className="text-gray-600 mb-6 text-center">Are you sure you want to deactivate your account? This action is irreversible.</p>
                 <div className="flex justify-center">
@@ -1016,11 +916,12 @@ const UserInformation = () => {
                     
                 </div>
                 <div className=' w-full mt-5 flex justify-center'>
-                <button onClick={()=>{deactivateAccount()}}  className="bg-red-500 text-white py-2 px-4 rounded mr-4 hover:bg-red-600" >Yes, Delete</button>
+                <button onClick={()=>{deactivateAccount()}}  className={`${loadingDeac ? "bg-red-300" : "bg-red-500"} text-white py-2 px-4 rounded mr-4 hover:bg-red-600`} >Yes, Delete</button>
                 <button onClick={()=>handleCloseADModal()} className="bg-gray-300 text-gray-700 py-2 px-4 rounded hover:bg-gray-400" >Cancel</button>
                 </div>
                 </div>
 
+                </div>
                 </div>
         </Modal>
         <ToastContainer />

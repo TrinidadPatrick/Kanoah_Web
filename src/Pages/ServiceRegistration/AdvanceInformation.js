@@ -45,21 +45,9 @@ const [advanceInformation, setAdvanceInformation] = useState({
   ServiceOptions : [],
   AcceptBooking : false,
   SocialLink : [{media : "Youtube",link : ""}, {media : "Facebook",link : ""}, {media : "Instagram",link : ""}],
-  PaymentMethod : [{method : "Gcash", enabled: false, gcashInfo : {QRCode : "https://via.placeholder.com/150",
-  ServiceTitle : "",
-  EmailForGcash : "",
-  GcashNote : "",}}, {method : "Cash", enabled : false}],
 })
 
 const [isPhotoLoading, setIsPhotoLoading] = useState(false)
-
-const [gcashInformation, setGcashInformation] = useState({
-  QRCode : "https://via.placeholder.com/150",
-  ServiceTitle : "",
-  EmailForGcash : "",
-  GcashNote : "",
-})
-
 
 // Modal Style
 const socialLinkModalStyle = {
@@ -84,13 +72,6 @@ const openSocialModal = () => {
 const closeSocialModal = () => {
     setOpenSocialLinkModal(false)
 }
-const openGcashSetupModal = () => {
-    setIsGcashModalOpen(true)
-}
-const closeGcashMethodModal = () => {
-    setIsGcashModalOpen(false)
-    setGcashInformation(advanceInformation.PaymentMethod[0].enabled = !advanceInformation.PaymentMethod[0].enabled )
-}
 
 
 // Handle service options select
@@ -110,88 +91,6 @@ const handleSelectServiceOption = (serviceOption) => {
       setAdvanceInformation({...advanceInformation, ServiceOptions  : newData})
     }
     
-}
-
-// Handle the payment method
-const handleGcashCheckbox = () => {
-  // Toggle the state
-  setIsGcashChecked(prevState => !prevState);
-  setGcashInformation(advanceInformation.PaymentMethod[0].enabled = !advanceInformation.PaymentMethod[0].enabled )
-  setAdvanceInformation({
-    ...advanceInformation,
-    PaymentMethod: [
-      {
-        ...advanceInformation.PaymentMethod[0],
-        gcashInfo: {}
-      },
-      ...advanceInformation.PaymentMethod.slice(1),
-    ],
-  });
-
-  
-
-  // Check the updated state value
-  if (!isGcashChecked) {
-    openGcashSetupModal();
-  }
-};
-
-// FOr QR Image
-const addQrImage = async (files) => {
-  setIsPhotoLoading(true)
-    const file = files[0]
-
-    if(file){
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('upload_preset', 'KanoahProfileUpload');
-
-      axios.post(`https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`, formData).then((res)=>{
-        console.log(res)
-        setGcashInformation({...gcashInformation, QRCode : res.data.secure_url})
-        setIsPhotoLoading(false)
-      }).catch((err)=>{
-          console.log(err)
-          setIsPhotoLoading(false)
-      })
-  }
-  
-}
-
-//submits the gcash setup information
-const submitGcashPayment = () => {
-  const checkErrors = (input, errorKey) => (
-    setErrors((prevErrors)=>({...prevErrors, [errorKey] : gcashInformation[input] == "" || gcashInformation[input] == undefined ? true : false}))
-  )
-
-  checkErrors("ServiceTitle", "GcashServiceTitleError")
-  checkErrors("EmailForGcash", "GcashEmailError")
-  checkErrors("QRCode", "GcashQRError")
-  // if(gcashInformation.ServiceTitle == "" || gcashInformation.ServiceTitle == undefined)
-  // {
-  //   console.log("ss")
-  // }
-  if(gcashInformation.QRCode == "https://via.placeholder.com/150"){setErrors({...errors, GcashQRError : true})}
-  if((gcashInformation.ServiceTitle != undefined) && (gcashInformation.EmailForGcash != undefined) && (gcashInformation.QRCode != undefined))
-  {
-    setAdvanceInformation({
-      ...advanceInformation,
-      PaymentMethod: [
-        {
-          ...advanceInformation.PaymentMethod[0],
-          gcashInfo: gcashInformation
-        },
-        ...advanceInformation.PaymentMethod.slice(1),
-      ],
-    });
-  // console.log(advanceInformation.PaymentMethod[0].gcashInfo)
-  setIsGcashModalOpen(false)
-  }
-  else
-  {
-    
-  }
-  
 }
 
 const submitAdvanceInformation = () => {
@@ -256,8 +155,8 @@ useEffect(()=>{
 
   // console.log(serviceInformation)
   return (
-  <div className='w-full h-full  flex flex-col  p-1'>
-    
+  <div className='w-full h-full  flex flex-col justify-between  p-1'>
+  <div>
   <div className="flex  flex-col space-y-3 justify-between h-full">
   {/* Phone and Fax */}
   <div className='flex space-x-3'>
@@ -336,56 +235,13 @@ useEffect(()=>{
     <div className='w-full'>
     <button onClick={()=>openSocialModal()} className='bg-gray-100 border text-semiXs md:text-sm rounded-sm shadow-sm px-3 font-medium py-1 hover:bg-gray-200 text-gray-600'>{advanceInformation?.SocialLink[0].link != "" ||advanceInformation?.SocialLink[1].link != "" || advanceInformation?.SocialLink[2].link != "" ? "View Social Link" : "Add social link"}</button>
     </div>
-
-  {/* Payment Method */}
-  
-  <div className="flex flex-col space-x-0">
-  <p className='text-sm text-gray-500 font-semibold mb-1'>Payment method</p>
-  <div className='flex flex-col w-full space-y-2'>
-    {/* Gcash */}
-  <div className='flex items-center justify-between space-x-3 rounded-sm border-1 shadow-sm p-3'>
-  <img  src={Gcash} alt="paypal image" className=' w-20 h-5 cursor-pointer' />
-  <div className='flex space-x-5 md:space-x-20'>
-  <p className='text-gray-500 text-xs'>{isGcashChecked ? "Enabled" : "Not set"}</p>
-  <label className="relative inline-flex items-center cursor-pointer">
-  <input checked={isGcashChecked} onChange={()=>handleGcashCheckbox()} type="checkbox" value="" className="sr-only peer outline-none"/>
-  <div className="w-[29px] h-4 lg:w-[1.85rem] lg:h-4 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[0.8rem] after:h-[0.8rem] after:lg:w-[0.8rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-  </label>
-  </div>
-  </div>
+    </div>
+    </div>
 
 
-  {/* Cash */}
-  <div className='flex items-center space-x-3 rounded-sm justify-between border-1 shadow-sm p-3'>
-  <div className='flex items-center space-x-2'>
-  <img src={cash} alt="paypal image" className=' w-6 h-6' />
-  <p className='font-semibold text-gray-600'>Cash</p>
-  </div>
-  <div className='flex space-x-5 md:space-x-20'>
-  <p className='text-gray-500 text-xs'>{advanceInformation?.PaymentMethod[1].enabled ? "Enabled" : "Not set"}</p>
-  <label className="relative inline-flex items-center cursor-pointer">
-  <input  onClick={() => {
-    setAdvanceInformation((prevAdvanceInformation) => ({
-      ...prevAdvanceInformation,
-      PaymentMethod: [
-        ...prevAdvanceInformation?.PaymentMethod.slice(0, 1), // Keep the first element unchanged
-        { ...prevAdvanceInformation?.PaymentMethod[1], enabled: !advanceInformation?.PaymentMethod[1].enabled },
-      ],
-    }))
-  }} type="checkbox" value=""  className="sr-only peer outline-none"/>
-  <div className="w-[29px] h-4 lg:w-[1.85rem] lg:h-4 bg-gray-300 peer-focus:outline-none outline-none flex items-center rounded-sm peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:lg:left-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-sm after:lg:h-[0.8rem] after:h-[0.8rem] after:lg:w-[0.8rem] after:w-[0.8rem] after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-  </label>
-  </div>
-  </div>
-  </div>
-  </div>
-
-  <div className='w-full flex justify-end space-x-2'>
+  <div className='w-full flex justify-end space-x-2 '>
   <button onClick={()=>{setStep(1)}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-gray-200 text-gray-500'>Back</button>
   <button onClick={()=>{submitAdvanceInformation()}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-themeBlue text-white hover:bg-blue-900'>Next</button>
-  </div>
-  
-
   </div>
 
     {/* Add social Link Modal */}
@@ -467,56 +323,6 @@ useEffect(()=>{
         
     </Modal>
 
-
-    {/* Gcash setup modal*/}
-    <Modal isOpen={isGcashModalOpen} style={socialLinkModalStyle} contentLabel="Gcash Modal">
-  <div className='flex flex-col relative w-[300px] h-[500px]'>
-  <ArrowBackIosNewIcon className='absolute top-2 text-gray-700 cursor-pointer' onClick={()=>{closeGcashMethodModal();setIsGcashChecked(!isGcashChecked)}} />
-  <h1 className='text-center my-2 font-semibold text-gray-500'>Payment Information</h1>
-  
-  {/* Blue container */}
-  <div className='w-full bg-[#007DFE] h-[200px] flex justify-center'>
-  <img src={Gcash} alt="paypal image" className='w-24 h-6 filter brightness-0 invert mt-5' />
-  </div>
-
-  {/* Body */}
-  <div className='w-[80%] flex flex-col absolute top-28 left-1/2 transform -translate-x-1/2 h-fit bg-white pb-2 shadow-md rounded-lg'>
-  <h1 className='text-center my-2 font-semibold text-[#007DFE]'>Setup Gcash</h1>
-  {/* Image Container */}
-  <div className={`${errors.GcashQRError ? "border-red-500" : ""} flex items-center justify-center w-[100px] h-[100px] mx-auto bg-gray-200 border border-gray-300 rounded-lg overflow-hidden`}>
-      <img
-        src={gcashInformation.QRCode}
-        alt="Empty Photo"
-        className="w-full h-full object-contain"
-      />
-      
-  </div>
-  <p className={`${errors.GcashQRError ? "block" : "hidden"} text-semiXs text-center text-red-500`}>Please upload QR Code</p>
-  <label htmlFor="fileInput" className={`bg-blue-500 cursor-pointer mt-1 mx-auto relative inline-block px-2 py-1 text-white text-[0.6rem] text-center rounded`}>
-  {isPhotoLoading ? "Uploading..." : "Upload Qr Code"}
-  <input type="file" value="" onChange={(e)=>{addQrImage(e.target.files)}}  id="fileInput" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"/>
-  </label>
-  {/* Service Title */}
-  <div className="relative mb-1 mt-3 w-[90%] mx-auto flex flex-col">
-  <label htmlFor='ServiceTitle' className='text-semiXs text-gray-400'>Service Title</label>
-  <input value={gcashInformation.ServiceTitle} onChange={(e)=>{setGcashInformation({...gcashInformation, ServiceTitle : e.target.value})}} type="text" name='ServiceTitle' className={`${errors.GcashServiceTitleError ? "border-red-500" : ""} text-sm outline-none border border-blue-400 rounded-sm p-0.5`} placeholder='' />
-  </div>
-  {/* Email */}
-  <div className="relative mb-1 mt-3 w-[90%] mx-auto flex flex-col">
-  <label htmlFor='Email' className='text-semiXs text-gray-400'>Email</label>
-  <input value={gcashInformation.EmailForGcash} onChange={(e)=>{setGcashInformation({...gcashInformation, EmailForGcash : e.target.value})}} type="text" name='Email' className={`${errors.GcashEmailError ? "border-red-500" : ""} text-sm outline-none border border-blue-400 rounded-sm p-0.5`} placeholder='' />
-  </div>
-  
-
-  {/* Note */}
-  <label htmlFor='fullname' className='text-semiXs w-[90%] mx-auto text-gray-400'>Note (Optional)</label>
-  <div className='w-[90%] mx-auto h-[70px] border overflow-hidden mt-1'>
-  <textarea value={gcashInformation.GcashNote} onChange={(e)=>{setGcashInformation({...gcashInformation, GcashNote : e.target.value})}} rows={2} className='gcashNote p-1 w-full text-sm h-full outline-none resize-none scrol '/>
-  </div>
-  <button onClick={()=>{submitGcashPayment()}} className='w-[95%] mt-2 mx-auto py-0.5 bg-[#007DFE] rounded-sm text-gray-100'>Submit</button>
-  </div>
-</div>
-    </Modal>
 
     </div>
   )

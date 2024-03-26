@@ -188,12 +188,12 @@ useEffect(()=>{
     if(firstname !== "" && lastname !== "" && contact !== "" && email !== "" && otp !== ""){
       setIsLoading(true)
       http.post("verifyOTP", {otp}).then((res)=>{
+        console.log(res.data.status)
         // IF OTP IS CORRECT
-            if(res.data == 'verified'){
+            if(res.data.status == 'verified'){
               
               http.post("register", {username, email, password, firstname, lastname, contact, birthDate}).then((res)=>{
                 if(res.data.status == 'registered'){
-                localStorage.setItem("token", res.data.userToken)
                 setIsValidOtp(true)
                 setShowSignup(false)
                 setShowLogin(true)

@@ -34,6 +34,7 @@ const GoogleMap = ({location, setLocation}) => {
     <div className='absolute z-20 w-[250px] top-2 left-2'>
 
     <GooglePlacesAutocomplete
+    
     selectProps={{
         value,
         onChange: setValue,
@@ -41,7 +42,7 @@ const GoogleMap = ({location, setLocation}) => {
     place apiKey={key} />
     </div>
     <APIProvider apiKey={key}>
-        <Map mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false} onDragstart={(map) => handleMapDrag(map)}
+        <Map  mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false} onDragstart={(map) => handleMapDrag(map)}
         defaultCenter={position} center={center} defaultZoom={15}>
         <Marker draggable onDragEnd={(e)=>{setLocation({longitude : e.latLng.lng(), latitude : e.latLng.lat()});setCenter({lat : e.latLng.lat(), lng : e.latLng.lng()})}} position={position} />
         </Map>

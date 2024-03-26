@@ -215,7 +215,7 @@ const AdminReportList = () => {
     <p className='text-base font-normal text-gray-400'>Try adjust your search or filter to find what you're looking for.</p>
     </div>
     :
-    <div className='px-10 py-3 w-full h-full flex flex-col overflow-auto '>
+    <div className='px-10 py-3 gap-3 w-full h-full flex flex-col overflow-auto '>
     {
     reportList?.map((report)=>{
         const date = report.createdAt
@@ -256,9 +256,13 @@ const AdminReportList = () => {
         <div className='w-full flex items-center justify-start gap-3 overflow-auto mt-3'>
         {
         report.photos?.map((photo, index) =>{
-        <div className='w-20 flex-none bg-gray-100 aspect-square object-contain'>
-            <img className='w-full h-full' src={photo.src} />
+        return (
+            <div className='w-20 h-20 flex-none bg-gray-100 aspect-square object-contain'>
+            <img className='w-full h-full' src={photo.src} alt="image" />
+            
         </div>  
+        )
+       
         })
         }
         </div>
