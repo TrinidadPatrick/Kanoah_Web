@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import cloudinary from 'cloudinary-core';
 import SortOutlinedIcon from '@mui/icons-material/SortOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import cloudinaryCore from '../../CloudinaryConfig';
@@ -178,6 +177,7 @@ const AdminManagement = () => {
         name : selectedCategory.name,
         image : selectedCategory.image,
         type : selectedCategory.type,
+        featured : selectedCategory.featured,
         createdAt : selectedCategory.createdAt
         })
         setImage(selectedCategory.image)
@@ -236,7 +236,7 @@ const AdminManagement = () => {
 
         try {
             const result = await axios.post(`https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`, formData)
-            setImage(result.data.url)
+            setImage(result.data.secure_url)
         } catch (error) {
             console.log(error)
         }

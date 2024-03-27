@@ -373,8 +373,8 @@ const UserInformation = () => {
         const upload = async (formData) => {
 
             axios.post(`https://api.cloudinary.com/v1_1/${cloudinaryCore.config().cloud_name}/image/upload`, formData).then((res)=>{
-            setUserDetails({...userDetails, profileImage : res.data.url})
-            const newData = {...userInformation, profileImage : res.data.url}
+            setUserDetails({...userDetails, profileImage : res.data.secure_url})
+            const newData = {...userInformation, profileImage : res.data.secure_url}
             http.put(`updateUser/${userInformation._id}`, newData,{
               withCredentials: true,
             }).then(()=>{

@@ -33,7 +33,7 @@ const Rate = ({serviceToRate, setRateModalIsOpen}) => {
     });
 
     useEffect(()=>{
-      setSocket(io("http://localhost:5000"))
+      setSocket(io("https://kanoah.onrender.com"))
     },[])
    
     const notifyUser = async () => {
