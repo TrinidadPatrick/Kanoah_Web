@@ -105,7 +105,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
             service : service,
             schedule : schedule,
             contactAndAddress : contactAndAddress,
-            createdAt : Date(),
+            createdAt : new Date(),
             booking_id : generateBookingId(),
             client : userContext._id,
             service_fee : service_fee,

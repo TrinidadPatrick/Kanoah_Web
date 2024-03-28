@@ -16,6 +16,9 @@ const MobileFilter = () => {
       filteredService, setFilteredService, searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList,
       rerender, setRerender, selectedCategoryCode, setSelectedCategoryCode  , selectedSubCategory, setSelectedSubCategory, categories, subCategories
   ] = useContext(FilterContext)
+  const [showDropdownOptions, setShowDropdownOptions] = useState(false)
+  const [showSCDropdownOptions, setShowSCDropdownOptions] = useState(false)
+  const [showSortOptions, setShowSortOptions] = useState(false)
 
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get('search')
@@ -51,32 +54,12 @@ const MobileFilter = () => {
     }
 
 
-    const showMobileDropdownOptions = () => {
-      document.getElementById("Mobileoptions").classList.toggle("hidden");
-      document.getElementById("Mobilearrow-up").classList.toggle("hidden");
-      document.getElementById("Mobilearrow-down").classList.toggle("hidden");
-  }
-
-
-    
-  const showMobileFilterOption = () => {
-    document.getElementById("Mobilesort_options").classList.toggle("hidden");
-    document.getElementById("Mobilesort_arrow-up").classList.toggle("hidden");
-    document.getElementById("Mobilesort_arrow-down").classList.toggle("hidden");
-}
 
     //  Set Selected Sort Filter
     const handleSort = (value) => {
         setDonotApplyFilter(true)
         setSortFilter(value)
     }
-
-
-    const showMobileSCDropdownOptions = () => {
-      document.getElementById("MobileSCoptions").classList.toggle("hidden");
-      document.getElementById("SCarrow-up").classList.toggle("hidden");
-      document.getElementById("MobileSCarrow-down").classList.toggle("hidden");
-  }
 
     //  Sets the selected Category
     const handleSelectCategory = (value, categoryCode) => {
@@ -167,39 +150,36 @@ const MobileFilter = () => {
     }
 
   return (
-    <div>
-     <div className='flex flex-col space-y-5 px-7 mt-10'>
-        <h1 className='font-bold text-2xl'>Find your Service</h1>
+    
+     <div className='h-fit overflow-auto flex flex-col space-y-5 px-7 mt-0 pt-5 '>
+        <h1 className='font-bold text-lg'>Find your Service</h1>
         {/* Sort box */}
         <div className='flex-none w-full relative'>
-        <h1 className='font-medium text-lg mb-2'>Sort By</h1>
-        <button onClick={()=>{showMobileFilterOption()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
-        <span className="select-none font-medium">{sortFilter}</span>
+        <h1 className='font-medium text-sm mb-2'>Sort By</h1>
+        <button onClick={()=>{setShowSortOptions(!showSortOptions);setShowDropdownOptions(false);setShowSCDropdownOptions(false)}} className="flex flex-row justify-between w-full px-2 py-1.5 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+        <span className="select-none text-sm font-medium">{sortFilter}</span>
 
         <svg id="sort_arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
         <svg id="sort_arrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
         </button>
-        <div id="sort_options" className="hidden ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl">
-            <a onClick={()=>{handleSort("Recent Services");showMobileFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Recent Services</a>
-            <a onClick={()=>{handleSort("Oldest Services");showMobileFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Oldest Services</a>
-            <a onClick={()=>{handleSort("Most Rated");showMobileFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Most Rated</a>
-            <a onClick={()=>{handleSort("Least Rated");showMobileFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Least Rated</a>
+        <div id="sort_options" className={`${showSortOptions ? "" : "hidden"} ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl`}>
+            <a onClick={()=>{handleSort("Recent Services");setShowSortOptions(false)}} className="block text-sm px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Recent Services</a>
+            <a onClick={()=>{handleSort("Oldest Services");setShowSortOptions(false)}} className="block text-sm px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Oldest Services</a>
+            <a onClick={()=>{handleSort("Most Rated");setShowSortOptions(false)}} className="block text-sm px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Most Rated</a>
+            <a onClick={()=>{handleSort("Least Rated");setShowSortOptions(false)}} className="block text-sm px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Least Rated</a>
         </div>
         </div>
-       
-        
-
+      
         {/* Category Filter */}
-
         <div className="flex-none w-full relative">
-        <h1 className='font-medium text-lg mb-2'>Categories</h1>
-        <button onClick={()=>{showMobileDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
-        <span className="select-none font-medium">{selectedCategory}</span>
+        <h1 className='font-medium text-sm mb-2'>Categories</h1>
+        <button onClick={()=>{setShowDropdownOptions(!showDropdownOptions);setShowSortOptions(false);setShowSCDropdownOptions(false)}} className="flex flex-row justify-between w-full px-2 py-1.5 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+        <span className="select-none text-sm font-medium">{selectedCategory}</span>
 
         <svg id="arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
         <svg id="arrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
         </button>
-        <div id="options" className=" hidden ease-in duration-100 origin-top w-full h-[300px] overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl">
+        <div id="options" className={`${showDropdownOptions ? "" : "hidden"} ease-in duration-100 origin-top w-full h-[300px] overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl`}>
           {
             categories
             .slice() // Create a copy of the array to avoid modifying the original array
@@ -210,9 +190,9 @@ const MobileFilter = () => {
                   key={category._id}
                   onClick={() => {
                   handleSelectCategory(category.name, category.category_code)
-                  showMobileDropdownOptions();
+                  setShowDropdownOptions(false);
                   }}
-                  className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
+                  className="block text-sm px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >
                   {category.name}
                 </p>
@@ -224,22 +204,22 @@ const MobileFilter = () => {
 
         {/* Sub Category Filter */}
         <div className="flex-none w-full relative">
-        <h1 className='font-medium text-lg mb-2'>Sub Categories</h1>
-        <button onClick={()=>{showMobileSCDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
-        <span className="select-none font-medium">{selectedSubCategory}</span>
+        <h1 className='font-medium  mb-2 text-sm'>Sub Categories</h1>
+        <button onClick={()=>{setShowSCDropdownOptions(!showSCDropdownOptions);setShowDropdownOptions(false);setShowSortOptions(false)}} className="flex flex-row justify-between w-full px-2 py-1.5 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+        <span className="select-none font-medium text-sm">{selectedSubCategory}</span>
 
         <svg id="MobileSCarrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
         <svg id="MobileSCarrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
         </button>
-        <div id="MobileSCoptions" className={`hidden ease-in duration-100 origin-top w-full ${subCategoryList.length === 0 ? 'h-fit' : 'h-[300px]'} overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl`}>
+        <div id="MobileSCoptions" className={`${showSCDropdownOptions ? "" : "hidden"} ease-in duration-100 origin-top w-full ${subCategoryList.length === 0 ? 'h-fit' : 'h-[300px]'} overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl`}>
           {
           subCategoryList.length === 0 ? 
           <p
                  
                   onClick={() => {
-                  showMobileSCDropdownOptions();
+                  setShowSCDropdownOptions(false);
                   }}
-                  className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
+                  className="block px-4 py-2 text-sm text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >
                   Select Sub Category
                 </p>
@@ -253,9 +233,9 @@ const MobileFilter = () => {
                   key={category._id}
                   onClick={() => {
                   handleSelectSubCategory(category?.name)
-                  showMobileSCDropdownOptions();
+                  setShowSCDropdownOptions(false);
                   }}
-                  className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
+                  className="block px-4 text-sm py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >
                   {category?.name}
                 </p>
@@ -267,15 +247,16 @@ const MobileFilter = () => {
 
         {/* Rating Filter */}
         <div className=' flex flex-col justify-start items-start'>
-        <h1 className='font-medium text-lg mb-2'>Rating</h1>
+        <h1 className='font-medium text-sm mb-2'>Rating</h1>
         <div className='flex flex-col space-y-3 items-center'>
         {
         ratingValues.map((rating)=>{
             return (
               
                 <div key={rating} className='flex items-center justify-center space-x-2'>
-                <input value={rating} checked={selectedRatingCheckbox.includes(Number(rating))} onChange={(e)=>{handleSelectCheckBox(Number(e.target.value))}}  className='chkbox w-5 h-5' type='checkbox'/><StyledRating className='relative'  readOnly defaultValue={rating} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
-                <p className='w-3'>{rating}.0</p>
+                <input value={rating} checked={selectedRatingCheckbox.includes(Number(rating))} onChange={(e)=>{handleSelectCheckBox(Number(e.target.value))}}  className='chkbox w-4 h-4' type='checkbox'/>
+                <StyledRating className='relative'  readOnly defaultValue={rating} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
+                <p className='w-3 text-sm'>{rating}.0</p>
                 </div>
             )
         })
@@ -288,7 +269,7 @@ const MobileFilter = () => {
         {/* Location Filter */}
         <div className='flex flex-col space-y-1'>
         <div className="w-full mx-auto  overflow-hidden md:max-w-xl">
-        <h1 className='font-medium text-lg mb-2'>Location</h1>
+        <h1 className='font-medium text-sm mb-2'>Location</h1>
         <div className="md:flex">
         <div className="w-full">
         <div className="relative flex">
@@ -321,11 +302,15 @@ const MobileFilter = () => {
           </div>
         </div>
 
+
         {/* Buttons */}
-        <button onClick={()=>{setCurrentPage(0);document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";applyFilter();;setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput, longitude : filterLocationLongLat.longitude, latitude : filterLocationLongLat.latitude, rd : radius, page : 1})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
-        <button onClick={()=>{setCurrentPage(0);document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";setSearchParams({rating :"", category:"", sort : "Recent Services", search, page: 1});clearFilter()}} className='font-medium'>Clear Filters</button>
+        <div className='w-full h-fit flex flex-col'>
+        <button onClick={()=>{setCurrentPage(0);document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 absolute";applyFilter();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search: searchInput, longitude : filterLocationLongLat.longitude, latitude : filterLocationLongLat.latitude, rd : radius, page : 1})}} className=' bg-themeOrange text-white py-2 rounded-sm font-medium text-sm'>Apply Filters</button>
+        <button onClick={()=>{setCurrentPage(0);document.getElementById('exploreSidebarOpen').className = "w-[300px] h-full transition duration-500 -translate-x-[100%] ease-out exploreSidebarOpen bg-white z-10 ";setSearchParams({rating :"", category:"", sort : "Recent Services", search, page: 1});clearFilter()}} className='font-medium py-2 text-sm'>Clear Filters</button>
         </div>
-    </div>
+
+        </div>
+
   )
 }
 

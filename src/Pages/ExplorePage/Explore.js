@@ -429,7 +429,7 @@ const Explore = ({services}) => {
       searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList, rerender, setRerender, selectedCategoryCode, setSelectedCategoryCode, selectedSubCategory, setSelectedSubCategory,
       categories, subCategories
       ]} >
-        <div className='w-full flex h-full overflow-hidden relative'>
+        <div className='w-full flex h-full  relative'>
         {/* Report Modal */}
         <div style={{backgroundColor : 'rgba(0,0,0,0.5)'}} className={`w-full ${openReportModal ? "flex" : "hidden"} items-center justify-center h-full absolute bg-black z-50`}>
         <ReportModal setOpenReportModal={setOpenReportModal} setOpenSuccessReportModal={setOpenSuccessReportModal} serviceToReport={serviceToReport} setServiceToReport={setServiceToReport} />
@@ -549,7 +549,6 @@ const Explore = ({services}) => {
                     
                   </div>
                   {/* Reviews */}
-                  {console.log(service)}
                   <div className='flex flex-col w- whitespace-nowrap relative ml-0  xl:ml-3 mr-2 space-x-1'>
                   <StyledRating className='relative left-[0.1rem]'  readOnly defaultValue={Number(service.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
                   <div className='flex items-center space-x-2 pl-1'>
@@ -635,9 +634,19 @@ const Explore = ({services}) => {
         
         
         {/* Mobile Sidebar */}
-        <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = 'w-[260px] transition duration-500 translate-x-[0%] exploreSidebarOpen ease-out h-screen overflow-y-scroll bg-white z-10 absolute'}} className='absolute top-[1.6rem] left-5 lg:hidden'><FilterListOutlinedIcon fontSize='large' /></button>
-        <section id='exploreSidebarOpen' className={`hidden`}>
+        <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = 'w-[260px] transition duration-500 translate-x-[0%] exploreSidebarOpen ease-out h-full overflow-y-scroll space-y-5 bg-white z-10 absolute'}} className='absolute top-[1.6rem] left-5 lg:hidden'><FilterListOutlinedIcon fontSize='large' /></button>
+        <section id='exploreSidebarOpen' className={`hidden h-full flex-col`}>
         <MobileFilter />
+        {/* <div className='w-full h-[300px] bg-black'>
+        </div>
+        <div className='w-full h-[300px] bg-black'>
+        </div>
+        <div className='w-full h-[300px] bg-black'>
+        </div>
+        <div className='w-full h-[300px] bg-black'>
+        </div>
+        <div className='w-full h-[300px] bg-black'>
+        </div> */}
         </section>
         {/* <ScrollToTop smooth /> */}
       </div>

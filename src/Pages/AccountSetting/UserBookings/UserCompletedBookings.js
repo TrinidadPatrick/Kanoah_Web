@@ -81,7 +81,7 @@ const UserCompletedBookings = ({completedBookings}) => {
             minute: 'numeric',
             hour12: true,
           });
-        const newData = {...selected, bookSchedule : bookSchedule, issuedDate : issuedDate, bookTime : bookTime}
+        const newData = {...selected, bookSchedule : bookSchedule, issuedDate : issuedDate, bookTime : bookTime, owner : selected.shop.owner}
         setClientInformation(newData)
         setIsOpen(true)
     }
@@ -264,8 +264,8 @@ const UserCompletedBookings = ({completedBookings}) => {
                     <div className='text-xs md:text-xs font-semibold whitespace-nowrap'>Total Amount</div>
                     <div className='font-medium text-right text-xs md:text-xs text-red-500'>₱{clientInformation?.net_Amount}</div>
 
-                    <button className='bg-gray-100 border rounded-sm text-xs text-gray-800 py-1 mt-2'>View Service</button>
-                    <button className='bg-green-400 border rounded-sm text-xs text-gray-100 py-1 mt-2'>Contact Service</button>
+                    <button onClick={() => { window.open(`/explore/viewService/${clientInformation.shop._id}`, '_blank') }} className='bg-gray-100 border rounded-sm text-xs text-gray-800 py-1 mt-2'>View Service</button>
+                    <button onClick={() => { window.open(`/chat?service=${clientInformation.owner}`, '_blank') }} className='bg-green-400 border rounded-sm text-xs text-gray-100 py-1 mt-2'>Contact Service</button>
                     </div>
                 </div>
         </div>

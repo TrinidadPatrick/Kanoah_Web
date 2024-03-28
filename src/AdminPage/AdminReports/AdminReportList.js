@@ -60,18 +60,24 @@ const AdminReportList = () => {
         }
     }
 
+
     // Disables the service
     const disableService = async () => {
         const serviceId = disableServiceObject.service._id
         try {
             const result = await http.patch(`Admin_DisableService/${serviceId}`, disableServiceObject, {withCredentials : true})
             if(result.status == 200)
-            {
+            {   
+                const newData = [...reportList]
+                const index = newData.findIndex((report)=>report._id === selectedReport._id)
+                newData.splice(index, 1)
+                setReportList(newData)
                 setOpenDisableModal(false)
                 setDisableServiceObject({service : {},
                     reason : []})
                 updateReport("Accepted", selectedReport._id)
                 notifyUserAccepted()
+                setSelectedReport({})
             }
         } catch (error) {
             console.log(error)

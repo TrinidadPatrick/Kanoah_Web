@@ -18,6 +18,9 @@ const Filters = () => {
         filteredService, setFilteredService, searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList,
         rerender, setRerender, selectedCategoryCode, setSelectedCategoryCode  , selectedSubCategory, setSelectedSubCategory, categories, subCategories
     ] = useContext(FilterContext)
+    const [showDropdownOptions, setShowDropdownOptions] = useState(false)
+    const [showSCDropdownOptions, setShowSCDropdownOptions] = useState(false)
+    const [showSortOptions, setShowSortOptions] = useState(false)
 
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get('search')
@@ -66,17 +69,6 @@ const Filters = () => {
         setSortFilter(value)
     }
 
-    const showDropdownOptions = () => {
-        document.getElementById("options").classList.toggle("hidden");
-        document.getElementById("arrow-up").classList.toggle("hidden");
-        document.getElementById("arrow-down").classList.toggle("hidden");
-    }
-
-    const showSCDropdownOptions = () => {
-      document.getElementById("SCoptions").classList.toggle("hidden");
-      document.getElementById("SCarrow-up").classList.toggle("hidden");
-      document.getElementById("SCarrow-down").classList.toggle("hidden");
-  }
 
     //  Sets the selected Category
     const handleSelectCategory = (value, categoryCode) => {
@@ -167,7 +159,6 @@ const Filters = () => {
       setDonotApplyFilter(true)
       setSelectedSubCategory(value)
     }
-    // console.log(selectedCategoryCode)
 
   return (
     <div>
@@ -176,17 +167,16 @@ const Filters = () => {
         {/* Sort box */}
         <div className='flex-none w-full relative'>
         <h1 className='font-medium text-lg mb-2'>Sort By</h1>
-        <button onClick={()=>{showFilterOption()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+        <button onClick={()=>{setShowSortOptions(!showSortOptions);setShowDropdownOptions(false);setShowSCDropdownOptions(false)}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
         <span className="select-none font-medium">{sortFilter}</span>
 
-        <svg id="sort_arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-        <svg id="sort_arrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+        <svg id="sort_arrow-down" className=" w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
         </button>
-        <div id="sort_options" className="hidden ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl">
-            <a onClick={()=>{handleSort("Recent Services");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Recent Services</a>
-            <a onClick={()=>{handleSort("Oldest Services");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Oldest Services</a>
-            <a onClick={()=>{handleSort("Most Rated");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Most Rated</a>
-            <a onClick={()=>{handleSort("Least Rated");showFilterOption()}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Least Rated</a>
+        <div id="sort_options" className={`${showSortOptions ? "" : "hidden"} ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl`}>
+            <a onClick={()=>{handleSort("Recent Services");setShowSortOptions(false)}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Recent Services</a>
+            <a onClick={()=>{handleSort("Oldest Services");setShowSortOptions(false)}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Oldest Services</a>
+            <a onClick={()=>{handleSort("Most Rated");setShowSortOptions(false)}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Most Rated</a>
+            <a onClick={()=>{handleSort("Least Rated");setShowSortOptions(false)}} className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white cursor-pointer">Least Rated</a>
         </div>
         </div>
        
@@ -195,13 +185,12 @@ const Filters = () => {
         {/* Category Filter */}
         <div className="flex-none w-full relative">
         <h1 className='font-medium text-lg mb-2'>Categories</h1>
-        <button onClick={()=>{showDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+        <button onClick={()=>{setShowDropdownOptions(!showDropdownOptions);setShowSCDropdownOptions(false);setShowSortOptions(false)}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
         <span className="select-none font-medium">{selectedCategory}</span>
         
-        <svg id="arrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-        <svg id="arrow-up"  className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+        <svg id="arrow-down" className=" w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
         </button>
-        <div id="options" className=" hidden ease-in duration-100 origin-top w-full h-[300px] overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl">
+        <div id="options" className={`${showDropdownOptions ? "" : "hidden"} ease-in duration-100 origin-top w-full h-[300px] overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl`}>
           {
             categories
             .slice() // Create a copy of the array to avoid modifying the original array
@@ -212,7 +201,7 @@ const Filters = () => {
                   key={category._id}
                   onClick={() => {
                   handleSelectCategory(category.name, category.category_code)
-                  showDropdownOptions();
+                  setShowDropdownOptions(false);
                   }}
                   className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >
@@ -227,19 +216,18 @@ const Filters = () => {
         {/* Sub Category Filter */}
         <div className="flex-none w-full relative">
         <h1 className='font-medium text-lg mb-2'>Sub Categories</h1>
-        <button onClick={()=>{showSCDropdownOptions()}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+        <button onClick={()=>{setShowSCDropdownOptions(!showSCDropdownOptions);setShowDropdownOptions(false);setShowSortOptions(false)}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
         <span className="select-none font-medium">{selectedSubCategory}</span>
 
-        <svg id="SCarrow-down" className="hidden w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
-        <svg id="SCarrow-up" className="w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" /></svg>
+        <svg id="SCarrow-down" className=" w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
         </button>
-        <div id="SCoptions" className={`hidden ease-in duration-100 origin-top w-full ${subCategoryList.length === 0 ? 'h-fit' : 'h-[300px]'} overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl`}>
+        <div id="SCoptions" className={`${showSCDropdownOptions ? "" : "hidden"} ease-in duration-100 origin-top w-full ${subCategoryList.length === 0 ? 'h-fit' : 'h-[300px]'} overflow-auto py-2 mt-2 z-50 absolute bg-white rounded-lg shadow-xl`}>
           {
           subCategoryList.length === 0 ? 
           <p
                  
                   onClick={() => {
-                  showSCDropdownOptions();
+                  setShowDropdownOptions(false);
                   }}
                   className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >
@@ -255,7 +243,7 @@ const Filters = () => {
                   key={category._id}
                   onClick={() => {
                   handleSelectSubCategory(category?.name)
-                  showSCDropdownOptions();
+                  setShowSCDropdownOptions(false);
                   }}
                   className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 cursor-pointer hover:text-white"
                 >

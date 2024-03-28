@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import useUsers from '../CustomHooks/useUsers'
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
-import OutsideClickHandler from 'react-outside-click-handler';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import Modal from 'react-modal';
 import http from '../../http';
 
@@ -24,22 +24,6 @@ const AdminUsersList = () => {
         setUserList(users)
     },[users])
     
-    const modalStyle = {
-        content: {
-          top: '50%',
-          left: '50%',
-          right: 'auto',
-          bottom: 'auto',
-          marginRight: '-50%',
-          transform: 'translate(-50%, -50%)',
-          padding : '0',
-          width : 'fit-content'
-        },
-        overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Change the color and opacity as needed
-          },
-    };
-
     const handleSelectReason = (value) => {
         const newData = [...disableUserObject.reason]
 
@@ -135,7 +119,13 @@ const AdminUsersList = () => {
     {/* <OutsideClickHandler > */}
     <div className='flex flex-col p-3 items-center bg-white w-[100%] semiSm:w-[350px]'>
                 {/* Header */}
-                <div className='w-full '>
+                <div className='w-full flex gap-2 items-start'>
+                <button onClick={()=>{setDisableUserObject({
+                    user : {},
+                    reason : []
+                    });setOpenDisableModal(false)}}>
+                    <ArrowBackOutlinedIcon className='text-gray-500' />
+                    </button>
                     <h1 className='flex  text-lg text-red-500 font-medium overflow-hidden text-ellipsis'>You are about to disable {disableUserObject.user.firstname} {disableUserObject.user.lastname}</h1>
                 </div>
 

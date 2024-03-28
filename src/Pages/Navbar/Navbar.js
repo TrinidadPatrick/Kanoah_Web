@@ -207,7 +207,7 @@ const Navbar = ({ onAboutUsClick }) => {
         <a onClick={()=>{onAboutUsClick();navigate("/")}} className="about block py-2 pl-3 pr-4 md:text-[0.8rem] lg:text-md cursor-pointer">About Us</a>
       </li>
       <li>
-        <a href="#" className="contact block py-2 pl-3 pr-4 md:text-[0.8rem] lg:text-md lg:text-md">Contact</a>
+        <a href="mailto:kanoahsf@gmail.com" className="contact block py-2 pl-3 pr-4 md:text-[0.8rem] lg:text-md lg:text-md">Contact us</a>
       </li>
     </ul>
   </div>

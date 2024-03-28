@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import useAdminServices from '../CustomHooks/useAdminServices'
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
-import SortOutlinedIcon from '@mui/icons-material/SortOutlined';
 import useAdminCategories from '../CustomHooks/useAdminCategories';
+import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 import OutsideClickHandler from 'react-outside-click-handler';
@@ -117,7 +116,13 @@ const AdminServices = () => {
         <OutsideClickHandler onOutsideClick={()=>setOpenDisableModal(false)}>
         <div className=' flex flex-col p-3 items-center bg-white w-[95%] semiSm:w-[350px]'>
                 {/* Header */}
-                <div>
+                <div className='flex flex-row gap-2 items-start'>
+                    <button onClick={()=>{setDisableServiceObject({
+                    service : {},
+                    reason : []
+                    });setOpenDisableModal(false)}}>
+                    <ArrowBackOutlinedIcon className='text-gray-500' />
+                    </button>
                     <h1 className='flex text-lg text-red-500 font-medium'>You are about to disable {disableServiceObject?.service?.basicInformation?.ServiceTitle}</h1>
                 </div>
 
