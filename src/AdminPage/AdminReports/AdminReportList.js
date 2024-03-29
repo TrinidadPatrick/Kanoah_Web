@@ -223,7 +223,7 @@ const AdminReportList = () => {
     :
     <div className='px-10 py-3 gap-3 w-full h-full flex flex-col overflow-auto '>
     {
-    reportList?.map((report)=>{
+    reportList?.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt)).map((report)=>{
         const date = report.createdAt
         const createdAt = new Date(date).toLocaleDateString('EN-US', {
             month : 'long',

@@ -7,6 +7,10 @@ import { selectContactAndAddress } from '../../ReduxTK/BookingSlice';
 import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import { geocodeByPlaceId } from 'react-google-places-autocomplete';
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
 import axios from 'axios';
 
 const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
@@ -33,6 +37,7 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
     const [value, setValue] = useState(null);
     const position = {lat: location.latitude, lng: location.longitude};
     const key = process.env.REACT_APP_MAP_API_KEY
+    const [placeName, setPlaceName] = useState('')
 
     const handleMapDrag = (map) => {
       // Update the center coordinates when the map is dragged
@@ -129,7 +134,6 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
         
     }
 
-
     useEffect(()=>{
         if(contactAndAddress === null)
         {
@@ -169,9 +173,21 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
         }
     },[])
 
+    const handleChange = address => {
+      setPlaceName(address);
+    };
+  
+    const handleSelect = address => {
+      setPlaceName(address)
+      geocodeByAddress(address)
+        .then(results => getLatLng(results[0]))
+        .then(latLng => {setLocation({latitude : latLng.lat, longitude : latLng.lng})})
+        .catch(error => console.error('Error', error));
+    };
+
   
   return (
-    <div className='p-4 w-[400px]'>
+    <div className='p-4 w-[400px] h-[95vh] overflow-auto'>
                 <h1 className='font-medium'>Address</h1>
                 {/* Regions ***************************************/}
                 <div className="mb-4">
@@ -267,11 +283,38 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
 
                 {/* MAP******************************************************************* */}
             <div className='relative'>
+            <label htmlFor="region" className="text-xs xl:text-sm text-gray-600">Pin location</label>
               <div className='w-full h-[250px] relative'>
                 <div className='absolute z-20 w-[250px] top-2 left-2'>
-                  <GooglePlacesAutocomplete
-                  selectProps={{value, onChange: setValue,}}
-                  place apiKey={key} />
+                <PlacesAutocomplete
+                value={placeName}
+                onChange={handleChange}
+                onSelect={handleSelect}
+                >
+                {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+                  <div className='w-full '>
+                    <input
+                      {...getInputProps({
+                        placeholder: 'Search Places ...',
+                        className: 'location-search-input w-full py-2 px-2 text-sm border rounded-md text-gray-600',
+                      })}
+                    />
+                    <div className={`${suggestions.length !== 0 ? "" : "hidden"} autocomplete-dropdown-container mt-1 h-[200px] overflow-auto`}>
+                      {suggestions.map((suggestion, index) => {
+                        return (
+                          <div
+                          className='bg-white'
+                          key={index}
+                          {...getSuggestionItemProps(suggestion)}
+                          >
+                            <p className='py-1 px-2 text-sm cursor-pointer '>{suggestion.description}</p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                </PlacesAutocomplete>
                 </div>
                 <APIProvider apiKey={key}>
                 <Map  mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false} onDragstart={(map) => handleMapDrag(map)}

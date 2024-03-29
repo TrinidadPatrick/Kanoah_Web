@@ -165,7 +165,7 @@ const AdminReportHistory = () => {
       :
       <div className='px-10 w-full h-full flex flex-col gap-3 overflow-auto mt-2'>
     {
-    allReports?.map((report)=>{
+    allReports?.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt)).map((report)=>{
         const date = report.createdAt
         const createdAt = new Date(date).toLocaleDateString('EN-US', {
             month : 'long',

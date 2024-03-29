@@ -314,9 +314,12 @@ const AdminManagement = () => {
         }
     }
 
-    const handleSearch = (value) => {
-        const result = origCategoryList.filter((category) => category.name.toLowerCase().includes(value.toLowerCase()))
-        setCategoryList(result)
+    const handleSearch = () => {
+        if(search !== "")
+        {
+            const result = origCategoryList.filter((category) => category.name.toLowerCase().includes(search.toLowerCase()))
+            setCategoryList(result)
+        }
     }
 
   return (
@@ -435,10 +438,10 @@ const AdminManagement = () => {
     </div>
         </div>
 
-    <h1 className='text-lg semiSmtext-2xl font-bold text-gray-800 ml-2 md:ml-5'>Categories</h1>
-    <div className='w-full flex flex-col semiSm:flex-row gap-2 relative justify-between'>
+        <h1 className='text-lg semiSmtext-2xl font-bold text-gray-800 ml-2 md:ml-0 mb-5'>Categories</h1>
+        <div className='w-full flex flex-col semiSm:flex-row gap-2 relative justify-between'>
             <div className='w-full semiSm:w-fit flex space-x-2'>
-            <button onClick={()=>setAddCategoryModalIsOpen(true)} className=' bg-themeOrange w-full semiSm:w-fit py-1 text-white px-2 rounded-sm'>Add Category</button>
+            <button onClick={()=>setAddCategoryModalIsOpen(true)} className=' bg-gray-100 border border-gray w-full semiSm:w-fit py-1 text-gray-700 px-2 rounded-sm'>Add Category</button>
             </div>
 
             {/* Search */}
@@ -446,15 +449,15 @@ const AdminManagement = () => {
             <button onClick={()=>setShowDropdownFilter(!showDropdownFilter)} className=' bg-gray-100 w-fit mr-1 py-1 text-gray-600 px-2 rounded-sm'>
                 <SortOutlinedIcon />
             </button>
-            <input value={search} onChange={(e)=>{setSearch(e.target.value)}} type='text' 
+            <input onKeyDown={(e)=>{if(e.key === "Enter"){handleSearch()}}} value={search} onChange={(e)=>{setSearch(e.target.value)}} type='text' 
             className='border text-sm w-full border-gray-200 rounded-s-sm border-e-0 px-2 h-full' placeholder='Search...' />
-            <button className='px-2 h-full rounded-e-sm border-gray-200 border border-l-0 bg-themeOrange'>
+            <button onClick={()=>handleSearch()} className='px-2 h-full rounded-e-sm border-gray-200 border border-l-0 bg-themeOrange'>
             <SearchOutlinedIcon className='text-white' />
             </button>
             </div>
 
             {/* Dropdown */}
-            <div className={`w-[200px] h-fit ${showDropdownFilter ? 'flex' : 'hidden'} flex-col space-y-3 bg-[#f9f9f9] shadow-sm rounded-sm absolute z-20 top-10 left-28`}>
+            <div className={`w-[200px] h-fit ${showDropdownFilter ? 'flex' : 'hidden'} flex-col space-y-3 bg-[#f9f9f9] shadow-sm rounded-sm absolute z-20 top-10 right-16`}>
                 <button onClick={()=>{handleSort('A-z')}} className='py-1 text-start px-2 text-sm'>
                     Alphabetical (A-z)
                 </button>

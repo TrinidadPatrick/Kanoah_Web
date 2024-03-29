@@ -47,11 +47,6 @@ const UserFavorites = ({authenticated}) => {
 
     const finalize_list = (favorites) => {
       return favorites?.map((favorite)=>{
-          const ratings = favorite.service.ratings
-          const totalRatings = ratings[0].count + ratings[1].count + ratings[2].count +ratings[3].count + ratings[4].count;
-          const ratingAverage = (5 * ratings[0].count + 4 * ratings[1].count + 3 * ratings[2].count + 2 * ratings[3].count + 1 * ratings[4].count) / totalRatings;
-          const rounded = Math.round(ratingAverage * 100) / 100;
-          const average = rounded.toFixed(1)
 
           const currentDate = new Date();
           const thisDate = currentDate.toISOString().split('T')[0]; // Extract only the date part
@@ -70,8 +65,6 @@ const UserFavorites = ({authenticated}) => {
           owner : favorite.service.owner.firstname + " " + favorite.service.owner.lastname,
           createdAgo,
           createdAt : favorite.createdAt,
-          ratings : average,
-          totalReviews : totalRatings
         }
       })
     }
@@ -146,7 +139,7 @@ const UserFavorites = ({authenticated}) => {
     const handleOpenMoreOption = (index) => {
       setSelectedIndex(index)
       index === selectedIndex && setSelectedIndex(null)
-      if(index === favoriteList.length - 1)
+      if(index === favoriteList.length - 1 && favoriteList.length > 3)
       {
         setOpenDirection("up")
       }
@@ -185,6 +178,10 @@ const UserFavorites = ({authenticated}) => {
       }
       
     }
+
+    const copyToClipboard = (textToCopy) => {
+      navigator.clipboard.writeText(textToCopy)
+    };
     
   return (
     <>
@@ -247,26 +244,13 @@ const UserFavorites = ({authenticated}) => {
                       <h2 className='text-semiXs semiSm:text-semiSm whitespace-nowrap text-gray-500 font-medium'>{favorite.createdAgo}</h2>
                     </div>
                   </div>
-                  <div id='rating container'>
-                    <div className='flex whitespace-nowrap relative ml-0 items-center'>
-                      {
-                        windowWidth > 400 &&
-                        <StyledRating className='relative hidden'  readOnly defaultValue={Number(favorite.ratings)} precision={0.1} icon={<StarRoundedIcon fontSize={`${windowWidth <= 1000 ? "small" : "medium"}`} />  } emptyIcon={<StarRoundedIcon fontSize={`${windowWidth <= 1000 ? "small" : "medium"}`} className='text-gray-300' />} />
-
-                      }
-                        <div className='flex items-center space-x-2 pl-1'>
-                          <p className='text-[#FFA534] text-xs semiSm:text-sm font-medium'>{favorite.ratings}</p> 
-                          <p className='text-gray-300'>|</p>
-                          <p className='text-gray-500 text-xs semiSm:text-sm mt-0.5 font-medium'>{favorite.totalReviews} Reviews</p> 
-                        </div>
-                    </div>
-                  </div>
+                  
                 </div>
                   <div className={`w-[70px] relative top-0 right-0 h-full flex items-center justify-center`}>
                     <button onClick={(e)=>{handleOpenMoreOption(index);e.stopPropagation()}} className={`${index === hoveredIndex ? "flex" : "hidden"}  cursor-pointer p-2`}>
                     <MoreVertOutlinedIcon  className='text-gray-700 cursor-pointer hover:text-gray-500' />
                     </button>
-                    <MoreOption selectedIndex={selectedIndex} removeFavorites={removeFavorites} serviceId={favorite.serviceId} index={index} openDirection={openDirection} addToDNS={addToDNS}  />
+                    <MoreOption copyToClipboard={copyToClipboard} selectedIndex={selectedIndex} removeFavorites={removeFavorites} serviceId={favorite.serviceId} index={index} openDirection={openDirection} addToDNS={addToDNS}  />
                   </div>
               </div>
             )})
@@ -279,10 +263,10 @@ const UserFavorites = ({authenticated}) => {
   )
 }
 
-const MoreOption = ({selectedIndex, index, openDirection, serviceId, removeFavorites, addToDNS, }) => {
+const MoreOption = ({selectedIndex, index, openDirection, serviceId, removeFavorites, addToDNS, copyToClipboard}) => {
   return (
     <div className={`w-fit ${selectedIndex === index ? '' : 'hidden'} flex flex-col z-20 rounded-md absolute bg-white shadow-md ${openDirection === "up" ? "-left-[10rem] -top-[4rem]" : "-left-[10rem] top-[4.5rem]"}`}>
-      <button className='text-sm hover:bg-gray-100 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'><ContentCopyOutlinedIcon fontSize='small' className='p-0.5' />Copy link address</button>
+      <button onClick={()=>copyToClipboard(`https://web-based-service-finder.vercel.app/explore/viewService/${serviceId}`)} className='text-sm hover:bg-gray-100 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'><ContentCopyOutlinedIcon fontSize='small' className='p-0.5' />Copy link address</button>
       <button onClick={()=>removeFavorites(serviceId)} className='text-sm hover:bg-gray-100 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'><RemoveCircleOutlineOutlinedIcon fontSize='small' className='p-0.5' />Remove from favorites</button>
       <button onClick={()=>addToDNS(serviceId)} className='text-sm hover:bg-gray-100 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2'><BlockOutlinedIcon fontSize='small' className='p-0.5' />Do not show</button>
     </div>

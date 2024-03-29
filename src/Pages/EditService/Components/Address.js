@@ -2,9 +2,11 @@ import React from 'react'
 import { useState,useEffect, useContext } from 'react';
 import phil from 'phil-reg-prov-mun-brgy';
 import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import { geocodeByPlaceId } from 'react-google-places-autocomplete';
-import axios from 'axios';
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import http from '../../../http';
 
@@ -13,12 +15,7 @@ const [updating, setUpdating] = useState(false)
 const [loading, setLoading] = useState(true)
 const [street, setStreet] = useState('')
 const [address, setAddress] = useState({})
-const [places, setPlaces] = useState([])
-const [locationFilterValue, setLocationFilterValue] = useState({
-        location : '',
-        longitude : '',
-        latitude : ''
-})
+const [placeName, setPlaceName] = useState([])
 const [location, setLocation] = useState({
         longitude : 122.5320,
         latitude : 13.4124
@@ -181,6 +178,18 @@ useEffect(()=>{
   }
 },[value])
 
+const handleChange = address => {
+  setPlaceName(address);
+};
+
+const handleSelect = address => {
+  setPlaceName(address)
+  geocodeByAddress(address)
+    .then(results => getLatLng(results[0]))
+    .then(latLng => {setLocation({latitude : latLng.lat, longitude : latLng.lng})})
+    .catch(error => console.error('Error', error));
+};
+
 
   return (
     <div className='w-full h-full sm:h-full flex flex-col px-5 mt-0 pt-2'>
@@ -297,127 +306,50 @@ useEffect(()=>{
                 </div>   
 
         {/* MAP******************************************************************* */}
-        <div className='relative mt-1 h-full  w-full  md:h-full mb-1 py-2 sm:w-[100%] md:w-[100%] lg:w-[100%]'>
+        <div className='relative h-full  w-full  md:h-full mb-1 sm:w-[100%] md:w-[100%] lg:w-[100%]'>
+        <label htmlFor="region" className="text-xs xl:text-sm text-gray-600">Pin location</label>
         <div className='w-full h-full relative'>
-    <div className='absolute z-20 w-[250px] top-2 left-2'>
+        <div className='absolute z-20 w-[250px] top-2 left-2'>
 
-    <GooglePlacesAutocomplete
-    
-    selectProps={{
-        value,
-        onChange: setValue,
-      }}
-    place apiKey={key} />
-    </div>
-    <APIProvider apiKey={key}>
-        <Map  mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false} onDragstart={(map) => handleMapDrag(map)}
-        defaultCenter={position} center={position} defaultZoom={15}>
-        <Marker draggable onDragEnd={(e)=>{setLocation({longitude : e.latLng.lng(), latitude : e.latLng.lat()});setCenter({lat : e.latLng.lat(), lng : e.latLng.lng()})}} position={position} />
-        </Map>
-    </APIProvider>
-
-    </div>
-            {/* <ReactMapGL
-            {...viewport}
-            onViewportChange={(newViewport) => setViewPort(newViewport)}
-            // onClick={()=>{window.open(`https://www.google.com/maps?q=${location.latitude},${location.longitude}`, '_black')}}
-            draggable={true}
-            onMove={evt => setViewPort(evt.viewport)}
-            mapboxAccessToken="pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ybWJhb2MwMmR4MnFyeWRjMWtuZDVwIn0.mJug0iHxD8aq8ZdT29B-fg"
-            mapStyle="mapbox://styles/patrick021/clo2m5s7f006a01rf9mtv318u"
-            style={{
-              width: "100%",
-              height: "100%",
-              backgroundColor : "none",
-              position: "relative",
-              borderRadius: "10px",
-              marginBottom: "7px",
-              transition: "width 0.5s, height 0.5s, top 0.5s",
-            }}
-            onLoad={() => {
-                const newViewport = {
-                  ...viewport,
-                  latitude: location.latitude,
-                  longitude: location.longitude,
-                };
-                setViewPort(newViewport);
-              }}
-
-            >
-            <Marker
-            latitude={location.latitude}
-            longitude={location.longitude}
-            draggable={true}
-            // onDrag={(evt) => {setLocation({longitude : evt.lngLat.lng, latitude : evt.lngLat.lat});setViewPort({longitude : evt.lngLat.lng, latitude : evt.lngLat.lng})}}
-            onDrag={(evt) => {
-                const sensitivityFactor = 1;
-                const newLocation = {
-                  longitude: evt.lngLat.lng / sensitivityFactor,
-                  latitude: evt.lngLat.lat / sensitivityFactor,
-                };
-                setLocation(newLocation);
-                // setViewPort((prevViewport) => ({
-                //   ...prevViewport,
-                //   latitude: newLocation.latitude,
-                //   longitude: newLocation.longitude ,
-                // }));
-              }}
-            >
-        
-            </Marker>
-            <GeolocateControl />
-            
-            </ReactMapGL> */}
-            {/* Location Filter Search*/}
-            {/* <div className='flex flex-col w-1/2 space-y-1 absolute top-4 left-2'>
-            <div className="w-full shadow-sm mx-auto rounded-lg overflow-hidden md:max-w-xl">
-            <div className="md:flex">
-            <div className="w-full">
-            <div className="relative">
-            <SearchOutlinedIcon fontSize='small' className="absolute text-gray-400 top-[0.69rem] left-2"/>
-            <input value={locationFilterValue.location} onChange={(e)=>{setLocationFilterValue({location : e.target.value});setCloseAutofill(false)}} placeholder="Enter location" type="text" className="bg-white h-10 w-full ps-8 pe-2 text-semiXs border rounded-lg focus:outline-none hover:cursor-arrow" />
-            </div> 
-            </div>
-            </div>
-            </div>
-
-            <div className={`${closeAutofill == true && locationFilterValue.location != "" ? "hidden" : locationFilterValue.location != "" && !closeAutofill ? "relative"  : "hidden"} bg-white h-44 overflow-auto flex flex-col shadow-sm border rounded-sm`}>
-            {
-            places.map((place, index) => {
+        <PlacesAutocomplete
+        value={placeName}
+        onChange={handleChange}
+        onSelect={handleSelect}
+        >
+        {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+          <div className='w-full '>
+            <input
+              {...getInputProps({
+                placeholder: 'Search Places ...',
+                className: 'location-search-input w-full py-2 px-2 text-sm border rounded-md text-gray-600',
+              })}
+            />
+            <div className={`${suggestions.length !== 0 ? "" : "hidden"} autocomplete-dropdown-container mt-1 h-[200px] overflow-auto`}>
+              {suggestions.map((suggestion, index) => {
                 return (
-                <div
-                    key={index}
-                    onClick={() => {
-                    setLocationFilterValue({
-                        location: place.place_name,
-                        longitude: place.center[0],
-                        latitude: place.center[1],
-                    });
-                    setLocation({
-                        longitude: place.center[0],
-                        latitude: place.center[1],
-                    });
-
-                    // Update the location first and then set the viewport
-                    const newViewport = {
-                        ...viewport,
-                        latitude: place.center[1],  // Use the new latitude
-                        longitude: place.center[0], // Use the new longitude
-                    };
-                    setViewPort(newViewport);
-                    setCloseAutofill(true)
-                    }}
-                    className='m-3 flex flex-col items-start cursor-pointer '
-                >
-                    <h1 className=' text-sm font-semibold'>{place.text}</h1>
-                    <p className=' text-[0.72rem]'>{place.place_name}</p>
-                </div>
+                  <div
+                  className='bg-white'
+                  key={index}
+                  {...getSuggestionItemProps(suggestion)}
+                  >
+                    <p className='py-1 px-2 text-sm cursor-pointer '>{suggestion.description}</p>
+                  </div>
                 );
-            })
-                }
+              })}
             </div>
-            </div> */}
+          </div>
+        )}
+        </PlacesAutocomplete>
         </div>
+        <APIProvider apiKey={key}>
+            <Map  mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false} onDragstart={(map) => handleMapDrag(map)}
+            defaultCenter={position} center={position} defaultZoom={15}>
+            <Marker draggable onDragEnd={(e)=>{setLocation({longitude : e.latLng.lng(), latitude : e.latLng.lat()});setCenter({lat : e.latLng.lat(), lng : e.latLng.lng()})}} position={position} />
+            </Map>
+        </APIProvider>
+
+    </div>
+    </div>
 
             </>
         )

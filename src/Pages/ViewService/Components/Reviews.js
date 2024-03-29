@@ -27,7 +27,7 @@ const Reviews = ({reviews}) => {
         <div className='flex flex-col space-y-5 p-5'>
         {/* Card */}
         {
-          reviews?.map((review)=>{
+          reviews?.filter((review)=>review.status === "Active").map((review)=>{
             return (
               <div>
               {/* Header */}

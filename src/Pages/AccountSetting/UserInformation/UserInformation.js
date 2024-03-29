@@ -823,8 +823,8 @@ const UserInformation = () => {
 
                 {/* MAP******************************************************************* */}
             <div className='relative'>
+            <label htmlFor="region" className="text-xs xl:text-sm text-gray-600">Pin location</label>
               <GoogleMap location={location} setLocation={setLocation} />
-            
             </div>
             <div className=' flex justify-end space-x-2'>
             <button onClick={()=>{submitAddress()}} className='px-3 py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-2 text-sm'>Save</button>

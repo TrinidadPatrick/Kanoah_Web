@@ -5,6 +5,10 @@ import phil from 'phil-reg-prov-mun-brgy';
 import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import { geocodeByPlaceId } from 'react-google-places-autocomplete';
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
 import axios from 'axios';
 import { pageContext } from './ServiceRegistrationPage'
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -42,6 +46,7 @@ const [errors, setErrors] = useState({
 const [center, setCenter] = useState({ lat:  location.latitude, lng:  location.longitude});
 const [value, setValue] = useState(null);
 const position = {lat: location.latitude, lng: location.longitude};
+const [placeName, setPlaceName] = useState('')
 const key = process.env.REACT_APP_MAP_API_KEY
 
 const handleMapDrag = (map) => {
@@ -141,10 +146,21 @@ useEffect(()=>{
   setFullAddress(serviceInformation.address)
 },[step])
 
+const handleChange = address => {
+  setPlaceName(address);
+};
+
+const handleSelect = address => {
+  setPlaceName(address)
+  geocodeByAddress(address)
+    .then(results => getLatLng(results[0]))
+    .then(latLng => {setLocation({latitude : latLng.lat, longitude : latLng.lng})})
+    .catch(error => console.error('Error', error));
+};
+
   return (
     <div className='w-full flex flex-col h-fit md:h-full p-1'>
-    {/* <div className='p-4 bg-black h-full'> */}
-            <div className='flex flex-col justify-center items-center'>
+    <div className='flex flex-col justify-center items-center'>
                 <div className='w-full grid grid-cols-2 gap-2'>
                 {/* Regions ***************************************/}
                 <div className="mb-4">
@@ -235,7 +251,7 @@ useEffect(()=>{
 
                 {/* Street */}
                 <div className="h-fit w-full  flex flex-col"> 
-                <label className="block text-xs xl:text-sm text-gray-500 font-semibold mb-2" htmlFor="description">Street</label>
+                <label className="block text-xs xl:text-sm text-gray-500  mb-2" htmlFor="description">Street</label>
                 <div className='border rounded-sm  md:h-[90%]'>
                 <textarea
                 value={street}
@@ -247,33 +263,56 @@ useEffect(()=>{
                 ></textarea>
                 </div>
                 </div>
-                </div>   
+    </div>   
 
     {/* MAP******************************************************************* */}
     <div className='relative mt-1 h-[200px]  md:h-full mb-1 py-2 w-[100%] md:w-full'>
+    <label htmlFor="region" className="text-xs xl:text-sm text-gray-600">Pin location</label>
     <div className='w-full h-[250px] relative'>
     <div className='absolute z-20 w-[250px] top-2 left-2'>
-    <GooglePlacesAutocomplete
-    selectProps={{
-        value,
-        onChange: setValue,
-      }}
-    place apiKey={key} />
+    <PlacesAutocomplete
+        value={placeName}
+        onChange={handleChange}
+        onSelect={handleSelect}
+        >
+        {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+          <div className='w-full '>
+            <input
+              {...getInputProps({
+                placeholder: 'Search Places ...',
+                className: 'location-search-input w-full py-2 px-2 text-sm border rounded-md text-gray-600',
+              })}
+            />
+            <div className={`${suggestions.length !== 0 ? "" : "hidden"} autocomplete-dropdown-container mt-1 h-[200px] overflow-auto`}>
+              {suggestions.map((suggestion, index) => {
+                return (
+                  <div
+                  className='bg-white'
+                  key={index}
+                  {...getSuggestionItemProps(suggestion)}
+                  >
+                    <p className='py-1 px-2 text-sm cursor-pointer '>{suggestion.description}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        </PlacesAutocomplete>
     </div>
     <APIProvider apiKey={key}>
         <Map  mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false} onDragstart={(map) => handleMapDrag(map)}
-        defaultCenter={position} center={position} defaultZoom={10}>
+        defaultCenter={position} center={position} defaultZoom={15}>
         <Marker draggable onDragEnd={(e)=>{setLocation({longitude : e.latLng.lng(), latitude : e.latLng.lat()});setCenter({lat : e.latLng.lat(), lng : e.latLng.lng()})}} position={position} />
         </Map>
     </APIProvider>
     </div>
     </div>
             
-            {/* </div> */}
-            <div className='w-full flex justify-end space-x-2'>
-            <button onClick={()=>{setStep(2)}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-gray-200 text-gray-500'>Back</button>
-            <button onClick={()=>{submitAddress()}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-themeBlue text-white'>Next</button>
-            </div>
+    <div className='w-full flex justify-end space-x-2'>
+    <button onClick={()=>{setStep(2)}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-gray-200 text-gray-500'>Back</button>
+    <button onClick={()=>{submitAddress()}} className='px-3 text-[0.75rem] md:text-sm rounded-sm py-1 bg-themeBlue text-white'>Next</button>
+    </div>
     </div>
   )
 }

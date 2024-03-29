@@ -209,7 +209,7 @@ const AdminServices = () => {
 
                 <tbody>
                 {
-                serviceList?.map((service, index) => {
+                serviceList?.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt)).map((service, index) => {
                     const dateCreated = service.createdAt
                     const createdAt = new Date(dateCreated).toLocaleDateString('En-us', {
                             month : 'short',

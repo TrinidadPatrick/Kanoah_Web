@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import logo from "../../Utilities/Logo/Logo1.png"
 import Facebook from '../MainPage/Components/FooterIMG/square-facebook.svg'
 import Twitter from '../MainPage/Components/FooterIMG/square-x-twitter.svg'
@@ -6,10 +6,20 @@ import Instagram from '../MainPage/Components/FooterIMG/square-instagram.svg'
 import MapIcon from '@mui/icons-material/Map';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import EmailIcon from '@mui/icons-material/Email';
+import useCategory from '../../ClientCustomHook/CategoryProvider'
 import { Link } from 'react-router-dom'
 
 
-const Footer = ({featuredCategories, setScrollToAboutUs }) => {
+const Footer = ({setScrollToAboutUs }) => {
+    const {categories} = useCategory()
+    const [featuredCategories, setFeaturedCategories] = useState([])
+    useEffect(()=>{
+        if(categories.length !== 0)
+        {
+            const featured = categories.filter((category)=> category.featured)
+            setFeaturedCategories(featured)
+        }
+    },[categories])
     const year = new Date().getFullYear()
   return (
     <footer>
@@ -57,8 +67,8 @@ const Footer = ({featuredCategories, setScrollToAboutUs }) => {
             <section className=' p-1 text-left flex flex-col space-y-5'>
             <h1 className='text-2xl text-white font-semibold'>Categories</h1>
             {
-                featuredCategories?.map((categ)=>(
-                    <Link className='text-white text-[0.8rem] hover:underline' to={`explore?category=${categ.name}&page=1`} >{categ.name}</Link>
+                featuredCategories?.slice(0,6).map((categ)=>(
+                    <Link key={categ._id} className='text-white text-[0.8rem] hover:underline' to={`explore?category=${categ.name}&page=1`} >{categ.name}</Link>
                 ))
             }
             </section>

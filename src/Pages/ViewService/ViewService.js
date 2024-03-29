@@ -14,7 +14,7 @@ import 'react-image-gallery/styles/css/image-gallery.css'
 import { useState, useEffect, useCallback, useRef } from 'react';
 import 'react-gallery-carousel/dist/index.css';
 import { FaFacebook, FaInstagram, FaMapLocation, FaPhone, FaRegEnvelope, FaSquareFacebook, FaYoutube } from 'react-icons/fa6';
-import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
+// import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import Description from './Components/Description';
 import Reviews from './Components/Reviews';
@@ -26,6 +26,7 @@ import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import {APIProvider, Map, Marker, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { setUserId, selectUserId, setLoggedIn,setShowLoginModal, selectLoggedIn, selectShowLoginModal } from '../../ReduxTK/userSlice';
 import http from '../../http';
 import instagram from './img/instagram.png'
@@ -58,7 +59,7 @@ const ViewService = () => {
   const hd = new holidays('PH')
   const holiday = hd.getHolidays()
   const [reviews, setReviews] = useState([])
-  
+  const key = process.env.REACT_APP_MAP_API_KEY
 
   const [location, setLocation] = useState({
     longitude : null,
@@ -242,8 +243,6 @@ const handleBook = () => {
   }
 }
 
-
-
   return (
 
     
@@ -368,7 +367,15 @@ const handleBook = () => {
             {serviceInfo.address.barangay.name + " " + serviceInfo.address.municipality.name + ", " + serviceInfo.address.province.name } 
             </p>
           </div>
-          <ReactMapGL
+          <div className=' h-[180px] w-[250px] relative cursor-pointer'>
+          <APIProvider apiKey={key}>
+          <Map zoom={true} draggable={true} onClick={()=>{window.open(`https://www.google.com/maps/dir/?api=1&destination=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black')}} mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false}
+          defaultCenter={ {lat: serviceInfo.address.latitude, lng:serviceInfo.address.longitude}} defaultZoom={15}>
+          <Marker position={ {lat: serviceInfo.address.latitude, lng:serviceInfo.address.longitude}} />
+          </Map>
+          </APIProvider>
+          </div>
+          {/* <ReactMapGL
           onClick={()=>{window.open(`https://www.google.com/maps/dir/?api=1&destination=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black')}}
             draggable={false}
             onMove={evt => setViewPort(evt.viewport)}
@@ -395,7 +402,7 @@ const handleBook = () => {
             >
         
             </Marker>
-          </ReactMapGL>
+          </ReactMapGL> */}
         </div>
         </div>
         </div>

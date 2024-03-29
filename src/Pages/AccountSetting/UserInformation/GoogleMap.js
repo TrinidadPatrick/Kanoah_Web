@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import {APIProvider, Map, Marker, useMapsLibrary } from '@vis.gl/react-google-maps';
 // import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import { geocodeByPlaceId } from 'react-google-places-autocomplete';
-import GooglePlacesAutocomplete from 'react-google-autocomplete';
 import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
@@ -28,10 +27,10 @@ const GoogleMap = ({location, setLocation}) => {
       .catch(error => console.error('Error', error));
   };
 
-    const handleMapDrag = (map) => {
+  const handleMapDrag = (map) => {
         // Update the center coordinates when the map is dragged
         setCenter("");
-      };
+  };
 
     useEffect(()=>{
         if(value !== null)
@@ -70,7 +69,7 @@ const GoogleMap = ({location, setLocation}) => {
                 key={index}
                 {...getSuggestionItemProps(suggestion)}
                 >
-                  <p className='py-1 px-2 text-xs cursor-pointer '>{suggestion.description}</p>
+                  <p className='py-1 px-2 text-sm cursor-pointer '>{suggestion.description}</p>
                 </div>
               );
             })}

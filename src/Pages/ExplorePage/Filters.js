@@ -4,7 +4,11 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
 import { useSearchParams } from 'react-router-dom';
-import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
+import { geocodeByPlaceId } from 'react-google-places-autocomplete';
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
 import { FilterContext } from './Explore'
 
 
@@ -21,7 +25,7 @@ const Filters = () => {
     const [showDropdownOptions, setShowDropdownOptions] = useState(false)
     const [showSCDropdownOptions, setShowSCDropdownOptions] = useState(false)
     const [showSortOptions, setShowSortOptions] = useState(false)
-
+    const [address, setAddress] = useState('');
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get('search')
     const radiusParam = searchParams.get('rd')
@@ -160,6 +164,19 @@ const Filters = () => {
       setSelectedSubCategory(value)
     }
 
+    
+  const handleChange = address => {
+    setAddress(address);
+  };
+
+  const handleSelect = address => {
+    setAddress(address)
+    geocodeByAddress(address)
+      .then(results => getLatLng(results[0]))
+      .then(latLng => {setFilterLocationLongLat({longitude : latLng.lng, latitude : latLng.lat})})
+      .catch(error => console.error('Error', error));
+  };
+
   return (
     <div>
         <div className='flex flex-col space-y-5 px-7 mt-5'>
@@ -276,8 +293,8 @@ const Filters = () => {
         </div>
 
         {/* Location Filter */}
-        <div className='flex flex-col space-y-1'>
-        <div className="w-full mx-auto  overflow-hidden md:max-w-xl">
+        <div className='flex flex-col space-y-1 relative'>
+        <div className="w-full mx-auto  md:max-w-xl">
         <h1 className='font-medium text-lg mb-2'>Location</h1>
         <div className="md:flex">
         <div className="w-full">
@@ -290,7 +307,36 @@ const Filters = () => {
            ))
           }
         </select>
-          <input onFocus={(e)=>{if(e.target.value != ""){document.getElementById('placeDropdown').classList.remove('hidden')}}} value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} placeholder="Enter location" type="text" className="bg-white h-10 w-full ps-2 pe-2 text-sm border rounded-lg rounded-s-none focus:outline-none hover:cursor-arrow" />
+        <PlacesAutocomplete
+      value={address}
+      onChange={handleChange}
+      onSelect={handleSelect}
+    >
+      {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
+        <div className='w-full '>
+          <input
+            {...getInputProps({
+              placeholder: 'Search Places ...',
+              className: 'location-search-input w-full py-2 px-2 text-sm border rounded-e-md text-gray-600',
+            })}
+          />
+          <div className={`${suggestions.length !== 0 ? "" : "hidden"} absolute z-30 bottom-10 shadow-md rounded-md autocomplete-dropdown-container mt-1 origin-bottom h-[200px] overflow-auto`}>
+            {suggestions.map((suggestion, index) => {
+              return (
+                <div
+                className='bg-white'
+                key={index}
+                {...getSuggestionItemProps(suggestion)}
+                >
+                  <p className='py-1 px-2 text-sm cursor-pointer '>{suggestion.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+        </PlacesAutocomplete>
+          {/* <input onFocus={(e)=>{if(e.target.value != ""){document.getElementById('placeDropdown').classList.remove('hidden')}}} value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} placeholder="Enter location" type="text" className="bg-white h-10 w-full ps-2 pe-2 text-sm border rounded-lg rounded-s-none focus:outline-none hover:cursor-arrow" /> */}
         </div> 
         </div>
         </div>

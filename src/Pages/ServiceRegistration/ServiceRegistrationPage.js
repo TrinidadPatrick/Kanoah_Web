@@ -16,8 +16,7 @@ const ServiceRegistrationPage = () => {
   const navigate = useNavigate()
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Holidays'] 
   
-    const [step, setStep] = useState(1)
-    // const [userId, setUserId] = useState(null)
+    const [step, setStep] = useState(3)
     const [serviceInformation, setServiceInformation] = useState(
       {
       basicInformation : {
@@ -125,7 +124,7 @@ const ServiceRegistrationPage = () => {
       :
       serviceExisting === false ?
       (
-        <section className='w-full bg-white h-full md:w-[90%] lg:w-[850px] xl:w-[60%] md:h-[90%]  relative shadow-md md:rounded-md flex flex-col md:flex-row p-1'>
+        <section className='w-full bg-white h-full md:w-[90%] lg:w-[850px] xl:w-[60%] md:h-[95%]  relative shadow-md md:rounded-md flex flex-col md:flex-row p-1'>
         {/* Left Side */}
         <div className='h-fit md:h-full  md:w-[400px] p-3'>
     

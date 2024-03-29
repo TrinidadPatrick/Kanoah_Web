@@ -287,7 +287,7 @@ const AdminUsersList = () => {
 
                 <tbody>
                 {
-                userList?.map((user, index) => {
+                userList?.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt)).map((user, index) => {
                     const dateCreated = user.createdAt
                     const newCreatedAt = new Date(dateCreated).toLocaleDateString('En-us', {
                             month : 'short',
@@ -299,10 +299,10 @@ const AdminUsersList = () => {
                         <td className='text-start text-sm min-w-[200px] max-w-[200px] pr-3'>
                             <p className='py-5 whitespace-nowrap text-ellipsis overflow-hidden'>{user.username}</p>
                         </td>
-                        <td className='text-start text-sm min-w-[170px] max-w-[170px]'>
+                        <td className='text-start text-sm min-w-[170px] max-w-[170px] pr-5'>
                             <p className='py-2 whitespace-nowrap text-ellipsis overflow-hidden'>{user.firstname} {user.lastname}</p>
                         </td>
-                        <td className='text-start text-sm min-w-[170px] max-w-[200px]'>
+                        <td className='text-start text-sm min-w-[170px] max-w-[200px] pr-5 '>
                             <p className='py-2 whitespace-nowrap text-ellipsis overflow-hidden'>{user.email}</p>
                         </td>
                         <td className='text-start text-sm min-w-[170px] max-w-[170px]'>
