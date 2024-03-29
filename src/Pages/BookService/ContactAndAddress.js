@@ -25,7 +25,7 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
         Address : {}
     })
     const [isOpen, setIsOpen] = useState(false)
-
+    const [addressIsNull, setAddressIsNull] = useState(false)
     const closeAddressModal = () => {
       setIsOpen(false)
     }
@@ -83,6 +83,11 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
     },[])
 
     const submitBooking = () => {
+    if(userDetails.Address === null)
+    {
+      setAddressIsNull(true)
+      return
+    }
     let hasError = false
      Object.entries(userDetails).forEach(([key, value])=>{
         if(value === "")
@@ -167,7 +172,7 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
           <label htmlFor="address" className="block text-sm font-medium text-gray-600">
             Address
           </label>
-          <div  className="mt-1 outline-none p-2 flex overflow-hidden justify-between text-left w-full border rounded-md">
+          <div  className={`mt-1 ${addressIsNull ? "border-red-500" : "border-gray-200"} outline-none p-2 flex overflow-hidden justify-between text-left w-full border rounded-md`}>
             <div className=' overflow-hidden'>
             <p className='font-semibold text-gray-800 line-clamp-1'>{userDetails.Address?.barangay?.name}, {userDetails.Address?.municipality?.name}, {userDetails.Address?.province?.name}</p>
             <p className='font-normal line-clamp-2  whitespace-normal break-all text-sm  text-gray-700'>{userDetails.Address?.street}</p>
@@ -176,6 +181,7 @@ const ContactAndAddress = ({handleStep, serviceInfo, userContext}) => {
                 <EditOutlinedIcon fontSize='small' />
             </button>
           </div>
+          <p className={`${addressIsNull ? "" : "hidden"} text-xs text-red-500`}>Address cannot be empty</p>
         </div>
 
       </div>

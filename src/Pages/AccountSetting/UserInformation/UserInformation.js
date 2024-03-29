@@ -80,6 +80,12 @@ const UserInformation = () => {
     const [zoom, setZoom] = useState(1)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
     const [image, setImage] = useState('');
+    const [Addresserror, setAddressError] = useState({
+      region : false,
+      province : false,
+      municipality : false,
+      barangay : false,
+    })
     
 
     // protected route
@@ -276,7 +282,7 @@ const UserInformation = () => {
 
     // Submits the selected address
     const submitAddress = () => {
-        
+        let hasError = false
         const address = {
           region : {name : locCodesSelected[0][0], reg_code : locCodesSelected[0][1]},
           province :  {name : locCodesSelected[1][0], prov_code : locCodesSelected[1][1]},
@@ -286,18 +292,35 @@ const UserInformation = () => {
           longitude : location.longitude,
           latitude : location.latitude
         }
-        const newData = {...userDetails, Address : address} 
-        setUserDetails(newData)
-        http.put(`updateUser/${userInformation._id}`, newData,{
-          withCredentials: true,
-        }).then(()=>{
-          handleClose()
-          notify('Update successfull')
-        }).catch((error)=>{
-          throw error
+
+        Object.entries(address).map(([key, value])=>{
+          if(typeof value === "object" && (value.name === undefined || value.name === '')){
+            setAddressError((prevError) => ({...prevError, [key] : true}))
+            hasError = true
+          }
+          else{
+            // console.log(`${key} has value`)
+            setAddressError((prevError) => ({...prevError, [key] : false}))
+          }
         })
+
+        if(!hasError)
+        {
+          const newData = {...userDetails, Address : address} 
+          setUserDetails(newData)
+          http.put(`updateUser/${userInformation._id}`, newData,{
+            withCredentials: true,
+          }).then(()=>{
+            handleClose()
+            notify('Update successfull')
+          }).catch((error)=>{
+            throw error
+          })
+        }
+       
         
     }
+
     // Get my location
     useEffect(() => {
         // Use the Geolocation API to get the user's location
@@ -711,7 +734,7 @@ const UserInformation = () => {
                 id="region"
                 name="region"
                 value={locCodesSelected[0][0] + ',' + locCodesSelected[0][1]}
-                className="block w-full text-sm mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className={`block w-full text-sm mt-1 p-2 border ${Addresserror.region ? "border-red-500" : "border-gray-300"} rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 <option className='w-fit' value=""  >Select Region</option>
                 {
@@ -720,6 +743,7 @@ const UserInformation = () => {
                 ))
                 }
                 </select>
+                <p className={`${Addresserror.region ? "" : "hidden"} text-xs text-red-500`}>This is a required field</p>
                 </div>
 
 
@@ -732,8 +756,7 @@ const UserInformation = () => {
                  id="province"
                  name="province"
                  value={locCodesSelected[1][0] + ',' + locCodesSelected[1][1]}
-                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
-                >
+                 className={`block w-full text-sm mt-1 p-2 border ${Addresserror.province ? "border-red-500" : "border-gray-300"} rounded-md focus:ring focus:ring-indigo-200`}                >
                 <option value=""  >Select Province</option>
                 {
                 phil.getProvincesByRegion(locCodesSelected[0][1]).sort((a, b) => a.name.localeCompare(b.name)).map((province, index)=>(
@@ -741,6 +764,7 @@ const UserInformation = () => {
                 ))
                 }
                 </select>
+                <p className={`${Addresserror.province ? "" : "hidden"} text-xs text-red-500`}>This is a required field</p>
                 </div>
 
 
@@ -754,7 +778,7 @@ const UserInformation = () => {
                 id="city"
                 name="city"
                 value={locCodesSelected[2][0] + ',' + locCodesSelected[2][1]}
-                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
+                className={`block w-full text-sm mt-1 p-2 border ${Addresserror.municipality ? "border-red-500" : "border-gray-300"} rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 <option value=""  >Select City</option>
                 {
@@ -765,6 +789,7 @@ const UserInformation = () => {
                 ))
                 }
                 </select>
+                <p className={`${Addresserror.municipality ? "" : "hidden"} text-xs text-red-500`}>This is a required field</p>
                 </div>
 
 
@@ -777,8 +802,7 @@ const UserInformation = () => {
                 id="barangay"
                 name="barangay"
                 value={locCodesSelected[3][0] + ',' + locCodesSelected[3][1]}
-                className="block text-sm w-full mt-1 p-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200"
-
+                className={`block w-full text-sm mt-1 p-2 border ${Addresserror.barangay ? "border-red-500" : "border-gray-300"} rounded-md focus:ring focus:ring-indigo-200`}
                 >
                 <option value=""   >Select Barangay</option>
                 {
@@ -787,6 +811,7 @@ const UserInformation = () => {
                 ))
                 }
                 </select>
+                <p className={`${Addresserror.barangay ? "" : "hidden"} text-xs text-red-500`}>This is a required field</p>
                 </div>
                 </div>
 

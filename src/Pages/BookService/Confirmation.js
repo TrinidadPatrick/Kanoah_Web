@@ -19,9 +19,6 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     const service = useSelector(selectService)
     const [socket, setSocket] = useState(null)
 
-
-    console.log(socket)
-
     useEffect(()=>{
         setSocket(io("https://kanoah.onrender.com"))
         // setSocket(io("http://localhost:5000"))
@@ -117,9 +114,8 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     },[])
 
     useEffect(()=>{
-        // checkPayment()
 
-        const intervalId = setInterval(() => checkPayment(), 5000); // Check every 5 seconds
+        const intervalId = setInterval(() => invoiceId !== '' && checkPayment(), 5000); // Check every 5 seconds
 
         return () => clearInterval(intervalId);
     },[invoiceId])

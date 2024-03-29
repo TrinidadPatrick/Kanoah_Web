@@ -282,6 +282,7 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
             </div>
           </div>
             <div className=' flex justify-end space-x-2'>
+            <button onClick={()=>{closeAddressModal()}} className='px-3 text-semiSm py-1   text-gray-600 rounded-sm mt-4'>Cancel</button>
             <button onClick={()=>{submitAddress()}} className='px-3 text-semiSm py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-4'>Save</button>
             </div>
             
