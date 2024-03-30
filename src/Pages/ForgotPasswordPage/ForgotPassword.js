@@ -1,5 +1,5 @@
 import React, { useEffect,useContext } from 'react'
-import logo from '../RegisterPage/RegisterComponents/img/Logo.png'
+import logo from '../RegisterPage/RegisterComponents/img/DarkLogo.png'
 import MailIcon from '@mui/icons-material/Mail';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import LockIcon from '@mui/icons-material/Lock';

@@ -1,20 +1,10 @@
 import React, { useEffect } from 'react'
-import { categories } from '../../MainPage/Components/Categories'
-import { selectserviceInformation, setserviceInformation } from '../../../ReduxTK/serviceSlice'
-import { selectUserId } from '../../../ReduxTK/userSlice'
 import { useState } from 'react'
 import Modal from 'react-modal';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import YouTube from '@mui/icons-material/YouTube';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import cash from '../../ServiceRegistration/Utils/images/cash.png'
-import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
-import Gcash from '../../ServiceRegistration/Utils/images/Gcash.png'
-import { useSelector } from 'react-redux'
-import axios from 'axios';
-import cloudinaryCore from '../../../CloudinaryConfig';
 import http from '../../../http'
 import useCategory from '../../../ClientCustomHook/CategoryProvider'
 
@@ -146,7 +136,7 @@ const AdvanceInformation = ({serviceInformation}) => {
     },[selectedCategoryCode, categories])
     
   return (
-    <main className='sm:w-[90%] md:w-[80%] xl:w-1/2 bg-white rounded-md shadow-md flex flex-col space-y-4 h-full sm:h-fit overflow-auto p-3 px-5'>
+    <main className='sm:w-[90%] md:w-[80%] xl:w-1/2 bg-white rounded-md shadow-md flex flex-col space-y-4 h-full sm:h-[95%] overflow-auto p-3 px-5'>
     <h1 className='text-xl font-medium text-gray-700'>Advance Information</h1>
     {/* fax and Contact email anf category */}
     <div className='w-full grid grid-cols-2 lg:grid-cols-3 gap-3'>
@@ -216,9 +206,65 @@ const AdvanceInformation = ({serviceInformation}) => {
 
     {/* Social Links */}
     <div className='w-full'>
-    <button onClick={openSocialModal} className='bg-gray-100 border text-semiXs md:text-sm rounded-sm shadow-sm px-3 font-medium py-1 hover:bg-gray-200 text-gray-600'>Social Links</button>
+    <p className='text-sm text-gray-500 font-semibold mb-1'>Service Options</p>
+    <div className='flex flex-col gap-4'>
+      {/* Facebook */}
+      <div className='flex items-center gap-3'>
+      <FacebookIcon className='text-blue-500' fontSize='large' />
+      <input value={advanceInformation.SocialLink[1].link}
+            onChange={(e) => {
+            setAdvanceInformation({
+                ...advanceInformation,
+                SocialLink: advanceInformation.SocialLink.map((socialLink, index) =>
+                index === 1 ? { ...socialLink, link: e.target.value } : socialLink
+                ),
+            });
+            }}
+            type="text"
+            id="facebook"
+            className="w-full border-b-2 p-2 bg-gray-100 text-semiSm outline-none"
+            placeholder="https://www.facebook.com/"
+      />
+      </div>
+      {/* Youtube */}
+      <div className='flex items-center gap-3'>
+      <YouTube className='text-red-500' fontSize='large' />
+      <input value={advanceInformation.SocialLink[0].link}
+            onChange={(e) => {
+            setAdvanceInformation({
+                ...advanceInformation,
+                SocialLink: advanceInformation.SocialLink.map((socialLink, index) =>
+                index === 0 ? { ...socialLink, link: e.target.value } : socialLink
+                ),
+            });
+            }}
+            type="text"
+            id="youtube"
+            className="w-full border-b-2 p-2 bg-gray-100 text-semiSm outline-none"
+            placeholder="https://www.youtube.com/"
+      />
+      </div>
+      {/* Instagram */}
+      <div className='flex items-center gap-3'>
+      <InstagramIcon  fontSize='large' />
+      <input value={advanceInformation.SocialLink[2].link}
+            onChange={(e) => {
+            setAdvanceInformation({
+                ...advanceInformation,
+                SocialLink: advanceInformation.SocialLink.map((socialLink, index) =>
+                index === 2 ? { ...socialLink, link: e.target.value } : socialLink
+                ),
+            });
+            }}
+            type="text"
+            id="instagram"
+            className="w-full border-b-2 p-2 bg-gray-100 text-semiSm outline-none"
+            placeholder="https://www.instagram.com/"
+      />
+      </div>
+      </div>
+    {/* <button onClick={openSocialModal} className='bg-gray-100 border text-semiXs md:text-sm rounded-sm shadow-sm px-3 font-medium py-1 hover:bg-gray-200 text-gray-600'>Social Links</button> */}
     </div>
-
 
     {/* social Link Modal */}
     <Modal
@@ -298,8 +344,6 @@ const AdvanceInformation = ({serviceInformation}) => {
         </div>
         
     </Modal>
-
-
 
     <button onClick={()=>{handleUpdate()}} className={`${updating ? "bg-orange-400" : "bg-themeOrange"} px-3 py-1 w-fit text-semiSm lg:text-semiMd text-gray-100 font-medium shadow-md rounded-sm `}>Update</button>
     </main>

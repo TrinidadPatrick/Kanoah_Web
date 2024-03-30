@@ -149,7 +149,7 @@ const SideBar = () => {
             {/* Reports */}
             <CustomSidebar to="/admin/Reports" imageValue={Reports}>Reports</CustomSidebar>
             {/* Management */}
-            <CustomSidebar to="/admin/Management" imageValue={Management}>Management</CustomSidebar>
+            <CustomSidebar to="/admin/Management" imageValue={Management}>Categories</CustomSidebar>
            
             {/* Admins */}
             {

@@ -18,6 +18,12 @@ import "yet-another-react-lightbox/styles.css";
 import Download from "yet-another-react-lightbox/plugins/download";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import BlockIcon from "./Images/Block.png"
+import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
+import { geocodeByPlaceId } from 'react-google-places-autocomplete';
+import PlacesAutocomplete, {
+  geocodeByAddress,
+  getLatLng,
+} from 'react-places-autocomplete';
 
 const AdminViewService = () => {
     const [service, setService] = useState(null)

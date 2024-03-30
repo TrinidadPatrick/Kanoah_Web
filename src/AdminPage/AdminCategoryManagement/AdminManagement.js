@@ -30,23 +30,10 @@ const AdminManagement = () => {
     const [showDropdownFilter, setShowDropdownFilter] = useState(false)
     const [image, setImage] = useState('https://placehold.co/400x400')
     const [search, setSearch] = useState('')
-
-    const modalStyle = {
-        content: {
-          top: '50%',
-          left: '50%',
-          right: 'auto',
-          bottom: 'auto',
-          marginRight: '-50%',
-          transform: 'translate(-50%, -50%)',
-          padding : '0'
-        },
-        overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Change the color and opacity as needed
-          },
-    };
+    const [loading, setLoading] = useState(true)
 
     const getCategories = async () => {
+        setLoading(true)
         try {
             const result = await http.get('getCategories')
             const categories = result.data.filter((result) => result.type === "Category")
@@ -56,6 +43,8 @@ const AdminManagement = () => {
             setSubCategoryList(subCategories)
         } catch (error) {
             console.error(error)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -490,57 +479,318 @@ const AdminManagement = () => {
 
         <tbody>
             {
+                loading ? 
+                <>
+                <tr  className='border-b-1'>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[90%] h-3 bg-gray-200 animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                </tr>
+                <tr  className='border-b-1'>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[90%] h-3 bg-gray-200 animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                </tr>
+                <tr  className='border-b-1'>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[90%] h-3 bg-gray-200 animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                </tr>
+                <tr  className='border-b-1'>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[90%] h-3 bg-gray-200 animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                </tr>
+                <tr  className='border-b-1'>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[90%] h-3 bg-gray-200 animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                </tr>
+                <tr  className='border-b-1'>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[90%] h-3 bg-gray-200 animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                </tr>
+                <tr  className='border-b-1'>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[90%] h-3 bg-gray-200 animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                </tr>
+                <tr  className='border-b-1'>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[90%] h-3 bg-gray-200 animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                    <div className='py-6 whitespace-nowrap text-ellipsis overflow-hidden w-full h-full '>
+                        <div className='w-[80%] h-3 bg-gray-200 rounded-md animate-pulse'></div>
+                    </div>
+                    </td>
+                </tr>
+                </>
+                :
                 categoryList?.map((category, index)=>{
-                    const createdAt = category.createdAt
-                    const date = new Date(createdAt).toLocaleDateString('EN-us', {
-                        month : 'short',
-                        day : '2-digit',
-                        year : 'numeric'
-                        
-                    })
-                    return (
-                        <tr key={index} className='border-b-1'>
-                            <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
-                            <p className='py-6 whitespace-nowrap text-ellipsis overflow-hidden'>{index + 1}</p>
-                            </td>
-                            <td className='text-start text-xs md:text-sm min-w-[100px] overflow-hidden md:min-w-[200px] max-w-[100px] pr-2 md:max-w-[200px] '>
-                            <p className='py-6 whitespace-nowrap text-ellipsis overflow-hidden'>{category.name}</p>
-                            </td>
-                            <td className='text-start text-xs md:text-sm min-w-[100px] overflow-hidden md:min-w-[100px] max-w-[100px] pr-2 md:max-w-[100px] '>
-                            <div>
-                                <img className='w-14' src={category.image} />
-                            </div>
-                            </td>                            
-                            <td className='text-start text-xs md:text-sm min-w-[100px] overflow-hidden md:min-w-[100px] max-w-[100px] pr-2 md:max-w-[100px] '>
-                            <p className='py-6 whitespace-nowrap text-ellipsis overflow-hidden'>{date}</p>
-                            </td>
-                            <td className='text-start'>
-                            <div className='w-full flex justify-start'>
-                            <label className='flex cursor-pointer select-none items-center'>
-                            <div className='relative'>
-                            <input
-                                type='checkbox'
-                                checked={category.featured}
-                                onChange={()=>editFeatured(index)}
-                                className='sr-only'
-                            />
-                            <div className={` ${category.featured ? "bg-blue-500" : "bg-[#E5E7EB]"} h-[17px] w-9 flex items-center rounded-full`}>
-                            <div className={`dot ${category.featured ? " translate-x-[20px]" : "translate-x-[2px]"} h-3.5  w-3.5 rounded-full bg-white transition`}></div>
-                            </div>
-                            </div>
-                            </label>
-                            </div>
-                            </td>
-                            <td className='text-start text-xs md:text-sm min-w-[200px] overflow-hidden md:min-w-[230px] max-w-[200px] pr-2 md:max-w-[230px] '>
-                            <div className=' flex space-x-2  justify-center'>
-                            <button onClick={()=>{setEditCategoryModalIsOpen(true);handleEdit(category.category_code)}} className=' bg-green-100 hover:bg-green-400 text-green-600 px-3 py-1 rounded-sm text-semiSm'>Edit</button>
-                            <button onClick={()=>{removeCategory(category)}} className=' bg-red-100 hover:bg-red-400 text-red-500 px-3 py-1 rounded-sm text-semiSm'>Remove</button>
-                            </div>
-                            </td>
-                            
-                        </tr>
-                    )
+                            const createdAt = category.createdAt
+                            const date = new Date(createdAt).toLocaleDateString('EN-us', {
+                                month : 'short',
+                                day : '2-digit',
+                                year : 'numeric'
+                                
+                            })
+                            return (
+                                <tr key={index} className='border-b-1'>
+                                    <td className='text-start text-xs md:text-sm min-w-[50px] overflow-hidden md:min-w-[50px] max-w-[50px] pr-2 md:max-w-[50px] '>
+                                    <p className='py-6 whitespace-nowrap text-ellipsis overflow-hidden'>{index + 1}</p>
+                                    </td>
+                                    <td className='text-start text-xs md:text-sm min-w-[100px] overflow-hidden md:min-w-[200px] max-w-[100px] pr-2 md:max-w-[200px] '>
+                                    <p className='py-6 whitespace-nowrap text-ellipsis overflow-hidden'>{category.name}</p>
+                                    </td>
+                                    <td className='text-start text-xs md:text-sm min-w-[100px] overflow-hidden md:min-w-[100px] max-w-[100px] pr-2 md:max-w-[100px] '>
+                                    <div>
+                                        <img className='w-14' src={category.image} />
+                                    </div>
+                                    </td>                            
+                                    <td className='text-start text-xs md:text-sm min-w-[100px] overflow-hidden md:min-w-[100px] max-w-[100px] pr-2 md:max-w-[100px] '>
+                                    <p className='py-6 whitespace-nowrap text-ellipsis overflow-hidden'>{date}</p>
+                                    </td>
+                                    <td className='text-start'>
+                                    <div className='w-full flex justify-start'>
+                                    <label className='flex cursor-pointer select-none items-center'>
+                                    <div className='relative'>
+                                    <input
+                                        type='checkbox'
+                                        checked={category.featured}
+                                        onChange={()=>editFeatured(index)}
+                                        className='sr-only'
+                                    />
+                                    <div className={` ${category.featured ? "bg-blue-500" : "bg-[#E5E7EB]"} h-[17px] w-9 flex items-center rounded-full`}>
+                                    <div className={`dot ${category.featured ? " translate-x-[20px]" : "translate-x-[2px]"} h-3.5  w-3.5 rounded-full bg-white transition`}></div>
+                                    </div>
+                                    </div>
+                                    </label>
+                                    </div>
+                                    </td>
+                                    <td className='text-start text-xs md:text-sm min-w-[200px] overflow-hidden md:min-w-[230px] max-w-[200px] pr-2 md:max-w-[230px] '>
+                                    <div className=' flex space-x-2  justify-center'>
+                                    <button onClick={()=>{setEditCategoryModalIsOpen(true);handleEdit(category.category_code)}} className=' bg-green-100 hover:bg-green-400 text-green-600 px-3 py-1 rounded-sm text-semiSm'>Edit</button>
+                                    <button onClick={()=>{removeCategory(category)}} className=' bg-red-100 hover:bg-red-400 text-red-500 px-3 py-1 rounded-sm text-semiSm'>Remove</button>
+                                    </div>
+                                    </td>
+                                    
+                                </tr>
+                            )
                 })
+                    
             }
         </tbody>
     </table>

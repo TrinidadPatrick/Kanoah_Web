@@ -15,7 +15,7 @@ const [updating, setUpdating] = useState(false)
 const [loading, setLoading] = useState(true)
 const [street, setStreet] = useState('')
 const [address, setAddress] = useState({})
-const [placeName, setPlaceName] = useState([])
+const [placeName, setPlaceName] = useState('')
 const [location, setLocation] = useState({
         longitude : 122.5320,
         latitude : 13.4124

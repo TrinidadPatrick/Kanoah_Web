@@ -9,16 +9,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { useState } from 'react';
 import { DateData } from './RegisterComponents/MMDDYY/Date';
-import { Link } from 'react-router-dom';
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
 import RemoveRedEyeRoundedIcon from '@mui/icons-material/RemoveRedEyeRounded';
 import VisibilityOffRoundedIcon from '@mui/icons-material/VisibilityOffRounded';
-import {BASE_URL} from '../../Utilities/ApiRoutes'
 import { Context } from '../Navbar/Navbar';
 import DescriptionIcon from '@mui/icons-material/Description';
 import "./Register.css"
-import Modal from 'react-modal';
 import http from '../../http'
 
 

@@ -369,40 +369,12 @@ const handleBook = () => {
           </div>
           <div className=' h-[180px] w-[250px] relative cursor-pointer'>
           <APIProvider apiKey={key}>
-          <Map zoom={true} draggable={true} onClick={()=>{window.open(`https://www.google.com/maps/dir/?api=1&destination=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black')}} mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false}
+          <Map draggable={true} onClick={()=>{window.open(`https://www.google.com/maps/dir/?api=1&destination=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black')}} mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false}
           defaultCenter={ {lat: serviceInfo.address.latitude, lng:serviceInfo.address.longitude}} defaultZoom={15}>
           <Marker position={ {lat: serviceInfo.address.latitude, lng:serviceInfo.address.longitude}} />
           </Map>
           </APIProvider>
           </div>
-          {/* <ReactMapGL
-          onClick={()=>{window.open(`https://www.google.com/maps/dir/?api=1&destination=${serviceInfo.address.latitude},${serviceInfo.address.longitude}`, '_black')}}
-            draggable={false}
-            onMove={evt => setViewPort(evt.viewport)}
-            mapboxAccessToken="pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ybWJhb2MwMmR4MnFyeWRjMWtuZDVwIn0.mJug0iHxD8aq8ZdT29B-fg"
-            mapStyle="mapbox://styles/patrick021/clo2m5s7f006a01rf9mtv318u"
-            style={{
-              width: "250px",
-              height: "150px",
-              // position: "relative",
-              borderRadius: "10px",
-              marginBottom: "7px",
-              top: "10px", // Use top instead of marginTop
-              transition: "width 0.5s, height 0.5s, top 0.5s",
-            }}
-            {...viewport}
-            latitude={serviceInfo.address.latitude}
-            longitude={serviceInfo.address.longitude}
-            >
-            <Marker
-            latitude={serviceInfo.address.latitude}
-            longitude={serviceInfo.address.longitude}
-            draggable={false}
-            onDrag={evt => setLocation({longitude : evt.lngLat.lng, latitude : evt.lngLat.lat})}
-            >
-        
-            </Marker>
-          </ReactMapGL> */}
         </div>
         </div>
         </div>

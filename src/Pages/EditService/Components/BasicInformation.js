@@ -40,7 +40,7 @@ const BasicInformation = ({serviceInformation}) => {
 
 
   return (
-    <main className='w-full sm:w-[90%] md:w-[80%] xl:w-1/2 bg-white shadow-md rounded-md flex flex-col space-y-4 h-full sm:h-[90%] p-5'>
+    <main className='w-full sm:w-[90%] md:w-[80%] xl:w-1/2 bg-white shadow-md rounded-md flex flex-col space-y-4 h-full sm:h-[95%] p-5'>
         
         {/* Service Title */}
         <div className='w-full flex flex-col justify-start'>

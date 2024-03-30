@@ -4,21 +4,13 @@ import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import CallOutlinedIcon from '@mui/icons-material/CallOutlined';
 import { FaFacebook, FaInstagram, FaMapLocation, FaPhone, FaRegEnvelope, FaSquareFacebook, FaYoutube } from 'react-icons/fa6';
-import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
+// import ReactMapGL, { GeolocateControl, Marker } from 'react-map-gl'
+import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 const ServiceAndOwnerInformation = ({service}) => {
-    const [location, setLocation] = useState({
-        longitude : null,
-        latitude : null
-    })
-      
+    const key = process.env.REACT_APP_MAP_API_KEY
     // For map location
-    const [viewport, setViewPort] = useState({    
-        width: "100%",
-        height: "100%",
-        zoom : 16
-    })
   return (
             <>
             <div className='flex  bg-gray-100 p-2'>
@@ -68,34 +60,14 @@ const ServiceAndOwnerInformation = ({service}) => {
                 {service.address.barangay.name + " " + service.address.municipality.name + ", " + service.address.province.name } 
                 </p>
               </div>
-              <ReactMapGL
-              onClick={()=>{window.open(`https://www.google.com/maps/dir/?api=1&destination=${service.address.latitude},${service.address.longitude}`, '_black')}}
-                draggable={false}
-                onMove={evt => setViewPort(evt.viewport)}
-                mapboxAccessToken="pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ybWJhb2MwMmR4MnFyeWRjMWtuZDVwIn0.mJug0iHxD8aq8ZdT29B-fg"
-                mapStyle="mapbox://styles/patrick021/clo2m5s7f006a01rf9mtv318u"
-                style={{
-                  width: "250px",
-                  height: "150px",
-                  // position: "relative",
-                  borderRadius: "10px",
-                  marginBottom: "7px",
-                  top: "10px", // Use top instead of marginTop
-                  transition: "width 0.5s, height 0.5s, top 0.5s",
-                }}
-                {...viewport}
-                latitude={service.address.latitude}
-                longitude={service.address.longitude}
-                >
-                <Marker
-                latitude={service.address.latitude}
-                longitude={service.address.longitude}
-                draggable={false}
-                onDrag={evt => setLocation({longitude : evt.lngLat.lng, latitude : evt.lngLat.lat})}
-                >
-            
-                </Marker>
-              </ReactMapGL>
+              <div className=' h-[180px] w-[250px] relative cursor-pointer'>
+              <APIProvider apiKey={key}>
+              <Map draggable={true} onClick={()=>{window.open(`https://www.google.com/maps/dir/?api=1&destination=${service.address.latitude},${service.address.longitude}`, '_black')}} mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false}
+              defaultCenter={ {lat: service.address.latitude, lng:service.address.longitude}} defaultZoom={15}>
+              <Marker position={ {lat: service.address.latitude, lng:service.address.longitude}} />
+              </Map>
+              </APIProvider>
+              </div>
             </div>
             </div>
             </>

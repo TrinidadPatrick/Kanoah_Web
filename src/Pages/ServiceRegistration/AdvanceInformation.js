@@ -182,7 +182,7 @@ useEffect(()=>{
 
 {/* Category */}
 <div className='flex flex-col w-full'>   
-  <label htmlFor='category' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Category</label>
+  <label htmlFor='category'className="block text-gray-500 text-sm lg:text-md font-semibold mb-2">Category</label>
   <select value={advanceInformation?.ServiceCategory} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border p-2 rounded-md text-sm xl:text-[0.8rem]`}  onChange={(e)=>{handleSelectCategory(e.target.value)}}>
     <option value="Not Selected" selected>-- Select Category --</option>
         {
@@ -194,7 +194,7 @@ useEffect(()=>{
 
   {/* Sub Category */}
   <div className='flex flex-col w-full'>   
-        <label htmlFor='subCategory' className='font-medium text-sm xl:text-[0.9rem] text-gray-700'>Sub Category (Optional)</label>
+        <label htmlFor='subCategory' className="block text-gray-500 text-sm lg:text-md font-semibold mb-2">Sub Category (Optional)</label>
         <select id='subCategory' value={advanceInformation?.ServiceSubCategory} className={` border w-full p-2 rounded-md text-sm`}  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceSubCategory : e.target.value})}} >
         <option value="" >-- Select Sub Category --</option>
         {
