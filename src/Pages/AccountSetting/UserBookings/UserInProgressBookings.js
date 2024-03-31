@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Modal from 'react-modal'
 import { useState } from 'react';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
+import {io} from 'socket.io-client'
+import http from '../../../http';
 
 const UserInProgressBooking = ({ inProgressBookings }) => {
     const navigate = useNavigate()
@@ -25,6 +27,8 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
             zIndex: 998,
           },
     };
+    const [InProgress_Bookings_Orig, set_InProgress_Bookings_Orig] = useState([])
+    const [socket, setSocket] = useState(null)
 
     const openBookingInfo = (id) => {
         const selected = inProgressBookings.find(booking => booking._id === id)
@@ -51,6 +55,57 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
         setIsOpen(true)
     }
 
+    useEffect(()=>{
+        setSocket(io("https://kanoah.onrender.com"))
+        // setSocket(io("http://localhost:5000"))
+    
+      },[])
+
+    useEffect(()=>{
+        set_InProgress_Bookings_Orig(inProgressBookings)
+    },[inProgressBookings])
+
+    const notifyUser = async (booking) => {
+        const bookDate = new Date(booking.schedule.bookingDate).toLocaleDateString('EN-US', {
+            month : 'short',
+            day : '2-digit',
+            year : 'numeric'
+        })
+        try {
+            const notify = await http.post('addNotification', {
+                notification_type : "Cancelled_Bookings", 
+                createdAt : new Date(),
+                content : `Booking for ${booking.service.selectedService} on ${bookDate} at ${booking.schedule.bookingTime} has been cancelled by the client`, 
+                client : booking.client,
+                notif_to : booking.shop.owner,
+                reference_id : booking._id
+            })
+            socket.emit('New_Notification', {notification : 'New_Booking', receiver : booking.shop.owner});
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const cancelBooking = async (bookingId) => {
+        const status = "CANCELLED"
+        const index = InProgress_Bookings_Orig.findIndex(booking => booking._id === bookingId)
+        if(index !== -1)
+        {
+            const newBooking = [...InProgress_Bookings_Orig]
+            newBooking[index] = {...newBooking[index], ["status"] : status}
+            const filtered = newBooking.filter((booking) => booking.status === "INPROGRESS")
+            set_InProgress_Bookings_Orig(filtered)
+            try {
+                const result = await http.patch(`respondBooking/${bookingId}`, {status})
+                notifyUser(InProgress_Bookings_Orig[index])
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        return ;
+    }
+
 
   return (
     <>
@@ -65,7 +120,10 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
         :
         <div className='w-full h-full max-h-full overflow-auto'>
         {
-        inProgressBookings?.map((inprogress) => {
+        InProgress_Bookings_Orig?.map((inprogress) => {
+            const differenceInMilliseconds = Math.abs(new Date() - new Date(inprogress.createdAt));
+            // Convert milliseconds to minutes
+            const differenceInMinutes = Math.floor(differenceInMilliseconds / (1000 * 60));
             const dateObject = new Date(inprogress.schedule.bookingDate)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -109,6 +167,11 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
                         <div className='font-normal text-xs lg:text-semiMd flex items-center text-gray-600'>{inprogress.schedule.serviceOption}</div>
                     </div>
                     </div>
+                </div>
+                <div className='w-full flex justify-end'>
+                <button onClick={()=>cancelBooking(inprogress._id)} 
+                disabled={differenceInMinutes >= 5} 
+                className='bg-gray-300 disabled:bg-gray-100 text-gray-600 disabled:text-gray-400 border rounded-sm px-2 text-sm py-1'>Cancel booking</button>
                 </div>
                 </div>
             )
@@ -169,7 +232,7 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
                     <div className='text-xs md:text-xs font-semibold whitespace-nowrap'>BOOKING ID</div>
                     <div className='font-medium text-right text-xs md:text-xs text-gray-600'>{clientInformation?.booking_id}</div>
 
-                    <div className='text-xs md:text-xs font-semibold whitespace-nowrap'>Book Date</div>
+                    <div className='text-xs md:text-xs font-semibold whitespace-nowrap'>Date issued</div>
                     <div className='font-medium text-right text-xs md:text-xs text-gray-600'>{clientInformation?.issuedDate}</div>
 
                     <div className='text-xs md:text-xs font-semibold whitespace-nowrap'>Book Schedule</div>

@@ -565,8 +565,9 @@ const Navbar = ({ onAboutUsClick }) => {
                     <div className=' row-span-1 col-span-9 flex items-center '>
                   <p className='text-xs text-gray-500 whitespace-nowrap'>{formattedDate.replace('at', '|')}</p>
                 </div>
-                </>
-                :
+                  </>
+                  :
+                  notification.notification_type === "Report Update" ? 
                  <>
                   <div className='row-span-2 col-span-2 flex justify-center items-start'>
                   <div className='w-[70%] aspect-square border-2  border-[#4c4c4c] bg-gray-100 flex justify-center items-center rounded-full p-2'>
@@ -586,7 +587,29 @@ const Navbar = ({ onAboutUsClick }) => {
                     <div className=' row-span-1 col-span-9 flex items-center '>
                   <p className='text-xs text-gray-500 whitespace-nowrap'>{formattedDate.replace('at', '|')}</p>
                 </div>
-                </>
+                  </>
+                  :
+                  <>
+                  <div className='row-span-2 col-span-2 flex justify-center items-start'>
+                  <div className='w-[70%] aspect-square border-2  border-[#4c4c4c] bg-red-100 flex justify-center items-center rounded-full p-2'>
+                    <img className='object-contain w-full aspect-square ' src={Book_Icon} />
+                  </div>
+                </div> 
+                
+                <div className=' row-span-1 col-span-9 flex flex-col items-center justify-start gap-2  font-medium text-gray-700'>
+                  <p className='text-sm flex items-center gap-2 whitespace-nowrap text-red-500 text-start w-full'>Cancelled Booking
+                  <span className={`w-2 h-2 ${notification.isRead ? "hidden" : ""} bg-red-600 rounded-full`}></span>
+                  </p>
+                  <p className='text-xs font-normal '>{notification.content}</p>
+                </div>
+                      <div onClick={(e)=>{e.stopPropagation();setOpenMoreOption(selectedIndex === index ? false : true);setSelectedIndex(selectedIndex === index ? null : index)}} className='relative cursor-pointer row-span-2 col-span-1 flex items-center justify-center '>
+                        <MoreVertOutlinedIcon className={`${index === selectedIndex ? "text-gray-400" : "text-gray-700"} cursor-pointer hover:bg-gray-300 rounded-full`} />
+                      </div>
+                    <div className=' row-span-1 col-span-9 flex items-center '>
+                  <p className='text-xs text-gray-500 whitespace-nowrap'>{formattedDate.replace('at', '|')}</p>
+                </div>
+                  </>
+                
                 }
                 
               </div>

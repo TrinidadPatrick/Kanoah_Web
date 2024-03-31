@@ -5,6 +5,7 @@ import Modal from 'react-modal'
 import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import OpenInFullOutlinedIcon from '@mui/icons-material/OpenInFullOutlined';
 import http from '../../../http';
+import {io} from 'socket.io-client'
 
 const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
     Modal.setAppElement('#root');
@@ -26,10 +27,17 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
             zIndex: 998,
           },
     };
+    const [socket, setSocket] = useState(null)
 
     useEffect(()=>{
         set_InProgress_Bookings_Orig(inProgressBookings)
     },[inProgressBookings])
+
+    useEffect(()=>{
+        setSocket(io("https://kanoah.onrender.com"))
+        // setSocket(io("http://localhost:5000"))
+    
+      },[])
 
 
     const OpenClientInformation = (id) => {
@@ -67,6 +75,7 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
             set_InProgress_Bookings_Orig(filtered)
             try {
                 const result = await http.patch(`respondBooking/${id}`, {status})
+                notifyUser(InProgress_Bookings_Orig[index])
                 lazyLoad()
             } catch (error) {
                 console.log(error)
@@ -76,6 +85,27 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
         return ;
        
         
+    }
+
+    const notifyUser = async (booking) => {
+        const bookDate = new Date(booking.schedule.bookingDate).toLocaleDateString('EN-US', {
+            month : 'short',
+            day : '2-digit',
+            year : 'numeric'
+        })
+        try {
+            const notify = await http.post('addNotification', {
+                notification_type : "Cancelled_Bookings", 
+                createdAt : new Date(),
+                content : `Your booking for ${booking.service.selectedService} on ${bookDate} at ${booking.schedule.bookingTime} has been cancelled by the service provider. Kindly review your GCash account for the refunded amount.`, 
+                client : booking.shop.owner,
+                notif_to : booking.client,
+                reference_id : booking._id
+            })
+            socket.emit('New_Notification', {notification : 'New_Booking', receiver : booking.client});
+        } catch (error) {
+            console.error(error)
+        }
     }
 
 
