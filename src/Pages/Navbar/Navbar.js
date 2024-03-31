@@ -237,12 +237,14 @@ const Navbar = ({ onAboutUsClick }) => {
       {/* Notification */}
       <div className='relative flex items-center justify-center aspect-square p-0.5 w-7 h-7 md:w-8 md:h-8 bg-[#e2e1e15f] rounded-full'>
         <OutsideClickHandler onOutsideClick={()=>setOpenNotif(false)}>
-        <NotificationsIcon onClick={()=>setOpenNotif(!openNotif)} fontSize={windowWidth >= 400 ? 'medium' : 'medium'} className={`${openNotif ? 'text-blue-400' : 'text-gray-50'} bottom-[1px] relative p-0.5 lg:p-0 cursor-pointer`} />
+        <NotificationsIcon onClick={()=>setOpenNotif(!openNotif)} fontSize={windowWidth >= 400 ? 'medium' : 'medium'} className={`${openNotif ? 'text-blue-400' : 'text-gray-50'} top-[3px] relative p-0.5 lg:p-0 cursor-pointer`} />
         {/* Notification Count */}
         <div className={`w-3 h-3 ${notifCount >= 1 ? 'block' : 'hidden'} rounded-full bg-red-500 -top-1 flex items-center justify-center absolute p-2 -right-1`}>
         <span className='text-white text-xs'>{notifCount}</span>
         </div>
+        <div className='p-1 relative'>
         <NotificationContent setNotifCount={setNotifCount} openNotif={openNotif} setOpenNotif={setOpenNotif} newNotification={newNotification} />
+        </div>
         </OutsideClickHandler>
       </div>
       <div className='relative'>
@@ -281,7 +283,7 @@ const Navbar = ({ onAboutUsClick }) => {
             )
             :
             (
-              <Link onClick={()=>{setShowDropDownProfile(!showDropdownProfile)}} to='/serviceRegistration' className="px-1 py-3  whitespace-nowrap hover:bg-gray-200 font-medium text-gray-700 flex items-center gap-2 text-sm">
+              <Link onClick={()=>{setShowDropDownProfile(false)}} to='/serviceRegistration' className="px-1 py-3  whitespace-nowrap hover:bg-gray-200 font-medium text-gray-700 flex items-center gap-2 text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
               <path d="M720-80v-120H600v-40h120v-120h40v120h120v40H760v120h-40ZM129.23-180v-240H80v-40l46.154-200h547.692L720-460v40h-49.231v130.769h-40V-420H449.231v240H129.23Zm40.001-40H409.23v-200H169.231v200Zm-48.769-240h559.076-559.076Zm5.692-280v-40h547.692v40H126.154Zm-5.692 280h559.076l-37.077-160H157.538l-37.076 160Z"/>
               </svg>
@@ -328,16 +330,12 @@ const Navbar = ({ onAboutUsClick }) => {
           <button className=" text-white text-md font-normal  rounded inline-flex items-center">Categories
           <ExpandMoreIcon />
           </button>
-          <ul className="categoryDropdown absolute left-[6.2rem] top-1 hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
-            {
-              categories.map((category, index)=>{
-                return (
-              <li key={index} className="">
-              <button onClick={()=>{navigate(`explore?${"category="+category.category_name}`);window.location.reload()}} className="  hover:bg-gray-400 py-2 px-4 font-normal text-sm  w-full block text-start whitespace-nowrap cursor-pointer">{category.category_name}</button>
-            </li>
-                )
-              })
-            }
+          <ul className="categoryDropdown absolute left-0 top-6 hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
+          {categories.sort((a, b) => a.name.localeCompare(b.name)).map((category, index) => (
+                <li key={index} className="">
+                  <button onClick={() => {navigate(`explore?${"category=" + category.name}&page=1`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.name}</button>
+                </li>
+              ))}
             
             
           </ul>
@@ -488,7 +486,10 @@ const Navbar = ({ onAboutUsClick }) => {
     <>
     {
       openNotif ? 
-        <div onClick={()=>{setOpenMoreOption(false);setSelectedIndex(null)}} className='w-[350px] h-[500px] flex flex-col justify-between -translate-x-80 top-7 px-1 bg-white rounded-md border shadow-md absolute'>
+        <div onClick={()=>{setOpenMoreOption(false);setSelectedIndex(null)}} className='w-[280px] sm:w-[350px] h-[500px] flex flex-col justify-between -right-14 semiXs:-right-4 top-[1.10rem] md:top-[1.10rem] px-1 bg-white rounded-md border shadow-md absolute'>
+        <div className='absolute w-3 h-3 rotate-45 rounded-ss-sm -top-1.5 bg-white right-[3.8rem] semiXs:right-5 border-t-1 border-l-1'>
+
+        </div>
         <div className='flex justify-between py-1 border-b-1'>
         <h1 className='font-bold text-base px-1 text-gray-800 '>Notifications</h1>
         <button onClick={()=>{markAllAsRead()}} className='text-xs text-gray-700 font-medium hover:text-gray-500'>Mark all as read</button>

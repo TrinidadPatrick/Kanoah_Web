@@ -3,11 +3,9 @@ import {BrowserRouter, Routes, Route, Outlet} from "react-router-dom"
 import Login from './Pages/LoginPage/Login';
 import Register from './Pages/RegisterPage/Register';
 import './index.css'
-import VerifyEmail from './Pages/VerifyAccountPage/VerifyEmail';
 import ForgotPassword from './Pages/ForgotPasswordPage/ForgotPassword';
 import MainPage from './Pages/MainPage/MainPage';
 import Navbar from './Pages/Navbar/Navbar';
-import Map from './Pages/MainPage/Map';
 import ViewService from './Pages/ViewService/ViewService';
 import CustomerAccount from './Pages/AccountSetting/CustomerAccount';
 import ServiceRegistrationPage from './Pages/ServiceRegistration/ServiceRegistrationPage';
@@ -24,7 +22,6 @@ import { AuthProvider } from './AdminPage/CustomHooks/AuthProvider';
 import AdminList from './AdminPage/AdminList/AdminList';
 import AdminDashboard from './AdminPage/AdminDashboard/AdminDashboard';
 import AdminManagement from './AdminPage/AdminCategoryManagement/AdminManagement';
-import UserAllServices from './ClientCustomHook/AllServiceProvider';
 import { UseServiceHook } from './ClientCustomHook/AllServiceContext';
 import GcashPay from './Pages/GcashPayment/GcashPay';
 import PaypalPay from './Pages/GcashPayment/PaypalPay';

@@ -114,9 +114,34 @@ const TopRatedServices = ({services}) => {
     <h3 className='text-themeGray font-medium'>Highest Rated Services</h3>
     </div>
     {
-      services == null || services == ""
+      services === null || services === ""
       ?
-      <div className="lds-dual-ring w-full  mx-auto h-screen"></div>
+      <div className='w-full h-[400px] py-5 gap-24 flex items-center justify-center overflow-hidden mt-5'>
+        <div className='h-full aspect-[9/10] flex flex-col gap-2 p-1'>
+          <div className='w-full h-[200px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[60%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[85%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[75%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[55%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[95%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+        </div>
+        <div className='h-full aspect-[9/10] flex flex-col gap-2 p-1'>
+          <div className='w-full h-[200px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[80%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[75%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[45%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[95%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[65%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+        </div>
+        <div className='h-full aspect-[9/10] flex flex-col gap-2 p-1'>
+          <div className='w-full h-[200px] bg-gray-300 animate-pulse'></div>
+          <div className='w-[40%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[75%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[35%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[95%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+          <div className='w-[25%] h-[20px] bg-gray-300 rounded-md animate-pulse'></div>
+        </div>
+      </div>
       :
       (
       <section className='TRS_Container  mt-5 w-[100%] md:w-[100%] xl:w-[90vw] max-w-[100vw] mx-auto h-fit overflow-hidden'>
@@ -141,7 +166,7 @@ const TopRatedServices = ({services}) => {
       
     
       {
-      services.sort((a, b) => new Date(b.ratings) - new Date(a.ratings)).slice(0,10).map((service)=>{
+      services.sort((a, b) => b.ratings - a.ratings).slice(0,10).map((service)=>{
         return (
           <div key={service._id} className='w-full h-fit sm:h-[400px] flex items-center justify-center  py-4'>
                 {/* Cards */}
@@ -150,7 +175,9 @@ const TopRatedServices = ({services}) => {
                 <img className='h-[200px] rounded-md w-full semiXs:h-[250px] object-cover semiXs:w-[400px] sm:h-[200px] sm:w-[300px] md:h-[200px] md:w-[350px] semiMd:h-[220px] semiMd:w-[400px]  lg:h-[200px] lg:w-[330px] xl:h-[200px] xl:w-[330px] ' src={service.serviceProfileImage} />
                 </Link>
                 {/* Profile */}
-                <div className='w-16 h-16 absolute left-5 top-[10.5rem] semiXs:top-[13.5rem] sm:top-[10.5rem] semiMd:top-[11.6rem] lg:top-[10.5rem] xl:top-[10.5rem] sm:left-5 rounded-full border-4 border-gray-700 bg-cover' style={{backgroundImage : `url(${service.owner.profileImage})`}}></div>
+                <img src={service.owner.profileImage} className='w-16 h-16 object-cover absolute left-5 top-[10.8rem] semiXs:top-[13.8rem] sm:top-[10.8rem] semiMd:top-[12.1rem] lg:top-[10.8rem] xl:top-[10.8rem] sm:left-5 rounded-full border-4 border-gray-700 bg-cover' >
+
+                </img>
                 <div className='relative mt-7 flex flex-col space-y-1 pe-3'>
                   {/* Service Title */}
                 <p className='text-black ml-3 font-semibold mt-2 text-lg whitespace-nowrap overflow-hidden'>{service.basicInformation.ServiceTitle}</p>
