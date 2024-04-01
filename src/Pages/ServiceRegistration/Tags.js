@@ -66,7 +66,6 @@ const submitTag = () => {
 const submitService = () => {
     const userId = userInformation._id
     http.post("addService", {serviceInformation, userId, createdAt : new Date()}).then((res)=>{
-      console.log(res.data)
       navigate("/")
     }).catch((err)=>{
       console.log(err)
@@ -76,7 +75,7 @@ const submitService = () => {
 
   const submitAndRedirect = () => {
     const userId = userInformation._id
-    http.post("addService", {serviceInformation, userId, createdAt :thisDate}).then((res)=>{
+    http.post("addService", {serviceInformation, userId, createdAt : new Date()}).then((res)=>{
       navigate("/myService/editService/Booking")
     }).catch((err)=>{
       console.log(err)

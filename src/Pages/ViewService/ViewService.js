@@ -340,7 +340,7 @@ const handleBook = () => {
           <div className='flex flex-col space-y-3'>
           <p className=' tracking-wide text-sm flex items-center gap-2'><FaPhone className='text-gray-500' fontSize={15} /> {serviceInfo.advanceInformation.ServiceFax == "" ? "N/A" : serviceInfo.advanceInformation.ServiceFax} | {serviceInfo.advanceInformation.ServiceContact}</p>
           <p className=' tracking-wide text-sm flex items-center gap-2'><FaRegEnvelope className='text-gray-500' fontSize={20} />{serviceInfo.advanceInformation.ServiceEmail}</p>
-          <div className='flex space-x-3 items-center'>
+          <div className='flex justify-start gap-3 items-center'>
           <FaYoutube onClick={() => { window.open(serviceInfo.advanceInformation.SocialLink[0].link, '_blank'); }}  className={`text-red-500 cursor-pointer ${serviceInfo.advanceInformation.SocialLink[0].link !== "" ? "block" : "hidden"}`} fontSize={30}  />
           <FaFacebook onClick={() => { window.open(serviceInfo.advanceInformation.SocialLink[1].link, '_blank'); }} className={`${serviceInfo.advanceInformation.SocialLink[1].link !== "" ? "block" : "hidden"} text-blue-500 cursor-pointer`} fontSize={30}   />
           <img onClick={() => { window.open(serviceInfo.advanceInformation.SocialLink[2].link, '_blank'); }} className={`${serviceInfo.advanceInformation.SocialLink[2].link !== "" ? "block" : "hidden"} w-7 h-7 cursor-pointer`} src={instagram} />

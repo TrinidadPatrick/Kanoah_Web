@@ -60,7 +60,7 @@ const Register = () => {
 
   // Handles the values of inputs
   const handleChange = (e) => {
-    setUserInfo({...userInfos, [e.target.name]: e.target.value})
+    setUserInfo({...userInfos, [e.target.name]: e.target.name === "username" || e.target.name === "password" ? e.target.value.replace(/\s/g, '') : e.target.value})
   }
 
   // Handles the values of inputs
@@ -184,7 +184,6 @@ useEffect(()=>{
     if(firstname !== "" && lastname !== "" && contact !== "" && email !== "" && otp !== ""){
       setIsLoading(true)
       http.post("verifyOTP", {otp}).then((res)=>{
-        console.log(res.data.status)
         // IF OTP IS CORRECT
             if(res.data.status == 'verified'){
               
@@ -267,7 +266,7 @@ useEffect(()=>{
     {/* Username Field */}
     <div className={`username_container w-full  relative`}>
     <AccountCircleOutlinedIcon className={`absolute w-10 h-6 top-2 left-2 text-gray-500 ${isValidUsername == false ? "text-red-500" : ""}`}/>
-    <input onChange={(e)=>{handleChange(e)}} type="text" placeholder='Enter username' name='username' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidUsername == false || isUsernameExist == true ? " border-b-red-500" : ""}`} />
+    <input value={userInfos.username} onChange={(e)=>{handleChange(e)}} type="text" placeholder='Enter username' name='username' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidUsername == false || isUsernameExist == true ? " border-b-red-500" : ""}`} />
     <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidUsername == false ? "block" : "hidden"}`}>Please enter atleast 5 characters</p>
     <p className={`text-xs text-start absolute text-red-500 mt-01 ${isUsernameExist == true ? "block" : "hidden"}`}>Username already in use</p>
     </div>
@@ -276,7 +275,7 @@ useEffect(()=>{
     {/* Password Field */}
     <div className='password_container w-full  relative  '>
     <LockOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidPassword == false ? "text-red-500" : ""}`}/>
-    <input onKeyDown={(e)=>{if(e.key == "Enter"){next()}}} onChange={(e)=>handleChange(e)} id="password" type="password" placeholder='Create a password' name='password' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidPassword == false ? " border-b-red-500" : ""}`} />
+    <input value={userInfos.password} onKeyDown={(e)=>{if(e.key == "Enter"){next()}}} onChange={(e)=>handleChange(e)} id="password" type="password" placeholder='Create a password' name='password' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidPassword == false ? " border-b-red-500" : ""}`} />
     {
       isPasswordVisible == false 
       ?
@@ -340,14 +339,14 @@ useEffect(()=>{
     {/* Firstname Field */}
     <div className='firstname_container   relative  '>
     <AccountCircleOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidFirstname == false ? "text-red-500" : ""}`}/>
-    <input onChange={(e)=>handleChange(e)} type="text" placeholder='Firstname' name='firstname' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 text-sm py-2 ${isValidFirstname == false ? " border-b-red-500" : ""}`} />
+    <input value={userInfos.firstname} onChange={(e)=>handleChange(e)} type="text" placeholder='Firstname' name='firstname' className={`border-b-1 border-gray outline-none w-full mx-auto pl-12 text-sm py-2 ${isValidFirstname == false ? " border-b-red-500" : ""}`} />
     <p className={`text-xs text-start absolute text-red-500 ${isValidFirstname == false ? "block" : "hidden"}`}>Firstname is required</p>
     </div>
 
     {/* Lastname Field */}
     <div className='lastname_container relative  '>
     <AccountCircleOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidLastname == false ? "text-red-500" : ""}`}/>
-    <input onChange={(e)=>handleChange(e)} type="text" placeholder='Lastname' name='lastname' className={`border-b-1 border-gray outline-none w-full mx-auto text-sm pl-12 py-2 ${isValidLastname == false ? "border-b-red-500" : ""}`} />
+    <input value={userInfos.lastname} onChange={(e)=>handleChange(e)} type="text" placeholder='Lastname' name='lastname' className={`border-b-1 border-gray outline-none w-full mx-auto text-sm pl-12 py-2 ${isValidLastname == false ? "border-b-red-500" : ""}`} />
     <p className={`text-xs text-start absolute text-red-500 ${isValidLastname == false ? "block" : "hidden"}`}>Lastname is required</p>
     </div>
     </div>
@@ -356,7 +355,7 @@ useEffect(()=>{
     <div className='contact_container w-full flex items-center  relative  '>
     <CallOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidContact == false ? "text-red-500" : ""}`}/>
     <div className='absolute left-11 flex text-gray-600'>+63 <div className='bg-gray-600 ml-3 w-0.2 flex items-start justify-start'></div></div>
-    <input onChange={(e)=>handleChange(e)} type="text" placeholder=' ' maxLength={10} name='contact' className={`text-sm border-b-1 border-gray outline-none w-full mx-auto pl-24 py-2 ${isValidLastname == false ? "border-b-red-500" : ""}`} />
+    <input value={userInfos.contact} onChange={(e)=>handleChange(e)} type="text" placeholder=' ' maxLength={10} name='contact' className={`text-sm border-b-1 border-gray outline-none w-full mx-auto pl-24 py-2 ${isValidLastname == false ? "border-b-red-500" : ""}`} />
     <p className={`text-xs text-start absolute text-red-500 -bottom-4 ${isValidContact == false ? "block" : "hidden"}`}>Contact is required</p>
     <p className={`text-xs text-start absolute text-red-500 -bottom-4 ${isContactExist == true ? "block" : "hidden"}`}>Contact already exist</p>
     </div>
@@ -364,7 +363,7 @@ useEffect(()=>{
     {/* Email Field */}
     <div className='email_container w-full  relative  '>
     <EmailOutlinedIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidEmail == false ? "text-red-500" : ""}`}/>
-    <input onChange={(e)=>handleChange(e)} type="text" placeholder='Enter your Email' name='email' className={`text-sm border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidEmail == false || isEmailExist == true ? " border-b-red-500" :  ""}`} />
+    <input value={userInfos.email} onChange={(e)=>handleChange(e)} type="text" placeholder='Enter your Email' name='email' className={`text-sm border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidEmail == false || isEmailExist == true ? " border-b-red-500" :  ""}`} />
     <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidEmail == false ? "block" : "hidden"}`}>Email is required</p>
     <p className={`text-xs text-start absolute text-red-500 mt-01 ${isEmailExist == true ? "block" : "hidden"}`}>Email already is use</p>
     </div>
@@ -372,7 +371,7 @@ useEffect(()=>{
     {/* Code Field */}
     <div className='code_container w-3/5  relative  '>
     <VpnKeyIcon className={`absolute w-6 h-6 top-2 left-2 text-gray-500 ${isValidOtp == false ? "text-red-500" : ""}`}/>
-    <input onChange={(e)=>setOtp(e.target.value)} type="text" placeholder='Enter OTP' name='otp' className={`text-sm border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidOtp == false ? "text-red-500 border-b-red-500 placeholder:text-red-500" : ""}`} />
+    <input value={otp} onChange={(e)=>setOtp(e.target.value)} type="text" placeholder='Enter OTP' name='otp' className={`text-sm border-b-1 border-gray outline-none w-full mx-auto pl-12 py-2 ${isValidOtp == false ? "text-red-500 border-b-red-500 placeholder:text-red-500" : ""}`} />
     <button id='sendEmail' onClick={()=>{verifyEmail()}} className='absolute bg-themeBlue flex gap-1 text-xs p-1 px-2 text-white top-2 right-2 rounded-sm disabled:bg-gray-300'>Get <p id="timer" className='hidden text-xs'>{timer}</p></button>
     <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidOtp == false ? "block" : "hidden"}`}>Invalid Otp</p>
     </div>

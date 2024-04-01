@@ -12,9 +12,7 @@ import ReportIcon from '@mui/icons-material/Report';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-import UseInfo from '../../ClientCustomHook/UseInfo';
-import UseDNS from '../../ClientCustomHook/DNSProvider';
-import useAllRatings from '../../ClientCustomHook/AllRatingsProvider';
+import noImage from '../../Utilities/emptyImage.jpg'
 import 'swiper/css';
 import { Link } from 'react-router-dom';
 import http from '../../http';
@@ -23,12 +21,6 @@ import http from '../../http';
 
 const TopRatedServices = ({services}) => {
   const [activeId, setActiveId] = useState(0)
-
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = (currentDate.getMonth() + 1).toString().padStart(2, '0');
-  const currentDay = currentDate.getDate().toString().padStart(2, '0');
-  const thisDate = currentYear + "-" + currentMonth + "-" + currentDay
   
   const StyledRating = styled(Rating)({
     '& .MuiRating-iconFilled': {
@@ -172,7 +164,7 @@ const TopRatedServices = ({services}) => {
                 {/* Cards */}
                 <div className='TRS semiXs:w-[400px] p-2 sm:w-[300px] md:w-[350px] semiMd:w-[400px] lg:w-[330px] xl:w-[330px] service_card relative h-fit sm:h-fit pb-2 rounded-lg bg-white overflow-hidden'>
                 <Link   to={`/explore/viewService/${service._id}`}>
-                <img className='h-[200px] rounded-md w-full semiXs:h-[250px] object-cover semiXs:w-[400px] sm:h-[200px] sm:w-[300px] md:h-[200px] md:w-[350px] semiMd:h-[220px] semiMd:w-[400px]  lg:h-[200px] lg:w-[330px] xl:h-[200px] xl:w-[330px] ' src={service.serviceProfileImage} />
+                <img className='h-[200px] rounded-md w-full semiXs:h-[250px] object-cover semiXs:w-[400px] sm:h-[200px] sm:w-[300px] md:h-[200px] md:w-[350px] semiMd:h-[220px] semiMd:w-[400px]  lg:h-[200px] lg:w-[330px] xl:h-[200px] xl:w-[330px] ' src={service.serviceProfileImage === null ? noImage : service.serviceProfileImage} />
                 </Link>
                 {/* Profile */}
                 <img src={service.owner.profileImage} className='w-16 h-16 object-cover absolute left-5 top-[10.8rem] semiXs:top-[13.8rem] sm:top-[10.8rem] semiMd:top-[12.1rem] lg:top-[10.8rem] xl:top-[10.8rem] sm:left-5 rounded-full border-4 border-gray-700 bg-cover' >

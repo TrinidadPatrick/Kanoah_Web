@@ -31,6 +31,7 @@ import UseInfo from '../../ClientCustomHook/UseInfo';
 import WarningAmberRoundedIcon from '@mui/icons-material/WarningAmberRounded';
 import cloudinaryCore from '../../CloudinaryConfig';
 import Alert from '@mui/material/Alert';
+import noImage from '../../Utilities/emptyImage.jpg'
 export const FilterContext = createContext()
 
 
@@ -533,7 +534,7 @@ const Explore = ({services}) => {
                 {/* Image Container */}
                 <Link to={`/explore/viewService/${service._id}`} className='flex relative w-full h-[280px] lg:h-[200px] object-cover xl:w-[330px] xl:min-w-[330px] xl:h-[200px]'>
                 <p className='absolute bg-white px-2 py-1 text-sm font-semibold rounded-full top-1 left-1'>{service.advanceInformation.ServiceCategory.name}</p>
-                <img className='w-full h-full min-h-[200px] max-h-[280px] object-cover rounded-lg' src={service.serviceProfileImage} alt="Cover"/>
+                <img className='w-full h-full min-h-[200px] max-h-[280px] object-cover rounded-lg' src={service.serviceProfileImage === null ? noImage : service.serviceProfileImage} alt="Cover"/>
                 </Link>
                 {/* Info Container */}
                 <div className=' px-1 py-3 w-full overflow-hidden flex flex-col justify-between space-y-5'>
