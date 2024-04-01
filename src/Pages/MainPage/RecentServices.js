@@ -212,7 +212,7 @@ import { Link } from 'react-router-dom';
                 {/* Service Title */}
               <p className='text-black ml-3 font-semibold mt-2 text-lg whitespace-nowrap overflow-hidden'>{service.basicInformation.ServiceTitle}</p>
               <div className='flex items-center space-x-2'>
-              <p className='text-gray-400 ml-3 font-medium mt-0 text-sm'>{service.owner.firstname + service.owner.lastname}</p>
+              <p className='text-gray-400 ml-3 font-medium mt-0 text-sm'>{service.owner.firstname + " " +  service.owner.lastname}</p>
               <span className='w-1 h-1 bg-gray-600 rounded-full'></span>
               <p className='text-gray-400 ml-3 font-normal mt-0 text-sm'>{service.createdAgo}</p> 
               </div>
