@@ -233,7 +233,64 @@ useEffect(()=>{
 
     {/* Add Social Link Button */}
     <div className='w-full'>
-    <button onClick={()=>openSocialModal()} className='bg-gray-100 border text-semiXs md:text-sm rounded-sm shadow-sm px-3 font-medium py-1 hover:bg-gray-200 text-gray-600'>{advanceInformation?.SocialLink[0].link != "" ||advanceInformation?.SocialLink[1].link != "" || advanceInformation?.SocialLink[2].link != "" ? "View Social Link" : "Add social link"}</button>
+    <p className='text-sm text-gray-500 font-semibold mb-1'>Service Options</p>
+    <div className='flex flex-col gap-4'>
+      {/* Facebook */}
+      <div className='flex items-center gap-3'>
+      <FacebookIcon className='text-blue-500' fontSize='large' />
+      <input value={advanceInformation.SocialLink[1].link}
+            onChange={(e) => {
+            setAdvanceInformation({
+                ...advanceInformation,
+                SocialLink: advanceInformation.SocialLink.map((socialLink, index) =>
+                index === 1 ? { ...socialLink, link: e.target.value } : socialLink
+                ),
+            });
+            }}
+            type="text"
+            id="facebook"
+            className="w-full border-b-2 p-2 bg-gray-100 text-semiSm outline-none"
+            placeholder="https://www.facebook.com/"
+      />
+      </div>
+      {/* Youtube */}
+      <div className='flex items-center gap-3'>
+      <YouTube className='text-red-500' fontSize='large' />
+      <input value={advanceInformation.SocialLink[0].link}
+            onChange={(e) => {
+            setAdvanceInformation({
+                ...advanceInformation,
+                SocialLink: advanceInformation.SocialLink.map((socialLink, index) =>
+                index === 0 ? { ...socialLink, link: e.target.value } : socialLink
+                ),
+            });
+            }}
+            type="text"
+            id="youtube"
+            className="w-full border-b-2 p-2 bg-gray-100 text-semiSm outline-none"
+            placeholder="https://www.youtube.com/"
+      />
+      </div>
+      {/* Instagram */}
+      <div className='flex items-center gap-3'>
+      <InstagramIcon  fontSize='large' />
+      <input value={advanceInformation.SocialLink[2].link}
+            onChange={(e) => {
+            setAdvanceInformation({
+                ...advanceInformation,
+                SocialLink: advanceInformation.SocialLink.map((socialLink, index) =>
+                index === 2 ? { ...socialLink, link: e.target.value } : socialLink
+                ),
+            });
+            }}
+            type="text"
+            id="instagram"
+            className="w-full border-b-2 p-2 bg-gray-100 text-semiSm outline-none"
+            placeholder="https://www.instagram.com/"
+      />
+      </div>
+      </div>
+    {/* <button onClick={openSocialModal} className='bg-gray-100 border text-semiXs md:text-sm rounded-sm shadow-sm px-3 font-medium py-1 hover:bg-gray-200 text-gray-600'>Social Links</button> */}
     </div>
     </div>
     </div>

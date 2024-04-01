@@ -62,7 +62,7 @@ const Explore = ({services}) => {
 
   // For Pagination
   const [currentPage, setCurrentPage] = useState(Number(page - 1));
-  const servicesPerPage = 4; // Number of services to display per page
+  const servicesPerPage = 10; // Number of services to display per page
   const indexOfLastService = (currentPage + 1) * servicesPerPage;
   const indexOfFirstService = indexOfLastService - servicesPerPage;
   const currentServices = serviceList.length >= 5 ? serviceList.slice(indexOfFirstService, indexOfLastService) : serviceList
@@ -429,7 +429,7 @@ const Explore = ({services}) => {
       searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList, rerender, setRerender, selectedCategoryCode, setSelectedCategoryCode, selectedSubCategory, setSelectedSubCategory,
       categories, subCategories
       ]} >
-        <div className='w-full flex h-full  relative'>
+        <div className='w-full flex h-full overflow-hidden relative'>
         {/* Report Modal */}
         <div style={{backgroundColor : 'rgba(0,0,0,0.5)'}} className={`w-full ${openReportModal ? "flex" : "hidden"} items-center justify-center h-full absolute bg-black z-50`}>
         <ReportModal setOpenReportModal={setOpenReportModal} setOpenSuccessReportModal={setOpenSuccessReportModal} serviceToReport={serviceToReport} setServiceToReport={setServiceToReport} />
@@ -712,8 +712,11 @@ const ReportModal = ({serviceToReport, setServiceToReport, setOpenSuccessReportM
         <label className='text-sm font-medium text-gray-700'>Attach Photos</label>
         <ReportPictures setReportObject={setReportObject} reportObject={reportObject} />
         </div>
-
+        
+        <div className='flex gap-2'>
         <button onClick={()=>submitReport()} className='px-3 mt-2 hover:bg-orange-300 rounded-md py-2 text-white bg-themeOrange w-fit text-sm'>Submit report</button>
+        <button onClick={()=>setOpenReportModal(false)} className='px-3 mt-2 hover:bg-gray-300 rounded-md py-2 text-gray-600 bg-gray-100 w-fit text-sm'>Cancel</button>
+        </div>
 
         </section>
   )
@@ -808,7 +811,6 @@ const ReportPictures = ({setReportObject, reportObject}) => {
   return (
     <div className='w-full pt-1'>   
     <input onChange={(e)=>{handleAddImage(e.target.files)}} className="block w-full text-sm text-gray-900  overflow-hidden cursor-pointer bg-gray-50  focus:outline-none " id="multiple_files" type="file" multiple />
-    <p>{uploadProgress}</p>
     <div className='w-full h-[70px] object-contain flex flex-row gap-3 border rounded-sm p-1.5 overflow-auto mt-2'>
     {
       reportObject?.photos.map((photo, index)=>{

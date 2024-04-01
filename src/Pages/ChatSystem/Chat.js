@@ -737,7 +737,6 @@ import {io} from 'socket.io-client'
           <ul className='flex flex-col space-y-3'>
             <li onClick={()=>{navigate(`/explore/viewService/${currentChats[0].virtualServiceInquired._id}`)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View Service</li>
             <li onClick={()=>{setShowProfileInformation(true);setOpenMoreOptions(false)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View User</li>
-            <li className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>Report</li>
             <li onClick={()=>{handleDeleteConversation(currentChats[0].conversationId)}} className='text-sm cursor-pointer p-2 text-red-500 hover:bg-gray-200'>Delete conversation</li>
           </ul>
         </div>
