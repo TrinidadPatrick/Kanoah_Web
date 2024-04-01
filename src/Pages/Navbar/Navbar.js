@@ -439,6 +439,8 @@ const Navbar = ({ onAboutUsClick }) => {
     navigate(notification_type === "New_Booking" ? "/serviceSettings/Bookings" : notification_type === "New_Rating" ? "/serviceSettings/Reviews" : "")
     try {
       const result = await http.patch('markAsRead',{notification_id, notif_to}, {withCredentials : true})
+      const notifCount = await http.get('countUnreadNotifs', {withCredentials : true})
+      setNotifCount(notifCount.data)
     } catch (error) {
       console.error(error)
     }
@@ -462,7 +464,8 @@ const Navbar = ({ onAboutUsClick }) => {
 
     try {
       const result = await http.patch('markAllAsRead',"",  {withCredentials : true})
-      countNotifs()
+      const notifCount = await http.get('countUnreadNotifs', {withCredentials : true})
+      setNotifCount(notifCount.data)
     } catch (error) {
       console.error(error)
     }
