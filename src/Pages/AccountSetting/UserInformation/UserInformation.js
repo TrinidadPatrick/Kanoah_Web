@@ -312,7 +312,7 @@ const UserInformation = () => {
             withCredentials: true,
           }).then(()=>{
             handleClose()
-            notify('Update successfull')
+            notify('Update successful')
           }).catch((error)=>{
             throw error
           })
