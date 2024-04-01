@@ -290,7 +290,7 @@ const handleBook = () => {
           Chat now
         </button>
         <button onClick={()=>{handleBook()}} disabled={!serviceInfo.acceptBooking} className="cursor-pointer disabled:bg-blue-300 disabled:border-blue-300 transition-all bg-blue-500 text-white px-6 py-1.5 rounded-lg
-        border-blue-600
+        border-blue-600 whitespace-nowrap
         border-b-[4px] enabled:hover:brightness-110 enabled:hover:-translate-y-[1px] enabled:hover:border-b-[6px]
         active:border-b-[2px] disabled:cursor-not-allowed active:brightness-90 active:translate-y-[2px]">
           Book Service
