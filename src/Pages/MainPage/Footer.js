@@ -21,6 +21,7 @@ const Footer = ({setScrollToAboutUs }) => {
         }
     },[categories])
     const year = new Date().getFullYear()
+
   return (
     <footer>
         {/* Main Section */}
@@ -58,7 +59,7 @@ const Footer = ({setScrollToAboutUs }) => {
             {/* Section 3 */}
             <section className=' p-1 text-left flex flex-col space-y-5'>
             <h1 className='text-2xl text-white font-semibold'>Useful Links</h1>
-            <button onClick={()=>setScrollToAboutUs(true)} className='text-white text-[0.8rem] text-start hover:underline' >About us</button>
+            <button onClick={()=>setScrollToAboutUs(true)} className={`text-white ${window.location.href === "https://web-based-service-finder.vercel.app/" ? "" : "hidden"} text-[0.8rem] text-start hover:underline`} >About us</button>
             <button onClick={()=>{window.location.href = `mailto:kanoahsf@gmail.com`}} className='text-white text-[0.8rem] text-start hover:underline' to="#" >Contact us</button>
             <Link className='text-white text-[0.8rem] hover:underline' to="explore?rating=&category=Select+Category&sort=Recent+Services&search=&page=1" >Explore</Link>
                 
