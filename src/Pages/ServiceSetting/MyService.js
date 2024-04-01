@@ -177,7 +177,6 @@ const MyService = () => {
     {/* Buttons */}
     <div className='space-x-3 flex relative justify-self-end mt-2'>
     <Link to={`/myService/editService/basicInformation`} className='px-2 md:px-3 w-fit h-fit py-1 md:py-1.5 rounded-sm hover:bg-gray-200 whitespace-nowrap bg-gray-300 text-gray-600 text-[0.5rem] semiXs:text-[0.7rem] md:text-semiSm'>Edit Service</Link>
-    <button className='px-2 md:px-3 w-fit h-fit py-1 md:py-1.5 rounded-sm bg-themeOrange text-white text-[0.5rem] semiXs:text-[0.7rem] hover:bg-blue-300  whitespace-nowrap md:text-semiSm'>View Service</button>
     </div>
     </div>
     {/* End of Information */}
