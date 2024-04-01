@@ -120,7 +120,7 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
         </div>
         </div>
         :
-        InProgress_Bookings_Orig?.map((booking)=>{
+        InProgress_Bookings_Orig?.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map((booking)=>{
             const dateObject = new Date(booking.createdAt)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
                 year: 'numeric',

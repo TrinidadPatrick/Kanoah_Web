@@ -62,7 +62,8 @@ const CancelledBooking = ({ cancelledBookings, lazyLoad }) => {
     </div>
     </div>
     :
-        cancelledBookings?.map((booking)=>{
+        cancelledBookings?.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map((booking)=>{
+            console.log(booking.createdAt)
             const dateObject = new Date(booking.createdAt)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
                 year: 'numeric',

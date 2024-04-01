@@ -155,7 +155,7 @@ const OwnerBookingHistory = ({ history, lazyLoad, setHistory }) => {
     :   
     <div className='bg-gray-100 rounded-md p-2 flex flex-col gap-3 overflow-auto'> 
         {
-        history?.map((booking)=>{
+        history?.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map((booking)=>{
             const dateObject = new Date(booking.createdAt)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
                 year: 'numeric',
