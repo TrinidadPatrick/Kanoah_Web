@@ -121,9 +121,6 @@ const MainPage = ({ scrollToAboutUs, setScrollToAboutUs, services }) => {
     <section className='top_rated_service w-full pb-10 bg-themeBlue py-[1rem] sm:px-10 md:px-16 lg:px-36' >
     <Footer setScrollToAboutUs={setScrollToAboutUs} featuredCategories={featuredCategories} />
     </section>
-
-    
-    
     </div>
   )
 }

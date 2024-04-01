@@ -197,10 +197,10 @@ const ServiceRegistrationPage = () => {
     
         {/* Right Side */}
         {/* Container */}
-        <div className='w-full h-full md:h-full flex flex-col justify-stretch bg-white p-4 '>
+        <div className='w-full h-full md:h-full flex flex-col justify-stretch bg-white p-3 '>
         {/* Card */}
     
-        <h1 className='text-xl font-semibold block md:hidden'>{step == 1 ? "Service Information" : step == 2 ? "Contacts and Payment" : ""}</h1>
+        <h1 className='text-xl font-semibold block md:hidden'>{step == 1 ? "Service Information" : step == 2 ? "Advance Information" : ""}</h1>
         {step == 1 ? (<BusinessInformation />) : step == 2 ? (<AdvanceInformation />) : step == 3 ? <AddressRegistration /> : step == 4 ? <ServiceHours /> : step == 5 ? <Tags /> : ""}
         
         </div>

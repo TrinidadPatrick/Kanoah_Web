@@ -138,7 +138,6 @@ useEffect(()=>{
 
 useEffect(()=>{
   const filtered = subCategories.filter(subCategory => subCategory.parent_code === selectedCategoryCode)
-  console.log(filtered)
   if(filtered)
   {
     setSubCategoryList(filtered)
@@ -153,37 +152,37 @@ useEffect(()=>{
   
 },[categories])
 
-  // console.log(serviceInformation)
+
   return (
-  <div className='w-full h-full  flex flex-col justify-between  p-1'>
+  <div className='w-full h-full gap-3 flex flex-col justify-between'>
   <div>
-  <div className="flex  flex-col space-y-3 justify-between h-full">
+  <div className="flex  flex-col gap-3 justify-between h-full">
   {/* Phone and Fax */}
   <div className='flex space-x-3'>
     {/* Phone */}
   <div className="w-full relative">
-    <label className="block text-sm text-gray-500 font-semibold mb-2" htmlFor="contact">Service Contact</label>
-    <span className='absolute top-[2.303rem] text-sm lg:text-md text-gray-400 left-2'>+63</span>
-    <input maxLength={10} value={advanceInformation?.ServiceContact} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} type="tel" id="contact" className={`${errors.ServiceContactError ? "border-red-500 border-2" : ""} w-full ps-9 p-2 text-sm lg:text-md border rounded outline-none shadow-sm" placeholder="1234567890`} />
+    <label className="block text-xs md:text-sm text-gray-500 font-semibold mb-1" htmlFor="contact">Service Contact</label>
+    <span className='absolute top-[1.8rem] md:top-[2rem] text-xs md:text-sm lg:text-md text-gray-400 left-2'>+63</span>
+    <input maxLength={10} value={advanceInformation?.ServiceContact} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceContact : e.target.value})}} type="tel" id="contact" className={`${errors.ServiceContactError ? "border-red-500 border-2" : ""} w-full ps-9 p-2 text-xs md:text-sm lg:text-md border rounded outline-none shadow-sm" placeholder="1234567890`} />
   </div>
 {/* Fax */}
   <div className="w-full">
-    <label className="block text-gray-500 text-sm lg:text-md font-semibold mb-2" htmlFor="fax">Fax Number</label>
-    <input max={10} value={advanceInformation?.ServiceFax} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceFax : e.target.value})}} type="tel" id="fax" className={`w-full p-2 text-sm lg:text-md border rounded`} placeholder="Enter fax number" />
+    <label className="block text-gray-500 text-xs md:text-sm lg:text-md font-semibold mb-1" htmlFor="fax">Fax Number</label>
+    <input max={10} value={advanceInformation?.ServiceFax} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceFax : e.target.value})}} type="tel" id="fax" className={`w-full p-2 text-xs md:text-sm lg:text-md border rounded`} placeholder="Enter fax number" />
   </div>
   </div>
 
 {/* Email and Category */}
-    <div className='grid grid-cols-2 m-0 items-center gap-4'>
-  <div className="w-full">
-    <label className="block text-gray-500 text-sm lg:text-md font-semibold mb-2" htmlFor="email">Service Email</label>
-    <input value={advanceInformation?.ServiceEmail} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} type="email" id="email" className={`${errors.ServiceEmailError ? "border-red-500 border-2" : ""} w-full text-sm lg:text-md p-2 border rounded`} placeholder="example@email.com" />
+    <div className='grid grid-cols-2 mt-0 items-center gap-4'>
+  <div className="w-full ">
+    <label className="block text-gray-500 text-xs md:text-sm lg:text-md font-semibold mb-1" htmlFor="email">Service Email</label>
+    <input value={advanceInformation?.ServiceEmail} onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceEmail : e.target.value})}} type="email" id="email" className={`${errors.ServiceEmailError ? "border-red-500 border-2" : ""} w-full text-xs md:text-sm lg:text-md p-2 border rounded`} placeholder="example@email.com" />
   </div>
 
 {/* Category */}
 <div className='flex flex-col w-full'>   
-  <label htmlFor='category'className="block text-gray-500 text-sm lg:text-md font-semibold mb-2">Category</label>
-  <select value={advanceInformation?.ServiceCategory} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border p-2 rounded-md text-sm xl:text-[0.8rem]`}  onChange={(e)=>{handleSelectCategory(e.target.value)}}>
+  <label htmlFor='category'className="block text-gray-500 text-xs md:text-sm lg:text-md font-semibold mb-1">Category</label>
+  <select value={advanceInformation?.ServiceCategory} className={`${errors.ServiceCategoryError ? "border-red-500 border-2" : ""} border p-2 rounded-md text-xs md:text-sm lg:text-md`}  onChange={(e)=>{handleSelectCategory(e.target.value)}}>
     <option value="Not Selected" selected>-- Select Category --</option>
         {
         categories.map((category, index)=>(<option key={index} value={category._id} className='py-2 text-sm xl:text-[1rem]'>{category.name}</option>))
@@ -194,8 +193,8 @@ useEffect(()=>{
 
   {/* Sub Category */}
   <div className='flex flex-col w-full'>   
-        <label htmlFor='subCategory' className="block text-gray-500 text-sm lg:text-md font-semibold mb-2">Sub Category (Optional)</label>
-        <select id='subCategory' value={advanceInformation?.ServiceSubCategory} className={` border w-full p-2 rounded-md text-sm`}  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceSubCategory : e.target.value})}} >
+        <label htmlFor='subCategory' className="block text-gray-500 text-xs md:text-sm lg:text-md font-semibold mb-1">Sub Category (Optional)</label>
+        <select id='subCategory' value={advanceInformation?.ServiceSubCategory} className={` border w-full p-2 rounded-md text-xs md:text-sm lg:text-md`}  onChange={(e)=>{setAdvanceInformation({...advanceInformation, ServiceSubCategory : e.target.value})}} >
         <option value="" >-- Select Sub Category --</option>
         {
         subCategoryList.length === 0 ? "" :
@@ -211,14 +210,14 @@ useEffect(()=>{
 
   {/* Service Options */}
   
-  <div className='w-full flex flex-col justify-between '>
-  <p className='text-sm text-gray-500 font-semibold mb-1'>Service Options</p>
-  <div className='flex justify-between flex-wrap gap-2'>
+  <div className='w-full flex flex-col justify-between  '>
+  <p className='text-xs md:text-sm lg:text-md text-gray-500 font-semibold mb-1'>Service Options</p>
+  <div className='flex justify-start flex-wrap gap-2 md:gap-3'>
   {
   serviceOptions.map((service, index)=>(
     
-    <button key={index} onClick={()=>handleSelectServiceOption(service)} className={`${selectedServiceOptions.includes(service) ? "bg-[#0E2F41] text-white" : "bg-gray-200 text-[#4F7080]"} px-2 lg:px-2 py-1  relative shadow-sm  rounded-md text-[0.65rem] lg:text-sm`}>
-    <span>{service}</span>
+    <button key={index} onClick={()=>handleSelectServiceOption(service)} className={`${selectedServiceOptions.includes(service) ? "bg-[#0E2F41] text-white" : "bg-gray-200 text-[#4F7080]"} px-2 lg:px-2 py-0.5 xl:py-1  relative shadow-sm  rounded-sm `}>
+    <p className='text-[0.65rem] lg:text-xs'>{service}</p>
     <div className={`absolute -top-3 -right-2 ${selectedServiceOptions.includes(service) ? "rotate-360 opacity-100 transition-transform duration-[0.5s] ease-out" : "opacity-0 transform -rotate-180 transition-transform duration-300 ease-in-out"}`}>
     <CheckCircleIcon fontSize='small' className={`text-blue-500 relative  bg-white rounded-full`} />
     </div>
@@ -232,9 +231,9 @@ useEffect(()=>{
 
 
     {/* Add Social Link Button */}
-    <div className='w-full'>
-    <p className='text-sm text-gray-500 font-semibold mb-1'>Service Options</p>
-    <div className='flex flex-col gap-4'>
+    <div className='w-full '>
+    <p className='text-xs md:text-sm lg:text-md text-gray-500 font-semibold mb-1'>Social links</p>
+    <div className='flex flex-col gap-2 xl:gap-4'>
       {/* Facebook */}
       <div className='flex items-center gap-3'>
       <FacebookIcon className='text-blue-500' fontSize='large' />
@@ -290,7 +289,6 @@ useEffect(()=>{
       />
       </div>
       </div>
-    {/* <button onClick={openSocialModal} className='bg-gray-100 border text-semiXs md:text-sm rounded-sm shadow-sm px-3 font-medium py-1 hover:bg-gray-200 text-gray-600'>Social Links</button> */}
     </div>
     </div>
     </div>

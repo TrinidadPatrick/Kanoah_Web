@@ -159,7 +159,7 @@ const handleSelect = address => {
 };
 
   return (
-    <div className='w-full flex flex-col h-fit md:h-full p-1'>
+    <div className='w-full flex flex-col h-full md:h-full p-1'>
     <div className='flex flex-col justify-center items-center'>
                 <div className='w-full grid grid-cols-2 gap-2'>
                 {/* Regions ***************************************/}
@@ -266,9 +266,9 @@ const handleSelect = address => {
     </div>   
 
     {/* MAP******************************************************************* */}
-    <div className='relative mt-1 h-[200px]  md:h-full mb-1 py-2 w-[100%] md:w-full'>
+  <div className='relative mt-1 h-[250px] md:h-full mb-1 flex flex-col w-[100%] md:w-full'>
     <label htmlFor="region" className="text-xs xl:text-sm text-gray-600">Pin location</label>
-    <div className='w-full h-[250px] relative'>
+    <div className='w-full h-full relative'>
     <div className='absolute z-20 w-[250px] top-2 left-2'>
     <PlacesAutocomplete
         value={placeName}
