@@ -15,6 +15,7 @@ import Bookings from './BookingManager/Bookings';
 import UseInfo from '../../ClientCustomHook/UseInfo';
 import MobileServiceSettingSidebar from './MobileServiceSettingSidebar';
 import RatingsAndReviews from './RatingsAndReviews/RatingsAndReviews';
+import WarningLogo from './Warning.png'
 import ServiceDashboard from './ServiceDashboard/ServiceDashboard';
 
 const ServiceSettings = () => {
@@ -23,6 +24,8 @@ const ServiceSettings = () => {
   const [notFound, setNotFound] = useState(false)
   const {option} = useParams()
   const navigate = useNavigate()
+  const [serviceInfo, setServiceInfo] = useState(null)
+  const [isServiceDisabled, setIsServiceDisabled] = useState(false)
 
     // Handle the selected settings options
   const handleSelectSettings = (value) => {
@@ -46,9 +49,62 @@ const ServiceSettings = () => {
     }
   },[])
 
+  useEffect(()=>{
+    if(authenticated)
+    {
+      const getService = async () => {
+        http.get(`getService/${userInformation._id}`, {
+          withCredentials : true
+        }).then((res)=>{
+            if(res.data.result.status.status === "Disabled")
+            {
+              setServiceInfo(res.data.result)
+              setIsServiceDisabled(true)
+              return
+            }
+        }).catch((err)=>{
+            console.log(err)
+        })
+      }
+      getService()
+    }
+
+  },[authenticated])
+
+
+
   return (
 
     <div className='w-full h-full flex flex-col relative '>
+        <div style={{backgroundColor : "rgba(0,0,0,0.5)"}} className={`w-full ${serviceInfo?.status.status === "Disabled" ? "" : "hidden"} flex justify-center items-start h-full absolute z-50 bg-black`}>
+
+        <div className='w-fit rounded-md h-fit overflow-hidden bg-gray-900 border-2 border-red-500 mx-auto translate-y-24 flex flex-col'>
+        <div className='w-full py-1 flex justify-end px-3 bg-red-600'>
+        <h1 className='text-white'>WARNING!</h1>
+        </div>
+        <div className='flex h-full items-center'>
+        <div className='h-full aspect-square  ms-7'>
+        <img className='w-24' src={WarningLogo} />
+        </div>
+        <div className='p-7'>
+        <h1 className='text-center font-bold text-xl text-white'>This service is currently disabled. Please see details below.</h1>
+        <p className='font-normal text-gray-50'>Date Issued : {new Date(serviceInfo?.status.dateDisabled).toLocaleDateString('EN-US', {
+        month : 'long', day : '2-digit', year : 'numeric'
+        })}</p>
+        <p className='font-normal text-gray-50'>Reasons: </p>
+        <div className='flex flex-wrap gap-2'>
+        {
+        serviceInfo?.status?.reasons.map((reason, index)=>{
+            return (
+            <p key={index} className="text-gray-50 text-sm">{reason}<span className={`${serviceInfo?.status?.reasons.length - 1 === index ? "hidden" : ""}`}>,</span></p>
+            )
+        })
+        }
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
       {
 
         notFound ? (<PageNotFound />)
@@ -56,6 +112,7 @@ const ServiceSettings = () => {
         (
           // Main Container
     <div className='flex w-full h-full'>
+      
     {/* Left section */}
     <section className='w-[310px] lg:w-[320px] h-full bg-white hidden md:flex flex-col'>
     <div className='border-l-4 ps-2 ml-5 border-l-themeBlue mt-5'>
@@ -79,7 +136,7 @@ const ServiceSettings = () => {
       <button onClick={()=>setOpenMobileSidebar(true)} className="absolute md:hidden top-4 bg-white shadow-md border rounded-md w-8 h-8 flex items-center justify-center left-2">
       <span className="icon-[icon-park-outline--hamburger-button] bg-black  text-2xl"></span>
       </button>
-      {option == "Bookings" ? <Bookings /> : option == "myService" ? <MyService /> : option == "Reviews" ?  <RatingsAndReviews /> : option == "Dashboard" ?  <ServiceDashboard /> : <PageNotFound /> }
+      {option == "Bookings" ? <Bookings /> : option == "myService" ? <MyService serviceInfo={serviceInfo} /> : option == "Reviews" ?  <RatingsAndReviews /> : option == "Dashboard" ?  <ServiceDashboard isServiceDisabled={isServiceDisabled} /> : <PageNotFound /> }
       <div onClick={()=>setOpenMobileSidebar(false)} className={`${openMobileSidebar ? "" : "hidden"} w-full h-full bg-[#00000080] z-20 absolute`}></div>
     </section>
 

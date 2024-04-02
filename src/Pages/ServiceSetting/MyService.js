@@ -15,7 +15,7 @@ import getCroppedImg from './ForCropping/CreateImage';
 import emptyImages from '../../Utilities/emptyImage.jpg'
 
 
-const MyService = () => {
+const MyService = ({serviceInfo}) => {
   Modal.setAppElement('#root');
   const [modalIsOpen, setIsOpen] = useState(false);
   const {authenticated, userInformation} = UseInfo()
@@ -124,9 +124,9 @@ const MyService = () => {
   }
 
   useEffect(()=>{
-    if(authenticated)
+    if(authenticated && serviceInfo !== null)
     {
-      getService()
+      setServiceInformation(serviceInfo)
     }
     else if (authenticated === false)
     {
@@ -134,8 +134,6 @@ const MyService = () => {
     }
     
   },[authenticated])
-
-
 
 
   return (

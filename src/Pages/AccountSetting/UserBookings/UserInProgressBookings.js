@@ -118,6 +118,30 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
             </div>
         </div>
         :
+        inProgressBookings === null ?
+        <>
+        <div className='w-full mt-5 flex flex-col'>
+        <div className="flex flex-col  w-full  h-64 animate-pulse rounded-xl p-4 gap-4"  >
+        <div className="bg-neutral-400/50 w-56 h-32 animate-pulse rounded-md"></div>
+        <div className="flex flex-col gap-2">
+        <div className="bg-neutral-400/50 w-full h-4 animate-pulse rounded-md"></div>
+        <div className="bg-neutral-400/50 w-4/5 h-4 animate-pulse rounded-md"></div>
+        <div className="bg-neutral-400/50 w-full h-4 animate-pulse rounded-md"></div>
+        <div className="bg-neutral-400/50 w-2/4 h-4 animate-pulse rounded-md"></div>
+        </div>
+        </div>
+        <div className="flex flex-col  w-full  h-64 animate-pulse rounded-xl p-4 gap-4"  >
+        <div className="bg-neutral-400/50 w-56 h-32 animate-pulse rounded-md"></div>
+        <div className="flex flex-col gap-2">
+        <div className="bg-neutral-400/50 w-full h-4 animate-pulse rounded-md"></div>
+        <div className="bg-neutral-400/50 w-4/5 h-4 animate-pulse rounded-md"></div>
+        <div className="bg-neutral-400/50 w-full h-4 animate-pulse rounded-md"></div>
+        <div className="bg-neutral-400/50 w-2/4 h-4 animate-pulse rounded-md"></div>
+        </div>
+        </div>
+        </div>
+        </>
+        :
         <div className='w-full h-full max-h-full overflow-auto'>
         {
         InProgress_Bookings_Orig?.map((inprogress) => {

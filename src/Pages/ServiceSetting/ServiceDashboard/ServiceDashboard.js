@@ -6,7 +6,7 @@ import BookingAndSalesChart from './BookingAndSalesChart'
 import BookingsTable from './BookingsTable'
 import RatingTable from './RatingTable'
 
-const ServiceDashboard = () => {
+const ServiceDashboard = ({isServiceDisabled}) => {
     const {serviceInformation} = useService()
     const currentDate = new Date();
     const year = currentDate.getFullYear();
@@ -15,7 +15,8 @@ const ServiceDashboard = () => {
     const [dateSelected, setDateSelected] = useState(dateNow)
 
   return (
-    <main className='w-full flex flex-col gap-3 h-full bg-white overflow-auto px-3 md:px-5 lg:px-10 py-3'>
+    <main className='w-full flex flex-col gap-3 h-full relative bg-white overflow-auto px-3 md:px-5 lg:px-10 py-3'>
+
         <div className='flex items-center justify-between mt-1.5'>
         <h1 className='text-gray-700 text-lg sm:text-2xl font-semibold relative left-10 md:left-0'>Dashboard</h1>
         <input className='border rounded-sm px-1 py-1 border-gray text-gray-500 text-xs sm:text-sm' type='month' onChange={(e)=>{setDateSelected(e.target.value)}} value={dateSelected} />
