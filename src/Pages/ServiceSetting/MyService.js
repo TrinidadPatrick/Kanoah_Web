@@ -133,7 +133,8 @@ const MyService = ({serviceInfo}) => {
       navigate("/")
     }
     
-  },[authenticated])
+  },[authenticated, serviceInfo])
+
 
 
   return (

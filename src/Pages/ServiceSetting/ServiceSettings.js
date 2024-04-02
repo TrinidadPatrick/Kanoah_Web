@@ -62,6 +62,7 @@ const ServiceSettings = () => {
               setIsServiceDisabled(true)
               return
             }
+            setServiceInfo(res.data.result)
         }).catch((err)=>{
             console.log(err)
         })
