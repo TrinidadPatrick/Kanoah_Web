@@ -1,9 +1,9 @@
 import React from 'react'
 import ImageGallery from "react-image-gallery";
 import 'react-image-gallery/styles/css/image-gallery.css'
+import NoImage from "./Images/NoImage.png"
 
 const AdminViewServicesFeaturePhotos = ({featuredImages}) => {
-
       // Generated format for featured Images
   const generatedFeaturedImages = (featuredImages) => {
     return featuredImages?.map((image,index)=>(
@@ -40,7 +40,17 @@ const AdminViewServicesFeaturePhotos = ({featuredImages}) => {
 
   return (
     <div className='w-full h-[fit] flex items-center justify-center '>
-    <div className='w-full rounded-md overflow-hidden relative z-10 '>
+    {
+      featuredImages.length === 0
+      ?
+    <div className='w-full h-[520px] bg-white flex flex-col justify-center items-center'>
+    <img src={NoImage} className='w-28 h-28' />
+    <div className='mt-5 flex flex-col justify-center'>
+      <p className='text-2xl font-bold text-gray-600'>Looks like there are no images here.</p>
+    </div>
+    </div>
+    :
+    <div className={ ` w-full rounded-md overflow-hidden relative z-10 `}>
       <ImageGallery 
       autoPlay={true} 
       slideDuration={500} 
@@ -50,7 +60,8 @@ const AdminViewServicesFeaturePhotos = ({featuredImages}) => {
       renderItem={(item) => <CustomSlide item={item} />}
       items={generatedFeaturedImages(featuredImages)}
       />
-      </div>
+    </div>
+    }
     
     </div>
   )

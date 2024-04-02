@@ -17,7 +17,7 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import Download from "yet-another-react-lightbox/plugins/download";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
-import BlockIcon from "./Images/Block.png"
+import BlockIcon from "./Images/Warning.png"
 import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
 import { geocodeByPlaceId } from 'react-google-places-autocomplete';
 import PlacesAutocomplete, {
@@ -96,29 +96,32 @@ const AdminViewService = () => {
     <main className='w-full h-full flex flex-col px-5 lg:px-20 '>
 
     {/* Popup for disabled service */}
-    <div className={`w-fit rounded-sm h-fit bg-red-500 mx-auto ${service?.status.status === "Disabled" ? "flex" : "hidden"} mt-4 p-2 gap-2`}>
-    <div>
-    <div className=' w-full h-full flex items-center'>
-      <img className='w-24 aspect-square brightness-0 invert-[1]' src={BlockIcon} alt="Block" />
-    </div>
-    </div>
-    <div className='w-fit rounded-sm h-fit bg-red-500 mx-auto flex flex-col'>
-    <h1 className='text-center font-medium text-white'>This service is currently disabled. Please see details below.</h1>
-    <p className='font-normal text-gray-50'>Date Issued : {new Date(service?.status.dateDisabled).toLocaleDateString('EN-US', {
-      month : 'long', day : '2-digit', year : 'numeric'
-    })}</p>
-    <p className='font-normal text-gray-50'>Reasons: </p>
-    <div className='flex flex-wrap gap-2'>
-    {
-      service?.status?.reasons.map((reason, index)=>{
-        return (
-          <p key={index} className="text-gray-50 text-sm">{reason},</p>
-        )
-      })
-    }
-    </div>
-    </div>
-    </div>
+    <div className='w-fit rounded-md h-fit overflow-hidden bg-gray-900 border-2 border-red-500 mx-auto  flex flex-col'>
+        <div className='w-full py-1 flex justify-end px-3 bg-red-600'>
+        <h1 className='text-white'>WARNING!</h1>
+        </div>
+        <div className='flex h-full items-center'>
+        <div className='h-full aspect-square  ms-7'>
+        <img className='w-24' src={BlockIcon} />
+        </div>
+        <div className='p-7'>
+        <h1 className='text-center font-bold text-xl text-white'>This service is currently disabled. Please see details below.</h1>
+        <p className='font-normal text-gray-50'>Date Issued : {new Date(service?.status.dateDisabled).toLocaleDateString('EN-US', {
+        month : 'long', day : '2-digit', year : 'numeric'
+        })}</p>
+        <p className='font-normal text-gray-50'>Reasons: </p>
+        <div className='flex flex-wrap gap-2'>
+        {
+        service?.status?.reasons.map((reason, index)=>{
+            return (
+            <p key={index} className="text-gray-50 text-sm">{reason}<span className={`${service?.status?.reasons.length - 1 === index ? "hidden" : ""}`}>,</span></p>
+            )
+        })
+        }
+        </div>
+        </div>
+        </div>
+        </div>
 
     <nav className='w-full'>
     </nav>

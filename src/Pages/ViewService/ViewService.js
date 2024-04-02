@@ -34,6 +34,7 @@ import holidays from 'date-holidays'
 import Footer from '../MainPage/Footer';
 import Modal from 'react-modal';
 import BookService from '../BookService/BookService';
+import NoImage from '../../AdminPage/AdminServices/Images/NoImage.png'
 import UseInfo from '../../ClientCustomHook/UseInfo';
 import ServiceOffers from './Components/ServiceOffers';
 
@@ -300,6 +301,15 @@ const handleBook = () => {
 
         {/* Image Featured Images Container */}
         <div className='w-full h-[fit]  flex items-center justify-center '>
+        {
+        serviceInfo.featuredImages.length === 0 ?
+        <div className='w-full h-[520px] bg-white flex flex-col justify-center items-center'>
+        <img src={NoImage} className='w-28 h-28' />
+        <div className='mt-5 flex flex-col justify-center'>
+          <p className='text-2xl font-bold text-gray-600'>Looks like there are no images here.</p>
+        </div>
+        </div>
+        :
         <div className='w-full relative z-10  rounded-md'>
           <ImageGallery 
           autoPlay={true} 
@@ -312,6 +322,7 @@ const handleBook = () => {
           
           />
           </div>
+        }
         
         </div>
         </div>
