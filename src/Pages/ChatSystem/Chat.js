@@ -11,9 +11,6 @@ import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
 import ScrollToBottom from 'react-scroll-to-bottom';
 import axios from 'axios';
 import cloudinaryCore from '../../CloudinaryConfig';
-import DownloadOutlinedIcon from '@mui/icons-material/DownloadOutlined';
-import EmojiPicker from 'emoji-picker-react';
-import EmojiEmotionsOutlinedIcon from '@mui/icons-material/EmojiEmotionsOutlined';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 import MyLocationOutlinedIcon from '@mui/icons-material/MyLocationOutlined';
@@ -110,7 +107,6 @@ import {io} from 'socket.io-client'
             const messages = await http.get(`getMessages/${convoId}/${returnLimit}`, {
               withCredentials: true,
             });
-            // console.log(messages.data)
             if (currentChats && currentChats.length > 0 && currentChats[0]?.conversationId === convoId) {
               setCurrentChats(messages.data.result);
             }          
@@ -401,9 +397,7 @@ import {io} from 'socket.io-client'
           const reader = new FileReader();
           reader.onload = () => {
             const dataURL = reader.result;
-            // Now 'dataURL' contains the base64-encoded image data
             resolve(dataURL);
-            // You can use 'dataURL' to upload to Cloudinary or store in your database
           };
           reader.onerror = (error) => {
             reject(error);
@@ -412,7 +406,6 @@ import {io} from 'socket.io-client'
         });
       };
 
-      // Function to resize an image using a canvas
       const resizeImage = (dataUrl, maxWidth, maxHeight) => {
         return new Promise((resolve) => {
           const img = new Image();
@@ -425,7 +418,7 @@ import {io} from 'socket.io-client'
             let width = img.width;
             let height = img.height;
 
-            // Calculate new dimensions while maintaining the aspect ratio
+
             if (width > maxWidth) {
               height *= maxWidth / width;
               width = maxWidth;
