@@ -45,11 +45,11 @@ const AdminServices = () => {
         }
         if(selectedFilter === "Active")
         {
-            filtered = filtered.filter((service) => service.status === "Active")
+            filtered = filtered.filter((service) => service.status.status === "Active")
         }
         if(selectedFilter === "Disabled")
         {
-            filtered = filtered.filter((service) => service.status === "Disabled")
+            filtered = filtered.filter((service) => service.status.status === "Disabled")
         }
         if(search !== '')
         {
@@ -102,7 +102,7 @@ const AdminServices = () => {
         }
     }
 
-
+    // console.lof(selectedFilter)
 
   return (
     <main className='w-full overflow-hidden h-full flex flex-col relative p-3'>
