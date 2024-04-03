@@ -460,7 +460,7 @@ const Explore = ({services}) => {
             Report Submitted
           </span>
           <p className="message text-gray-600 text-sm mt-2">
-            Thank you for your concern. We promise to get back to you as soon as possible. Mwuah
+            Thank you for your concern. We promise to get back to you as soon as possible.
           </p>
         </div>
         </div>
