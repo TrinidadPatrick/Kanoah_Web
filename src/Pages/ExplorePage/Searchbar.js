@@ -23,15 +23,6 @@ const Searchbar = () => {
         if(searchValue !== undefined && searchValue !== '')
         {
           setSearchInput(searchValue)
-          // const result = serviceList.length === 0 ?
-          // filteredService.filter((item) =>
-          // item.basicInformation.ServiceTitle.toLowerCase().includes(searchValue.toLowerCase()) ||
-          // item.tags.some((tag) => tag.toLowerCase().includes(searchValue.toLowerCase())))
-          // :
-          // serviceList.filter((item) =>
-          // item.basicInformation.ServiceTitle.toLowerCase().includes(searchValue.toLowerCase()) ||
-          // item.tags.some((tag) => tag.toLowerCase().includes(searchValue.toLowerCase())))
-          // setServiceList(result)
         }
        
       }

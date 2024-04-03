@@ -419,6 +419,7 @@ import {io} from 'socket.io-client'
             let height = img.height;
 
 
+            
             if (width > maxWidth) {
               height *= maxWidth / width;
               width = maxWidth;

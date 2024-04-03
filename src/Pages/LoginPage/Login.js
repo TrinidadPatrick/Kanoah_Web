@@ -22,6 +22,7 @@ const Login = () => {
   const [isValidPassword, setIsValidPassword] = useState(undefined)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [invalidLogin, setInvalidLogin] = useState(false)
+  const [accountDisabled, setAccountDisabled] = useState({bool : false, reasons : []})
   const [loading, setLoading] = useState(false)
   
 
@@ -67,6 +68,10 @@ const Login = () => {
       }
 
     }).catch((err)=>{
+      if(err.response.data.status === "Account Disabled")
+      {
+        setAccountDisabled({bool : true, reasons : err.response.data.reasons})
+      }
       // Check the HTTP status code for error handling
       if (err.response.status === 401) {
         setInvalidLogin(true);
@@ -83,6 +88,7 @@ const Login = () => {
     })
     }
   }
+
 
   
   return (
@@ -103,6 +109,15 @@ const Login = () => {
     {/* Invalid username or password indicator */}
     <div className={`${invalidLogin ? "block" : "hidden"} w-full bg-red-200 py-2 mt-3 rounded-sm`}>
       <p className='text-center text-sm text-red-600'>Invalid username/email or password.</p>
+    </div>
+
+    {/* Account disabled indicator */}
+    <div className={`${accountDisabled.bool ? "block" : "hidden"} w-full bg-red-200 py-2 px-2 mt-3 rounded-sm`}>
+      <div className='text-center text-sm text-red-600'>This account has been disabled for {
+      accountDisabled.reasons.map((reason, index)=> (
+        <span>{reason}<span >{accountDisabled.reasons.length === index + 1 ? "." : ", "}</span></span>
+      ))
+      }</div>
     </div>
 
     

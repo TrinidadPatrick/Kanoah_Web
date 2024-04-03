@@ -6,7 +6,7 @@ import { useState } from 'react';
 import http from '../../../http';
 import { io } from 'socket.io-client';
 
-const Rate = ({serviceToRate, setRateModalIsOpen}) => {
+const Rate = ({serviceToRate, setRateModalIsOpen, completedBookings, setCompletedBookings}) => {
     const service = serviceToRate.shop._id
     const booking = serviceToRate._id
     const receiver = serviceToRate.shop.owner
@@ -52,7 +52,6 @@ const Rate = ({serviceToRate, setRateModalIsOpen}) => {
               reference_id : serviceToRate._id
           })
 
-          console.log(notify.data)
       } catch (error) {
           console.error(error)
       }
@@ -63,6 +62,10 @@ const Rate = ({serviceToRate, setRateModalIsOpen}) => {
         const data = {
             rating, review, service, booking, dateNow
         }
+        const newData = [...completedBookings]
+        const index = completedBookings.findIndex((bookings) => bookings._id === booking)
+        newData[index].rated = true
+        setCompletedBookings(newData)
 
         try {
             const result = await http.post('AddRating', data, {withCredentials : true})
@@ -92,7 +95,7 @@ const Rate = ({serviceToRate, setRateModalIsOpen}) => {
         {/* Buttons */}
         <div className='w-full flex justify-between'>
             <button onClick={()=>{setRateModalIsOpen(false)}} className='bg-gray-100 border rounded-md text-gray-600 text-sm px-2 py-1'>Cancel</button>
-            <button onClick={()=>submitReview()} className={`${loading ? "bg-blue-400" : "bg-themeBlue"} border rounded-md text-white text-sm px-2 py-1`}>Post</button>
+            <button disabled={rating === 0 || rating === null} onClick={()=>submitReview()} className={`${loading ? "bg-blue-400" : "bg-themeBlue"} disabled:bg-gray-300 border rounded-md text-white text-sm px-2 py-1`}>Post</button>
         </div>
     </div>
   )

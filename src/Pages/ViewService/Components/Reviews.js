@@ -32,7 +32,7 @@ const Reviews = ({reviews}) => {
         <p className='text-base font-normal text-gray-400'>This service current have 0 reviews</p>
         </div>
         :
-        reviews?.map((review)=>{
+        reviews?.filter((rating)=> rating.status !== "Removed").sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt)).map((review)=>{
           const dateReviewed = new Date(review.createdAt).toLocaleDateString('EN-US', {
             month : 'short',
             day : '2-digit',

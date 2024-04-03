@@ -309,7 +309,7 @@ const Explore = ({services}) => {
         {
           const final = sortedFilter.filter((item) =>
           item.basicInformation.ServiceTitle.toLowerCase().includes(searchInput.toLowerCase()) ||
-          item.tags.some((tag) => tag.toLowerCase().includes(searchInput.toLowerCase())))
+          item.tags.includes(searchInput.toLowerCase()))
           setFilteredService(final);
           
         }

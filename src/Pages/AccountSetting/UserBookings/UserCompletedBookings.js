@@ -10,7 +10,7 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import Rate from './Rate';
 import http from '../../../http';
 
-const UserCompletedBookings = ({completedBookings}) => {
+const UserCompletedBookings = ({completedBookings, setCompletedBookings}) => {
     const navigate = useNavigate()
     const [modalIsOpen, setIsOpen] = useState(false);
     const [rateModalIsOpen, setRateModalIsOpen] = useState(false);
@@ -296,7 +296,7 @@ const UserCompletedBookings = ({completedBookings}) => {
     </Modal>
     {/* Rating Modal */}
     <Modal  isOpen={rateModalIsOpen} style={ModalStyle}>
-        <Rate serviceToRate={serviceToRate} setRateModalIsOpen={setRateModalIsOpen} />
+        <Rate serviceToRate={serviceToRate}completedBookings={completedBookings} setCompletedBookings={setCompletedBookings} setRateModalIsOpen={setRateModalIsOpen} />
     </Modal>
     {/* View Rating Modal */}
     <Modal onRequestClose={()=>setViewRateModalIsOpen(false)}  isOpen={viewRateModalIsOpen} style={ModalStyle}>
@@ -305,7 +305,7 @@ const UserCompletedBookings = ({completedBookings}) => {
         <StyledRating readOnly className='relative left-[0.1rem]' defaultValue={ratingInfo?.rating} precision={1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
 
         <div className='w-full mt-5'>
-            <p className='text-center text-gray-700'>"{ratingInfo?.review}"</p>
+            <p className={`text-center ${ratingInfo?.review !== "" ? "" : "hidden"} text-gray-700`}>"{ratingInfo?.review}"</p>
         </div>
         
         </div>

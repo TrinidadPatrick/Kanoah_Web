@@ -133,8 +133,8 @@ const RatingAndReviewList = ({ratingList, dateSelected}) => {
                         <div className='w-full flex flex-col gap-3'>
                             <h2 className='text-gray-500 font-normal text-sm'>Service: <span className={`${rating.status === "Active" ? "text-gray-700 " : "text-gray-500"} font-normal`}>{rating.booking?.service.selectedService}</span></h2>
                             <h2 className='text-gray-500 font-normal text-sm flex items-center'>Rating: <StyledRating className='relative'  readOnly defaultValue={rating.rating} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} /></h2>
-                            <h2 className='text-gray-500 font-normal text-sm flex items-start'>Review: 
-                            <span className={`${rating.status === "Active" ? "text-gray-700 " : "text-gray-500"} text-sm flex items-start h-full font-normal ml-1`}>{review}
+                            <h2 className={`text-gray-500 ${review !== "" ? "" : "hidden"} font-normal text-sm flex items-start`}>Review: 
+                            <span className={`${rating.status === "Active" ? "text-gray-700 " : "text-gray-500"} ${review !== "" ? "" : "hidden"} text-sm flex items-start h-full font-normal ml-1`}>{review}
                             {
                                 selectedRating?.includes(rating._id) ?
                                 <button onClick={()=>handleReadLess(rating._id)} className="text-gray-500">...Read less</button> :
@@ -146,12 +146,6 @@ const RatingAndReviewList = ({ratingList, dateSelected}) => {
                         </div>
                         {/* Likes dislikes and button */}
                         <div className='w-full flex items-center gap-10'>
-                            <div className='border-0 w-fit flex items-center p-1 border-themeBlue rounded-full'>
-                            <span className="icon-[iconamoon--like-fill] text-gray-400 text-lg"></span>
-                            </div>
-                            <div className='border-0 w-fit flex items-center justify-center p-1 border-red-500 rounded-full'>
-                            <span className="icon-[iconamoon--like-fill] relative top-[1px] left-[1px] rotate-180 text-gray-400 text-lg"></span>
-                            </div>
                             {
                                 rating.status === "Active" ?
                                 <button onClick={()=>{removeRating(rating._id)}} className='text-red-400 hover:text-red-500 text-sm'>Remove</button>

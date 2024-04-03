@@ -233,7 +233,7 @@ const UserBookingHistory = ({bookingHistory, setBookingHistory}) => {
     <div className='w-full h-full max-h-full bg-gray-100 overflow-auto px-3'>
         
         {
-        bookingHistory?.map((bookingHistory) => {
+        bookingHistory?.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt)).map((bookingHistory) => {
             const dateObject = new Date(bookingHistory.schedule.bookingDate)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -396,7 +396,7 @@ const UserBookingHistory = ({bookingHistory, setBookingHistory}) => {
         <StyledRating readOnly className='relative left-[0.1rem]' defaultValue={ratingInfo?.rating} precision={1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
 
         <div className='w-full mt-5'>
-            <p className='text-center text-gray-700'>"{ratingInfo?.review}"</p>
+        <p className={`text-center ${ratingInfo?.review !== "" ? "" : "hidden"} text-gray-700`}>"{ratingInfo?.review}"</p>
         </div>
         
         </div>

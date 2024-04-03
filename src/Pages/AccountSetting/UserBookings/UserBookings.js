@@ -80,7 +80,7 @@ const [bookingHistory, setBookingHistory] = useState(null)
 
     <section className='w-full h-full bg-gray-50 flex flex-col max-h-full overflow-auto'>
     {
-        selectedTab === "InProgress" ? (<UserInProgressBooking inProgressBookings={inProgressBookings} />) : selectedTab === "Completed" ? <UserCompletedBookings completedBookings={completedBookings} /> : selectedTab === "Cancelled" ? <UserCancelledBookings cancelledBookings={cancelledBookings} /> :  <UserBookingHistory bookingHistory={bookingHistory} setBookingHistory={setBookingHistory} />
+        selectedTab === "InProgress" ? (<UserInProgressBooking inProgressBookings={inProgressBookings} />) : selectedTab === "Completed" ? <UserCompletedBookings completedBookings={completedBookings} setCompletedBookings={setCompletedBookings} /> : selectedTab === "Cancelled" ? <UserCancelledBookings cancelledBookings={cancelledBookings} /> :  <UserBookingHistory bookingHistory={bookingHistory} setBookingHistory={setBookingHistory} />
     }
     </section>
     </main>
