@@ -79,14 +79,19 @@ const AdminServices = () => {
 
     const disableService = async () => {
         const serviceId = disableServiceObject.service._id
+        const newData = [...serviceList]
+        const index = newData.findIndex((service)=>service._id === serviceId)
+        newData[index].status.status = "Disabled"
+        newData[index].status.reasons = disableServiceObject.reason
+        newData[index].status.dateDisabled = new Date()
+        setServiceList(newData)
+        setOpenDisableModal(false)
         try {
             const result = await http.patch(`Admin_DisableService/${serviceId}`, disableServiceObject, {withCredentials : true})
             if(result.status == 200)
             {
-                setOpenDisableModal(false)
                 setDisableServiceObject({service : {},
                     reason : []})
-                getServices()
             }
         } catch (error) {
             console.log(error)
@@ -95,8 +100,13 @@ const AdminServices = () => {
 
     const enableService = async (serviceId) => {
         try {
+            const newData = [...serviceList]
+            const index = newData.findIndex((service)=>service._id === serviceId)
+            newData[index].status.status = "Active"
+            newData[index].status.reasons = []
+            newData[index].status.dateDisabled = new Date()
+            setServiceList(newData)
             const result = await http.patch(`Admin_EnableService/${serviceId}`, {}, {withCredentials : true})
-            getServices()
         } catch (error) {
             console.log(error)
         }

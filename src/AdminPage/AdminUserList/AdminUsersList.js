@@ -44,13 +44,18 @@ const AdminUsersList = () => {
 
     const disableUser = async () => {
         try {
+            const newData = [...userList]
+            const index = newData.findIndex((user)=>user._id === disableUserObject.user._id)
+            newData[index].status.status = "Disabled"
+            newData[index].status.reasons = disableUserObject.reason
+            newData[index].status.dateDisabled = new Date()
+            setUserList(newData)
+            setOpenDisableModal(false)
             const result = await http.patch(`Admin_DisableUser/${disableUserObject.user._id}`, disableUserObject, {withCredentials : true})
-            getUsers()
             setDisableUserObject({
                 user : {},
                 reason : []
             })
-            setOpenDisableModal(false)
         } catch (error) {
             console.log(error)
         }
@@ -58,8 +63,13 @@ const AdminUsersList = () => {
 
     const enableUser = async (userId) => {
         try {
+            const newData = [...userList]
+            const index = newData.findIndex((user)=>user._id === userId)
+            newData[index].status.status = "Active"
+            newData[index].status.reasons = []
+            newData[index].status.dateDisabled = new Date()
+            setUserList(newData)
             const result = await http.patch(`Admin_EnableUser/${userId}`, {}, {withCredentials : true})
-            getUsers()
         } catch (error) {
             console.log(error)
         }
@@ -187,11 +197,11 @@ const AdminUsersList = () => {
             })}
             </span>
             </p>
-            <p className={`text-sm ${selectedUser.status.status === "Disabled" ? "" : "hidden"} font-medium text-gray-500`}>Reasons:</p>
             <div className='w-ful flex flex-wrap gap-2'>
+            <p className={`text-sm ${selectedUser.status.status === "Disabled" ? "" : "hidden"} font-medium text-gray-500`}>Reasons:</p>
             {
-                selectedUser.status.reasons?.map((reason)=>(
-                    <p className='text-gray-700  text-sm'>{reason},</p>
+                selectedUser.status.reasons?.map((reason, index)=>(
+                    <p key={index} className='text-gray-700  text-sm'>{reason}<span>{index === selectedUser.status.reasons.length - 1 ? "" : ", "}</span></p>
                 ))
             }
             </div>
@@ -257,7 +267,7 @@ const AdminUsersList = () => {
     {/* Navigation */}
     <div className='w-full flex flex-col semiSm:flex-row items-center justify-start gap-2 mt-3 sm:px-5'>
         <div className='w-full h-full flex items-center space-x-2 relative'>
-            <input onKeyDown={(e)=>{if(e.key === "Enter"){}}} value={search} onChange={(e)=>setSearch(e.target.value)} className='border w-full text-sm h-full px-2 py-2 rounded-md' type='search' placeholder='Search...' />
+            <input onKeyDown={(e)=>{if(e.key === "Enter"){handleSearch()}}} value={search} onChange={(e)=>setSearch(e.target.value)} className='border w-full text-sm h-full px-2 py-2 rounded-md' type='search' placeholder='Search...' />
             <button onClick={()=>handleSearch()} className='text-sm bg-themeOrange h-full px-3 text-white rounded-md'>Search</button>
         </div>
     {/* Filters */}
