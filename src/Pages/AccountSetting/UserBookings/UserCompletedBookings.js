@@ -296,7 +296,7 @@ const UserCompletedBookings = ({completedBookings, setCompletedBookings}) => {
     </Modal>
     {/* Rating Modal */}
     <Modal  isOpen={rateModalIsOpen} style={ModalStyle}>
-        <Rate serviceToRate={serviceToRate}completedBookings={completedBookings} setCompletedBookings={setCompletedBookings} setRateModalIsOpen={setRateModalIsOpen} />
+        <Rate ratings={ratings} setRatings={setRatings} serviceToRate={serviceToRate}completedBookings={completedBookings} setCompletedBookings={setCompletedBookings} setRateModalIsOpen={setRateModalIsOpen} />
     </Modal>
     {/* View Rating Modal */}
     <Modal onRequestClose={()=>setViewRateModalIsOpen(false)}  isOpen={viewRateModalIsOpen} style={ModalStyle}>

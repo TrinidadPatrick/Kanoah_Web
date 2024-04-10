@@ -40,6 +40,7 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
       },[])
 
 
+
     const OpenClientInformation = (id) => {
         const selected = inProgressBookings.find(booking => booking._id === id)
         const scheduleObject = new Date(selected.schedule.bookingDate)

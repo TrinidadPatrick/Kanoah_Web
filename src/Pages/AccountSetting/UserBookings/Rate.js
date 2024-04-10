@@ -6,7 +6,7 @@ import { useState } from 'react';
 import http from '../../../http';
 import { io } from 'socket.io-client';
 
-const Rate = ({serviceToRate, setRateModalIsOpen, completedBookings, setCompletedBookings}) => {
+const Rate = ({serviceToRate, setRateModalIsOpen, completedBookings, setCompletedBookings, ratings, setRatings}) => {
     const service = serviceToRate.shop._id
     const booking = serviceToRate._id
     const receiver = serviceToRate.shop.owner
@@ -62,6 +62,9 @@ const Rate = ({serviceToRate, setRateModalIsOpen, completedBookings, setComplete
         const data = {
             rating, review, service, booking, dateNow
         }
+        const newRating = [...ratings]
+        newRating.push(data)
+        setRatings(newRating)
         const newData = [...completedBookings]
         const index = completedBookings.findIndex((bookings) => bookings._id === booking)
         newData[index].rated = true
