@@ -9,9 +9,12 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
     const [step, setStep] = useState(1)
     const dispatch = useDispatch()
     const serviceContext = useSelector(selectService)
-    const [error, setError] = useState(false)
+    const [error, setError] = useState({
+        service : false,
+        variant : false
+    })
     const [selectedService, setSelectedService] = useState('') //this has a value of unique ID
-    const [selectedVariant, setSelectedVariant] = useState({}) //this has a value of unique ID
+    const [selectedVariant, setSelectedVariant] = useState("") //this has a value of unique ID
     const [duration, setDuration] = useState(null)
     const [variants, setVariants] = useState([])
     const [price, setPrice] = useState('')
@@ -26,10 +29,12 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
             setSelectedService(service.name)
             setSelectedVariant("")
             setVariants(variantList)
+            setPrice("---")
             setSelectedServiceId(service.uniqueId)
             return
         }
         setSelectedService(service.name)
+        setVariants([])
         setPrice(service.origPrice)
         setDuration(Number(service.duration))
         setSelectedServiceId(service.uniqueId)
@@ -51,13 +56,18 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
             duration,
             selectedServiceId
         }
-        if(selectService === "" || price === "")
+        setError((prevError) => ({
+            ...prevError,
+            service: selectedService === "" ? true : false,
+            variant: price === "---" ? true : false,
+          }));
+
+        if(selectedService !== "" && price !== "---")
         {
-            setError(true)
-            return
+            dispatch(setService(data))
+            handleStep(2)
         }
-        dispatch(setService(data))
-        handleStep(2)
+        
         
     }
 
@@ -84,7 +94,7 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
             <div className='flex flex-col space-y-3  p-1 mt-4 '>
             
                 <p className='text-xs text-gray-500 '>Choose service to book</p>
-                <p className={`${error ? "" : "hidden"} text-semiSm text-red-500`}>Please select an option first</p>
+                <p className={`${error.service ? "" : "hidden"} text-semiSm text-red-500`}>Please select an option first</p>
                 {/* Service List */}
             <div className='booking_ServiceList  grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[210px] overflow-y-auto'>
                     {
@@ -108,7 +118,11 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
             
             </div>
             {/* Variant List */}
-            <div className='w-full h-full flex gap-3 p-3 '>
+            <div>
+            <p className='text-xs text-gray-500 '>Choose variant</p>
+            <p className={`${error.variant ? "" : "hidden"} text-semiSm text-red-500`}>Please select a variant first</p>
+            <div className='w-full h-full flex gap-3 pt-1 '>
+            <p className={` ${variants.length !== 0 ? "hidden" : ""}  text-sm text-gray-500`}>No variants available</p>
                 {
                     variants?.map((variant, index)=>{
                         return (
@@ -118,6 +132,7 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
                         )
                     })
                 }
+            </div>
             </div>
             </div>
             <div className='flex items-center justify-between gap-1'>

@@ -47,16 +47,29 @@ const UserFavorites = ({authenticated}) => {
 
     const finalize_list = (favorites) => {
       return favorites?.map((favorite)=>{
-
-          const currentDate = new Date();
-          const thisDate = currentDate.toISOString().split('T')[0]; // Extract only the date part
-          const from = new Date(favorite.service.createdAt);
-          const to = new Date(thisDate);
-          const years = to.getFullYear() - from.getFullYear();
-          const months = to.getMonth() - from.getMonth();
-          const days = to.getDate() - from.getDate();
-          const createdAgo =  years > 0 ? `${years} ${years === 1 ? 'year' : 'years'} ago` : months > 0 ? `${months} ${months === 1 ? 'month' : 'months'} ago` : days > 0 ? `${days} ${days === 1 ? 'day' : 'days'} ago` : 'Less than a day ago';
+        const service = favorite.service
+        const currentDate = new Date();
+        const thisDate = currentDate.toISOString().split('T')[0]; // Extract only the date part
+        const from = new Date(favorite.service.createdAt);
+        const to = new Date(thisDate);
+        const fromAdded = new Date(favorite.createdAt);
+        const toAdded = new Date();
+        const years = to.getFullYear() - from.getFullYear();
+        const months = to.getMonth() - from.getMonth();
+        const days = to.getDate() - from.getDate();
+        const yearsAdded = toAdded.getFullYear() - fromAdded.getFullYear();
+        const monthsAdded = toAdded.getMonth() - fromAdded.getMonth();
+        const daysAdded = toAdded.getDate() - fromAdded.getDate();
+        const timeDifferenceMS = new Date(toAdded.getTime()) - new Date(fromAdded.getTime())
+        const secondsAdded = Math.floor(timeDifferenceMS / 1000);
+        const minutesAdded = Math.floor(timeDifferenceMS / 60000);
+        const hoursAdded = Math.floor(timeDifferenceMS /  (1000 * 60 * 60));
+        const createdAgo =  years > 0 ? `${years} ${years === 1 ? 'year' : 'years'} ago` : months > 0 ? `${months} ${months === 1 ? 'month' : 'months'} ago` : days > 0 ? `${days} ${days === 1 ? 'day' : 'days'} ago` : 'Less than a day ago';
+        const createdAgoAdded =  yearsAdded > 0 ? `${years} ${years === 1 ? 'year' : 'years'} ago` : monthsAdded > 0 ? `${months} ${months === 1 ? 'month' : 'months'} ago` :
+         daysAdded > 0 ? `${days} ${days === 1 ? 'day' : 'days'} ago` : hoursAdded > 0 ? `${hoursAdded} ${hoursAdded === 1 ? 'hour' : 'hours'} ago` : 
+         minutesAdded > 0 ? `${minutesAdded} ${minutesAdded === 1 ? 'minute' : 'minutes'} ago` : `${secondsAdded} ${secondsAdded === 1 ? 'second' : 'seconds'} ago`;
         return {
+          service,
           key : favorite._id,
           _id : favorite._id,
           serviceId : favorite.service._id,
@@ -64,6 +77,7 @@ const UserFavorites = ({authenticated}) => {
           serviceTitle : favorite.service.basicInformation.ServiceTitle,
           owner : favorite.service.owner.firstname + " " + favorite.service.owner.lastname,
           createdAgo,
+          createdAgoAdded,
           createdAt : favorite.createdAt,
         }
       })
@@ -157,24 +171,24 @@ const UserFavorites = ({authenticated}) => {
       {
         case "newestAdded" :
         
-        const newestSorted = convertedFavorite.sort((a,b) => a.createdAt - b.createdAt)
+        const newestSorted = convertedFavorite.sort((a,b) => b.createdAt - a.createdAt)
         setFavoriteList(newestSorted)
         break
 
         case "oldestAdded" :
-        const oldestSorted = convertedFavorite.sort((a,b) => b.createdAt - a.createdAt)
+        const oldestSorted = convertedFavorite.sort((a,b) => a.createdAt - b.createdAt)
         setFavoriteList(oldestSorted)
         break
 
-        case "MostRated" :
-        const mostRatedSorted = convertedFavorite.sort((a,b) => Number(b.ratings) - Number(a.ratings))
-        setFavoriteList(mostRatedSorted)
-        break
-
-        case "LeastRated" :
-        const leastRatedSorted = convertedFavorite.sort((a,b) => Number(a.ratings) - Number(b.ratings))
-        setFavoriteList(leastRatedSorted)
-        break
+        case "publishedNewest" :
+          const publishedNewest = convertedFavorite.sort((a,b) => new Date(b.service.createdAt) - new Date(a.service.createdAt))
+          setFavoriteList(publishedNewest)
+          break
+  
+          case "publishedOldest" :
+          const publishedOldest = convertedFavorite.sort((a,b) => new Date(a.service.createdAt) - new Date(b.service.createdAt))
+          setFavoriteList(publishedOldest)
+          break
       }
       
     }
@@ -243,6 +257,7 @@ const UserFavorites = ({authenticated}) => {
                         <span className='w-1 h-1 rounded-full bg-gray-500'></span>
                       <h2 className='text-semiXs semiSm:text-semiSm whitespace-nowrap text-gray-500 font-medium'>{favorite.createdAgo}</h2>
                     </div>
+                    <h2 className='text-semiXs semiSm:text-semiSm whitespace-nowrap text-gray-500 font-medium'>Added {favorite.createdAgoAdded}</h2>
                   </div>
                   
                 </div>
@@ -278,8 +293,8 @@ const SortDropdown = ({sortList, showFilter, setShowFilter, UFsortOption}) => {
     <div className={`w-fit ${showFilter ? "flex" : "hidden"} flex-col z-20 -bottom-[9rem] left-0 rounded-md absolute overflow-hidden bg-[#f9f9f9] shadow-md`}>
       <button onClick={()=>{sortList('newestAdded');setShowFilter(false)}} className={`${UFsortOption === "newestAdded" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date added (newest)</button>
       <button onClick={()=>{sortList('oldestAdded');setShowFilter(false)}} className={`${UFsortOption === "oldestAdded" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date added (oldest)</button>
-      <button onClick={()=>{sortList('MostRated');setShowFilter(false)}}   className={` ${UFsortOption === "MostRated" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Most Rated</button>
-      <button onClick={()=>{sortList('LeastRated');setShowFilter(false)}} className={` ${UFsortOption === "LeastRated" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Least Rated</button>
+      <button onClick={()=>{sortList('publishedNewest');setShowFilter(false)}}   className={` ${UFsortOption === "publishedNewest" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date published (newest)</button>
+      <button onClick={()=>{sortList('publishedOldest');setShowFilter(false)}} className={` ${UFsortOption === "publishedOldest" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date published (oldest)</button>
     </div>
   )
 }

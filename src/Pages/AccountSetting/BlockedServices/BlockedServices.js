@@ -48,16 +48,29 @@ const BlockedServices = ({authenticated}) => {
 
     const finalize_list = (dnsList) => {
       return dnsList.map((dns)=>{
-
+        const service = dns.service
           const currentDate = new Date();
           const thisDate = currentDate.toISOString().split('T')[0]; // Extract only the date part
           const from = new Date(dns.service.createdAt);
           const to = new Date(thisDate);
+          const fromAdded = new Date(dns.createdAt);
+          const toAdded = new Date();
           const years = to.getFullYear() - from.getFullYear();
           const months = to.getMonth() - from.getMonth();
           const days = to.getDate() - from.getDate();
+          const yearsAdded = toAdded.getFullYear() - fromAdded.getFullYear();
+          const monthsAdded = toAdded.getMonth() - fromAdded.getMonth();
+          const daysAdded = toAdded.getDate() - fromAdded.getDate();
+          const timeDifferenceMS = new Date(toAdded.getTime()) - new Date(fromAdded.getTime())
+          const secondsAdded = Math.floor(timeDifferenceMS / 1000);
+          const minutesAdded = Math.floor(timeDifferenceMS / 60000);
+          const hoursAdded = Math.floor(timeDifferenceMS /  (1000 * 60 * 60));
           const createdAgo =  years > 0 ? `${years} ${years === 1 ? 'year' : 'years'} ago` : months > 0 ? `${months} ${months === 1 ? 'month' : 'months'} ago` : days > 0 ? `${days} ${days === 1 ? 'day' : 'days'} ago` : 'Less than a day ago';
+          const createdAgoAdded =  yearsAdded > 0 ? `${years} ${years === 1 ? 'year' : 'years'} ago` : monthsAdded > 0 ? `${months} ${months === 1 ? 'month' : 'months'} ago` :
+           daysAdded > 0 ? `${days} ${days === 1 ? 'day' : 'days'} ago` : hoursAdded > 0 ? `${hoursAdded} ${hoursAdded === 1 ? 'hour' : 'hours'} ago` : 
+           minutesAdded > 0 ? `${minutesAdded} ${minutesAdded === 1 ? 'minute' : 'minutes'} ago` : `${secondsAdded} ${secondsAdded === 1 ? 'second' : 'seconds'} ago`;
         return {
+          service,
           key : dns._id,
           _id : dns._id,
           serviceId : dns.service._id,
@@ -65,6 +78,7 @@ const BlockedServices = ({authenticated}) => {
           serviceTitle : dns.service.basicInformation.ServiceTitle,
           owner : dns.service.owner.firstname + " " + dns.service.owner.lastname,
           createdAgo,
+          createdAgoAdded,
           createdAt : dns.createdAt,
         }
       })
@@ -114,24 +128,24 @@ const BlockedServices = ({authenticated}) => {
       {
         case "newestAdded" :
         
-        const newestSorted = convertedDNS.sort((a,b) => a.createdAt - b.createdAt)
+        const newestSorted = convertedDNS.sort((a,b) => b.createdAt - a.createdAt)
         setDNSList(newestSorted)
         break
 
         case "oldestAdded" :
-        const oldestSorted = convertedDNS.sort((a,b) => b.createdAt - a.createdAt)
+        const oldestSorted = convertedDNS.sort((a,b) => a.createdAt - b.createdAt)
         setDNSList(oldestSorted)
         break
 
-        case "MostRated" :
-        const mostRatedSorted = convertedDNS.sort((a,b) => Number(b.ratings) - Number(a.ratings))
-        setDNSList(mostRatedSorted)
-        break
-
-        case "LeastRated" :
-        const leastRatedSorted = convertedDNS.sort((a,b) => Number(a.ratings) - Number(b.ratings))
-        setDNSList(leastRatedSorted)
-        break
+        case "publishedNewest" :
+          const publishedNewest = convertedDNS.sort((a,b) => new Date(b.service.createdAt) - new Date(a.service.createdAt))
+          setDNSList(publishedNewest)
+          break
+  
+          case "publishedOldest" :
+          const publishedOldest = convertedDNS.sort((a,b) => new Date(a.service.createdAt) - new Date(b.service.createdAt))
+          setDNSList(publishedOldest)
+          break
       }
       setShowFilter(false)
     }
@@ -234,6 +248,7 @@ const BlockedServices = ({authenticated}) => {
                          <span className='w-1 h-1 rounded-full bg-gray-500'></span>
                        <h2 className='text-semiXs semiSm:text-semiSm whitespace-nowrap text-gray-500 font-medium'>{dns.createdAgo}</h2>
                      </div>
+                     <h2 className='text-semiXs semiSm:text-semiSm whitespace-nowrap text-gray-500 font-medium'>Added {dns.createdAgoAdded}</h2>
                    </div>
                    
                  </div>
@@ -269,8 +284,8 @@ const SortDropdown = ({sortList, showFilter, setShowFilter, BSsortOption}) => {
     <div className={`w-fit ${showFilter ? "flex" : "hidden"} flex-col z-20 -bottom-[9rem] left-0 rounded-md absolute overflow-hidden bg-[#f9f9f9] shadow-md`}>
       <button onClick={()=>{sortList('newestAdded');setShowFilter(false)}} className={`${BSsortOption === "newestAdded" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date added (newest)</button>
       <button onClick={()=>{sortList('oldestAdded');setShowFilter(false)}} className={`${BSsortOption === "oldestAdded" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date added (oldest)</button>
-      <button onClick={()=>{sortList('MostRated');setShowFilter(false)}}   className={` ${BSsortOption === "MostRated" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Most Rated</button>
-      <button onClick={()=>{sortList('LeastRated');setShowFilter(false)}} className={` ${BSsortOption === "LeastRated" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Least Rated</button>
+      <button onClick={()=>{sortList('publishedNewest');setShowFilter(false)}}   className={` ${BSsortOption === "publishedNewest" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date published (newest)</button>
+      <button onClick={()=>{sortList('publishedOldest');setShowFilter(false)}} className={` ${BSsortOption === "publishedOldest" ? "bg-gray-200" : ""} text-sm hover:bg-gray-200 text-left flex items-center gap-2 whitespace-nowrap px-3 py-2`}>Date published (oldest)</button>
     </div>
   )
 }
