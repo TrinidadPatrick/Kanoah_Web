@@ -206,7 +206,7 @@ const AdvanceInformation = ({serviceInformation}) => {
 
     {/* Social Links */}
     <div className='w-full'>
-    <p className='text-sm text-gray-500 font-semibold mb-1'>Service Options</p>
+    <p className='text-sm text-gray-500 font-semibold mb-1'>Social Links</p>
     <div className='flex flex-col gap-4'>
       {/* Facebook */}
       <div className='flex items-center gap-3'>
