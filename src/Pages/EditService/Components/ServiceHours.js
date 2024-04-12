@@ -26,7 +26,6 @@ const ServiceHours = ({serviceInformation}) => {
   };
 
   const handleTimeChange = (day, field, value) => {
-    console.log(day)
     setSchedule((prevSchedule) => {
       const newSchedule = prevSchedule.map((entry) =>
         entry.day === day ? { ...entry, [field]: value } : entry
@@ -35,7 +34,6 @@ const ServiceHours = ({serviceInformation}) => {
     });
   };
 
-  console.log(schedule)
 
   const submitSchedule = async () => {
     const serviceHour = schedule
