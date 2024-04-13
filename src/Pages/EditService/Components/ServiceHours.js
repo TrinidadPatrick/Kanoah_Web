@@ -87,7 +87,6 @@ const ServiceHours = ({serviceInformation}) => {
     <span className='hidden semiXs:block ml-2 text-xs lg:text-[1rem]'>{entry.isOpen ? 'Open' : 'Closed'}</span>
   </label>
 </div>
-      {console.log(entry)}
 
           {/* Input time */}
           {/* From */}

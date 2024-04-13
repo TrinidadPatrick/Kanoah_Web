@@ -249,8 +249,8 @@ const BookingInformation = ({serviceInformation}) => {
       {
         const instance = [...serviceOfferList]
         const data = {
-          // uniqueId : serviceOfferInfo.uniqueId,
-          uniqueId : Math.floor(1000000000 + Math.random() * 9000000000),
+          uniqueId : serviceOfferInfo.uniqueId,
+          // uniqueId : Math.floor(1000000000 + Math.random() * 9000000000),
           name : serviceOfferInfo.name,
           origPrice : serviceOfferInfo.variants.length !== 0 ? '' : serviceOfferInfo.origPrice,
           variants : serviceOfferInfo.variants.filter(variant => variant.type !== '' && variant.price !== '') ,
@@ -312,24 +312,26 @@ const BookingInformation = ({serviceInformation}) => {
 
     const disableServiceOffer = async () => {
         const instance = [...serviceOfferList]
-        const indexToUpdate = serviceOfferList.findIndex(service => service.isEdit === true)
+        const indexToUpdate = serviceOfferList.findIndex(service => service.uniqueId === serviceOfferInfo.uniqueId)
         const data = {
             uniqueId : instance[indexToUpdate].uniqueId, 
             name : instance[indexToUpdate].name,
             origPrice : instance[indexToUpdate].origPrice,
-            variant : instance[indexToUpdate].variants,
+            variants : instance[indexToUpdate].variants,
             status : "DISABLED"
         }
+
         instance.splice(indexToUpdate, 1, data)
+        // console.log(instance)
         setServiceOfferList(instance)
         closeEditServiceModal()
+        setIsEdit(false)
         try {
             const result = await http.patch(`updateService/${serviceInformation.userId}`, {serviceOffers : instance},  {
               withCredentials : true
             })
             if(result.data.status == "Success")
             {
-              console.log(result.data)
               return ;
             }
             else{
@@ -342,12 +344,12 @@ const BookingInformation = ({serviceInformation}) => {
 
     const enableServiceOffer = async () => {
         const instance = [...serviceOfferList]
-        const indexToUpdate = serviceOfferList.findIndex(service => service.isEdit === true)
+        const indexToUpdate = serviceOfferList.findIndex(service => service.uniqueId === serviceOfferInfo.uniqueId)
         const data = {
             uniqueId : instance[indexToUpdate].uniqueId, 
             name : instance[indexToUpdate].name,
             origPrice : instance[indexToUpdate].origPrice,
-            variant : instance[indexToUpdate].variants,
+            variants : instance[indexToUpdate].variants,
             status : "ACTIVE"
         }
         instance.splice(indexToUpdate, 1, data)
@@ -359,7 +361,6 @@ const BookingInformation = ({serviceInformation}) => {
             })
             if(result.data.status == "Success")
             {
-              console.log(result.data)
               return ;
             }
             else{
@@ -676,7 +677,6 @@ const BookingInformation = ({serviceInformation}) => {
                 <td className=' text-center border border-l-0  p-1 sm:w-1/4 md:w-1/3 lg:w-1/2 xl:w-1/3 2xl:w-[1/5] overflow-hidden text-ellipsis '>
                 <div className=' mx-2 '>
                 <p className='line-clamp-2 break-words text-start'>{service.name}
-                {/* dnkjdbjkashdkjasbjsajdbaskjasbdckasjssdnaskdajsdhkjasdhahjdhsadkjasdhakjshdkjashdksdjaskdjsdnjsdhkajdhajdkhsajdhajdhasdhakdhaskdjhasjdkjkash */}
                 </p>
                 </div>
                 </td>
@@ -685,7 +685,6 @@ const BookingInformation = ({serviceInformation}) => {
                 <td className=' text-center border border-l-0  p-1 sm:w-1/4 md:w-1/3 lg:w-1/4 xl:w-1/6 2xl:w-1/5'>
                 <div className=' m-5'>
                 <p className='text-xs whitespace-nowrap'>
-                  {/* {console.log(service.variants)} */}
                   {service.variants && service.variants.length !== 0 ? `₱${service.variants[0]?.price} - ₱${service.variants.slice(-1)[0]?.price}` : `₱${service.origPrice}`}
                 </p>
                 </div>
@@ -914,7 +913,7 @@ const BookingInformation = ({serviceInformation}) => {
         {
             serviceOfferInfo.status === 'ACTIVE'
             ?
-            <button onClick={()=>{disableServiceOffer();setIsEdit(false)}} className={`w-full  ${isEdit ? 'block' : 'hidden'} p-2 text-white bg-blue-400 hover:bg-blue-500 text-sm font-medium rounded-sm`}>Mark as disabled</button>
+            <button onClick={()=>{disableServiceOffer()}} className={`w-full  ${isEdit ? 'block' : 'hidden'} p-2 text-white bg-blue-400 hover:bg-blue-500 text-sm font-medium rounded-sm`}>Mark as disabled</button>
             :
             <button onClick={()=>{enableServiceOffer();setIsEdit(false)}} className={`w-full  ${isEdit ? 'block' : 'hidden'} p-2 text-white bg-blue-400 hover:bg-blue-500 text-sm font-medium rounded-sm`}>Mark as Active</button>
 
