@@ -167,7 +167,7 @@ const OwnerBookingHistory = ({ history, lazyLoad, setHistory }) => {
             {/* Left side */}
             <div className=' w-full'>
             <h1 className='text-[1rem] sm:text-[1.2rem] font-semibold text-themeOrange'>{booking.service.selectedService}</h1>
-            <h2 className='font-medium text-semiSm text-gray-500'>BOOKING ID: <span>{booking.Booking_id}</span></h2>
+            <h2 className='font-medium text-semiSm text-gray-500'>BOOKING ID: <span>{booking.booking_id}</span></h2>
             <table className='w-[200px] mt-2'>
                 <tbody>
                     <tr className={`${booking.service.selectedVariant ? "" : "hidden"}`}>
