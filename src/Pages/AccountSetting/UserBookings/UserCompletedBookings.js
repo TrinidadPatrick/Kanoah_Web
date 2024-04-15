@@ -148,7 +148,7 @@ const UserCompletedBookings = ({completedBookings, setCompletedBookings}) => {
 
         <div className='w-full h-full max-h-full overflow-auto'>
         {
-        completedBookings?.map((completedBookings) => {
+        completedBookings?.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt)).map((completedBookings) => {
             const dateObject = new Date(completedBookings.schedule.bookingDate)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
                 year: 'numeric',

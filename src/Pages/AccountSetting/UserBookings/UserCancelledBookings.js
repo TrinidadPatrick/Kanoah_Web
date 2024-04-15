@@ -53,7 +53,7 @@ const UserCancelledBookings = ({cancelledBookings}) => {
   return (
     <>
     {
-    cancelledBookings?.length === 0 ?
+    cancelledBookings?.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt)).length === 0 ?
     <div className="flex items-center justify-center h-screen">
         <div className="text-center">
             <h2 className="text-3xl font-semibold mb-4">No Bookings Yet</h2>

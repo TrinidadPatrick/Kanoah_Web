@@ -75,7 +75,7 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
             const filtered = newBooking.filter((booking) => booking.status === "INPROGRESS")
             set_InProgress_Bookings_Orig(filtered)
             try {
-                const result = await http.patch(`respondBooking/${id}`, {status})
+                const result = await http.patch(`respondBooking/${id}`, {status, updatedAt : new Date()})
                 if(status === "CANCELLED")
                 {
                     notifyUser(InProgress_Bookings_Orig[index])
