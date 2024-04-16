@@ -101,7 +101,7 @@ const UserCancelledBookings = ({cancelledBookings}) => {
                     <h2 className='font-medium text-base text-gray-700'>{cancelledBookings.shop.basicInformation.ServiceTitle}</h2>
                     <ArrowForwardIosIcon fontSize='small' className='p-0.5 text-gray-600' />
                     </div>
-                    <span className='text-red-500 font-medium'>Cancelled</span>
+                    <span className='text-red-500 font-medium'>Cancelled by {cancelledBookings.cancelledBy.role}</span>
                 </div>
                 {/* Image and personal info container */}
                 <div onClick={()=>openBookingInfo(cancelledBookings._id)} className='w-full gap-3 h-full relative cursor-pointer flex'>

@@ -74,16 +74,29 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
             newBooking[index] = {...newBooking[index], ["status"] : status}
             const filtered = newBooking.filter((booking) => booking.status === "INPROGRESS")
             set_InProgress_Bookings_Orig(filtered)
-            try {
-                const result = await http.patch(`respondBooking/${id}`, {status, updatedAt : new Date()})
-                if(status === "CANCELLED")
+            if(status === "CANCELLED")
                 {
-                    notifyUser(InProgress_Bookings_Orig[index])
+                    try {
+                        const result = await http.patch(`respondBooking/${id}`, {status, updatedAt : new Date(), cancelledBy : {
+                            role : "Provider",
+                            user : newBooking[index].shop.owner
+                        }})
+                        notifyUser(InProgress_Bookings_Orig[index])
+                        lazyLoad()
+                    } catch (error) {
+                        console.log(error)
+                    }
                 }
-                lazyLoad()
-            } catch (error) {
-                console.log(error)
+            else
+            {
+                try {
+                    const result = await http.patch(`respondBooking/${id}`, {status, updatedAt : new Date()})
+                    lazyLoad()
+                } catch (error) {
+                    console.log(error)
+                }
             }
+            
         }
 
         return ;

@@ -207,7 +207,7 @@ const OwnerBookingHistory = ({ history, lazyLoad, setHistory }) => {
             {/* Right side */}
             <div className='w-full h-full hidden semiMd:flex flex-col justify-between relative  pt-12'>
                 <div className={`absolute right-2 top-2 ${booking.status === "COMPLETED" ? "text-green-500" : "text-red-500"}`}>
-                    <span>{booking.status}</span>
+                    <span>{booking.status === "COMPLETED" ? "Completed" : `Cancelled by ${booking.cancelledBy.role}`}</span>
                 </div>
             <table className=' w-[200px]'>
                 <tbody>

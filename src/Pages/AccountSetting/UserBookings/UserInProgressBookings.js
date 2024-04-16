@@ -86,8 +86,10 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
         }
     }
 
-    const cancelBooking = async (bookingId) => {
-        const status = "CANCELLED"
+    const cancelBooking = async (bookingId, differenceInMinutes) => {
+        if(differenceInMinutes < 5)
+        {
+            const status = "CANCELLED"
         const index = InProgress_Bookings_Orig.findIndex(booking => booking._id === bookingId)
         if(index !== -1)
         {
@@ -96,11 +98,15 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
             const filtered = newBooking.filter((booking) => booking.status === "INPROGRESS")
             set_InProgress_Bookings_Orig(filtered)
             try {
-                const result = await http.patch(`respondBooking/${bookingId}`, {status})
+                const result = await http.patch(`respondBooking/${bookingId}`, {status, updatedAt : new Date(), cancelledBy : {
+                    role : "Client",
+                    user : newBooking[index].client
+                }})
                 notifyUser(InProgress_Bookings_Orig[index])
             } catch (error) {
                 console.log(error)
             }
+        }
         }
 
         return ;
@@ -193,7 +199,7 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
                     </div>
                 </div>
                 <div className='w-full flex justify-end'>
-                <button onClick={()=>cancelBooking(inprogress._id)} 
+                <button onClick={()=>cancelBooking(inprogress._id, differenceInMinutes)} 
                 disabled={differenceInMinutes >= 5} 
                 className='bg-gray-300 disabled:bg-gray-100 text-gray-600 disabled:text-gray-400 border rounded-sm px-2 text-sm py-1'>Cancel booking</button>
                 </div>

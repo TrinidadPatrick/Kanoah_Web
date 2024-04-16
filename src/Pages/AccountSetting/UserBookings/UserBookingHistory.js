@@ -248,7 +248,7 @@ const UserBookingHistory = ({bookingHistory, setBookingHistory}) => {
                     <h2 className='font-medium text-base text-gray-700'>{bookingHistory.shop.basicInformation.ServiceTitle}</h2>
                     <ArrowForwardIosIcon fontSize='small' className='p-0.5 text-gray-600' />
                     </div>
-                    <span className='text-themeOrange font-medium'>{bookingHistory.status === "CANCELLED" ? "Cancelled" : "Completed"}</span>
+                    <span className='text-themeOrange font-medium'>{bookingHistory.status === "CANCELLED" ? `Cancelled by ${bookingHistory.cancelledBy.role}` : "Completed"}</span>
                 </div>
                 {/* Image and personal info container */}
                 <div onClick={()=>openBookingInfo(bookingHistory._id)} className='w-full gap-3 h-full relative cursor-pointer flex'>
