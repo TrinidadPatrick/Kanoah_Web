@@ -6,6 +6,7 @@ import view from './Components/howitworks/view.png'
 import { useEffect } from 'react'
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import axios from 'axios'
 
 
 const HowItWorks = () => {
@@ -16,6 +17,7 @@ const HowItWorks = () => {
         easing : "ease-in-out-cubic"
     })
 },[])
+
 
   return (
     <div className='w-full p-1 mt-10 h-full pt-10 sm:pt-0'>

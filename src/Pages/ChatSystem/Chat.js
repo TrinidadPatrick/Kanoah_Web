@@ -22,9 +22,11 @@ import ContactPhoneRoundedIcon from '@mui/icons-material/ContactPhoneRounded';
 import './chat.css'
 import UseInfo from '../../ClientCustomHook/UseInfo';
 import {io} from 'socket.io-client'
+import useNotify from '../../ClientCustomHook/useNotify';
 
   const ChatPractice = () => {
     const dispatch = useDispatch()
+    const {pushNotify} = useNotify
     const {authenticated, userInformation} = UseInfo()
     const newMessage = useSelector(selectNewMessage)
     const navigate = useNavigate()
@@ -245,7 +247,7 @@ import {io} from 'socket.io-client'
     }
 
     //Handle the sending of message
-    const handleSendMessage = async (message, type) => {
+    const handleSendMessage = async (message, type, size) => {
       const data = {
         sendingId : Math.floor(Math.random() * 1000),
         conversationId : convoId,
@@ -259,6 +261,7 @@ import {io} from 'socket.io-client'
           sender : userInformation?._id,
           receiver: receiver._id,
           content: message,
+          size : size,
           date : thisDate,
           timestamp : timeSent
         }
@@ -279,6 +282,14 @@ import {io} from 'socket.io-client'
 
         setSearchParams({service : service, convoId : sendMessage.data.result.conversationId})   
         socket.emit('message', {notificationMessage, receiverName : receiver._id});
+        // Notify user
+        axios.post(`https://app.nativenotify.com/api/indie/notification`, {
+            subID: receiver._id,
+            appId: 19825,
+            appToken: 'bY9Ipmkm8sFKbmXf7T0zNN',
+            title: `New message`,
+            message: 'You have a new Message'
+       });
       } catch (error) {
         console.error(error)
       }
@@ -463,6 +474,11 @@ import {io} from 'socket.io-client'
           const resizedImageDataUrl = await resizeImage(test, 800, 600);
           handleImageSend(resizedImageDataUrl, 'image' )
 
+          const img = new Image()
+          img.src = test
+          const size = {width : img.width, height : img.height}
+
+
           const formData = new FormData();
           formData.append('file', dataURLtoBlob(resizedImageDataUrl));
           formData.append('upload_preset', "kanoah_chat_image");
@@ -473,7 +489,7 @@ import {io} from 'socket.io-client'
           const imageUrl = response.data.secure_url;
           if(response.status === 200)
           {
-            (()=>{handleSendMessage(imageUrl, 'image' )})()
+            (()=>{handleSendMessage(imageUrl, 'image', size )})()
           }
         } catch (error) {
           console.error(error);
@@ -483,11 +499,6 @@ import {io} from 'socket.io-client'
       
       
     };
-
-    // opens and close the emoji picker
-    const handleEmojiPicker = () => {
-      setOpenEmojiPicker(!openEmojiPicker)
-    } 
 
     const handleReadMessage = async (conversationId) => {
       const readMessage = await http.put('handleReadMessage', {conversationId, myId : userInformation?._id})
@@ -546,19 +557,6 @@ import {io} from 'socket.io-client'
       setReceiverInformation(profile.data)
     }
 
-    async function handleDeleteConversation(conversationId)
-    {
-      try {
-        const result = await http.delete(`handleDeleteConversation/${conversationId}`, {
-          withCredentials: true,
-        })
-
-        setSearchParams({})
-        window.location.reload()
-      } catch (error) {
-        console.error(error)
-      }
-    }
 
     function handleSearchMessage(searchInput){
       const newContact = [...allContacts]
@@ -828,18 +826,7 @@ import {io} from 'socket.io-client'
 
         {/* Message Input Box */}
         <div className='w-full flex items-center space-x-3 border p-1 rounded-3xl '>
-          <textarea value={messageInput} onChange={(e)=>{setMessageInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter" && !e.shiftKey){handleSendMessage(e.target.value, 'text');e.preventDefault()}}} rows={1}  placeholder='Enter message' maxLength={1000} className='messageInput rounded-4xl w-full resize-none py-2 px-1 outline-none' />
-        {/* <input value={messageInput} onChange={(e)=>{setMessageInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter"){handleSendMessage(e.target.value, 'text')}}} className='w-full py-2 px-1 rounded-lg outline-none' type='text' placeholder='Enter message' /> */}
-        
-        {/* Emoji picker */}
-        {/* <div className={`${openEmojiPicker ? 'block' : 'hidden'} absolute bottom-[5.3rem] right-[10rem] shadow-md`}>
-        <EmojiPicker emojiStyle='facebook' onEmojiClick={(emoji)=>{setMessageInput((prevMessageInput) => prevMessageInput + emoji.emoji)}} autoFocusSearch={false} searchDisabled={true} height={400} width={300} />
-        </div> */}
-
-        {/* Emoji Picker button */}
-        {/* <button onClick={()=>{handleEmojiPicker()}} className={`${openEmojiPicker ? 'text-blue-500' : 'text-gray-600'}`}>
-          <EmojiEmotionsOutlinedIcon />
-        </button> */}
+          <textarea value={messageInput} onChange={(e)=>{setMessageInput(e.target.value)}} onKeyDown={(e)=>{if(e.key == "Enter" && !e.shiftKey){handleSendMessage(e.target.value, 'text', {width : 0, height : 0});e.preventDefault()}}} rows={1}  placeholder='Enter message' maxLength={1000} className='messageInput rounded-4xl w-full resize-none py-2 px-1 outline-none' />
 
 
         {/* Image send Input */}
@@ -851,7 +838,7 @@ import {io} from 'socket.io-client'
         </div>
         
         {/* Send Button */}
-        <button onClick={()=>{handleSendMessage(messageInput, 'text');setOpenEmojiPicker(false)}} className='bg-blue-500 p-2 rounded-full hover:bg-blue-700 text-white flex items-center justify-center'>
+        <button onClick={()=>{handleSendMessage(messageInput, 'text',{width : 0, height : 0});setOpenEmojiPicker(false)}} className='bg-blue-500 p-2 rounded-full hover:bg-blue-700 text-white flex items-center justify-center'>
           <SendOutlinedIcon  />
         </button>
         

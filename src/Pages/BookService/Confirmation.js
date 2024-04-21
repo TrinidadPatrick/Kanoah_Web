@@ -195,6 +195,13 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
                     handleStep("success")
                     notifyUser(result.data._id, receiver) //insert notification in the database
                     socket.emit('New_Notification', {notification : 'New_Booking', receiver : receiver}); //notify user theres a new booking
+                    axios.post(`https://app.nativenotify.com/api/indie/notification`, {
+                    subID: receiver,
+                    appId: 19825,
+                    appToken: 'bY9Ipmkm8sFKbmXf7T0zNN',
+                    title: `New Booking`,
+                    message: `You have a new booking`
+                    });
                 }
             } catch (error) {
                 alert(error)

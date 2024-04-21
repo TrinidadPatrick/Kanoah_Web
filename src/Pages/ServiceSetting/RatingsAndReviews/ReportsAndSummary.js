@@ -66,18 +66,6 @@ const ReportsAndSummary = ({ratingList}) => {
   return (
     <main className='xl:w-[70%] h-fit  grid grid-cols-1 semiSm:grid-cols-3 gap-3 bg-white'>
         {/* Total Reviews */}
-        {/* <div className=' flex-col hidden semiSm:flex py-2 col-span-1 relative items-center justify-center border-r-1'>
-            <h1 className='absolute top-2 text-base text-start w-full font-semibold text-gray-800 left-1'>Total Reviews</h1>
-            <div className='flex relative items-center gap-7 mt-4 justify-center'>
-            <div className='w-16 hidden sm:block aspect-square p-1 rounded-lg bg-gray-100 '>
-                <img src={Review_Icon} alt="" />
-            </div>
-            <div className='flex flex-col justify-center items-center'>
-                <h2 className='text-4xl font-medium text-gray-800'>{ratingList?.length}</h2>
-                <h2 className='font-medium text-base'>Reviews</h2>
-            </div>
-            </div>
-        </div> */}
 
         <div className='flex flex-col col-span-2 items-start gap-2 py-2 pr-4 justify-center'>
             <h1 className=' text-base w-full text-start font-semibold relative text-gray-800 left-7 md:left-1'>Average Rating</h1>

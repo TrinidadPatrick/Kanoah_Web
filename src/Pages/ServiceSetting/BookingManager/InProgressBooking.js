@@ -6,6 +6,7 @@ import OpenInNewOutlinedIcon from '@mui/icons-material/OpenInNewOutlined';
 import OpenInFullOutlinedIcon from '@mui/icons-material/OpenInFullOutlined';
 import http from '../../../http';
 import {io} from 'socket.io-client'
+import axios from 'axios';
 
 const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
     Modal.setAppElement('#root');
@@ -120,6 +121,13 @@ const InProgressBooking = ({inProgressBookings, lazyLoad}) => {
                 reference_id : booking._id
             })
             socket.emit('New_Notification', {notification : 'New_Booking', receiver : booking.client});
+            axios.post(`https://app.nativenotify.com/api/indie/notification`, {
+            subID: booking.client,
+            appId: 19825,
+            appToken: 'bY9Ipmkm8sFKbmXf7T0zNN',
+            title: `Cancelled Booking`,
+            message: `Your booking for ${booking.service.selectedService} on ${bookDate} at ${booking.schedule.bookingTime} has been cancelled by the service provider. Kindly review your GCash account for the refunded amount.`
+       });
         } catch (error) {
             console.error(error)
         }

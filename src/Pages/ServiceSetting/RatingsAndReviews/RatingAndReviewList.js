@@ -118,7 +118,7 @@ const RatingAndReviewList = ({ratingList, dateSelected}) => {
                         <div className='w-full flex flex-col gap-3 p-2'>
                         <div className='flex gap-2 h-fit w-[450px] max-w-[450px] overflow-hidden text-ellipsis'>
                             {/* Image container */}
-                            <div className=' w-12 x:lw-16 aspect-square flex-none object-cover border rounded-full overflow-hidden'>
+                            <div className='w-12 x:lw-16 aspect-square flex-none object-cover border rounded-full overflow-hidden'>
                             <img className=' object-cover w-full h-full' src={rating.user.profileImage} />
                             </div>
                             {/* Name and other Information */}

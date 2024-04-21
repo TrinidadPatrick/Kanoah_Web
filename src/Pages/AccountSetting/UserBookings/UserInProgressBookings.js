@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import {io} from 'socket.io-client'
 import http from '../../../http';
+import axios from 'axios';
 
 const UserInProgressBooking = ({ inProgressBookings }) => {
     const navigate = useNavigate()
@@ -81,6 +82,13 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
                 reference_id : booking._id
             })
             socket.emit('New_Notification', {notification : 'New_Booking', receiver : booking.shop.owner});
+            axios.post(`https://app.nativenotify.com/api/indie/notification`, {
+            subID: booking.shop.owner,
+            appId: 19825,
+            appToken: 'bY9Ipmkm8sFKbmXf7T0zNN',
+            title: `Cancelled booking`,
+            message: `Booking for ${booking.service.selectedService} on ${bookDate} at ${booking.schedule.bookingTime} has been cancelled by the client`
+       });
         } catch (error) {
             console.error(error)
         }
@@ -150,7 +158,7 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
         :
         <div className='w-full h-full max-h-full overflow-auto'>
         {
-        InProgress_Bookings_Orig?.map((inprogress) => {
+        InProgress_Bookings_Orig?.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map((inprogress) => {
             const differenceInMilliseconds = Math.abs(new Date() - new Date(inprogress.createdAt));
             // Convert milliseconds to minutes
             const differenceInMinutes = Math.floor(differenceInMilliseconds / (1000 * 60));
