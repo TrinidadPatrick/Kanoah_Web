@@ -53,6 +53,7 @@ const Navbar = ({ onAboutUsClick }) => {
   const [socket, setSocket] = useState(null)
   const [openNotif, setOpenNotif] = useState(false)
   const [notifCount, setNotifCount] = useState(null)
+  const [openMoreOption, setOpenMoreOption] = useState(false)
 
   const handleOpen = () => setOpen(true);
   const handleClose = (event, reason) => {
@@ -236,14 +237,14 @@ const Navbar = ({ onAboutUsClick }) => {
       </Link>
       {/* Notification */}
       <div className='relative flex items-center justify-center aspect-square p-0.5 w-7 h-7 md:w-8 md:h-8 bg-[#e2e1e15f] rounded-full'>
-        <OutsideClickHandler onOutsideClick={()=>setOpenNotif(false)}>
+        <OutsideClickHandler onOutsideClick={()=>{setOpenNotif(false);setOpenMoreOption(false)}}>
         <NotificationsIcon onClick={()=>setOpenNotif(!openNotif)} fontSize={windowWidth >= 400 ? 'medium' : 'medium'} className={`${openNotif ? 'text-blue-400' : 'text-gray-50'} top-[3px] relative p-0.5 lg:p-0 cursor-pointer`} />
         {/* Notification Count */}
         <div className={`w-3 h-3 ${notifCount >= 1 ? 'block' : 'hidden'} rounded-full bg-red-500 -top-1 flex items-center justify-center absolute p-2 -right-1`}>
         <span className='text-white text-xs'>{notifCount}</span>
         </div>
         <div className='p-1 relative'>
-        <NotificationContent setNotifCount={setNotifCount} openNotif={openNotif} setOpenNotif={setOpenNotif} newNotification={newNotification} />
+        <NotificationContent setOpenMoreOption={setOpenMoreOption} openMoreOption={openMoreOption} setNotifCount={setNotifCount} openNotif={openNotif} setOpenNotif={setOpenNotif} newNotification={newNotification} />
         </div>
         </OutsideClickHandler>
       </div>
@@ -371,11 +372,10 @@ const Navbar = ({ onAboutUsClick }) => {
   )
 }
 
-  const NotificationContent = ({openNotif, setOpenNotif, newNotification, setNotifCount}) => {
+  const NotificationContent = ({openNotif, setOpenNotif, newNotification, setNotifCount, openMoreOption, setOpenMoreOption}) => {
   const {authenticated} = UseInfo()
   const navigate = useNavigate()
   const {notifications, getNotifications, countUnreadNotifs} = UseNotif()
-  const [openMoreOption, setOpenMoreOption] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(null)
   const [notificationList, setNotificationList] = useState(null)
   const [page, setPage] = useState(1);
@@ -446,14 +446,6 @@ const Navbar = ({ onAboutUsClick }) => {
     }
   }
   
-  const MoreOptions = ({index}) => {
-    return (
-      <div className={`w-fit ${openMoreOption && index === selectedIndex ? "" : "hidden"} absolute z-20 h-fit flex flex-col justify-start bg-white right-6 shadow-md border rounded-md`}>
-        <button className='px-2 py-1 text-sm'>Mark as read</button>
-        <button className='px-2 py-1 text-sm'>Delete</button>
-      </div>
-    )
-  }
 
   const markAllAsRead = async () => {
    const instance = [...notificationList]
@@ -482,6 +474,25 @@ const Navbar = ({ onAboutUsClick }) => {
       console.error('Error loading more notifications:', error);
     }
   }
+
+  const deleteNotif = async (notifId) => {
+    // Mobile_deleteNotif
+    try {
+        const result = await http.delete(`Mobile_deleteNotif/${notifId}`, {
+          withCredentials : true
+        })
+        setOpenMoreOption(false)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(()=>{
+    if(!openMoreOption)
+    {
+      setSelectedIndex(null)
+    }
+  },[openMoreOption])
 
 
 
@@ -512,7 +523,10 @@ const Navbar = ({ onAboutUsClick }) => {
             return (
 
               <div key={notification._id} onClick={()=>{markAsRead(notification._id, notification.notif_to, notification.notification_type);}} className={`grid ${notification.isRead ? "" : "bg-[#dce4f951]"} cursor-pointer py-2  grid-cols-12 rounded-md my-1`}>
-                <MoreOptions index={index} />
+                <div className={`w-fit ${openMoreOption && index === selectedIndex ? "" : "hidden"} absolute z-20 h-fit flex flex-col justify-start bg-white right-6 shadow-md border rounded-md`}>
+                <button onClick={()=>{markAsRead(notification._id, notification.notif_to, notification.notification_type)}} className='px-2 py-1 text-sm'>Mark as read</button>
+                <button onClick={()=>deleteNotif(notification._id)} className='px-2 py-1 text-sm'>Delete</button>
+                </div>
                 {
                   notification.notification_type === "New_Rating" ? 
                   (

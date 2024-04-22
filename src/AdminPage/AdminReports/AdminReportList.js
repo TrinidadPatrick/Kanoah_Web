@@ -100,7 +100,6 @@ const AdminReportList = () => {
                 reference_id : selectedReport?._id
             }, {withCredentials : true})
 
-            console.log(notify.data)
         } catch (error) {
             console.error(error)
         }
@@ -123,7 +122,6 @@ const AdminReportList = () => {
                 reference_id : report?._id
             }, {withCredentials : true})
 
-            console.log(notify.data)
         } catch (error) {
             console.error(error)
         }
