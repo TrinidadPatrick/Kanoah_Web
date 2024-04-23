@@ -25,7 +25,6 @@ const RatingTable = ({serviceInformation, dateSelected}) => {
 
                 const groupedData = bookings.reduce((result, serviceObj) => {
                     const matchingGroup = result.find(groupObj => groupObj.uniqueId == serviceObj.selectedServiceId)
-
                     if (matchingGroup) {
                         matchingGroup.services.push(serviceObj);
                       } else {
@@ -34,7 +33,10 @@ const RatingTable = ({serviceInformation, dateSelected}) => {
                           groupInfo: serviceOffer.find(group => group.uniqueId == serviceObj.selectedServiceId),
                           services: [serviceObj],
                         };
-                        result.push(newGroup);
+                        if(newGroup.uniqueId !== undefined && newGroup.groupInfo !== undefined && newGroup.services !== undefined)
+                        {
+                          result.push(newGroup);
+                        }
                       }
                     
                       return result;
