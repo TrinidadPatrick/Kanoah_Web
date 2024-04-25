@@ -136,6 +136,9 @@ const Filters = () => {
       {
         setRadius(Number(radiusParam))
       }
+      else{
+        setRadius(1)
+      }
     },[])
 
     useEffect(()=>{
@@ -165,17 +168,19 @@ const Filters = () => {
     }
 
     
-  const handleChange = address => {
+  const handleChange = (address) => {
     setAddress(address);
   };
 
   const handleSelect = address => {
+    setLocationFilterValue(address)
     setAddress(address)
     geocodeByAddress(address)
       .then(results => getLatLng(results[0]))
       .then(latLng => {setFilterLocationLongLat({longitude : latLng.lng, latitude : latLng.lat})})
       .catch(error => console.error('Error', error));
   };
+
 
   return (
     <div>
@@ -336,25 +341,10 @@ const Filters = () => {
         </div>
       )}
         </PlacesAutocomplete>
-          {/* <input onFocus={(e)=>{if(e.target.value != ""){document.getElementById('placeDropdown').classList.remove('hidden')}}} value={locationFilterValue} onChange={(e)=>{setLocationFilterValue(e.target.value)}} placeholder="Enter location" type="text" className="bg-white h-10 w-full ps-2 pe-2 text-sm border rounded-lg rounded-s-none focus:outline-none hover:cursor-arrow" /> */}
         </div> 
         </div>
         </div>
         </div>
-
-        <div id='placeDropdown' className={`${locationFilterValue != "" ? "relative" : "hidden"} bg-white h-44 overflow-auto flex flex-col shadow-sm border rounded-sm`}>
-          {
-            places.map((place, index)=>{
-             return (
-              <div key={index} onClick={()=>{handleLocationFilter(place);document.getElementById('placeDropdown').classList.add('hidden')}} className='m-3 flex flex-col items-start cursor-pointer '>
-                <h1 className=' text-sm font-semibold'>{place.text}</h1>
-                <p className=' text-[0.72rem]'>{place.place_name}</p>
-              </div>
-              
-             )
-            })
-          }
-          </div>
         </div>
 
         {/* Buttons */}

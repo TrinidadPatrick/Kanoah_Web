@@ -86,7 +86,8 @@
     "web-vitals": "^2.1.4",
     "worker-loader": "^3.0.8",
     "xendit-node": "^4.3.0",
-    "yet-another-react-lightbox": "^3.14.0"
+    "yet-another-react-lightbox": "^3.14.0",
+    "zustand": "^4.5.2"
   },
   "scripts": {
     "start": "react-scripts start",

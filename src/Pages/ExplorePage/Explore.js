@@ -96,7 +96,8 @@ const Explore = ({services}) => {
   const [locationFilterValue, setLocationFilterValue] = useState('')
   const [filterLocationLongLat, setFilterLocationLongLat] = useState({longitude : 0, latitude : 0})
 
-  const [radius, setRadius] = useState(1)
+  const [radius, setRadius] = useState(2)
+  const [radiuss, setRadiuss] = useState(10)
   const [serviceToReport, setServiceToReport] = useState({})
   const [openReportModal, setOpenReportModal] = useState(false)
   const [openSuccessReportModal, setOpenSuccessReportModal] = useState(false)
@@ -307,14 +308,16 @@ const Explore = ({services}) => {
         }
         else
         {
+          // console.log("Hello")
           const final = sortedFilter.filter((item) =>
           item.basicInformation.ServiceTitle.toLowerCase().includes(searchInput.toLowerCase()) ||
           item.tags.includes(searchInput.toLowerCase()))
+          console.log(final)
           setFilteredService(final);
           
         }
         
-    }, [selectedRatingCheckbox, selectedCategory, mainServiceList, sortFilter, searchInput, locationFilterValue, radius, selectedSubCategory]);
+    }, [selectedRatingCheckbox, selectedCategory, mainServiceList, sortFilter, searchInput, locationFilterValue, radius, selectedSubCategory, filterLocationLongLat]);
 
 
     //  Apply the filter onload only
@@ -400,15 +403,20 @@ const Explore = ({services}) => {
       }
     }
 
+
     useEffect(()=>{
       if(longitudeParam != 0)
       {
         getPlaceName()
       }
-      if(radiusParam != null || radiusParam != "")
+      if(radiusParam != null && radiusParam != "" && radiusParam !== undefined)
       {
 
         setRadius(Number(radiusParam))
+      }
+      else
+      {
+        setRadius(1)
       }
 
     },[])
@@ -487,7 +495,7 @@ const Explore = ({services}) => {
         {
           loadingPage ? 
           (
-            <div className='w-full h-full flex flex-col items-start p-10 gap-5 justify-between animate-pulse'>
+          <div className='w-full h-full flex flex-col items-start p-10 gap-5 justify-between animate-pulse'>
             <div className='flex w-full space-x-3'>
             <div className='w-[90px] h-[80px] semiSm:w-[150px] semiSm:h-[120px] md:w-[200px] md:h-[150px] rounded-md bg-gray-300'></div>
             <div className='w-full h-[80px] semiSm:h-[120px] md:h-[150px] justify-between flex flex-col'>
@@ -526,7 +534,14 @@ const Explore = ({services}) => {
           </div>
           <hr className='mt-5 mx-3'></hr>
           {/* Cards Container */}
-          <article className='w-full relative z-10 bg-[#f9f9f9] grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-1 h-fit  px-3 mt-0 mb-5'>
+          {
+            serviceList.length === 0 && mainServiceList.length !== 0 && !loadingPage
+            ?
+            <div className='flex-1 grid place-items-center mt-60 '>
+              <h1 className='text-2xl font-medium text-gray-600'>No result</h1>
+            </div>
+            :
+            <article className='w-full relative z-10 bg-[#f9f9f9] grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-1 h-fit  px-3 mt-0 mb-5'>
             {/* Card */}
             {
               currentServices.map((service, index)=>(
@@ -612,22 +627,26 @@ const Explore = ({services}) => {
               ))
             }
   
-          </article>
-  
-          <ReactPaginate
-          pageCount={Math.ceil(serviceList.length / servicesPerPage)}
-          pageRangeDisplayed={3}
-          marginPagesDisplayed={1}
-          onPageChange={handlePageClick}
-          containerClassName={'explorePagination'}
-          forcePage={Number(page) - 1}
-          activeLinkClassName={'activePage'}
-          pageLinkClassName={'paginationNumber'}
-          previousLabel={<ArrowBackIosOutlinedIcon fontSize='small' />}
-          previousClassName={'previousArrow'}
-          nextClassName={'nextArrow'}
-          nextLabel={<ArrowForwardIosOutlinedIcon fontSize='small' />}
-        />
+            </article>
+           }
+
+           {serviceList.length !== 0 && mainServiceList.length !== 0 && !loadingPage && 
+           <ReactPaginate
+           pageCount={Math.ceil(serviceList.length / servicesPerPage)}
+           pageRangeDisplayed={3}
+           marginPagesDisplayed={1}
+           onPageChange={handlePageClick}
+           containerClassName={'explorePagination'}
+           forcePage={Number(page) - 1}
+           activeLinkClassName={'activePage'}
+           pageLinkClassName={'paginationNumber'}
+           previousLabel={<ArrowBackIosOutlinedIcon fontSize='small' />}
+           previousClassName={'previousArrow'}
+           nextClassName={'nextArrow'}
+           nextLabel={<ArrowForwardIosOutlinedIcon fontSize='small' />}
+           />
+           }
+          
           </div>
         }
         </section>
@@ -638,16 +657,6 @@ const Explore = ({services}) => {
         <button onClick={()=>{document.getElementById('exploreSidebarOpen').className = 'w-[260px] transition duration-500 translate-x-[0%] exploreSidebarOpen ease-out h-full overflow-y-scroll space-y-5 bg-white z-10 absolute'}} className='absolute top-[1.6rem] left-5 lg:hidden'><FilterListOutlinedIcon fontSize='large' /></button>
         <section id='exploreSidebarOpen' className={`hidden h-full flex-col`}>
         <MobileFilter />
-        {/* <div className='w-full h-[300px] bg-black'>
-        </div>
-        <div className='w-full h-[300px] bg-black'>
-        </div>
-        <div className='w-full h-[300px] bg-black'>
-        </div>
-        <div className='w-full h-[300px] bg-black'>
-        </div>
-        <div className='w-full h-[300px] bg-black'>
-        </div> */}
         </section>
         {/* <ScrollToTop smooth /> */}
       </div>
@@ -715,7 +724,7 @@ const ReportModal = ({serviceToReport, setServiceToReport, setOpenSuccessReportM
         </div>
         
         <div className='flex gap-2'>
-        <button onClick={()=>submitReport()} className='px-3 mt-2 hover:bg-orange-300 rounded-md py-2 text-white bg-themeOrange w-fit text-sm'>Submit report</button>
+        <button disabled={reportObject.reasons.length === 0} onClick={()=>submitReport()} className='px-3 mt-2 hover:bg-orange-300 disabled:bg-orange-200 rounded-md py-2 text-white bg-themeOrange w-fit text-sm'>Submit report</button>
         <button onClick={()=>setOpenReportModal(false)} className='px-3 mt-2 hover:bg-gray-300 rounded-md py-2 text-gray-600 bg-gray-100 w-fit text-sm'>Cancel</button>
         </div>
 

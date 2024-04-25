@@ -15,6 +15,7 @@ const RatingTable = ({serviceInformation, dateSelected}) => {
       };
     
     const chartData = serviceOffers.map((service) => service.bookingsCount);
+    
 
     useEffect(()=>{
         const getServiceOffers = async () => {

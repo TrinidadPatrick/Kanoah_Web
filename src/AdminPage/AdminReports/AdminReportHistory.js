@@ -3,6 +3,10 @@ import { useEffect } from 'react'
 import SortOutlinedIcon from '@mui/icons-material/SortOutlined';
 import UseReportHistory from '../CustomHooks/UseReportHistory';
 import OutsideClickHandler from 'react-outside-click-handler';
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import Download from "yet-another-react-lightbox/plugins/download";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 import { useNavigate } from 'react-router-dom';
 import http from '../../http';
 
@@ -18,6 +22,9 @@ const AdminReportHistory = () => {
     date : ''
   })
   const [showSortDropdown, setShowSortDropdown] = useState(false)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [imagesArray, setImagesArray] = useState([])
+  const [open, setOpen] = useState(false)
 
   useEffect(()=>{
     if(reportsHistory !== null)
@@ -204,9 +211,12 @@ const AdminReportHistory = () => {
         <div className='w-full flex items-center justify-start gap-3 overflow-auto mt-3'>
         {
         report.photos?.map((photo, index) =>{
-        <div className='w-20 flex-none bg-gray-100 aspect-square object-contain'>
-            <img className='w-full h-full' src={photo.src} />
-        </div>  
+        return (
+            <div onClick={()=>{setSelectedImageIndex(index);setImagesArray(report.photos);setOpen(true)}} className='w-20 h-20 flex-none bg-gray-100 aspect-square object-cover cursor-pointer'>
+            <img className='w-full h-full object-cover' src={photo.src} alt="image" />  
+            </div>  
+        )
+       
         })
         }
         </div>
@@ -229,6 +239,13 @@ const AdminReportHistory = () => {
     </div>
     }
     </main>
+    <Lightbox
+    index={selectedImageIndex}
+    plugins={[Download,Fullscreen]}
+    open={open}
+    close={() => {setOpen(false);setSelectedImageIndex(0);setImagesArray([])}}
+    slides={imagesArray}
+    />
     </>
   )
 }

@@ -6,12 +6,12 @@ import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import { FilterContext } from './Explore'
 
 const Searchbar = () => {
-    const [sortFilter, setSortFilter, donotApplyFilter, setDonotApplyFilter, selectedCategory, setSelectedCategory,
-        selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,
-        places, setPlaces, filterLocationLongLat, setFilterLocationLongLat, currentPage, setCurrentPage, serviceList, setServiceList,
-        filteredService, setFilteredService, searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList,
-        rerender, setRerender
-    ] = useContext(FilterContext)
+  const [sortFilter, setSortFilter, donotApplyFilter, setDonotApplyFilter, selectedCategory, setSelectedCategory,
+    selectedRatingCheckbox, setSelectedRatingCheckbox,radius, setRadius,locationFilterValue, setLocationFilterValue,
+    places, setPlaces, filterLocationLongLat, setFilterLocationLongLat, currentPage, setCurrentPage, serviceList, setServiceList,
+    filteredService, setFilteredService, searchInput, setSearchInput, loadingPage, setLoadingPage, mainServiceList, setMainServiceList,
+    rerender, setRerender, selectedCategoryCode, setSelectedCategoryCode  , selectedSubCategory, setSelectedSubCategory, categories, subCategories
+] = useContext(FilterContext)
     const [searchValue, setSearchValue] = useState('')
     const [searchParams, setSearchParams] = useSearchParams();
     const search = searchParams.get('search')
@@ -22,6 +22,7 @@ const Searchbar = () => {
 
         if(searchValue !== undefined && searchValue !== '')
         {
+          setDonotApplyFilter(false)
           setSearchInput(searchValue)
         }
        
@@ -31,7 +32,7 @@ const Searchbar = () => {
         setServiceList(mainServiceList)
         setSearchInput('')
         setSearchValue('')
-        setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search : '', page : 1})
+        setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, subCategory : selectedSubCategory, sort : sortFilter, search: '', longitude : filterLocationLongLat.longitude, latitude : filterLocationLongLat.latitude, rd : radius, page : 1})
         
       }
 
@@ -39,10 +40,11 @@ const Searchbar = () => {
         setSearchValue(search)
       },[])
 
+
   
   return (
     <div className='w-full flex justify-end lg:justify-start'>
-        <h1 className={`${serviceList.length === 0 ? "block" : "hidden"} w-full text-center text-2xl`}>No Result</h1>
+
         <div className="w-[50%]  sm:w-fit mr-5 flex space-x-2 shadow-sm self-end lg:self-start rounded-lg overflow-hidden md:max-w-xl">
         <div className="md:flex w-full">
         <div className="w-full">
@@ -58,10 +60,7 @@ const Searchbar = () => {
           </div>
           </div>
           
-          {/* <button className={`${searchInput == '' ? 'hidden' : 'block'} absolute text-gray-700 top-[25%] right-4`}>
-          <ClearOutlinedIcon className={``} />
-          </button> */}
-          <input value={searchValue} onChange={(e)=>setSearchValue(e.target.value)} id='searchInput' className="bg-white h-12 w-full px-12 border rounded-lg outline-none" onKeyDown={(e)=>{if(e.key == "Enter"){handleSubmitSearch();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, sort : sortFilter, search : e.target.value, page : 1})}}} type="text"  placeholder='Search'/>
+          <input value={searchValue} onChange={(e)=>setSearchValue(e.target.value)} id='searchInput' className="bg-white h-12 w-full px-12 border rounded-lg outline-none" onKeyDown={(e)=>{if(e.key == "Enter"){handleSubmitSearch();setSearchParams({rating : selectedRatingCheckbox.join(','), category : selectedCategory, subCategory : selectedSubCategory, sort : sortFilter, search: e.target.value, longitude : filterLocationLongLat.longitude, latitude : filterLocationLongLat.latitude, rd : radius, page : 1})}}} type="text"  placeholder='Search'/>
           
         </div> 
         

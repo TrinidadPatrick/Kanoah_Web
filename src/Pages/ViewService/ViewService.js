@@ -60,6 +60,8 @@ const ViewService = () => {
   const hd = new holidays('PH')
   const holiday = hd.getHolidays()
   const [reviews, setReviews] = useState([])
+  const [serviceNotFound, setServiceNotFound] = useState(false)
+  const [loading, setLoading] = useState(false)
   const key = process.env.REACT_APP_MAP_API_KEY
 
   const [location, setLocation] = useState({
@@ -185,12 +187,22 @@ const ViewService = () => {
 
   // Get the service information
   const getService = async () => {
-    await http.get(`getServiceInfo/${serviceId}`).then((res)=>{
-      setServiceInfo(res.data.service)
-      setReviews(res.data.ratings)
-    }).catch((err)=>{
-      console.log(err)
-    })
+    setLoading(true)
+    try {
+      const res = await http.get(`getServiceInfo/${serviceId}`);
+      
+      if (res.data.status === "Not found") {
+        setServiceNotFound(true);
+        return;
+      }
+    
+      setServiceInfo(res.data.service);
+      setReviews(res.data.ratings);
+    } catch (error) {
+      console.error('Error fetching service info:', error);
+    } finally {
+      setLoading(false)
+    }
   }
 
   // Make logic for chatnow
@@ -252,13 +264,15 @@ const handleBook = () => {
    <div className='grid place-items-center h-full  w-full '>
     
     {
-      serviceInfo == null ? (
+      loading ? (
         <div className='w-full h-screen grid place-items-center'>
             <div className="spinner"></div>
             </div>
-      ) :
+      ) 
+      :
+      !loading && serviceInfo !== null ?
       (
-        <div className='w-full h-full bg-[#F9F9F9] md:px-12 lg:px-20 xl:px-32 pb-10 flex flex-col'>
+      <div className='w-full h-full bg-[#F9F9F9] md:px-12 lg:px-20 xl:px-32 pb-10 flex flex-col'>
         <section className='w-full h-fit flex flex-col xl:flex-row justify-between p-2 gap-1 mt-5' >
 
         {/* Left Side ********************************************************************/}
@@ -473,7 +487,9 @@ const handleBook = () => {
         </section>
         
         {/* Gallery */}
-        <section className='w-full   mt-10 p-2'>
+        {
+          serviceInfo.galleryImages.length !== 0 &&
+          <section className='w-full   mt-10 p-2'>
         <div className=' w-full max-h-[550px] bg-white rounded-lg h-[550px] border-2 px-6 relative'>
         <h1 className='text-4xl text-center font-semibold mt-0 bg-white p-4 sticky top-0 z-10'>Gallery</h1>
         <div className='galleryContainer bg-white mb-2 max-h-[460px] overflow-auto'>
@@ -485,13 +501,23 @@ const handleBook = () => {
         open={open}
         close={() => setOpen(false)}
         slides={serviceInfo.galleryImages}
-      />
+        />
       </div>
-      </section>
+        </section>
+        }
       
      
-     </div>
+      </div>
       )
+      :
+      !loading && serviceNotFound
+      ?
+      <div className='w-full h-full bg-white flex flex-col justify-center items-center'>
+        <h1 className='text-2xl font-medium text-gray-600'>Service not found</h1>
+        <h1 className='text-sm font-normal text-gray-600'>This could be that the service is deactivated, disabled or the credentials had changed.</h1>
+      </div>
+      :
+      ""
     }
 
     {

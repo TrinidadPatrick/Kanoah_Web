@@ -3,7 +3,14 @@ import { useEffect } from 'react'
 import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
 import usePendingReport from '../CustomHooks/usePendingReport';
 import OutsideClickHandler from 'react-outside-click-handler';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import Download from "yet-another-react-lightbox/plugins/download";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
+import axios from 'axios';
 import http from '../../http';
 
 const AdminReportList = () => {
@@ -20,6 +27,23 @@ const AdminReportList = () => {
     const reasons = ['Explicit Content', 'Fake Information/False Claims', 'Hate Speech/Bullying', 'Violence/Threats', 
                     'Spam/Scams', 'Non-Compliance with Terms of Service', 'Terrorism', 'Involves a child', 'Nudity']
     const [dateFilter, setDateFilter] = useState('')
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+    const [imagesArray, setImagesArray] = useState([])
+    const [open, setOpen] = useState(false)
+
+    const notify = (message) =>{
+        toast.success(message, {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Bounce,
+            });
+    }
 
     useEffect(()=>{
     setReportList(pendingReports)
@@ -52,32 +76,33 @@ const AdminReportList = () => {
     }
 
     const updateReport = async (status, reportId) => {
-        try {
-            const result = await http.patch(`AdminUpdateReport/${reportId}`, {status : status}, {withCredentials : true})
-            console.log(result.data)
-        } catch (error) {
-            console.log(error)
-        }
+        // try {
+        //     const result = await http.patch(`AdminUpdateReport/${reportId}`, {status : status}, {withCredentials : true})
+        //     setShowActionDropdown(false)
+        // } catch (error) {
+        //     console.log(error)
+        // }
     }
-
 
     // Disables the service
     const disableService = async () => {
         const serviceId = disableServiceObject.service._id
+        const newData = [...reportList]
+                const index = newData.findIndex((report)=> report._id === selectedReport._id)
+                newData.splice(index, 1)
+                setReportList(newData)
+                setOpenDisableModal(false)
         try {
             const result = await http.patch(`Admin_DisableService/${serviceId}`, disableServiceObject, {withCredentials : true})
             if(result.status == 200)
             {   
-                const newData = [...reportList]
-                const index = newData.findIndex((report)=>report._id === selectedReport._id)
-                newData.splice(index, 1)
-                setReportList(newData)
                 setOpenDisableModal(false)
                 setDisableServiceObject({service : {},
                     reason : []})
                 updateReport("Accepted", selectedReport._id)
                 notifyUserAccepted()
                 setSelectedReport({})
+                notify('Service disabled')
             }
         } catch (error) {
             console.log(error)
@@ -99,6 +124,13 @@ const AdminReportList = () => {
                 notif_to : selectedReport?.reportedBy,
                 reference_id : selectedReport?._id
             }, {withCredentials : true})
+            axios.post(`https://app.nativenotify.com/api/indie/notification`, {
+                    subID: selectedReport?.reportedBy._id,
+                    appId: 19825,
+                    appToken: 'bY9Ipmkm8sFKbmXf7T0zNN',
+                    title: `Report updated`,
+                    message: `Report regarding ${disableServiceObject.service.name} `
+                    });
 
         } catch (error) {
             console.error(error)
@@ -107,6 +139,12 @@ const AdminReportList = () => {
 
     const notifyUserRejected = async (report) => {
         try {
+            const newData = [...reportList]
+            const index = newData.findIndex((reportObj)=>reportObj._id === report._id)
+            newData.splice(index, 1)
+            setReportList(newData)
+            notify('Report rejected')
+            // Add notification
             const notify = await http.post('AdminAddNotification', {
                 notification_type : "Report Update", 
                 createdAt : new Date(),
@@ -121,6 +159,14 @@ const AdminReportList = () => {
                 notif_to : report?.reportedBy,
                 reference_id : report?._id
             }, {withCredentials : true})
+            // Send push notification
+            axios.post(`https://app.nativenotify.com/api/indie/notification`, {
+                    subID: report?.reportedBy._id,
+                    appId: 19825,
+                    appToken: 'bY9Ipmkm8sFKbmXf7T0zNN',
+                    title: `Report updated`,
+                    message: `Report regarding ${report.service.name} `
+            });
 
         } catch (error) {
             console.error(error)
@@ -147,6 +193,7 @@ const AdminReportList = () => {
     <main className=' flex flex-col w-full h-full overflow-hidden relative'>
     <h1 className='text-lg font-medium text-gray-600 mx-10 mt-3'>All Pending Reports</h1>
     {
+    // Loading state
     reportList === null ? 
     <div className='w-full px-10 mt-5 flex flex-col'>
     <div className="flex flex-col  w-full  h-64 animate-pulse rounded-xl p-4 gap-4"  >
@@ -182,7 +229,7 @@ const AdminReportList = () => {
     }))} type='date'  />
     </div>
 
-    {/* Disable Service */}
+    {/* Disable Service Modal */}
     <div style={{backgroundColor: 'rgba(0, 0, 0, 0.5)'}} className={`w-full z-30 h-full ${openDisableModal ? "flex" : "hidden"} items-center justify-center absolute top-0 left-0`}>
         <OutsideClickHandler onOutsideClick={()=>setOpenDisableModal(false)}>
         <div className=' flex flex-col p-3 items-center bg-white w-[95%] semiSm:w-[350px]'>
@@ -261,10 +308,9 @@ const AdminReportList = () => {
         {
         report.photos?.map((photo, index) =>{
         return (
-            <div className='w-20 h-20 flex-none bg-gray-100 aspect-square object-contain'>
-            <img className='w-full h-full' src={photo.src} alt="image" />
-            
-        </div>  
+            <div key={index} onClick={()=>{setSelectedImageIndex(index);setImagesArray(report.photos);setOpen(true)}} className='w-20 h-20 flex-none bg-gray-100 aspect-square object-cover cursor-pointer'>
+            <img className='w-full h-full object-cover' src={photo.src} alt="image" />  
+            </div>  
         )
        
         })
@@ -280,18 +326,22 @@ const AdminReportList = () => {
             <div>
                 <p className='text-sm text-gray-500 font-[500]'>Reporter: <span className='font-normal'>{report.reportedBy.firstname} {report.reportedBy.lastname}</span></p>
             </div>
-        </div>
-        
+        </div>      
     </div>
-    )
-    })
+    )})}
+    </div>
     }
-        </div>
-
-    }</>
+    </>
     }
-
+    <Lightbox
+    index={selectedImageIndex}
+    plugins={[Download,Fullscreen]}
+    open={open}
+    close={() => {setOpen(false);setSelectedImageIndex(0);setImagesArray([])}}
+    slides={imagesArray}
+    />
     </main>
+    <ToastContainer />
     </>
   )
 }

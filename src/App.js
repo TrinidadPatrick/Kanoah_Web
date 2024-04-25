@@ -30,6 +30,7 @@ import AdminViewService from './AdminPage/AdminServices/AdminViewService';
 import AdminUsersList from './AdminPage/AdminUserList/AdminUsersList';
 import AdminReportList from './AdminPage/AdminReports/AdminReportList';
 import AdminReportHistory from './AdminPage/AdminReports/AdminReportHistory';
+import ExplorePage from './Pages/NewExplorePage/ExplorePage';
 
 
 const App = () => {
@@ -66,6 +67,7 @@ const App = () => {
         <Route path='/register' element={<Register />} />
         <Route path='/explore/' element={
         <Explore services={services} />} />
+        <Route path='exploreService' element={<ExplorePage />} />
         <Route path='explore/viewService/:serviceId' element={<ViewService />} />
         <Route path='/myAccount/:optn' element={<CustomerAccount />} />
         <Route path='/serviceRegistration' element={<ServiceRegistrationPage />} />
