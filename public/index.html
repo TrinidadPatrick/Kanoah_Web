@@ -54,8 +54,8 @@
     const googleMapsApiKey = '<%= process.env.REACT_APP_MAP_API_KEY %>';
     const script = document.createElement('script');
     script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}&libraries=places`;
-    script.defer = true;
-    script.async = true;
+    // script.defer = true;
+    // script.async = true;
     document.body.appendChild(script);
   </script>
   

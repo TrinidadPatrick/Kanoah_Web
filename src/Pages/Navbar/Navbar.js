@@ -184,7 +184,7 @@ const Navbar = ({ onAboutUsClick }) => {
   <div className="items-center justify-between w-screen transition ease-in-out hidden top-14 md:relative md:top-0 md:flex md:w-auto md:order-1" id="navbar-sticky">
     <ul className="navbarLink flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg  md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-themeBlue dark:bg-themeBlue md:dark:bg-themeBlue dark:border-gray-700">
       <li>
-        <Link to="explore" className="explore block py-2 pl-3 pr-4 md:text-[0.8rem] lg:text-md">Explore</Link>
+        <Link to="exploreService" className="explore block py-2 pl-3 pr-4 md:text-[0.8rem] lg:text-md">Explore</Link>
       </li>
       <li>
         {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}

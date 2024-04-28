@@ -40,6 +40,7 @@ module.exports = {
       },
       screens : {
         semiMd : "850px",
+        semiBase : "610px",
         semiSm : "510px",
         semiXs : "400px"
       }

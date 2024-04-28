@@ -10,7 +10,7 @@ import getDistance from 'geolib/es/getPreciseDistance';
 import allServiceStore from '../../Stores/AllServiceStore';
 import ExploreSearchBar from './ExploreSearchBar';
 
-const ExploreFilter = ({searchValue, setSearchValue}) => {
+const ExploreMobileFilter = ({searchValue, setSearchValue, setShowMobileFilter}) => {
     const {services, setServices, staticServices, setStaticServices} = allServiceStore()
     const [params, setParams] = useSearchParams()
     const radiusList = Array.from({length : 100}, (_, index)=> index + 1)
@@ -203,14 +203,14 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
     }
 
   return (
-    <div className='filterSideBar flex-none lg:w-[300px] xl:w-[400px] hidden lg:flex h-full relative flex-col space-y-3 pb-5 xl:ps-20 pe-5 bg-[#f9f9f9]'>
+    <div className='filterSideBar flex-none w-[280px] flex lg:hidden h-full relative flex-col space-y-3 pb-5  pe-1 bg-[#f9f9f9]'>
         <div className='filterSideBar flex-1 flex flex-col space-y-5 px-7 mt-5 overflow-auto'>
-            <h1 className='font-bold text-2xl'>Find your Service</h1>
+            <h1 className='font-bold text-lg'>Find your Service</h1>
             {/* Sort box */}
             <div className='flex-none w-full relative'>
-            <h1 className='font-medium text-lg mb-2'>Sort By</h1>
-            <button onClick={()=>{setShowDropdowns({...showDropdowns, sort : !showDropdowns.sort})}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
-            <span className="select-none font-medium">{selectedSortFilter}</span>
+            <h1 className='font-medium text-sm mb-2'>Sort By</h1>
+            <button onClick={()=>{setShowDropdowns({...showDropdowns, sort : !showDropdowns.sort})}} className="flex flex-row justify-between w-full px-2 py-2 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+            <span className="select-none text-sm font-medium">{selectedSortFilter}</span>
             <svg id="sort_arrow-down" className=" w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
             </button>
             <div id="sort_options" className={`${showDropdowns.sort ? "" : "hidden"} ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl`}>
@@ -222,9 +222,9 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             </div>
             {/* Category Box */}
             <div className='flex-none w-full relative'>
-            <h1 className='font-medium text-lg mb-2'>Categories</h1>
-            <button onClick={()=>{setShowDropdowns({...showDropdowns, category : !showDropdowns.category})}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
-            <span className="select-none font-medium">{selectedCategoryFilter.name === "" ? "Select Category" : selectedCategoryFilter.name}</span>
+            <h1 className='font-medium text-sm mb-2'>Categories</h1>
+            <button onClick={()=>{setShowDropdowns({...showDropdowns, category : !showDropdowns.category})}} className="flex flex-row justify-between w-full px-2 py-2 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+            <span className="select-none text-sm font-medium">{selectedCategoryFilter.name === "" ? "Select Category" : selectedCategoryFilter.name}</span>
             <svg id="sort_arrow-down" className=" w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
             </button>
             <div id="sort_options" className={`${showDropdowns.category ? "" : "hidden"} h-[300px] overflow-auto  ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl`}>
@@ -251,9 +251,9 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             </div>
             {/* SubCategory Box */}
             <div className='flex-none w-full relative'>
-            <h1 className='font-medium text-lg mb-2'>Sub Categories</h1>
-            <button onClick={()=>{setShowDropdowns({...showDropdowns, subCategory : !showDropdowns.subCategory})}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
-            <span className="select-none font-medium">{selectedSubCategoryFilter === "" ? "Select SubCategory" : selectedSubCategoryFilter}</span>
+            <h1 className='font-medium text-sm mb-2'>Sub Categories</h1>
+            <button onClick={()=>{setShowDropdowns({...showDropdowns, subCategory : !showDropdowns.subCategory})}} className="flex flex-row justify-between w-full px-2 py-2 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+            <span className="select-none text-sm font-medium">{selectedSubCategoryFilter === "" ? "Select SubCategory" : selectedSubCategoryFilter}</span>
             <svg id="sort_arrow-down" className=" w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
             </button>
             <div id="sort_options" className={`${showDropdowns.subCategory ? "" : "hidden"} max-h-[300px] overflow-auto  ease-in duration-100 origin-top absolute w-full py-2 mt-1 z-50  bg-white rounded-lg shadow-xl`}>
@@ -280,14 +280,15 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             </div>
             {/* Rating Filter */}
             <div className=' flex flex-col justify-start items-start'>
-            <h1 className='font-medium text-lg mb-2'>Rating</h1>
+            <h1 className='font-medium text-sm mb-2'>Rating</h1>
             <div className='flex flex-col space-y-3 items-center'>
             {
             ratingValues.map((rating)=>{
                 return (
                     <div key={rating} className='flex items-center justify-center space-x-2'>
-                    <input value={rating} checked={selectedRatingCheckbox.includes(Number(rating))} onChange={(e)=>{handleSelectCheckBox(Number(e.target.value))}}  className='chkbox w-5 h-5' type='checkbox'/><StyledRating className='relative'  readOnly defaultValue={rating} precision={0.1} icon={<StarRoundedIcon fontSize='medium' />  } emptyIcon={<StarRoundedIcon fontSize='medium' className='text-gray-300' />} />
-                    <p className='w-3'>{rating}.0</p>
+                    <input value={rating} checked={selectedRatingCheckbox.includes(Number(rating))} onChange={(e)=>{handleSelectCheckBox(Number(e.target.value))}}  className='chkbox w-4 h-4' type='checkbox'/>
+                    <StyledRating className='relative'  readOnly defaultValue={rating} precision={0.1} icon={<StarRoundedIcon fontSize='small' />  } emptyIcon={<StarRoundedIcon fontSize='small' className='text-gray-300' />} />
+                    <p className='w-3 text-sm'>{rating}.0</p>
                     </div>
             )})
             }
@@ -298,11 +299,11 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             loadAutoComeplete &&
             <div className='flex flex-col space-y-1 relative'>
             <div className="w-full mx-auto  md:max-w-xl">
-            <h1 className='font-medium text-lg mb-2'>Location</h1>
+            <h1 className='font-medium text-sm mb-2'>Location</h1>
             <div className="md:flex">
             <div className="w-full">
             <div className="relative flex">
-            <select value={radius} className='outline-none ps-1 w-[60px] border border-e-0 rounded-s-lg' onChange={(e)=>{setRadius(Number(e.target.value))}}>
+            <select value={radius} className='outline-none text-xs ps-1 w-[60px] border border-e-0 rounded-s-lg' onChange={(e)=>{setRadius(Number(e.target.value))}}>
             {
             radiusList.map((radius)=>(
                 <option value={radius} key={radius} >{radius} km</option>
@@ -313,7 +314,7 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             value={locationFilter.address} onChange={handleChange} onSelect={handleSelect}>
             {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
                 <div className='w-full '>
-                    <input {...getInputProps({placeholder: 'Search Places ...', className: 'location-search-input w-full py-2 px-2 text-sm border rounded-e-md text-gray-600',})}/>
+                    <input {...getInputProps({placeholder: 'Search Places ...', className: 'location-search-input w-full py-2 px-2 text-xs border rounded-e-md text-gray-600',})}/>
                 <div className={`${suggestions.length !== 0 ? "" : "hidden"} absolute z-30 bottom-10 shadow-md rounded-md autocomplete-dropdown-container mt-1 origin-bottom h-[200px] overflow-auto`}>
                 {suggestions.map((suggestion, index) => {
                 return (
@@ -333,11 +334,11 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             </div>
             }
             {/* Buttons */}
-            <button onClick={()=>applyFilter()} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
-            <button className='font-medium'>Clear Filters</button>
+            <button onClick={()=>{applyFilter();setShowMobileFilter(false)}} className=' bg-themeOrange text-sm text-white py-2 rounded-sm font-medium'>Apply Filters</button>
+            <button className='font-medium text-sm'>Clear Filters</button>
         </div>
     </div>
   )
 }
 
-export default ExploreFilter
+export default ExploreMobileFilter
