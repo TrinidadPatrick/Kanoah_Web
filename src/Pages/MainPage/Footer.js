@@ -69,7 +69,7 @@ const Footer = ({setScrollToAboutUs }) => {
             <h1 className='text-2xl text-white font-semibold'>Categories</h1>
             {
                 featuredCategories?.slice(0,6).map((categ)=>(
-                    <Link key={categ._id} className='text-white text-[0.8rem] hover:underline' to={`/explore?category=${categ.name}&page=1`} >{categ.name}</Link>
+                    <Link key={categ._id} className='text-white text-[0.8rem] hover:underline' to={`/exploreService?category=${categ.name}&page=1`} >{categ.name}</Link>
                 ))
             }
             </section>

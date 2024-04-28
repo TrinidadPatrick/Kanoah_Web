@@ -197,7 +197,7 @@ const Navbar = ({ onAboutUsClick }) => {
             <ul className="categoryDropdown absolute hidden text-gray-700 py-2 text-start px-2 rounded-md bg-white h-56 overflow-y-scroll overflow-x-hidden w-fit group-hover:block">
               {categories.sort((a, b) => a.name.localeCompare(b.name)).map((category, index) => (
                 <li key={index} className="">
-                  <button onClick={() => {navigate(`explore?${"category=" + category.name}&page=1`); window.location.reload() }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.name}</button>
+                  <button onClick={() => {navigate(`exploreService?${"category=" + category.name}&page=1`) }} className="hover:bg-gray-400 py-2 px-4 font-normal text-sm w-full block text-start whitespace-nowrap cursor-pointer">{category.name}</button>
                 </li>
               ))}
             </ul>
