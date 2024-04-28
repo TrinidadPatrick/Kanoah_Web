@@ -52,7 +52,7 @@ import useNotify from '../../ClientCustomHook/useNotify';
     const [receiver, setReceiver] = useState({})
     const [receiverInformation, setReceiverInformation] = useState({})
     const [showProfileInformation, setShowProfileInformation] = useState(false)
-    const [serviceInquired, setServiceInquired] = useState({})
+    const [serviceInquired, setServiceInquired] = useState(null)
     const [allContacts, setAllContacts] = useState([])
     const [origAllContacts, setOrigAllContacts] = useState([])
     const [currentChatsCount, setCurrentChatsCount] = useState(0)
@@ -702,7 +702,10 @@ import useNotify from '../../ClientCustomHook/useNotify';
         <img className='rounded-full w-full h-full object-cover max-h-16 max-w-16' src={serviceInquired?.serviceProfileImage} alt='profile' />
         </div>
         <div className=' flex flex-col justify-around'>     
-          <input className={`text-ellipsis text-lg font-medium text-gray-800 bg-transparent`} value={serviceInquired?.basicInformation !== undefined ? serviceInquired?.basicInformation.ServiceTitle : ''} type='text' disabled />
+          <input className={`text-ellipsis text-lg font-medium text-gray-800 bg-transparent`} 
+          value={serviceInquired?.userId === userInformation._id ?  receiver.firstname + " " + receiver.lastname  :
+            serviceInquired?.basicInformation.ServiceTitle
+          } type='text' disabled />
           {
             currentChats[0] == undefined ? ("") :    
             (     
