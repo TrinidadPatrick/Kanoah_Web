@@ -96,6 +96,8 @@ const AdminViewService = () => {
     <main className='w-full h-full flex flex-col px-5 lg:px-20 '>
 
     {/* Popup for disabled service */}
+    {
+    service?.status.status === "Disabled" &&
     <div className='w-fit rounded-md h-fit overflow-hidden bg-gray-900 border-2 border-red-500 mx-auto  flex flex-col'>
         <div className='w-full py-1 flex justify-end px-3 bg-red-600'>
         <h1 className='text-white'>WARNING!</h1>
@@ -121,7 +123,8 @@ const AdminViewService = () => {
         </div>
         </div>
         </div>
-        </div>
+    </div>
+    }
 
     <nav className='w-full'>
     </nav>
