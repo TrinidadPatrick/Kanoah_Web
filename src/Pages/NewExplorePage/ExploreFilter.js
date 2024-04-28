@@ -202,6 +202,32 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
           setFilterParams()
     }
 
+    const clearFilter = () => {
+      setSelectedCategoryFilter({name : '', code : ''})
+      setSelectedSubCategoryFilter('')
+      setSelectedRatingCheckbox([])
+      setSelectedSortFilter('Recent Services')
+      setRadius(1)
+      setLocationFilter({address : '', longitude : 0, latitude : 0})
+      
+      setParams({...params, sort : '' ,category : '', 
+        subCategory : '', rating : '', latitude : '', 
+        longitude : '', rad : 1, address : '', search : searchValue, page : 1})   
+
+        if(searchValue === "")
+          {
+            setServices(staticServices)
+          }
+          else
+          {
+            const final = staticServices.filter((item) =>
+            item.basicInformation.ServiceTitle.toLowerCase().includes(searchValue.toLowerCase()) ||
+            item.tags.includes(searchValue.toLowerCase()))
+            setServices(final);
+          }
+      
+    }
+
   return (
     <div className='filterSideBar flex-none lg:w-[300px] xl:w-[400px] hidden lg:flex h-full relative flex-col space-y-3 pb-5 xl:ps-20 pe-5 bg-[#f9f9f9]'>
         <div className='filterSideBar flex-1 flex flex-col space-y-5 px-7 mt-5 overflow-auto'>
@@ -209,7 +235,7 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             {/* Sort box */}
             <div className='flex-none w-full relative'>
             <h1 className='font-medium text-lg mb-2'>Sort By</h1>
-            <button onClick={()=>{setShowDropdowns({...showDropdowns, sort : !showDropdowns.sort})}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+            <button onClick={()=>{setShowDropdowns({...showDropdowns, category : false, subCategory : false, sort : !showDropdowns.sort})}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
             <span className="select-none font-medium">{selectedSortFilter}</span>
             <svg id="sort_arrow-down" className=" w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
             </button>
@@ -223,7 +249,7 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             {/* Category Box */}
             <div className='flex-none w-full relative'>
             <h1 className='font-medium text-lg mb-2'>Categories</h1>
-            <button onClick={()=>{setShowDropdowns({...showDropdowns, category : !showDropdowns.category})}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+            <button onClick={()=>{setShowDropdowns({...showDropdowns, sort : false, subCategory : false, category : !showDropdowns.category})}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
             <span className="select-none font-medium">{selectedCategoryFilter.name === "" ? "Select Category" : selectedCategoryFilter.name}</span>
             <svg id="sort_arrow-down" className=" w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
             </button>
@@ -252,7 +278,7 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             {/* SubCategory Box */}
             <div className='flex-none w-full relative'>
             <h1 className='font-medium text-lg mb-2'>Sub Categories</h1>
-            <button onClick={()=>{setShowDropdowns({...showDropdowns, subCategory : !showDropdowns.subCategory})}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
+            <button onClick={()=>{setShowDropdowns({...showDropdowns, sort : false, category : false, subCategory : !showDropdowns.subCategory})}} className="flex flex-row justify-between w-full px-2 py-3 text-gray-700 bg-white border-2 border-white rounded-md shadow focus:outline-none focus:border-blue-600">
             <span className="select-none font-medium">{selectedSubCategoryFilter === "" ? "Select SubCategory" : selectedSubCategoryFilter}</span>
             <svg id="sort_arrow-down" className=" w-6 h-6 stroke-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
             </button>
@@ -334,7 +360,7 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             }
             {/* Buttons */}
             <button onClick={()=>applyFilter()} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
-            <button className='font-medium'>Clear Filters</button>
+            <button onClick={()=>clearFilter()} className='font-medium'>Clear Filters</button>
         </div>
     </div>
   )
