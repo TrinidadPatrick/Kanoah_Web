@@ -15,6 +15,7 @@ const LocationSearch = () => {
     const [searchInput,setSearchInput] = useState('')
     const [places, setPlaces] = useState([])
     const [locationFilter, setLocationFilter] = useState({address : '', longitude : 0, latitude : 0})
+    const [loadInput, setLoadInput] = useState(false)
 
     useEffect(() => {
         const accessToken = 'pk.eyJ1IjoicGF0cmljazAyMSIsImEiOiJjbG8ydzQ2YzYwNWhvMmtyeTNwNDl3ejNvIn0.9n7wjqLZye4DtZcFneM3vw'; // Replace with your actual Mapbox access token
@@ -42,6 +43,12 @@ const LocationSearch = () => {
         .catch(error => console.error('Error', error));
     };
 
+    useEffect(()=>{
+      setTimeout(()=>{
+        setLoadInput(true)
+      },500)
+    },[])
+
 
   return (
   <div className='mainSearchButton relative flex flex-col sm:flex-row rounded-4xl'>
@@ -51,7 +58,9 @@ const LocationSearch = () => {
   <input onChange={(e)=>{setSearchInput(e.target.value)}} className='text-white font-light w-[65%] text-sm md:text-lg py-5 border-0 ps-[3rem] px-6 bg-themeBlue rounded-s-4xl outline-none ' onKeyDown={(e)=>{if(e.key === "Enter"){navigate(`explore?search=${searchInput}&longitude=${locationCoordinates.longitude}&latitude=${locationCoordinates.latitude}&rd=5&page=1`)}}} type="text" placeholder='Search for service' />
   <div className='w-1/2 relative'>
   <NearMeRoundedIcon fontSize='small' className='text-white absolute z-20 top-5 md:top-6 left-5' />
-  <PlacesAutocomplete
+  {
+    loadInput &&
+    <PlacesAutocomplete
             value={locationFilter.address} onChange={handleChange} onSelect={handleSelect}>
             {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
                 <div className='w-full '>
@@ -68,6 +77,7 @@ const LocationSearch = () => {
         </div>
       )}
         </PlacesAutocomplete>
+  }
   </div>
   <button onClick={()=>{navigate(`exploreService?search=${searchInput}&longitude=${locationFilter.longitude}&latitude=${locationFilter.latitude}&rad=3&address=${locationFilter.address}`)}} className='absolute bg-white hidden sm:flex text-themeBlue px-2.5 lg:px-2.5 py-2.5 rounded-3xl top-[8px] md:top-[12px] lg:top-[11.6px] space-x-2 right-2 md:right-3'><SearchIcon /> </button>
   <button onClick={()=>{navigate(`exploreService?search=${searchInput}&longitude=${locationFilter.longitude}&latitude=${locationFilter.latitude}&rad=3&address=${locationFilter.address}`)}} className=' mx-2 mb-2 bg-white  justify-center font-medium sm:hidden text-themeBlue px-2.5 md:px-6 py-2.5 rounded-3xl  space-x-2 right-3 '>Search</button>
