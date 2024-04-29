@@ -244,7 +244,7 @@ const UserBookingHistory = ({bookingHistory, setBookingHistory}) => {
                 <div key={bookingHistory._id} className="flex gap-3 cursor-pointer flex-col h-fit my-4 bg-white hover:bg-gray-50 rounded-md border shadow-sm p-2">
                 {/* Header */}
                 <div className='w-full justify-between flex items-center border-b-1 p-2'>
-                    <div onClick={()=>navigate(`/explore/viewService/${bookingHistory.shop._id}`)} className='flex items-center cursor-pointer'>
+                    <div onClick={()=>navigate(`/exploreService/viewService/${bookingHistory.shop._id}`)} className='flex items-center cursor-pointer'>
                     <h2 className='font-medium text-base text-gray-700'>{bookingHistory.shop.basicInformation.ServiceTitle}</h2>
                     <ArrowForwardIosIcon fontSize='small' className='p-0.5 text-gray-600' />
                     </div>

@@ -97,7 +97,7 @@ const UserCancelledBookings = ({cancelledBookings}) => {
                 <div key={cancelledBookings._id} className="flex gap-3 cursor-pointer flex-col h-fit my-4 bg-white hover:bg-gray-50 rounded-md border shadow-sm p-2">
                 {/* Header */}
                 <div className='w-full justify-between flex items-center border-b-1 p-2'>
-                    <div onClick={()=>navigate(`/explore/viewService/${cancelledBookings.shop._id}`)} className='flex items-center cursor-pointer'>
+                    <div onClick={()=>navigate(`/exploreService/viewService/${cancelledBookings.shop._id}`)} className='flex items-center cursor-pointer'>
                     <h2 className='font-medium text-base text-gray-700'>{cancelledBookings.shop.basicInformation.ServiceTitle}</h2>
                     <ArrowForwardIosIcon fontSize='small' className='p-0.5 text-gray-600' />
                     </div>
@@ -208,7 +208,7 @@ const UserCancelledBookings = ({cancelledBookings}) => {
                     <div className='text-xs md:text-xs font-semibold whitespace-nowrap'>Total Amount</div>
                     <div className='font-medium text-right text-xs md:text-xs text-red-500'>₱{clientInformation?.net_Amount}</div>
 
-                    <button onClick={() => { window.open(`/explore/viewService/${clientInformation.shop._id}`, '_blank') }} className='bg-gray-100 border rounded-sm text-xs text-gray-800 py-1 mt-2'>View Service</button>
+                    <button onClick={() => { window.open(`/exploreService/viewService/${clientInformation.shop._id}`, '_blank') }} className='bg-gray-100 border rounded-sm text-xs text-gray-800 py-1 mt-2'>View Service</button>
                     <button onClick={() => { navigate(`/chat?service=${clientInformation.owner}`) }} className='bg-green-400 border rounded-sm text-xs text-gray-100 py-1 mt-2'>Contact Service</button>
                     </div>
                 </div>
