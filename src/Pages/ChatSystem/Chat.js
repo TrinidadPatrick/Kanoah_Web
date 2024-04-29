@@ -113,6 +113,7 @@ import useNotify from '../../ClientCustomHook/useNotify';
               setCurrentChats(messages.data.result);
             }          
             const contact = await getContacts()
+            getAllChats()
             // Corrected the function call below
             dispatch(setNewMessage(false))
           } catch (error) {
