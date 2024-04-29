@@ -561,8 +561,14 @@ import useNotify from '../../ClientCustomHook/useNotify';
     function handleSearchMessage(searchInput){
       const newContact = [...allContacts]
       if (searchInput.trim() !== "") {
-        const search = allContacts.filter(contact => contact.virtualServiceInquired.basicInformation.ServiceTitle.toLowerCase().includes(searchInput.toLowerCase()))
-        setAllContacts(search);
+        const searchResults = newContact.filter((contacts) =>
+        contacts.participants.some((participant) =>
+          participant.firstname.trim().toLowerCase().includes(searchInput.trim().toLowerCase()) ||
+          participant.lastname.trim().toLowerCase().includes(searchInput.trim().toLowerCase())
+        ) ||
+        contacts.virtualServiceInquired.basicInformation.ServiceTitle.toLowerCase().includes(searchInput.trim().toLowerCase())
+      );
+        setAllContacts(searchResults);
       } else {
         setAllContacts(origAllContacts);
       }
@@ -647,9 +653,10 @@ import useNotify from '../../ClientCustomHook/useNotify';
             <div className=' w-full flex flex-col ps-1'>
               {/* Title */}
               <div className='flex justify-start'>
-            
-              <p className={`${contact.readBy.includes((userInformation?._id)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium overflow-hidden max-w-[200px] sm:max-w-[130px] xl:max-w-[200px] text-ellipsis pe-2`}>{contact.virtualServiceInquired?.basicInformation.ServiceTitle}</p>
-              {/* <input readOnly className={`${contact.readBy.includes((userInformation?._id)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium text-ellipsis pointer-events-none bg-transparent`} type='text' value={contact.virtualServiceInquired.basicInformation.ServiceTitle} /> */}
+              <p className={`${contact.readBy.includes((userInformation?._id)) ? 'text-gray-700' : 'text-blue-500'} text-[0.7rem] md:text-sm font-medium overflow-hidden max-w-[200px] sm:max-w-[130px] xl:max-w-[200px] text-ellipsis pe-2`}>
+              {contact?.serviceInquired === userInformation._id ?  receiver.firstname + " " + receiver.lastname  :
+              contact?.virtualServiceInquired?.basicInformation.ServiceTitle}
+              </p>
               <div className={` ${contact.serviceInquired === userInformation?._id ? 'block' : 'hidden'} flex items-center`}>
               <StorefrontOutlinedIcon className=' text-blue-500 p-0.5' fontSize='small' />
               </div>
