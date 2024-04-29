@@ -127,12 +127,17 @@ import useNotify from '../../ClientCustomHook/useNotify';
   },[newMessage, userInformation, currentChats])
 
 
-    useEffect(()=>{
+    useEffect
+    (()=>{
       if(service == "")
       {
         navigate('/notFound')
       }
     },[])
+
+    useEffect(()=>{
+      getAllChats()
+    },[socket])
 
     
     // load first chat upon load when there is no service or convoId
