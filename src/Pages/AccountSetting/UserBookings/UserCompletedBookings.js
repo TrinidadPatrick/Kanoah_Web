@@ -289,7 +289,7 @@ const UserCompletedBookings = ({completedBookings, setCompletedBookings}) => {
                     <div className='font-medium text-right text-xs md:text-xs text-red-500'>₱{clientInformation?.net_Amount}</div>
 
                     <button onClick={() => { window.open(`/explore/viewService/${clientInformation.shop._id}`, '_blank') }} className='bg-gray-100 border rounded-sm text-xs text-gray-800 py-1 mt-2'>View Service</button>
-                    <button onClick={() => { window.open(`/chat?service=${clientInformation.owner}`, '_blank') }} className='bg-green-400 border rounded-sm text-xs text-gray-100 py-1 mt-2'>Contact Service</button>
+                    <button onClick={() => { navigate(`/chat?service=${clientInformation.owner}`) }} className='bg-green-400 border rounded-sm text-xs text-gray-100 py-1 mt-2'>Contact Service</button>
                     </div>
                 </div>
         </div>

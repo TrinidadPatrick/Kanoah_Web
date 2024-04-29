@@ -155,7 +155,7 @@ const ExploreServiceList = () => {
         return (
           <div key={service._id} className='border relative flex cursor-pointer flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
             {/* Image Container */}
-            <Link to={`/explore/viewService/${service._id}`} className='flex relative w-full h-[200px] semiSm:h-[130px] semiBase:h-[170px] md:h-[250px] lg:h-[200px] object-cover xl:w-[330px] xl:min-w-[330px] xl:h-[200px]'>
+            <Link to={`/exploreService/viewService/${service._id}`} className='flex relative w-full h-[200px] semiSm:h-[130px] semiBase:h-[170px] md:h-[250px] lg:h-[200px] object-cover xl:w-[330px] xl:min-w-[330px] xl:h-[200px]'>
                 <p className='absolute bg-white px-2 py-1 text-xs md:text-sm font-semibold rounded-full top-1 left-1'>{service.advanceInformation.ServiceCategory.name}</p>
                 <img className='w-full h-full  max-h-[280px] object-cover rounded-lg' src={service.serviceProfileImage === null ? noImage : service.serviceProfileImage} alt="Cover"/>
             </Link>

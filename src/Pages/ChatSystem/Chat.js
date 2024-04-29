@@ -737,7 +737,7 @@ import useNotify from '../../ClientCustomHook/useNotify';
         {/* More option */}
         <div className={`w-[150px] ${openMoreOptions ? 'block' : 'hidden'} h-fit border absolute right-6 top-6 bg-white shadow-md rounded-md`}>
           <ul className='flex flex-col space-y-3'>
-            <li onClick={()=>{navigate(`/explore/viewService/${currentChats[0].virtualServiceInquired._id}`)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View Service</li>
+            <li onClick={()=>{navigate(`/exploreService/viewService/${currentChats[0].virtualServiceInquired._id}`)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View Service</li>
             <li onClick={()=>{setShowProfileInformation(true);setOpenMoreOptions(false)}} className='text-sm cursor-pointer p-2 hover:text-blue-500 hover:bg-gray-200'>View User</li>
           </ul>
         </div>

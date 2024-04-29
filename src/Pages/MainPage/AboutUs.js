@@ -32,7 +32,7 @@ const AboutUs = () => {
         <div className='w-full pb-5 h-full flex flex-col items-center justify-center gap-5 relative '>
         <h1 data-aos='fade-down' className=' text-gray-100 w-full text-center xl:text-start text-3xl font-medium top-0'>Search. Discover. Connect</h1>
         <img data-aos='fade-left' src={responsive} className="w-[250px]  md:w-[300px] lg:w-[400px] " />
-        <button onClick={()=>window.location.href = "https://expo.dev/artifacts/eas/9kKpfWctF5fGUZdtky3KrK.apk"} data-aos='fade-up' className='px-3 py-2  z-30 hover:bg-orange-400 bg-themeOrange text-gray-100 rounded-md flex items-center gap-2 font-medium whitespace-nowrap '><FileDownloadOutlinedIcon /> Download Mobile App</button>
+        <button onClick={()=>window.location.href = "https://expo.dev/artifacts/eas/nzQJYeMEZDUEf61SWCgD8W.apk"} data-aos='fade-up' className='px-3 py-2  z-30 hover:bg-orange-400 bg-themeOrange text-gray-100 rounded-md flex items-center gap-2 font-medium whitespace-nowrap '><FileDownloadOutlinedIcon /> Download Mobile App</button>
         </div>
         </div>
     </div>

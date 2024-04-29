@@ -201,7 +201,7 @@ import { Link } from 'react-router-dom';
         <div key={service._id} className='w-full h-fit sm:h-[400px] flex items-center justify-center  py-4'>
               {/* Cards */}
               <div className='TRS semiXs:w-[400px] p-2 sm:w-[300px] md:w-[350px] semiMd:w-[400px] lg:w-[330px] xl:w-[330px] service_card relative h-fit sm:h-fit pb-2 rounded-lg bg-white overflow-hidden'>
-              <Link to={`/explore/viewService/${service._id}`}>
+              <Link to={`/exploreService/viewService/${service._id}`}>
               <img className='h-[200px] w-full rounded-md object-cover semiXs:h-[250px] semiXs:w-[400px] sm:h-[200px] sm:w-[300px] md:h-[200px] md:w-[350px] semiMd:h-[220px] semiMd:w-[400px]  lg:h-[200px] lg:w-[330px] xl:h-[200px] xl:w-[330px] ' src={service.serviceProfileImage === null ? noImage : service.serviceProfileImage} />
               </Link>
               {/* Profile */}

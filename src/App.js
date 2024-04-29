@@ -34,7 +34,7 @@ import ExplorePage from './Pages/NewExplorePage/ExplorePage';
 
 
 const App = () => {
-  const { services } = UseServiceHook();
+  const { services, getServiceList } = UseServiceHook();
   const [scrollToAboutUs, setScrollToAboutUs] = useState(false);
 
   const handleScrollToAboutUs = () => {
@@ -68,7 +68,7 @@ const App = () => {
         <Route path='/explore/' element={
         <Explore services={services} />} />
         <Route path='exploreService' element={<ExplorePage />} />
-        <Route path='explore/viewService/:serviceId' element={<ViewService />} />
+        <Route path='exploreService/viewService/:serviceId' element={<ViewService />} />
         <Route path='/myAccount/:optn' element={<CustomerAccount />} />
         <Route path='/serviceRegistration' element={<ServiceRegistrationPage />} />
         <Route path='/serviceSettings/:option' element={<ServiceSettings />} />
