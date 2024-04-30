@@ -26,7 +26,7 @@ const ForgotPassword = () => {
     const [timer, setTimer] = useState(10)
     const [startTimer, setStartTimer] = useState(false)
     const [isValidEmail, setIsvalidEmail] = useState(undefined)
-    const [passwordError, setPasswordError] = useState(undefined) //1 = no password input, 2 password dont match, 3 short password
+    const [passwordError, setPasswordError] = useState(undefined) //1 = invalid password input, 2 password dont match, 
     const [isValidOtp, setIsValidOtp] = useState(undefined)
     const [emailVerified, setEmailVerified] = useState(false)
     const [isChecked, setIsChecked] = useState(false)
@@ -93,7 +93,18 @@ const ForgotPassword = () => {
 
     // Submit new password
     const submitPassword = async () => {
-        if(password != "" && password == confirmPassword && password.length >= 9){
+        const uppercaseRegex = /[A-Z]/;
+        const lowercaseRegex = /[a-z]/;
+        const numberRegex = /[0-9]/;
+        const specialCharRegex = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+    
+        const hasUppercase = uppercaseRegex.test(password);
+        const hasLowercase = lowercaseRegex.test(password);
+        const hasNumber = numberRegex.test(password);
+        const hasSpecialChar = specialCharRegex.test(password);
+
+        if(password == confirmPassword && password.length >= 8 && hasUppercase && hasLowercase && hasNumber && hasSpecialChar){
+            setPasswordError(undefined)
             setIsLoadingNewPass(true)
             await http.post("forgotPassword/newPassword", {email, password}).then((res)=>{
             if(res.data.status == "updated"){
@@ -108,12 +119,10 @@ const ForgotPassword = () => {
                 setIsLoadingNewPass(false)
             })
         }
-        if(password == ""){
+        if(password.length < 8 || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar){
             setPasswordError(1)
         }if(password != confirmPassword){
             setPasswordError(2)
-        }if(password.length < 9){
-            setPasswordError(3)
         }
 
         setIsLoading(false)
@@ -129,6 +138,7 @@ const ForgotPassword = () => {
         return ()=>{clearInterval(countdown)}      
         }        
     }, [startTimer, timer])
+
     useEffect(()=>{
         if(timer <1){
         setStartTimer(false)
@@ -219,13 +229,10 @@ const ForgotPassword = () => {
         <input  onChange={(e)=>{setPassword(e.target.value)}} type={isChecked ? "text" : "password"} placeholder='New Password' className={`w-full password border-2 rounded-sm outline-blue-700 border-gray-500 p-1 pr-10 ${passwordError == 1 ? 'border-red-400 ' : passwordError == 2 ? 'border-red-400 ' : passwordError == 3 ? 'border-red-400 '  : ""}`} />
         {
             passwordError == 1 ?
-            <p className={`text-semiXs text-start absolute text-red-500 mt-01 `}>Password required</p>
+            <p className={`text-semiXs text-start  text-red-500 mt-01 `}>Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character</p>
             :
             passwordError == 2 ?
-            <p className={`text-semiXs text-start absolute text-red-500 mt-01 `}>Password do not match</p>
-            :
-            passwordError == 3 ?
-            <p className={`text-semiXs text-start absolute text-red-500 mt-01 `}>Please enter atleast 9 characters</p>
+            <p className={`text-semiXs text-start  text-red-500 mt-01 `}>Password do not match</p>
             :
             ""
         }
@@ -234,7 +241,7 @@ const ForgotPassword = () => {
 
 
         {/* Confirm Password Field */}
-        <div className='w-full relative mt-3'>
+        <div className='w-full relative mt-2'>
         <input  onChange={(e)=>{setConfirmPassword(e.target.value)}} type={isChecked ? "text" : "password"} placeholder='Confirm New Password' className={`password w-full border-2 rounded-sm outline-blue-700 border-gray-500 p-1 pr-10 ${passwordError == 2 ? 'border-red-400 '  : ""}`} />
         <LockIcon className='absolute top-1.5 right-2 text-gray-400 w-2 h-2'/>
         </div>

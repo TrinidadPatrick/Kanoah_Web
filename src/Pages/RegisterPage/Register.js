@@ -72,16 +72,30 @@ const Register = () => {
   // Set value to get to next page
   const next = async ()  =>{
     
-    const {username, email, password} = userInfos
+    const {username, password} = userInfos
+
+    const uppercaseRegex = /[A-Z]/;
+    const lowercaseRegex = /[a-z]/;
+    const numberRegex = /[0-9]/;
+    const specialCharRegex = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
+
+    const hasUppercase = uppercaseRegex.test(password);
+    const hasLowercase = lowercaseRegex.test(password);
+    const hasNumber = numberRegex.test(password);
+    const hasSpecialChar = specialCharRegex.test(password);
+
     if(username.length < 5){
       setIsValidUsername(false)
     }if (username.length > 5){
       setIsValidUsername(true)
-    }if(password.length < 8){
+    }
+    if(password.length < 8 || !hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar){
       setIsValidPassword(false)
-    }if(password.length >= 8){
+    }
+    if(password.length >= 8 && hasUppercase && hasLowercase && hasNumber && hasSpecialChar){
       setIsValidPassword(true)
-    }if(username.length >= 5 && password.length >= 8){
+    }
+    if(username.length >= 5 && password.length >= 8 && hasUppercase && hasLowercase && hasNumber && hasSpecialChar){
       setIsLoading(true)
       await http.post("verifyUsername", {username : userInfos.username}).then((res)=>{
         if(res.data.status == "unavailable"){
@@ -285,7 +299,7 @@ useEffect(()=>{
     }
     
     
-    <p className={`text-xs text-start absolute text-red-500 mt-01 ${isValidPassword == false ? "block" : "hidden"}`}>Please enter atleast 9 characters</p>
+    <p className={`text-xs text-start  text-red-500 mt-01 ${isValidPassword == false ? "block" : "hidden"}`}>Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character</p>
     </div>
 
     <div>

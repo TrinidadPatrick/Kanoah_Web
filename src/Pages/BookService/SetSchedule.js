@@ -221,7 +221,6 @@ import dayjs from 'dayjs';
 
     },[bookingTimeSlot, bookingScheds])
 
-    // console.log(currentDay)
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>

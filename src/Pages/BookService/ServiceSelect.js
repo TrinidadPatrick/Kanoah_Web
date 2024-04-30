@@ -122,7 +122,7 @@ const ServiceSelect = ({handleStep, serviceInfo}) => {
             <p className='text-xs text-gray-500 '>Choose variant</p>
             <p className={`${error.variant ? "" : "hidden"} text-semiSm text-red-500`}>Please select a variant first</p>
             <div className='w-full h-full flex gap-3 pt-1 '>
-            <p className={` ${variants.length !== 0 ? "hidden" : ""}  text-sm text-gray-500`}>No variants available</p>
+            <p className={` ${variants?.length !== 0 ? "hidden" : ""}  text-sm text-gray-500`}>No variants available</p>
                 {
                     variants?.map((variant, index)=>{
                         return (
