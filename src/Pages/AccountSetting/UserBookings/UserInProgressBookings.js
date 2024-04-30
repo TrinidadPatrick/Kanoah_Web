@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react'
 import Modal from 'react-modal'
 import { useState } from 'react';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import { useNavigate } from 'react-router-dom';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
@@ -94,11 +96,14 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
         }
     }
 
-    const cancelBooking = async (bookingId, differenceInMinutes) => {
-        if(differenceInMinutes < 5)
+    const cancelBooking = async (bookingObject) => {
+        const differenceInMilliseconds = Math.abs(new Date() - new Date(bookingObject.createdAt));
+        // Convert milliseconds to minutes
+        const differenceInMinutes = Math.floor(differenceInMilliseconds / (1000 * 60));
+        if(differenceInMinutes <= 5)
         {
-            const status = "CANCELLED"
-        const index = InProgress_Bookings_Orig.findIndex(booking => booking._id === bookingId)
+        const status = "CANCELLED"
+        const index = InProgress_Bookings_Orig.findIndex(booking => booking._id === bookingObject._id)
         if(index !== -1)
         {
             const newBooking = [...InProgress_Bookings_Orig]
@@ -106,7 +111,7 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
             const filtered = newBooking.filter((booking) => booking.status === "INPROGRESS")
             set_InProgress_Bookings_Orig(filtered)
             try {
-                const result = await http.patch(`respondBooking/${bookingId}`, {status, updatedAt : new Date(), cancelledBy : {
+                const result = await http.patch(`respondBooking/${bookingObject._id}`, {status, updatedAt : new Date(), cancelledBy : {
                     role : "Client",
                     user : newBooking[index].client
                 }})
@@ -116,8 +121,20 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
             }
         }
         }
-
-        return ;
+        else
+        {
+            toast.error('Cannot cancel booking', {
+                position: "bottom-right",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+                });
+        }
     }
 
 
@@ -207,20 +224,17 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
                     </div>
                 </div>
                 <div className='w-full flex justify-end'>
-                <button onClick={()=>cancelBooking(inprogress._id, differenceInMinutes)} 
-                disabled={differenceInMinutes >= 5} 
+                <button onClick={()=>cancelBooking(inprogress)} 
+                disabled={differenceInMinutes > 5} 
                 className='bg-gray-300 disabled:bg-gray-100 text-gray-600 disabled:text-gray-400 border rounded-sm px-2 text-sm py-1'>Cancel booking</button>
                 </div>
                 </div>
             )
         })
-    }
+        }
+    <ToastContainer />
     </div>
-
     }
-    
-
-
     <Modal  isOpen={modalIsOpen} style={ModalStyle}>
         <div className='w-full sm:w-fit h-fit max-h-[90dvh] sm:h-full flex flex-col bg-[#f9f9f9] p-2'>
             <div className='flex items-center space-x-1'>

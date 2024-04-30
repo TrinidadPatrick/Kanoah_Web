@@ -30,7 +30,7 @@ import dayjs from 'dayjs';
     const [bookingScheds, setBookingScheds] = useState([])
     const date = new Date()
     const dateToday = date.getFullYear() + "-" +(date.getMonth() + 1) + "-" + date.getDate()
-    const [dateSelected, setDateSelected] = useState(dateToday)
+    const [dateSelected, setDateSelected] = useState('')
     const [timeSelected, setTimeSelected] = useState('')
     const [timeSpan, setTimeSpan] = useState([])
     const [serviceOption, setServiceOption] = useState('')
@@ -47,28 +47,24 @@ import dayjs from 'dayjs';
         setDateSelected(formattedDate)
       };
 
-      useEffect(() => {
-        // Get the current date
-        const currentDate = new Date();
+      // Gets the current day name today
+      // useEffect(() => {
+      //   // Get the current date
+      //   const currentDate = new Date();
     
-        // Array of days of the week
-        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      //   // Array of days of the week
+      //   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     
-        // Get the day of the week (0-indexed)
-        const dayIndex = currentDate.getDay();
+      //   // Get the day of the week (0-indexed)
+      //   const dayIndex = currentDate.getDay();
     
-        // Get the day name from the array
-        const dayName = daysOfWeek[dayIndex];
+      //   // Get the day name from the array
+      //   const dayName = daysOfWeek[dayIndex];
     
-        // Update state with the current day
-        setCurrentDay(dayName);
-      }, []);
+      //   // Update state with the current day
+      //   setCurrentDay(dayName);
+      // }, []);
 
-
-    useEffect(()=>{
-        const time = serviceInfo.serviceHour.find(sched => sched.day === currentDay)
-        // setTimeAvailable(serviceInfo.serviveHour)
-    },[currentDay])
 
     const submitSchedule = () => {
         const data = {
@@ -105,30 +101,38 @@ import dayjs from 'dayjs';
 
 
     useEffect(()=>{
-      const bookings = bookingSchedule.filter((schedule) => schedule.schedule.bookingDate === dateSelected)
-      setBookings(bookings)
-
-      const dateTimeString = dateSelected + " " + timeSelected;
-      const dateTime = new Date(dateTimeString + " UTC");
-      dateTime.setMinutes(dateTime.getMinutes() + serviceContext.duration);
-      const newDateTimeString = dateTime.toISOString().slice(0, 19).replace("T", " ");
-
-      const time24Hour = newDateTimeString.split(" ").slice(1).toString()
-
-      // Convert to 12-hour format
-      const [hours, minutes] = time24Hour.split(':').map(Number);
-      const period = hours >= 12 ? 'PM' : 'AM';
-      const hours12 = hours % 12 || 12;
-
-      const paddedMinutes = minutes < 10 ? `0${minutes}` : minutes;
-      const time12Hour = `${hours12}:${paddedMinutes} ${period}`;
-      setTimeSpan([timeSelected, time12Hour])
+      if(dateSelected !== '')
+      {
+        const bookings = bookingSchedule.filter((schedule) => schedule.schedule.bookingDate === dateSelected)
+        setBookings(bookings)
+  
+        const dateTimeString = dateSelected + " " + timeSelected;
+        const dateTime = new Date(dateTimeString + " UTC");
+        dateTime.setMinutes(dateTime.getMinutes() + serviceContext.duration);
+        const newDateTimeString = dateTime.toISOString().slice(0, 19).replace("T", " ");
+  
+        const time24Hour = newDateTimeString.split(" ").slice(1).toString()
+  
+        // Convert to 12-hour format
+        const [hours, minutes] = time24Hour.split(':').map(Number);
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const hours12 = hours % 12 || 12;
+  
+        const paddedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+        const time12Hour = `${hours12}:${paddedMinutes} ${period}`;
+        setTimeSpan([timeSelected, time12Hour])
+      }
     },[dateSelected, timeSelected])
 
 
     useEffect(()=>{
       if(scheduleContext !== null)
       {
+        const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const currentDateSelected = new Date(scheduleContext.bookingDate);
+        const dayIndex = currentDateSelected.getDay();
+        const dayName = daysOfWeek[dayIndex]
+        setCurrentDay(dayName)
         setServiceOption(scheduleContext.serviceOption)
         setDateSelected(scheduleContext.bookingDate)
         setTimeSelected(scheduleContext.bookingTime)
@@ -139,10 +143,8 @@ import dayjs from 'dayjs';
       const dayName = dayjs(date).format('dddd');
     
       const closedTime = serviceInfo.serviceHour.filter((hour) => hour.isOpen === false);
-    
-      return closedTime.some((closed) => dayName === closed.day);
+      return (new Date(date) < new Date() || closedTime.some((closed) => dayName === closed.day));
     };
-
 
     useEffect(()=>{
       const getSchedules = (bookings) => {
@@ -182,7 +184,7 @@ import dayjs from 'dayjs';
       setBookingTimeSlot(timeArray);
 
 
-    },[currentDay])
+    },[currentDay, dateSelected])
 
     // check and disables the time when necessary
     useEffect(()=>{
@@ -219,14 +221,18 @@ import dayjs from 'dayjs';
 
     },[bookingTimeSlot, bookingScheds])
 
-    
-    
+    // console.log(currentDay)
+
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
         {/* <ThemeProvider theme={newTheme}> */}
     <div className='w-full overflow-auto h-[400px] lg:h-[470px] flex flex-col'>
     <div className='w-full pb-1 flex flex-col min-h-[630px] md:min-h-[330px]  md:flex-row gap-2 items-stretch h-[320px]'>
-    <StaticDatePicker  shouldDisableDate={disableDate} value={dayjs(`${dateSelected}`)} onChange={(value)=>handleDateChange(value)} className=' h-[320px] min-h-[330px] rounded-md border'  orientation="landscape" slotProps={{
+    <div className='relative'>
+    <span className={`${error.dateSelected ? "" : "hidden"} absolute top-1 left-1 text-xs text-red-500`}>*Please select a date below</span>
+    <StaticDatePicker 
+    value={dateSelected !== '' ? dayjs(`${dateSelected}`) : ''}
+    shouldDisableDate={disableDate}  onChange={(value)=>handleDateChange(value)} className=' h-[320px] min-h-[330px] rounded-md border'  orientation="landscape" slotProps={{
     actionBar: {
       actions: [],
     },
@@ -234,18 +240,28 @@ import dayjs from 'dayjs';
         hidden: true,
       },
     }} />
+    </div>
 
-    <div id='booked' className='w-full h-[330px] bg-white  flex flex-col justify-start pb-3 rounded-md relative border px-2'>
+    <div id='booked' className={`w-[280px] h-[330px] bg-white flex flex-col justify-start pb-3 rounded-md relative border px-2`}>
       <span className={`${error.timeSelected ? "" : "hidden"} text-xs text-red-500`}>*Please select a time below</span>
-    <div className='grid grid-cols-3 gap-2 mt-3'>
+    {
+      bookingTimeSlot.length !== 0
+      ?
+      <div className='grid grid-cols-3 gap-2 mt-3'>
     {
       bookingTimeSlot.map((time) =>{
         return (
-          <button key={time} disabled={unavailableTimes.includes(time)} onClick={()=>setTimeSelected(time)} className={`px-3 py-1 ${time === timeSelected ? 'bg-blue-500 text-gray-50' : 'bg-gray-100 border text-gray-700'} disabled:bg-blue-300  text-semiSm rounded-sm `}>{time}</button>
+          <button key={time}
+          disabled={unavailableTimes.includes(time)} onClick={()=>setTimeSelected(time)} className={`px-3 py-1 ${time === timeSelected ? 'bg-blue-500 text-gray-50' : 'bg-gray-100 border text-gray-700'} disabled:bg-blue-300  text-semiSm rounded-sm `}>{time}</button>
         )
       })
     }
     </div>
+    :
+    <div className='flex-1 flex justify-center items-center '>
+      <p className='text-gray-600'>No date selected</p>
+    </div>
+    }
     </div>
    
     </div>
