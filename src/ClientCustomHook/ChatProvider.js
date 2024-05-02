@@ -7,11 +7,12 @@ import {io} from 'socket.io-client'
 import { selectNewMessage, setNewMessage, selectOnlineUsers, setOnlineUsers } from '../ReduxTK/chatSlice'
 import UseNotif from './NotificationProvider'
 import UseInfo from './UseInfo'
+import socketStore from '../Stores/SocketStore'
 
-const ChatProvider = ({socket, setnewNotification}) => {
+const ChatProvider = ({setnewNotification}) => {
 
-const dispatch = useDispatch()
-  const {getNotifications} = UseNotif()
+  const dispatch = useDispatch()
+  const {socket, setSocket} = socketStore()
   const {authenticated, userInformation} = UseInfo()
 
     // Check for unread Messages
@@ -38,7 +39,7 @@ const dispatch = useDispatch()
 
     //emit the userId to socket
     useEffect(()=>{
-        if(authenticated !== null && authenticated)
+        if(authenticated !== null && authenticated === true)
         {
           console.log("")
           socket?.emit('loggedUser', userInformation._id)

@@ -31,6 +31,7 @@ import AdminUsersList from './AdminPage/AdminUserList/AdminUsersList';
 import AdminReportList from './AdminPage/AdminReports/AdminReportList';
 import AdminReportHistory from './AdminPage/AdminReports/AdminReportHistory';
 import ExplorePage from './Pages/NewExplorePage/ExplorePage';
+import MessageMain from './Pages/MessageSystem/MessageMain';
 
 
 const App = () => {
@@ -80,6 +81,7 @@ const App = () => {
         <Route path='/Gcash' element={<GcashPay />} />
         <Route path='/Paypal' element={<PaypalPay />} />
         <Route path='/chat' element={<Chat />} />    
+        <Route path='/message' element={<MessageMain />} />    
         </Route>
 
         {/* Admin route */}

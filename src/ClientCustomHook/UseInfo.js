@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import http from '../http'
+import userInformationStore from '../Stores/UserInformationStore'
 
 const UseInfo = () => {
+    const {userDetails, setUserDetails} = userInformationStore()
     const [userInformation, setUserInformation] = useState(null)
     const [authenticated, setAuthenticated] = useState(null)
 
@@ -27,6 +29,7 @@ const UseInfo = () => {
                     return
                 }
                 setUserInformation(res.data)
+                setUserDetails(res.data)
                 setAuthenticated(true)
             }).catch((error)=>{
                 console.log(error)

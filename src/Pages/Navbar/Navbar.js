@@ -30,11 +30,13 @@ import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import useCategory from '../../ClientCustomHook/CategoryProvider'
+import socketStore from '../../Stores/SocketStore'
 export const Context = React.createContext()
 
 
 
 const Navbar = ({ onAboutUsClick }) => {
+  const {socket, setSocket} = socketStore()
   const {categories} = useCategory()
   const [newNotification, setnewNotification] = useState(false)
   const {authenticated, userInformation} = UseInfo()
@@ -50,7 +52,6 @@ const Navbar = ({ onAboutUsClick }) => {
   const [showLogin, setShowLogin] = useState(false)
   const [showFP, setShowFP] = useState(false)
   const [showSignup, setShowSignup] = useState(false)
-  const [socket, setSocket] = useState(null)
   const [openNotif, setOpenNotif] = useState(false)
   const [notifCount, setNotifCount] = useState(null)
   const [openMoreOption, setOpenMoreOption] = useState(false)
@@ -144,9 +145,7 @@ const Navbar = ({ onAboutUsClick }) => {
 
     // initiate socket
     useEffect(()=>{
-      // setSocket(io("http://localhost:5000"))
       setSocket(io("https://kanoah.onrender.com"))
-      
     },[])
 
     useEffect(()=>{
@@ -156,7 +155,6 @@ const Navbar = ({ onAboutUsClick }) => {
       }
     },[authenticated])
 
-    // console.log(notifications)
 
   return (
     <Context.Provider value={[showSignup, setShowSignup, showLogin, setShowLogin, showFP, setShowFP, handleClose]}>
@@ -225,7 +223,7 @@ const Navbar = ({ onAboutUsClick }) => {
   authenticated ? (
     <div className='flex items-center justify-evenly space-x-2 sm:space-x-5 mr-4'>
       {/* Chat */}
-      <Link to="chat">
+      <Link to="message">
         <div className='relative flex items-center justify-center aspect-square p-0.5 w-7 h-7 md:w-8 md:h-8 bg-[#e2e1e15f] rounded-full'>
           <div className={`w-3.5 h-3.5 ${newMessage ? 'block' : 'hidden'} rounded-full flex items-center justify-center bg-red-500 -top-1 absolute -right-1`}>
           <PriorityHighOutlinedIcon fontSize='small' className='p-1 text-white' />
