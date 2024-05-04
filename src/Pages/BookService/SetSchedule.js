@@ -47,23 +47,6 @@ import dayjs from 'dayjs';
         setDateSelected(formattedDate)
       };
 
-      // Gets the current day name today
-      // useEffect(() => {
-      //   // Get the current date
-      //   const currentDate = new Date();
-    
-      //   // Array of days of the week
-      //   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    
-      //   // Get the day of the week (0-indexed)
-      //   const dayIndex = currentDate.getDay();
-    
-      //   // Get the day name from the array
-      //   const dayName = daysOfWeek[dayIndex];
-    
-      //   // Update state with the current day
-      //   setCurrentDay(dayName);
-      // }, []);
 
 
     const submitSchedule = () => {
@@ -141,9 +124,12 @@ import dayjs from 'dayjs';
 
     const disableDate = (date) => {
       const dayName = dayjs(date).format('dddd');
+      const dateInMS = new Date().getTime()
+      const dateToday = new Date(dateInMS).toLocaleDateString()
+      console.log(dateToday, new Date(date).toLocaleDateString())
     
       const closedTime = serviceInfo.serviceHour.filter((hour) => hour.isOpen === false);
-      return (new Date(date) < new Date() || closedTime.some((closed) => dayName === closed.day));
+      return (new Date(new Date(date).toLocaleDateString()).getTime() < new Date(dateToday).getTime() || closedTime.some((closed) => dayName === closed.day));
     };
 
     useEffect(()=>{
@@ -159,29 +145,29 @@ import dayjs from 'dayjs';
 
     // set the times to match the schedule of the day of the service
     useEffect(()=>{
-      const schedule = serviceInfo?.serviceHour.find((serviceHour) => serviceHour.day === currentDay)
-      
-      const fromDate = new Date(`2000-01-01T${schedule?.fromTime}:00`);
-      const toDate = new Date(`2000-01-01T${schedule?.toTime}:00`);
+      const date = new Date().getTime()
+        const yearToday = new Date().toISOString().split("T")[0]
+        const dateToday = new Date(date +  28800000)
+        const schedule = serviceInfo?.serviceHour.find((serviceHour) => serviceHour.day === currentDay)
+        const fromDate = new Date(`${yearToday === dateSelected ? yearToday : dateSelected}T${schedule?.fromTime}:00`);
+        const toDate = new Date(`${dateSelected}T${schedule?.toTime}:00`);
+        const timeArray = [];
 
-      const timeArray = [];
-
-      let currentTime = fromDate;
-      while (currentTime <= toDate) {
-        const endTime = new Date(currentTime);
-        endTime.setMinutes(endTime.getMinutes() + serviceContext.duration);
-    
-        // Check if the end time is within the service hours
-        if (endTime <= toDate) {
-          const formattedTime = currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-          timeArray.push(formattedTime);
+        let currentTime = fromDate;
+        while (currentTime <= toDate) {
+          const endTime = new Date(currentTime);
+          endTime.setMinutes(endTime.getMinutes() + serviceContext.duration);
+          
+          // Check if the end time is within the service hours
+          if (endTime <= toDate && new Date(currentTime.getTime() + 28800000) >= dateToday ) {
+            const formattedTime = currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            timeArray.push(formattedTime);
+          }
+          // Increment the current time by the interval in minutes
+          currentTime.setMinutes(currentTime.getMinutes() + 30);
         }
-    
-        // Increment the current time by the interval in minutes
-        currentTime.setMinutes(currentTime.getMinutes() + 30);
-      }
-    
-      setBookingTimeSlot(timeArray);
+              
+              setBookingTimeSlot(timeArray);
 
 
     },[currentDay, dateSelected])
@@ -221,6 +207,7 @@ import dayjs from 'dayjs';
 
     },[bookingTimeSlot, bookingScheds])
 
+    console.log(dateSelected)
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -231,7 +218,8 @@ import dayjs from 'dayjs';
     <span className={`${error.dateSelected ? "" : "hidden"} absolute top-1 left-1 text-xs text-red-500`}>*Please select a date below</span>
     <StaticDatePicker 
     value={dateSelected !== '' ? dayjs(`${dateSelected}`) : ''}
-    shouldDisableDate={disableDate}  onChange={(value)=>handleDateChange(value)} className=' h-[320px] min-h-[330px] rounded-md border'  orientation="landscape" slotProps={{
+    shouldDisableDate={disableDate}
+      onChange={(value)=>handleDateChange(value)} className=' h-[320px] min-h-[330px] rounded-md border'  orientation="landscape" slotProps={{
     actionBar: {
       actions: [],
     },
