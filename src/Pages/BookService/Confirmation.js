@@ -297,6 +297,12 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         <button onClick={()=>{handleStep(3)}} className='absolute top-1'>
             <ArrowBackIosOutlinedIcon className=' hover:text-gray-400' fontSize='small left-0' />
         </button>
+        {/* Reminder */}
+        <div className=' w-full p-1 bg-white border shadow-sm'>
+            <p className='text-center text-sm'>Cancelation policy</p>
+            <p className='text-[0.67rem] text-center text-gray-700'>{serviceInfo?.cancelationPolicy.cancelPolicy}</p>
+            <p className='text-[0.67rem] text-center text-gray-700'>This policy is provided by the service provider.</p>
+        </div>
         {/* Top Part */}
         <div className={`flex gap-3 w-full bg-white border shadow-sm p-2`}>
             {/* Image container */}
@@ -352,14 +358,14 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         </div>
         <div className='p-3 bg-white w-full border rounded-sm shadow-sm'>
         <ul className=' grid grid-cols-2 gap-0 gap-x-5'>
-                <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Total Service Amount:</div>
-                <div className={`font-normal pl-2 text-xs md:text-sm text-gray-600 `}>₱{bookingInformation.service?.price}</div>
-                <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Service Fee:</div>
-                <div className={`font-normal pl-2 text-xs md:text-sm text-gray-600 `}>₱{bookingInformation.service_fee}</div>
-                <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Booking Fee:</div>
-                <div className={`font-normal pl-2 text-xs md:text-sm text-gray-600 `}>₱{bookingInformation.booking_fee}</div>
-                <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Total amount to pay:</div>
-                <div className={`font-normal pl-2 text-xs md:text-sm text-red-500 border-t-1 border-gray-700 `}>₱{bookingInformation.net_Amount}</div>
+            <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Total Service Amount:</div>
+            <div className={`font-normal pl-2 text-xs md:text-sm text-gray-600 `}>₱{bookingInformation.service?.price}</div>
+            <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Service Fee:</div>
+            <div className={`font-normal pl-2 text-xs md:text-sm text-gray-600 `}>₱{bookingInformation.service_fee}</div>
+            <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Booking Fee:</div>
+            <div className={`font-normal pl-2 text-xs md:text-sm text-gray-600 `}>₱{bookingInformation.booking_fee}</div>
+            <div className={`font-medium text-xs md:text-sm text-gray-600 `}>Total amount to pay:</div>
+            <div className={`font-normal pl-2 text-xs md:text-sm text-red-500 border-t-1 border-gray-700 `}>₱{bookingInformation.net_Amount}</div>
         </ul>
         </div>
         <button onClick={()=>{pay()}} className={`text-white ${loading ? "bg-slate-500" : "bg-themeBlue"} hover:bg-slate-500 px-2 py-2 text-xs md:text-sm rounded-sm `}>
