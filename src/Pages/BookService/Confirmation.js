@@ -300,7 +300,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         {/* Reminder */}
         <div className=' w-full p-1 bg-white border shadow-sm'>
             <p className='text-center text-sm'>Cancelation policy</p>
-            <p className='text-[0.67rem] text-center text-gray-700'>{serviceInfo?.cancelationPolicy.cancelPolicy}</p>
+            <p className='text-[0.67rem] text-center text-gray-700'>{serviceInfo?.cancelationPolicy?.cancelPolicy}</p>
             <p className='text-[0.67rem] text-center text-gray-700'>This policy is provided by the service provider.</p>
         </div>
         {/* Top Part */}
