@@ -97,10 +97,11 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
     }
 
     const cancelBooking = async (bookingObject) => {
+        const cancelTimeLimit = bookingObject.shop.cancelationPolicy.cancelTimeLimit
+        const totalMinutesLimit = (cancelTimeLimit.day * 24 * 60) + (cancelTimeLimit.hour * 60) + cancelTimeLimit.minutes;
         const differenceInMilliseconds = Math.abs(new Date() - new Date(bookingObject.createdAt));
-        // Convert milliseconds to minutes
         const differenceInMinutes = Math.floor(differenceInMilliseconds / (1000 * 60));
-        if(differenceInMinutes <= 5)
+        if(differenceInMinutes <= totalMinutesLimit)
         {
         const status = "CANCELLED"
         const index = InProgress_Bookings_Orig.findIndex(booking => booking._id === bookingObject._id)
@@ -136,6 +137,7 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
                 });
         }
     }
+
 
 
   return (
@@ -176,8 +178,9 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
         <div className='w-full h-full max-h-full overflow-auto'>
         {
         InProgress_Bookings_Orig?.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).map((inprogress) => {
+            const cancelTimeLimit = inprogress.shop.cancelationPolicy.cancelTimeLimit
+            const totalMinutesLimit = (cancelTimeLimit.day * 24 * 60) + (cancelTimeLimit.hour * 60) + cancelTimeLimit.minutes;
             const differenceInMilliseconds = Math.abs(new Date() - new Date(inprogress.createdAt));
-            // Convert milliseconds to minutes
             const differenceInMinutes = Math.floor(differenceInMilliseconds / (1000 * 60));
             const dateObject = new Date(inprogress.schedule.bookingDate)
             const formattedDate = dateObject.toLocaleDateString('en-US', {
@@ -225,7 +228,7 @@ const UserInProgressBooking = ({ inProgressBookings }) => {
                 </div>
                 <div className='w-full flex justify-end'>
                 <button onClick={()=>cancelBooking(inprogress)} 
-                disabled={differenceInMinutes > 5} 
+                disabled={differenceInMinutes > totalMinutesLimit} 
                 className='bg-gray-300 disabled:bg-gray-100 text-gray-600 disabled:text-gray-400 border rounded-sm px-2 text-sm py-1'>Cancel booking</button>
                 </div>
                 </div>

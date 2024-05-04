@@ -567,8 +567,8 @@ import useNotify from '../../ClientCustomHook/useNotify';
     function handleSearchMessage(searchInput){
       const newContact = [...allContacts]
       if (searchInput.trim() !== "") {
-        const searchResults = newContact.filter((contacts) =>
-        contacts.participants.some((participant) =>
+          const searchResults = newContact.filter((contacts) =>
+          contacts.participants.some((participant) =>
           participant.firstname.trim().toLowerCase().includes(searchInput.trim().toLowerCase()) ||
           participant.lastname.trim().toLowerCase().includes(searchInput.trim().toLowerCase())
         ) ||

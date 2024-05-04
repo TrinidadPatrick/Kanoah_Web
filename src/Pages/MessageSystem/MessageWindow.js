@@ -14,6 +14,10 @@ import { useNavigate } from 'react-router-dom';
 import OutsideClickHandler from 'react-outside-click-handler';
 import KeyboardVoiceOutlinedIcon from '@mui/icons-material/KeyboardVoiceOutlined';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+import Download from "yet-another-react-lightbox/plugins/download";
+import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 
 const MessageWindow = ({userDetails, contactList, conversationData, setConversationData, getAllContacts}) => {
     const navigate = useNavigate()
@@ -27,6 +31,8 @@ const MessageWindow = ({userDetails, contactList, conversationData, setConversat
     const [showDropdown, setShowDropdown] = useState(false)
     const [onlineUsers, setOnlineUsers] = useState([])
     const [sendingMessages, setSendingMessages] = useState([])
+    const [selectedImages, setSelectedImages] = useState(null)
+    const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
     const currentDate = new Date();
     const thisDate = new Date().toLocaleDateString('en-CA');
@@ -59,7 +65,7 @@ const MessageWindow = ({userDetails, contactList, conversationData, setConversat
     }));
 
     useEffect(()=>{
-            if(userDetails !== null && serviceParam === null && serviceParam !== null)
+            if(userDetails !== null && conversationIdParam !== null && serviceParam === null)
             {
                 getConversation()
             }
@@ -94,6 +100,14 @@ const MessageWindow = ({userDetails, contactList, conversationData, setConversat
             }
         }
     },[socket, userDetails])
+
+    useEffect(()=>{
+        if(!listening)
+        {
+            setMessageinput(prevMessage => prevMessage + " " + transcript); // Append transcript to messageInput
+            resetTranscript();
+        }
+    },[transcript, listening])
 
     // Get conversation based on serviceId or convo Id
     const getConversation = async () => {
@@ -358,15 +372,15 @@ const MessageWindow = ({userDetails, contactList, conversationData, setConversat
 
     const handleListen = () => {
         SpeechRecognition.startListening();
-      };
+    };
+
+    const storeImagesForViewer = (convoId) => {
+        const images = conversation.filter((convo) => convo.messageType === "image").map((image)=> ({src : image.messageContent.content, _id : image._id}))
+        const index =  images.findIndex((convo) => convo._id === convoId)
+        setSelectedImageIndex(index)
+        setSelectedImages(images)
+    }
     
-      useEffect(()=>{
-        if(!listening)
-        {
-            setMessageinput(prevMessage => prevMessage + " " + transcript); // Append transcript to messageInput
-            resetTranscript();
-        }
-      },[transcript, listening])
 
   return (
     <main className='flex-1 flex flex-col p-2 '>
@@ -461,7 +475,7 @@ const MessageWindow = ({userDetails, contactList, conversationData, setConversat
                                     <p className={`${myMessage ? "text-white bg-blue-500" : "text-gray-600 bg-gray-200 "} p-2 text-sm rounded-md`}>{item.messageContent.content}</p>
                                     :
                                     <div style={{width : 200, height : calculatedHeight}} className={` p-1 `}>
-                                    <button className=" ">
+                                    <button onClick={()=>storeImagesForViewer(item._id)} className=" ">
                                     <img src={item.messageContent.content}  style={{width : "100%", height : "100%", borderRadius : 10}} />
                                     </button>
                                     </div>
@@ -501,7 +515,16 @@ const MessageWindow = ({userDetails, contactList, conversationData, setConversat
         <button disabled={messageInput === ""} onClick={()=>{sendMessage("text", {width : 0, height : 0})}} className="bg-blue-500 cursor-pointer hover:bg-blue-600 flex flex-row rounded-full items-center px-2 py-2 justify-center">
             <SendOutlinedIcon className='text-white' />
         </button>
-      </div>
+    </div>
+    {/* Image viewer */}
+    <Lightbox
+        carousel={{finite : true}}
+        plugins={[Download,Fullscreen]}
+        open={selectedImages.length !== 0}
+        close={() => setSelectedImages([])}
+        index={selectedImageIndex}
+        slides={selectedImages}
+      />
     </main>
   )
 }

@@ -24,6 +24,7 @@ const BookingInformation = ({serviceInformation}) => {
     const [noServices, setNoServices] = useState(false)
     const [isSelectAll, setIsSelectAll] = useState(false)
     const [serviceModalOpen, setServiceModalIsOpen] = useState(false);
+    const [cancelPolicyModalOpen, setCancelPolicyModalOpen] = useState(false);
     const [openFilter, setOpenFilter] = useState(false);
     const [showMoreOption, setShowMoreOption] = useState(false);
     const [selectedFilter, setSelectedFilter] = useState('All services');
@@ -41,6 +42,8 @@ const BookingInformation = ({serviceInformation}) => {
       variants : []
     })
     const [booking_limit, setBooking_limit] = useState(1) 
+    const [cancelTimeLimit, setCancelTimeLimit] = useState({day : 1, hour : 0, minutes : 0})
+    const [cancelPolicy, setCancelPolicy] = useState('')
 
     const notify = (message) => {
         toast.success(message, {
@@ -65,9 +68,9 @@ const BookingInformation = ({serviceInformation}) => {
           transform: 'translate(-50%, -50%)',
           padding : '7px'
         },
-      };
+    };
 
-      const ErrorModal = {
+    const ErrorModal = {
         content: {
           top: '50%',
           left: '50%',
@@ -78,7 +81,7 @@ const BookingInformation = ({serviceInformation}) => {
           padding : '0px',
           border : '0'
         },
-      };
+    };
 
     useEffect(()=>{
        
@@ -87,6 +90,8 @@ const BookingInformation = ({serviceInformation}) => {
             setServiceOfferList(serviceInformation?.serviceOffers)
             setAcceptBooking(serviceInformation?.acceptBooking)
             setBooking_limit(serviceInformation?.booking_limit)
+            setCancelTimeLimit({day : serviceInformation.cancelationPolicy.cancelTimeLimit.day, hour : serviceInformation.cancelationPolicy.cancelTimeLimit.hour, minutes : serviceInformation.cancelationPolicy.cancelTimeLimit.minutes})
+            setCancelPolicy(serviceInformation.cancelationPolicy.cancelPolicy)
         }
     }, [serviceInformation])
 
@@ -546,16 +551,52 @@ const BookingInformation = ({serviceInformation}) => {
       }
     }
 
+    const handleChangeCancelTime = (option, value) => {      
+      option === 'day' && value >= 0 && setCancelTimeLimit((prevCancelTimeLimit) => ({...prevCancelTimeLimit, [option] : Number(value)}))
+      option === 'hour' && value >= 0 && value <= 24 && setCancelTimeLimit((prevCancelTimeLimit) => ({...prevCancelTimeLimit, [option] : Number(value)}))
+      option === 'minutes' && value >= 0 && value <= 60 && setCancelTimeLimit((prevCancelTimeLimit) => ({...prevCancelTimeLimit, [option] : Number(value)}))
+    }
+
+    const submitBookingTimeLimit = async () => {
+      const cancelationPolicy = {
+        cancelTimeLimit,
+        cancelPolicy
+      }
+      
+      try {
+        const result = await http.patch(`updateService/${serviceInformation.userId}`, {cancelationPolicy},  {
+          withCredentials : true
+        })
+        if(result.data.status == "Success")
+        {
+          setCancelPolicyModalOpen(false)
+          notify('Update succesfull')
+          return ;
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
+
   return (
     <main className='flex justify-center items-center bg-[#f9f9f9] flex-col h-full w-full bg-na max-h-full xl:p-3 '>
-    <div className="w-[100%] sm:w-[90%] md:w-[80%] xl:w-[60%] shadow-md rounded-md h-full sm:h-[90%] xl:h-[70vh] p-5 flex flex-col bg-white space-y-5">
+    <div className="w-[100%] sm:w-[90%] md:w-[80%] xl:w-[60%] shadow-md rounded-md h-full sm:h-[90%] xl:h-[70vh] p-5 flex flex-col bg-white space-y-3">
         <div className='w-full flex items-center justify-between'>
             <h1 className='text-gray-700 font-medium text-lg md:text-2xl'>Services from business</h1>
             <div className='flex items-center space-x-2'>
-            {/* Accept booking Button */}
-            <div className='flex items-center gap-2'>
-            <div className='flex items-center space-x-2 bg-gray-50 shadow-sm p-1 rounded-[0.12rem] border'>
-            <p className='text-[0.7rem] md:text-sm text-gray-500 font-semibold sm:mb-1'>Accept Booking</p>
+            </div>
+        </div>
+
+        <div className='w-full h-8  flex items-center space-x-1'>
+          {/* Cancel booking time limit */}
+          <button onClick={()=>{setCancelPolicyModalOpen(true)}} className='h-full bg-gray-50 hover:bg-gray-100 rounded-sm border px-2'>
+           <p className='text-[0.7rem] md:text-sm text-gray-500 font-normal '>Edit cancelation policy</p>
+          </button>
+          {/* Accept booking Button */}
+          <div className='flex items-center gap-2 h-full'>
+            <div className='flex items-center space-x-2 bg-gray-50 shadow-sm h-full px-2 rounded-[0.12rem] border'>
+            <p className='text-[0.7rem] md:text-sm text-gray-500 font-normal'>Accept Booking</p>
             <div className='flex items-center space-x-2'>
             <label className="relative inline-flex items-center cursor-pointer">
             <input type="checkbox" checked={acceptBooking} onChange={()=>{handleAcceptBooking()}} className="sr-only peer outline-none"/>
@@ -573,7 +614,6 @@ const BookingInformation = ({serviceInformation}) => {
                  ))
                 }
               </select>
-            </div>
             </div>
             </div>
         </div>
@@ -921,6 +961,96 @@ const BookingInformation = ({serviceInformation}) => {
       </div>
     </Modal>
 
+    <Modal isOpen={cancelPolicyModalOpen} onRequestClose={()=>setCancelPolicyModalOpen(false)} style={ModalStyle} contentLabel="Cancelation Policy">
+        <div className='flex flex-col'>
+          <h3 className='text-gray-800 font-medium text-lg'>Cancelation</h3>
+            <p className='text-gray-600 text-[0.71rem]'>Timeframe for client cancellations after booking</p>
+          <div className='flex flex-row gap-2'>
+            {/* Day */}
+            <div className="py-1 px-2 bg-white border border-blue-300 rounded-lg" data-hs-input-number="">
+              <div className="w-full flex justify-between items-center gap-x-5">
+            <div className="grow">
+              <span className="block text-xs text-gray-500 dark:text-neutral-400">
+                Day
+              </span>
+              <input onChange={(e)=>{handleChangeCancelTime('day', e.target.value)}} className="w-20 p-0 bg-transparent border-0 text-gray-800 " type="text" value={cancelTimeLimit.day} />
+            </div>
+            <div className="flex justify-end items-center gap-x-1.5">
+              <button onClick={()=>{handleChangeCancelTime('day', cancelTimeLimit.day - 1)}} type="button" className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none" data-hs-input-number-decrement="">
+                <svg className="flex-shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"></path>
+                </svg>
+              </button>
+              <button onClick={()=>{handleChangeCancelTime('day', cancelTimeLimit.day + 1)}} type="button" className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none" data-hs-input-number-increment="">
+                <svg className="flex-shrink-0 size-2.5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"></path>
+                  <path d="M12 5v14"></path>
+                </svg>
+              </button>
+            </div>
+              </div>
+            </div>
+            {/* Hour */}
+            <div className="py-1 px-2 bg-white border border-blue-300 rounded-lg" data-hs-input-number="">
+              <div className="w-full flex justify-between items-center gap-x-5">
+            <div className="grow">
+              <span className="block text-xs text-gray-500 dark:text-neutral-400">
+                Hour
+              </span>
+              <input  min="0" onChange={(e)=>{handleChangeCancelTime('hour', e.target.value)}} className="w-20 p-0 bg-transparent border-0 text-gray-800 " type="text" value={cancelTimeLimit.hour} />
+            </div>
+            <div className="flex justify-end items-center gap-x-1.5">
+              <button onClick={()=>{handleChangeCancelTime('hour', cancelTimeLimit.hour - 1)}} type="button" className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none" data-hs-input-number-decrement="">
+                <svg className="flex-shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"></path>
+                </svg>
+              </button>
+              <button onClick={()=>{handleChangeCancelTime('hour', cancelTimeLimit.hour + 1)}} type="button" className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none" data-hs-input-number-increment="">
+                <svg className="flex-shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"></path>
+                  <path d="M12 5v14"></path>
+                </svg>
+              </button>
+            </div>
+              </div>
+            </div>
+            {/* Minutes */}
+            <div className="py-1 px-2 bg-white border border-blue-300 rounded-lg" data-hs-input-number="">
+              <div className="w-full flex justify-between items-center gap-x-5">
+            <div className="grow">
+              <span className="block text-xs text-gray-500 dark:text-neutral-400">
+                Minutes
+              </span>
+              <input  min="0" onChange={(e)=>{handleChangeCancelTime('minutes', e.target.value)}} className="w-20 p-0 bg-transparent border-0 text-gray-800 " type="text" value={cancelTimeLimit.minutes} />
+            </div>
+            <div className="flex justify-end items-center gap-x-1.5">
+              <button onClick={()=>{handleChangeCancelTime('minutes', cancelTimeLimit.minutes - 1)}} type="button" className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none" data-hs-input-number-decrement="">
+                <svg className="flex-shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"></path>
+                </svg>
+              </button>
+              <button onClick={()=>{handleChangeCancelTime('minutes', cancelTimeLimit.minutes + 1)}} type="button" className="size-6 inline-flex justify-center items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-600 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none" data-hs-input-number-increment="">
+                <svg className="flex-shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"></path>
+                  <path d="M12 5v14"></path>
+                </svg>
+              </button>
+            </div>
+              </div>
+            </div>
+          </div>
+          {/* Cancelation policy */}
+          <div className='flex-col gap-1 mt-2 w-full'>
+            <p className='text-gray-600 text-[0.71rem]'>Cancelation policy (optional)</p>
+            <textarea value={cancelPolicy} onChange={(e)=>{setCancelPolicy(e.target.value)}} rows={5} className='border border-blue-300 rounded-md resize-none w-full p-1.5 text-gray-700 text-sm' />
+          </div>
+          {/* Buttons */}
+          <div className='w-full flex items-center justify-end space-x-2'>
+            <button onClick={()=>{setCancelPolicyModalOpen(false);setCancelTimeLimit({day : serviceInformation.cancelationPolicy.cancelTimeLimit.day, hour : serviceInformation.cancelationPolicy.cancelTimeLimit.hour, minutes : serviceInformation.cancelationPolicy.cancelTimeLimit.minutes});setCancelPolicy(serviceInformation.cancelationPolicy.cancelPolicy)}} className='text-gray-600'>Cancel</button>
+            <button onClick={()=>submitBookingTimeLimit()} className='bg-themeOrange hover:bg-orange-400 rounded-sm px-2 py-1 text-white text-sm'>Submit</button>
+          </div>
+        </div>
+    </Modal>
 
     <Modal isOpen={acceptBookingErrorModalOpen} onRequestClose={closeAcceptBookingErrorModal} style={ErrorModal} contentLabel="Error">
     <div className="rounded-md border bg-white shadow-lg border-blue-500 p-4 max-w-md mx-auto mt-8">
