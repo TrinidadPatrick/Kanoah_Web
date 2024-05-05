@@ -138,6 +138,50 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
     }
 
     const pay = async () => {
+        setLoading(true)
+        const YOUR_SECRET_KEY = 'xnd_development_POyuz5jRjC6pmt45msNOB126rIexa4MjXNSAFO2kz2t0FKOyiw9zDXBhDHbrgS';
+
+        const xendit = new Xendit({ secretKey: YOUR_SECRET_KEY });
+        const { Invoice } = xendit
+
+        const data = {
+            "amount" : bookingInformation.net_Amount,
+            "invoiceDuration" : 1800,
+            "externalId" : generateExternalId(),
+            "description" : `Payment of ${bookingInformation.net_Amount} for ${bookingInformation.service.selectedService}`,
+            "currency" : "PHP",
+            "reminderTime" : 1
+          }
+        
+          try {
+            const response= await Invoice.createInvoice({
+              data
+          })
+          setLoading(false)
+          setInvoiceId(response.id)
+          window.open( response.invoiceUrl, '_blank');
+          } catch (error) {
+            console.log(error)
+          }
+
+    }
+
+    const notifyUser = async (booking_id, receiver) => {
+        try {
+            const notify = await http.post('addNotification', {
+                notification_type : "New_Booking", 
+                createdAt : new Date(),
+                content : "You have a new Booking!", 
+                client : userContext._id,
+                notif_to : receiver,
+                reference_id : booking_id
+            })
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const submitBooking = async () => {
         const htmlContent = `
         <div class='w-full bg-[#f9f9f9] flex overflow-auto flex-col h-fit py-3 relative space-y-2 rounded-md '>
         <h1 class='text-center font-semibold text-lg md:text-lg text-gray-800'>Booking Confirmation</h1>
@@ -209,56 +253,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
         </ul>
         </div>
     </div>
-        `
-        try {
-            const result = await http.post('sendBookingReceipt', {email : userContext.email, html : htmlContent})
-        } catch (error) {
-            console.log(Error)
-        }
-        setLoading(true)
-        const YOUR_SECRET_KEY = 'xnd_development_POyuz5jRjC6pmt45msNOB126rIexa4MjXNSAFO2kz2t0FKOyiw9zDXBhDHbrgS';
-
-        const xendit = new Xendit({ secretKey: YOUR_SECRET_KEY });
-        const { Invoice } = xendit
-
-        const data = {
-            "amount" : bookingInformation.net_Amount,
-            "invoiceDuration" : 1800,
-            "externalId" : generateExternalId(),
-            "description" : `Payment of ${bookingInformation.net_Amount} for ${bookingInformation.service.selectedService}`,
-            "currency" : "PHP",
-            "reminderTime" : 1
-          }
-        
-          try {
-            const response= await Invoice.createInvoice({
-              data
-          })
-          setLoading(false)
-          setInvoiceId(response.id)
-          window.open( response.invoiceUrl, '_blank');
-          } catch (error) {
-            console.log(error)
-          }
-
-    }
-
-    const notifyUser = async (booking_id, receiver) => {
-        try {
-            const notify = await http.post('addNotification', {
-                notification_type : "New_Booking", 
-                createdAt : new Date(),
-                content : "You have a new Booking!", 
-                client : userContext._id,
-                notif_to : receiver,
-                reference_id : booking_id
-            })
-        } catch (error) {
-            console.error(error)
-        }
-    }
-
-    const submitBooking = async () => {
+                            `
         const receiver = serviceInfo.owner._id
         if(bookingInformation !== null)
         {   
@@ -266,6 +261,7 @@ const Confirmation = ({handleStep, serviceInfo, userContext}) => {
                 const result = await http.post('addBooking', bookingInformation)
                 if(result.status === 200)
                 {
+                    const result = await http.post('sendBookingReceipt', {email : userContext.email, html : htmlContent})
                     dispatch(setService(null))
                     dispatch(setSchedule(null))
                     dispatch(setContactAndAddress(null))
