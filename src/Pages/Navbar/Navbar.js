@@ -320,7 +320,7 @@ const Navbar = ({ onAboutUsClick }) => {
         </li>
         
         <li>
-          <Link onClick={()=>{handleMenu();document.getElementById('check-icon').checked = false}} to="explore"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
+          <Link onClick={()=>{handleMenu();document.getElementById('check-icon').checked = false}} to="exploreService"  className="explore block py-2 pl-3 pr-4 md:text-sm lg:text-md">Explore</Link>
         </li>
         <li>
           {/* <a href="#" className="categories block py-2 pl-3 pr-4 md:text-sm lg:text-md">Categories</a> */}
