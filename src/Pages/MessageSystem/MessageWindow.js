@@ -520,7 +520,7 @@ const MessageWindow = ({userDetails, contactList, conversationData, setConversat
     <Lightbox
         carousel={{finite : true}}
         plugins={[Download,Fullscreen]}
-        open={selectedImages.length !== 0}
+        open={selectedImages?.length !== 0 && selectedImages !== null}
         close={() => setSelectedImages([])}
         index={selectedImageIndex}
         slides={selectedImages}
