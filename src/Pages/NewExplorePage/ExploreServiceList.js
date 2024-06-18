@@ -35,7 +35,7 @@ const ExploreServiceList = () => {
   const servicesPerPage = 10; // Number of services to display per page
   const indexOfLastService = (currentPage + 1) * servicesPerPage;
   const indexOfFirstService = indexOfLastService - servicesPerPage;
-  const currentServices = services.length >= 5 ? services.slice(indexOfFirstService, indexOfLastService) : services
+  const currentServices = services?.length >= 5 ? services?.slice(indexOfFirstService, indexOfLastService) : services
   const [selectedService, setSelectedService] = useState(null)
   const [serviceToReport, setServiceToReport] = useState({})
   const [openReportModal, setOpenReportModal] = useState(false)
@@ -216,7 +216,7 @@ const ExploreServiceList = () => {
     })
     }
     <ReactPaginate
-      pageCount={Math.ceil(services.length / servicesPerPage)}
+      pageCount={Math.ceil(services?.length / servicesPerPage)}
            pageRangeDisplayed={3}
            marginPagesDisplayed={1}
            onPageChange={handlePageClick}

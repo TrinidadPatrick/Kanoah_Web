@@ -17,8 +17,8 @@ const ExplorePage = () => {
   useEffect(()=>{
     const getServices = async () => {
       const serviceList = await getServiceList()
-      setServices(serviceList)
-      setStaticServices(serviceList)
+      setServices(serviceList || [])
+      setStaticServices(serviceList || [])
     }
 
     getServices()

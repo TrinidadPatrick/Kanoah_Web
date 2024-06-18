@@ -116,7 +116,6 @@ const BookingAndSalesChart = ({serviceInformation}) => {
             try {
                 const result = await http.get(`getMonthlySales?service=${serviceInformation._id}`, {withCredentials : true})
                 const resultData = result.data
-                console.log(resultData)
                 const groupedData = resultData.reduce((acc, obj) => {
                     const monthYear = obj.createdAt.slice(0, 7)
                     if(!acc[monthYear]){
@@ -166,9 +165,6 @@ const BookingAndSalesChart = ({serviceInformation}) => {
                     monthYear : new Date(monthYear).toDateString().split(" ")[1],
                     length: array.length,
                   }));
-                
-
-                //   console.log(lengthPerGroup)
                 dataArray.map((bookings) => {
                     const index = BookingsData.findIndex((booking)=>booking.name === bookings.monthYear)
                     setBookingsData((prevData) => [

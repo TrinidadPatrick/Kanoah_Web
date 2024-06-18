@@ -151,7 +151,7 @@ const ExploreMobileFilter = ({searchValue, setSearchValue, setShowMobileFilter})
     }
 
     const applyFilter = () => {
-        const initialServices = [...staticServices]
+        const initialServices = [...staticServices] || []
 
         const filteredByLocation = initialServices.filter(service => {
           const distance = calculateDistance(service.address.latitude, service.address.longitude, locationFilter.latitude, locationFilter.longitude)
