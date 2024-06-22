@@ -10,10 +10,8 @@ import ViewService from './Pages/ViewService/ViewService';
 import CustomerAccount from './Pages/AccountSetting/CustomerAccount';
 import ServiceRegistrationPage from './Pages/ServiceRegistration/ServiceRegistrationPage';
 import ServiceSettings from './Pages/ServiceSetting/ServiceSettings';
-import Explore from './Pages/ExplorePage/Explore';
 import PageNotFound from './Pages/NotFoundPage/PageNotFound';
 import EditService from './Pages/EditService/EditService';
-import Chat from './Pages/ChatSystem/Chat';
 import BookService from './Pages/BookService/BookService';
 import AdminMainPage from './AdminPage/AdminCategoryManagement/AdminManagement';
 import SideBar from './AdminPage/SideBar';
@@ -23,8 +21,6 @@ import AdminList from './AdminPage/AdminList/AdminList';
 import AdminDashboard from './AdminPage/AdminDashboard/AdminDashboard';
 import AdminManagement from './AdminPage/AdminCategoryManagement/AdminManagement';
 import { UseServiceHook } from './ClientCustomHook/AllServiceContext';
-import GcashPay from './Pages/GcashPayment/GcashPay';
-import PaypalPay from './Pages/GcashPayment/PaypalPay';
 import AdminServices from './AdminPage/AdminServices/AdminServices';
 import AdminViewService from './AdminPage/AdminServices/AdminViewService';
 import AdminUsersList from './AdminPage/AdminUserList/AdminUsersList';
@@ -66,8 +62,6 @@ const App = () => {
           </div>}>   
         <Route path='/forgotPassword' element={<ForgotPassword />} />
         <Route path='/register' element={<Register />} />
-        <Route path='/explore/' element={
-        <Explore services={services} />} />
         <Route path='exploreService' element={<ExplorePage />} />
         <Route path='exploreService/viewService/:serviceId' element={<ViewService />} />
         <Route path='/myAccount/:optn' element={<CustomerAccount />} />
@@ -77,10 +71,7 @@ const App = () => {
         <Route path="*" element={<PageNotFound />} />
         <Route path='/' element={<MainPage services={services} scrollToAboutUs={scrollToAboutUs} setScrollToAboutUs={setScrollToAboutUs} />} />
         <Route path='/login' element={<Login />} />
-        <Route path='/BookService' element={<BookService />} />
-        <Route path='/Gcash' element={<GcashPay />} />
-        <Route path='/Paypal' element={<PaypalPay />} />
-        <Route path='/chat' element={<Chat />} />    
+        <Route path='/BookService' element={<BookService />} />   
         <Route path='/message' element={<MessageMain />} />    
         </Route>
 

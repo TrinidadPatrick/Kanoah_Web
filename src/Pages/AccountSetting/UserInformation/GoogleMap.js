@@ -1,89 +1,75 @@
 import React, { useEffect } from 'react'
-import {APIProvider, Map, Marker, useMapsLibrary } from '@vis.gl/react-google-maps';
-// import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
-import { geocodeByPlaceId } from 'react-google-places-autocomplete';
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-} from 'react-places-autocomplete';
+import mapMarker from '../../../Utilities/mapMarker.png'
+import ReactMapGL, { Marker, GeolocateControl, NavigationControl } from 'react-map-gl';
+// import 'mapbox-gl/dist/mapbox-gl.css';
 import { useState } from 'react';
+import axios from 'axios';
 
 const GoogleMap = ({location, setLocation}) => {
-    const [center, setCenter] = useState({ lat:  location.latitude, lng:  location.longitude});
-    const [value, setValue] = useState(null);
-    const position = {lat: location.latitude, lng: location.longitude};
-    const key = process.env.REACT_APP_MAP_API_KEY
-    const [address, setAddress] = useState('');
-
-  const handleChange = address => {
-    setAddress(address);
-  };
+    const position = {latitude: location.latitude, longitude: location.longitude};
+    const [placesSuggestion, setPlacesSuggestion] = useState([])
+    const [locationFilter, setLocationFilter] = useState({address : '', longitude : 0, latitude : 0})
+    const [viewport, setViewport] = useState({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      zoom: 15,
+      width: "100px",
+      height: "100px"
+  });
 
   const handleSelect = address => {
-    setAddress(address)
-    geocodeByAddress(address)
-      .then(results => getLatLng(results[0]))
-      .then(latLng => {setLocation({latitude : latLng.lat, longitude : latLng.lng})})
-      .catch(error => console.error('Error', error));
+    setLocationFilter({address : address.place_name, longitude : address.center[0], latitude : address.center[1]})
+    setLocation({...location, longitude : address.center[0], latitude : address.center[1]})
+    setViewport({...viewport, longitude : address.center[0], latitude : address.center[1]})
+    setPlacesSuggestion([])
   };
 
-  const handleMapDrag = (map) => {
-        // Update the center coordinates when the map is dragged
-        setCenter("");
-  };
-
-    useEffect(()=>{
-        if(value !== null)
-        {
-            geocodeByPlaceId(value.value.place_id)
-            .then(results => {
-            setLocation({latitude : results[0].geometry.location.lat(), longitude : results[0].geometry.location.lng()})
-            setCenter({lat : results[0].geometry.location.lat(), lng : results[0].geometry.location.lng()})
-            })
-            .catch(error => console.error(error));
-        }
-    },[value])
+  const handleInputChange = async (value) => {
+    setLocationFilter({...locationFilter, address : value})
+    if (value.length > 2) {
+      const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${value}.json`, {
+          params: {
+              access_token: process.env.REACT_APP_MAPBOX_TOKEN,
+              autocomplete: true,
+              limit: 5
+          }
+      });
+      setPlacesSuggestion(response.data.features);
+  } else {
+      setPlacesSuggestion([]);
+  }
+  }
 
    
   return (
     <div className='w-full h-[250px] relative'>
-    <div className='absolute z-20 w-[250px] top-2 left-2'>
-    <PlacesAutocomplete
-      value={address}
-      onChange={handleChange}
-      onSelect={handleSelect}
-    >
-      {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
-        <div className='w-full '>
-          <input
-            {...getInputProps({
-              placeholder: 'Search Places ...',
-              className: 'location-search-input w-full py-2 px-2 text-sm border rounded-md text-gray-600',
-            })}
-          />
-          <div className={`${suggestions.length !== 0 ? "" : "hidden"} autocomplete-dropdown-container mt-1 h-[200px] overflow-auto`}>
-            {suggestions.map((suggestion, index) => {
-              return (
-                <div
-                className='bg-white'
-                key={index}
-                {...getSuggestionItemProps(suggestion)}
-                >
-                  <p className='py-1 px-2 text-sm cursor-pointer '>{suggestion.description}</p>
-                </div>
-              );
-            })}
+      <div className='w-[200px]  z-20 absolute top-2 '>
+      {
+        placesSuggestion.length !== 0 &&
+          <div className='absolute flex flex-col bg-white shadow rounded p-2 bottom-11 gap-0'>
+          {
+          placesSuggestion?.map((place, index)=>(
+          <button key={index} onClick={()=>handleSelect(place)} className='text-xs hover:bg-gray-100 text-start py-2'>{place.place_name}</button>
+          ))
+          }
           </div>
-        </div>
-      )}
-    </PlacesAutocomplete>
+      }
+      <input value={locationFilter.address} placeholder='Enter location' className='w-full text-sm shadow rounded text-black p-2 h-full bg-white z-20' type='text' onChange={(e)=>handleInputChange(e.target.value)} />
     </div>
-    <APIProvider apiKey={key}>
-        <Map mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false} onDragstart={(map) => handleMapDrag(map)}
-        defaultCenter={position} center={position} defaultZoom={15}>
-        <Marker draggable onDragEnd={(e)=>{setLocation({longitude : e.latLng.lng(), latitude : e.latLng.lat()});setCenter({lat : e.latLng.lat(), lng : e.latLng.lng()})}} position={position} />
-        </Map>
-    </APIProvider>
+      <ReactMapGL
+      doubleClickZoom
+                dragPan={true}
+                {...viewport}
+                mapStyle="mapbox://styles/mapbox/streets-v9"
+                mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+                onMove={viewport => setViewport(viewport)}
+            >
+            <Marker draggable onDragEnd={(e)=>{setLocation({longitude : e.lngLat.lng, latitude : e.lngLat.lat})}} latitude={position?.latitude} longitude={position?.longitude}>
+                      <div className="marker">
+                            <img className='w-10' src={mapMarker} alt="Marker" />
+                        </div>
+            </Marker>
+      </ReactMapGL>
 
     </div>
   )

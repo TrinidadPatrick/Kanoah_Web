@@ -4,11 +4,11 @@ import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import Rating from '@mui/material/Rating';
 import { styled } from '@mui/material/styles';
 import useCategory from '../../ClientCustomHook/CategoryProvider';
-import PlacesAutocomplete, {geocodeByAddress,getLatLng,} from 'react-places-autocomplete';
 import { useSearchParams } from 'react-router-dom';
 import getDistance from 'geolib/es/getPreciseDistance';
 import allServiceStore from '../../Stores/AllServiceStore';
 import ExploreSearchBar from './ExploreSearchBar';
+import axios from 'axios';
 
 const ExploreFilter = ({searchValue, setSearchValue}) => {
     const {services, setServices, staticServices, setStaticServices} = allServiceStore()
@@ -20,13 +20,13 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
     const [selectedCategoryFilter, setSelectedCategoryFilter] = useState({name : '', code : ''})
     const [selectedSubCategoryFilter, setSelectedSubCategoryFilter] = useState('')
     const [selectedRatingCheckbox, setSelectedRatingCheckbox] = useState([])
-    const [locationFilter, setLocationFilter] = useState({address : '', longitude : 0, latitude : 0})
     const [radius, setRadius] = useState(1)
-    const [search, setSearch] = useState('')
     const [showDropdowns, setShowDropdowns] = useState({sort : false, category : false, subCategory : false})
     const [settingsParamsComplete, setSettingParamsComplete] = useState(false)
-    const [loadAutoComeplete, setLoadAutoComplete] = useState(false);
     const pageParams = params.get('page') || 1
+
+    const [locationFilter, setLocationFilter] = useState({address : '', longitude : 0, latitude : 0})
+    const [placesSuggestion, setPlacesSuggestion] = useState([])
 
     useEffect(()=>{
       if(staticServices !== null)
@@ -34,15 +34,6 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
         applyFilter()
       }
     },[searchValue])
-
-    useEffect(() => {
-      // Simulate a delay before loading the component
-      const timeout = setTimeout(() => {
-        setLoadAutoComplete(true);
-      }, 1000); // Delay for 2 seconds (adjust as needed)
-  
-      return () => clearTimeout(timeout); // Clean up on component unmount
-    }, []);
 
     const StyledRating = styled(Rating)({
         '& .MuiRating-iconFilled': {
@@ -132,16 +123,9 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
         
     }
 
-    const handleChange = (addressValue) => {
-        setLocationFilter({...locationFilter, address : addressValue});
-    };
-
     const handleSelect = address => {
-        // setLocationFilterValue(address)
-        geocodeByAddress(address)
-          .then(results => getLatLng(results[0]))
-          .then(latLng => {setLocationFilter({address, longitude : latLng.lng, latitude : latLng.lat})})
-          .catch(error => console.error('Error', error));
+      setLocationFilter({address : address.place_name, longitude : address.center[0], latitude : address.center[1]})
+      setPlacesSuggestion([])
     };
 
     const setFilterParams = () => {
@@ -226,6 +210,22 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             setServices(final);
           }
       
+    }
+
+    const handleInputChange = async (value) => {
+      setLocationFilter({...locationFilter, address : value})
+      if (value.length > 2) {
+        const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${value}.json`, {
+            params: {
+                access_token: process.env.REACT_APP_MAPBOX_TOKEN,
+                autocomplete: true,
+                limit: 5
+            }
+        });
+        setPlacesSuggestion(response.data.features);
+    } else {
+        setPlacesSuggestion([]);
+    }
     }
 
   return (
@@ -320,44 +320,37 @@ const ExploreFilter = ({searchValue, setSearchValue}) => {
             </div>
             </div>
             {/* Location Filter */}
-            {
-            loadAutoComeplete &&
             <div className='flex flex-col space-y-1 relative'>
-            <div className="w-full mx-auto  md:max-w-xl">
-            <h1 className='font-medium text-lg mb-2'>Location</h1>
-            <div className="md:flex">
-            <div className="w-full">
-            <div className="relative flex">
-            <select value={radius} className='outline-none ps-1 w-[60px] border border-e-0 rounded-s-lg' onChange={(e)=>{setRadius(Number(e.target.value))}}>
-            {
-            radiusList.map((radius)=>(
-                <option value={radius} key={radius} >{radius} km</option>
-            ))
-            }
-            </select>
-            <PlacesAutocomplete
-            value={locationFilter.address} onChange={handleChange} onSelect={handleSelect}>
-            {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
-                <div className='w-full '>
-                    <input {...getInputProps({placeholder: 'Search Places ...', className: 'location-search-input w-full py-2 px-2 text-sm border rounded-e-md text-gray-600',})}/>
-                <div className={`${suggestions.length !== 0 ? "" : "hidden"} absolute z-30 bottom-10 shadow-md rounded-md autocomplete-dropdown-container mt-1 origin-bottom h-[200px] overflow-auto`}>
-                {suggestions.map((suggestion, index) => {
-                return (
-                <div className='bg-white' key={index} {...getSuggestionItemProps(suggestion)}>
-                  <p className='py-1 px-2 text-sm cursor-pointer '>{suggestion.description}</p>
+              <div className="w-full mx-auto  md:max-w-xl">
+                <h1 className='font-medium text-lg mb-2'>Location</h1>
+                  <div className="md:flex">
+                    <div className="w-full">
+                      <div className="relative flex">
+                        <select value={radius} className='outline-none ps-1 w-[60px] border border-e-0 rounded-s-lg' onChange={(e)=>{setRadius(Number(e.target.value))}}>
+                        {
+                        radiusList.map((radius)=>(
+                            <option value={radius} key={radius} >{radius} km</option>
+                        ))
+                        }
+                        </select>
+                          <div className='w-full p-1 border rounded-e overflow-hidden'>
+                            {
+                              placesSuggestion.length !== 0 &&
+                                <div className='absolute flex flex-col bg-white shadow rounded p-2 bottom-10 gap-3'>
+                                {
+                                placesSuggestion?.map((place, index)=>(
+                                <button key={index} onClick={()=>handleSelect(place)} className='text-xs'>{place.place_name}</button>
+                                ))
+                                }
+                                </div>
+                            }
+                            <input value={locationFilter.address} type='text' onChange={(e)=>handleInputChange(e.target.value)} />
+                          </div>
+                    </div> 
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-        </PlacesAutocomplete>
-        </div> 
-        </div>
-        </div>
-        </div>
+              </div>
             </div>
-            }
             {/* Buttons */}
             <button onClick={()=>applyFilter()} className=' bg-themeOrange text-white py-2 rounded-sm font-medium'>Apply Filters</button>
             <button onClick={()=>clearFilter()} className='font-medium'>Clear Filters</button>

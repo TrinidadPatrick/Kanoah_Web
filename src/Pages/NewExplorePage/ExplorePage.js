@@ -25,7 +25,7 @@ const ExplorePage = () => {
   },[])
 
   useEffect(()=>{
-    if(services !== null)
+    if(services !== null && services?.length !== 0)
     {
       setTimeout(()=>{
         setLoading(false)
@@ -50,7 +50,7 @@ const ExplorePage = () => {
 
       <ExploreFilter searchValue={searchValue} setSearchValue={setSearchValue} /> 
       {/* Right Section */}
-      <div className='w-[100%] h-full overflow-auto pt-5 ps-2 xl:pe-20 pb-5 bg-[#f9f9f9]'>
+      <div className='w-[100%] flex flex-col h-full overflow-auto pt-5 ps-2 xl:pe-20 pb-5 bg-[#f9f9f9]'>
         <ExploreSearchBar searchValue={searchValue} setSearchValue={setSearchValue}  />
         {
           loading ?
@@ -83,6 +83,11 @@ const ExplorePage = () => {
           </div>
           </div>
           
+          </div>
+          :
+          services.length === 0 ?
+          <div className='flex-1 flex justify-center items-center'>
+            <h1 className='text-3xl text-gray-500'>No result</h1>
           </div>
           :
           <ExploreServiceList services={services} />

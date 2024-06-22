@@ -4,13 +4,8 @@ import phil from 'phil-reg-prov-mun-brgy';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useSelector } from 'react-redux';
 import { selectContactAndAddress } from '../../ReduxTK/BookingSlice';
-import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
-import { geocodeByPlaceId } from 'react-google-places-autocomplete';
-import PlacesAutocomplete, {
-  geocodeByAddress,
-  getLatLng,
-} from 'react-places-autocomplete';
+import mapMarker from '../../Utilities/mapMarker.png'
+import ReactMapGL, { Marker} from 'react-map-gl';
 import axios from 'axios';
 
 const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
@@ -32,159 +27,155 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
       municipality : false,
       barangay : false,
     })
+    const [placesSuggestion, setPlacesSuggestion] = useState([])
+    const [locationFilter, setLocationFilter] = useState({address : '', longitude : 0, latitude : 0})
+    const [viewport, setViewport] = useState({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      zoom: 15,
+      width: "100px",
+      height: "100px"
+    });
 
-    const [center, setCenter] = useState({ lat:  location.latitude, lng:  location.longitude});
-    const [value, setValue] = useState(null);
-    const position = {lat: location.latitude, lng: location.longitude};
-    const key = process.env.REACT_APP_MAP_API_KEY
-    const [placeName, setPlaceName] = useState('')
-
-    const handleMapDrag = (map) => {
-      // Update the center coordinates when the map is dragged
-      setCenter("");
-    };
-
-  useEffect(()=>{
-      if(value !== null)
-      {
-          geocodeByPlaceId(value.value.place_id)
-          .then(results => {
-          setLocation({latitude : results[0].geometry.location.lat(), longitude : results[0].geometry.location.lng()})
-          setCenter({lat : results[0].geometry.location.lat(), lng : results[0].geometry.location.lng()})
-          })
-          .catch(error => console.error(error));
-      }
-  },[value])
-
-    // Handles the location seleced by the user
-    const handleLocationSelect = (value, index, optionChanges) => {
-        const newData = [...locCodesSelected]
-        switch (optionChanges) {
-            case 'region':
-            
-              setLocCodesSelected([
-                [value[0], value[1]],
-                ['', '-1'], // Province
-                ['', '-1'], // Municipality
-                ['', '-1']  // Barangay
-              ]);
-              break;
-            
-            case 'province':
-
+      // Handles the location seleced by the user
+      const handleLocationSelect = (value, index, optionChanges) => {
+          const newData = [...locCodesSelected]
+          switch (optionChanges) {
+              case 'region':
+              
                 setLocCodesSelected([
-                    [newData[0][0], newData[0][1]],
-                    [value[0], value[1]], // Province
-                    ['', '-1'], // Municipality
-                    ['', '-1']  // Barangay
+                  [value[0], value[1]],
+                  ['', '-1'], // Province
+                  ['', '-1'], // Municipality
+                  ['', '-1']  // Barangay
                 ]);
                 break;
-            
-            case 'city':
-
-            setLocCodesSelected([
-                [newData[0][0], newData[0][1]],
-                [newData[1][0], newData[1][1]], // Province
-                [value[0], value[1]], // Municipality
-                ['', '-1']  // Barangay
-            ]);
-            break;
-
-            case 'barangay':
-
-            setLocCodesSelected([
-                [newData[0][0], newData[0][1]],
-                [newData[1][0], newData[1][1]], // Province
-                [newData[2][0], newData[2][1]], // Municipality
-                [value[0], value[1]]  // Barangay
-            ]);
-            break;
+              
+              case 'province':
+  
+                  setLocCodesSelected([
+                      [newData[0][0], newData[0][1]],
+                      [value[0], value[1]], // Province
+                      ['', '-1'], // Municipality
+                      ['', '-1']  // Barangay
+                  ]);
+                  break;
+              
+              case 'city':
+  
+              setLocCodesSelected([
+                  [newData[0][0], newData[0][1]],
+                  [newData[1][0], newData[1][1]], // Province
+                  [value[0], value[1]], // Municipality
+                  ['', '-1']  // Barangay
+              ]);
+              break;
+  
+              case 'barangay':
+  
+              setLocCodesSelected([
+                  [newData[0][0], newData[0][1]],
+                  [newData[1][0], newData[1][1]], // Province
+                  [newData[2][0], newData[2][1]], // Municipality
+                  [value[0], value[1]]  // Barangay
+              ]);
+              break;
+            }
+      }
+  
+      const submitAddress = () => {
+          let hasError = false
+          const address = {
+            region : {name : locCodesSelected[0][0], reg_code : locCodesSelected[0][1]},
+            province :  {name : locCodesSelected[1][0], prov_code : locCodesSelected[1][1]},
+            municipality : {name : locCodesSelected[2][0], mun_code : locCodesSelected[2][1]},
+            barangay : {name : locCodesSelected[3][0], brgy_code : locCodesSelected[3][1]},
+            street : street,
+            longitude : location.longitude,
+            latitude : location.latitude
           }
-    }
-
-    const submitAddress = () => {
-        let hasError = false
-        const address = {
-          region : {name : locCodesSelected[0][0], reg_code : locCodesSelected[0][1]},
-          province :  {name : locCodesSelected[1][0], prov_code : locCodesSelected[1][1]},
-          municipality : {name : locCodesSelected[2][0], mun_code : locCodesSelected[2][1]},
-          barangay : {name : locCodesSelected[3][0], brgy_code : locCodesSelected[3][1]},
-          street : street,
-          longitude : location.longitude,
-          latitude : location.latitude
-        }
-
-        Object.entries(address).map(([key, value])=>{
-          if(typeof value === "object" && (value.name === undefined || value.name === '')){
-            hasError = true
-            setError((prevError) => ({...prevError, [key] : true}))
+  
+          Object.entries(address).map(([key, value])=>{
+            if(typeof value === "object" && (value.name === undefined || value.name === '')){
+              hasError = true
+              setError((prevError) => ({...prevError, [key] : true}))
+            }
+            else{
+              // console.log(`${key} has value`)
+              setError((prevError) => ({...prevError, [key] : false}))
+            }
+          })
+  
+          if(!hasError)
+          {
+            submitAddressInfo(address)
+            closeAddressModal()
           }
-          else{
-            // console.log(`${key} has value`)
-            setError((prevError) => ({...prevError, [key] : false}))
-          }
-        })
-
-        if(!hasError)
-        {
-          submitAddressInfo(address)
-          closeAddressModal()
-        }
+          
+          
+      }
+  
+      useEffect(()=>{
+          if(contactAndAddress === null)
+          {
+  
+              setLocation({
+                  longitude : userContext.Address === null ? 120.8236601 : userContext.Address?.longitude ,
+                  latitude : userContext.Address === null ? 14.5964466 : userContext.Address?.latitude
+              })
+              setLocCodesSelected(
+            [
+              [userContext.Address?.region.name, userContext.Address?.region.reg_code],
+              [userContext.Address?.province.name, userContext.Address?.province.prov_code],
+              [userContext.Address?.municipality.name, userContext.Address?.municipality.mun_code],
+              [userContext.Address?.barangay.name, userContext.Address?.barangay.brgy_code]
+            ]
+              )
+  
+              setStreet(userContext.Address?.street)
         
-        
-    }
+          }
+          else
+          {
+              setLocation({
+                  longitude : contactAndAddress.Address.longitude,
+                  latitude : contactAndAddress.Address.latitude
+              })
+              setLocCodesSelected(
+                  [
+                    [contactAndAddress.Address.region.name, contactAndAddress.Address.region.reg_code],
+                    [contactAndAddress.Address.province.name, contactAndAddress.Address.province.prov_code],
+                    [contactAndAddress.Address.municipality.name, contactAndAddress.Address.municipality.mun_code],
+                    [contactAndAddress.Address.barangay.name, contactAndAddress.Address.barangay.brgy_code]
+                  ]
+              )
+  
+              setStreet(contactAndAddress.Address.street)
+          }
+      },[])
 
-    useEffect(()=>{
-        if(contactAndAddress === null)
-        {
-
-            setLocation({
-                longitude : userContext.Address === null ? 120.8236601 : userContext.Address?.longitude ,
-                latitude : userContext.Address === null ? 14.5964466 : userContext.Address?.latitude
-            })
-            setLocCodesSelected(
-          [
-            [userContext.Address?.region.name, userContext.Address?.region.reg_code],
-            [userContext.Address?.province.name, userContext.Address?.province.prov_code],
-            [userContext.Address?.municipality.name, userContext.Address?.municipality.mun_code],
-            [userContext.Address?.barangay.name, userContext.Address?.barangay.brgy_code]
-          ]
-            )
-
-            setStreet(userContext.Address?.street)
-      
-        }
-        else
-        {
-            setLocation({
-                longitude : contactAndAddress.Address.longitude,
-                latitude : contactAndAddress.Address.latitude
-            })
-            setLocCodesSelected(
-                [
-                  [contactAndAddress.Address.region.name, contactAndAddress.Address.region.reg_code],
-                  [contactAndAddress.Address.province.name, contactAndAddress.Address.province.prov_code],
-                  [contactAndAddress.Address.municipality.name, contactAndAddress.Address.municipality.mun_code],
-                  [contactAndAddress.Address.barangay.name, contactAndAddress.Address.barangay.brgy_code]
-                ]
-            )
-
-            setStreet(contactAndAddress.Address.street)
-        }
-    },[])
-
-    const handleChange = address => {
-      setPlaceName(address);
+    const handleSelect = address => {
+      setLocationFilter({address : address.place_name, longitude : address.center[0], latitude : address.center[1]})
+      setLocation({...location, longitude : address.center[0], latitude : address.center[1]})
+      setViewport({...viewport, longitude : address.center[0], latitude : address.center[1]})
+      setPlacesSuggestion([])
     };
   
-    const handleSelect = address => {
-      setPlaceName(address)
-      geocodeByAddress(address)
-        .then(results => getLatLng(results[0]))
-        .then(latLng => {setLocation({latitude : latLng.lat, longitude : latLng.lng})})
-        .catch(error => console.error('Error', error));
-    };
-
+    const handleInputChange = async (value) => {
+      setLocationFilter({...locationFilter, address : value})
+      if (value.length > 2) {
+        const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${value}.json`, {
+            params: {
+                access_token: process.env.REACT_APP_MAPBOX_TOKEN,
+                autocomplete: true,
+                limit: 5
+            }
+        });
+        setPlacesSuggestion(response.data.features);
+    } else {
+        setPlacesSuggestion([]);
+    }
+    }
   
   return (
     <div className='p-4 w-[400px] h-[95vh] overflow-auto'>
@@ -285,45 +276,37 @@ const AddressModal = ({userContext, closeAddressModal, submitAddressInfo}) => {
             <div className='relative'>
             <label htmlFor="region" className="text-xs xl:text-sm text-gray-600">Pin location</label>
               <div className='w-full h-[250px] relative'>
-                <div className='absolute z-20 w-[250px] top-2 left-2'>
-                <PlacesAutocomplete
-                value={placeName}
-                onChange={handleChange}
-                onSelect={handleSelect}
-                >
-                {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
-                  <div className='w-full '>
-                    <input
-                      {...getInputProps({
-                        placeholder: 'Search Places ...',
-                        className: 'location-search-input w-full py-2 px-2 text-sm border rounded-md text-gray-600',
-                      })}
-                    />
-                    <div className={`${suggestions.length !== 0 ? "" : "hidden"} autocomplete-dropdown-container mt-1 h-[200px] overflow-auto`}>
-                      {suggestions.map((suggestion, index) => {
-                        return (
-                          <div
-                          className='bg-white'
-                          key={index}
-                          {...getSuggestionItemProps(suggestion)}
-                          >
-                            <p className='py-1 px-2 text-sm cursor-pointer '>{suggestion.description}</p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-                </PlacesAutocomplete>
+              <div className='w-[200px]  z-20 absolute top-2 left-2 '>
+              {
+              placesSuggestion.length !== 0 &&
+                <div className='absolute flex flex-col bg-white shadow rounded p-2 bottom-11 gap-0'>
+                {
+                placesSuggestion?.map((place, index)=>(
+                <button key={index} onClick={()=>handleSelect(place)} className='text-xs hover:bg-gray-100 text-start py-2'>{place.place_name}</button>
+                ))
+                }
                 </div>
-                <APIProvider apiKey={key}>
-                <Map  mapTypeControlOptions={false} mapTypeControl={false} streetViewControl={false} zoomControl={false} onDragstart={(map) => handleMapDrag(map)}
-                defaultCenter={position} center={position} defaultZoom={15}>
-                <Marker draggable onDragEnd={(e)=>{setLocation({longitude : e.latLng.lng(), latitude : e.latLng.lat()});setCenter({lat : e.latLng.lat(), lng : e.latLng.lng()})}} position={position} />
-                </Map>
-            </APIProvider>
-            </div>
-          </div>
+              }
+              <input value={locationFilter.address} placeholder='Enter location' className='w-full text-sm shadow rounded text-black p-2 h-full bg-white z-20' type='text' onChange={(e)=>handleInputChange(e.target.value)} />
+              </div>
+              <ReactMapGL
+              doubleClickZoom
+                        dragPan={true}
+                        longitude={location.longitude}
+                        latitude={location.latitude}
+                        zoom={15}
+                        mapStyle="mapbox://styles/mapbox/streets-v9"
+                        mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+                        onMove={e => setLocation({longitude : e.viewState.longitude, latitude : e.viewState.latitude})}
+                    >
+                    <Marker draggable onDragEnd={(e)=>{setLocation({longitude : e.lngLat.lng, latitude : e.lngLat.lat})}} latitude={location?.latitude} longitude={location?.longitude}>
+                              <div className="marker">
+                                    <img className='w-10' src={mapMarker} alt="Marker" />
+                                </div>
+                    </Marker>
+              </ReactMapGL>
+              </div>
+              </div>
             <div className=' flex justify-end space-x-2'>
             <button onClick={()=>{closeAddressModal()}} className='px-3 text-semiSm py-1   text-gray-600 rounded-sm mt-4'>Cancel</button>
             <button onClick={()=>{submitAddress()}} className='px-3 text-semiSm py-1 bg-themeBlue hover:bg-slate-700 text-white rounded-sm mt-4'>Save</button>
