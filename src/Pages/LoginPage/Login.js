@@ -63,8 +63,7 @@ const Login = () => {
       http.post("login", {UsernameOrEmail, password}, {withCredentials: true,}).then((res)=>{
       if(res.data.status == "authenticated"){
         setLoading(false)
-        localStorage.setItem("accessToken", res.data.accessToken)
-        window.location.reload()
+        // window.location.reload()
       }
 
     }).catch((err)=>{
