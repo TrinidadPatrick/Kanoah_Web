@@ -63,7 +63,7 @@ const Login = () => {
       http.post("login", {UsernameOrEmail, password}, {withCredentials: true,}).then((res)=>{
       if(res.data.status == "authenticated"){
         setLoading(false)
-        // window.location.reload()
+        window.location.reload()
       }
 
     }).catch((err)=>{

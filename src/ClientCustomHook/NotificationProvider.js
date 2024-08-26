@@ -8,7 +8,7 @@ const UseNotif = () => {
 
   const getNotifications = async () => {
     try {
-      const result = await http.get('getNotifications', {withCredentials : true})
+      const result = await http.get('getNotifications',{withCredentials : true})
       setNotifications(result.data)
     } catch (error) {
       console.error(error)
