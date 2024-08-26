@@ -145,7 +145,7 @@ const Navbar = ({ onAboutUsClick }) => {
 
     // initiate socket
     useEffect(()=>{
-      setSocket(io("https://kanoah.onrender.com"))
+      setSocket(io("https://kanoah-be.vercel.app"))
     },[])
 
     useEffect(()=>{
