@@ -153,7 +153,7 @@ const ExploreServiceList = () => {
     {
     currentServices?.map((service, index)=>{
         return (
-          <div key={service._id} className='border relative flex cursor-pointer flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
+          <div onClick={()=>{navigate(`/exploreService/viewService/${service._id}`)}} key={service._id} className='border relative flex cursor-pointer flex-col items-center xl:flex-row xl:space-x-6 xl:my-2 bg-white shadow-sm rounded-lg p-3'>
             {/* Image Container */}
             <Link to={`/exploreService/viewService/${service._id}`} className='flex relative w-full h-[200px] semiSm:h-[130px] semiBase:h-[170px] md:h-[250px] lg:h-[200px] object-cover xl:w-[330px] xl:min-w-[330px] xl:h-[200px]'>
                 <p className='absolute bg-white px-2 py-1 text-xs md:text-sm font-semibold rounded-full top-1 left-1'>{service.advanceInformation.ServiceCategory.name}</p>
@@ -164,7 +164,7 @@ const ExploreServiceList = () => {
               {/* Title and created Ago */}
               <div className='Header_Container space-y-2 xl:space-y-0 w-full flex flex-col xl:flex-row justify-between'>
               <div className='w-full flex flex-col space-y-1  overflow-hidden  h-full'>
-              <h1 onClick={()=>{navigate(`/explore/viewService/${service._id}`)}} className='font-medium text-gray-800 text-[0.9rem] sm:text-base semiBase:text-base md:text-lg lg:text-lg ps-1 w-full whitespace-nowrap text-ellipsis overflow-hidden'>{service.basicInformation.ServiceTitle}</h1>
+              <h1 onClick={()=>{navigate(`/exploreService/viewService/${service._id}`)}} className='font-medium text-gray-800 text-[0.9rem] sm:text-base semiBase:text-base md:text-lg lg:text-lg ps-1 w-full whitespace-nowrap text-ellipsis overflow-hidden'>{service.basicInformation.ServiceTitle}</h1>
               {/* Created Ago */}
               <div className='flex items-center space-x-2'>
                     <p className='text-xs md:text-sm text-gray-400  flex items-center gap-1 whitespace-nowrap'><Person2OutlinedIcon   />{service.owner.firstname + " " + service.owner.lastname}</p>
